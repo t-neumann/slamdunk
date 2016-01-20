@@ -13,6 +13,8 @@ from argparse import ArgumentParser, RawDescriptionHelpFormatter
     
 from os.path import basename
 
+from joblib import Parallel, delayed
+from dunks import tcounter, mapper
 ########################################################################
 # Global variables
 ########################################################################
@@ -28,7 +30,14 @@ log = open(logFile,'w')
 
 def runMap() :
     print("slamdunk map",end="")
-    for bam in args.bam :
+    
+    # Map
+    for bam in args.bam:
+        print(" " + bam,end="")
+        #mapper.map(inputBAM, inputReference, inputUTRs, outputBAM, logFile, threads, parameter, outputSuffix, trim5p, d, v)
+        
+    # Sort
+    for bam in args.bam:
         print(" " + bam,end="")
     print()
         
@@ -63,6 +72,7 @@ def runCount() :
     print("slamdunk count",end="")
     for bam in args.bam :
         print(" " + bam,end="")
+        tcounter.count(args.ref, args.bed, args.snp, bam, args.maxLength, args.minQual)
     print()
         
 def runStats() :
@@ -118,7 +128,13 @@ dedupparser.add_argument('bam', action='store', help='Bam file(s)' ,nargs="+")
 # count command
 
 countparser = subparsers.add_parser('count', help='Count T/C conversions in SLAM-seq aligned data')
+countparser.add_argument("-r", "--reference", type=str, required=True, dest="ref", help="Reference fasta file" )
+countparser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file" )
+countparser.add_argument("-s", "--snps", type=str, required=False, dest="snp", help="SNP file" )
+countparser.add_argument("-l", "--max-read-length", type=int, required=True, dest="maxLength", help="Max read length in BAM file" )
+countparser.add_argument("-q", "--min-base-qual", type=int, default=0, required=False, dest="minQual", help="Min base quality for T -> C conversions" )
 countparser.add_argument('bam', action='store', help='Bam file(s)' ,nargs="+")
+
 
 # stats command
 
