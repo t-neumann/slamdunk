@@ -5,4 +5,4 @@ git checkout dev
 mkdir build
 cd build
 cmake ..
-make
+make -j4

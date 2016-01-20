@@ -69,24 +69,9 @@ def getTC(read, refSeq, chromosome, refRegion, regionStart, maxReadLength, minQu
     return [tcCount, agCount]
 
 
-#verbose
-v = True
-#dry
-d = False
-
-#bam = "ngm/collab/26339_mESC-wt_1.5h-4SU_trimmed_fixed_ngm_slamseq_unique.bam"
-#regions = ["chr10:3467750-3467850"]
-#ref = "/scratch/philipp/slamseq/ref/GRCm38.fa"
-
-# ref = args.ref
-# bed = args.bed
-# snps = args.snp
-# bam = args.bam
-# maxReadLength = args.maxLength
-# minQual = args.minQual
-
-
-def count(ref, bed, snps, bam, maxReadLength, minQual):
+def count(ref, bed, snps, bam, maxReadLength, minQual, outputCSV):
+    
+    fileCSV = open(outputCSV,'w')
     
     reffile = pysam.FastaFile(ref)
     samfile = pysam.AlignmentFile(bam, "rb")
@@ -108,7 +93,7 @@ def count(ref, bed, snps, bam, maxReadLength, minQual):
     lineCount = 0
     
     #chr    start    stop    reads with T->C    read without T->C    Percentage of read with T->C    Number of forward reads mapping to region    Number of reverse reads mapping to region    T->C SNPs found in region
-    print("chr", "start", "end", "gene_name", "non_tc_read_count", "tc_read_count", "tc_read_perc", "fwd_reads", "rev_reads", "snp_In_UTR", sep='\t')
+    print("chr", "start", "end", "gene_name", "non_tc_read_count", "tc_read_count", "tc_read_perc", "fwd_reads", "rev_reads", "snp_In_UTR", sep='\t', file=fileCSV)
     
     errorCount = 0
     with open(bed, "r") as f:
@@ -149,18 +134,20 @@ def count(ref, bed, snps, bam, maxReadLength, minQual):
                 if(readCount > 0):
                     percTC = ((readCount - tcCount[0]) * 1.0 / readCount)
                 #chr    start    stop    read without T->C    reads with T->C    Percentage of read with T->C    Number of forward reads mapping to region    Number of reverse reads mapping to region    T->C SNPs found in region
-                print(cols[0], cols[1], cols[2], geneName, tcCount[0], (readCount - tcCount[0]), percTC, countFwd, countRev, snpInUTR, sep='\t')
+                print(cols[0], cols[1], cols[2], geneName, tcCount[0], (readCount - tcCount[0]), percTC, countFwd, countRev, snpInUTR, sep='\t', file=fileCSV)
             except ValueError:
     #             print("", file=sys.stderr)
                 errorCount += 1
                 #print("Error counting TC reads for region " + region, file=sys.stderr)
                 #print("Msg: " + str(sys.exc_info()[0]), file=sys.stderr)
             lineCount += 1
-            if(lineCount % 10 == 0):
-                sys.stderr.write("\r%d" % lineCount)
-                sys.stderr.flush()
+#             if(lineCount % 10 == 0):
+#                 sys.stderr.write("\r%d" % lineCount)
+#                 sys.stderr.flush()
     
     samfile.close()
     reffile.close()
+    
+    fileCSV.close()
     
     print("Coudln't count T->C for " + str(errorCount) + " regions. ", file=sys.stderr)
