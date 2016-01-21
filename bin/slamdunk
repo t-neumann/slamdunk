@@ -41,26 +41,14 @@ def error(msg, code=-1):
     print(msg)
     sys.exit(code)
 
-def runMap() :
-    print("slamdunk map", end="")
-    
-    outputDirectory = args.outputDir
-    if(files_exist(outputDirectory)):
-        # Map
-        for bam in args.bam:
-            outputSAM = os.path.join(outputDirectory, replaceExtension(basename(bam), ".sam", "slamdunk_mapped"))
-            mapper.Map(bam, args.referenceFile, outputSAM, threads=args.threads, trim5p=args.trim5, printOnly=printOnly, verbose=verbose)
-            
-        # Sort
-        # n   args.threads
-        # results = Parallel(n_jobs=n, verbose=True)(delayed(slamSeqAnalysisMt)(tid, ref, bedUTR, files[tid], outputBase) for tid in range(0, len(files)))
-        for bam in args.bam:
-            inputSAM = os.path.join(outputDirectory, replaceExtension(basename(bam), ".sam", "slamdunk_mapped"))
-            outputBAM = os.path.join(outputDirectory, replaceExtension(basename(bam), ".bam", "slamdunk_mapped"))
-            mapper.sort(inputSAM, outputBAM, False, printOnly, verbose)
-    else:
-        error("Output directory doesn't exist.")
-    print()
+def runSort(tid, bam, outputDirectory):
+    inputSAM = os.path.join(outputDirectory, replaceExtension(basename(bam), ".sam", "_slamdunk_mapped"))
+    outputBAM = os.path.join(outputDirectory, replaceExtension(basename(bam), ".bam", "_slamdunk_mapped"))
+    mapper.sort(inputSAM, outputBAM, False, printOnly, verbose)
+
+def runMap(tid, bam, outputDirectory) :
+    outputSAM = os.path.join(outputDirectory, replaceExtension(basename(bam), ".sam", "_slamdunk_mapped"))
+    mapper.Map(bam, args.referenceFile, outputSAM, threads=args.threads, trim5p=args.trim5, printOnly=printOnly, verbose=verbose)
         
 def runFilter(tid, bam, outputDirectory):
     outputBAM = os.path.join(outputDirectory, replaceExtension(basename(bam), ".bam", "_filtered"))
@@ -87,9 +75,9 @@ def runDedup() :
         print(" " + bam, end="")
     print()
         
-def runCount(tid, bam, outputDirectory) :
+def runCount(tid, bam, outputDirectory, snpDirectory) :
     outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_tcount"))
-    inputSNP = os.path.join(outputDirectory, replaceExtension(basename(bam), ".txt", "_snp"))
+    inputSNP = os.path.join(snpDirectory, replaceExtension(basename(bam), ".txt", "_snp"))
     tcounter.count(args.ref, args.bed, inputSNP, bam, args.maxLength, args.minQual, outputCSV)
         
 def runStats(tid, bam, referenceFile, minMQ, outputDirectory, computeOverallRates) :
@@ -157,6 +145,7 @@ dedupparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
 countparser = subparsers.add_parser('count', help='Count T/C conversions in SLAM-seq aligned data')
 countparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
 countparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
+countparser.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", help="Directory containing SNP files.")
 countparser.add_argument("-r", "--reference", type=str, required=True, dest="ref", help="Reference fasta file")
 countparser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
 countparser.add_argument("-l", "--max-read-length", type=int, required=True, dest="maxLength", help="Max read length in BAM file")
@@ -187,7 +176,14 @@ args = parser.parse_args()
 command = args.command
 
 if (command == "map") :
-    runMap()
+    outputDirectory = args.outputDir
+    n = args.threads
+    print("Running slamDunk map for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+    for bam in args.bam:
+        runMap(0, bam, outputDirectory)
+   
+    print("Running slamDunk sort for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+    results = Parallel(n_jobs=n, verbose=True)(delayed(runSort)(tid, args.bam[tid], outputDirectory) for tid in range(0, len(args.bam))) 
 elif (command == "filter") :
     outputDirectory = args.outputDir
     n = args.threads
@@ -206,9 +202,10 @@ elif (command == "dedup") :
     runDedup()
 elif (command == "count") :
     outputDirectory = args.outputDir
+    snpDirectory = args.snpDir
     n = args.threads
     print("Running slamDunk tcount for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-    results = Parallel(n_jobs=n, verbose=True)(delayed(runCount)(tid, args.bam[tid], outputDirectory) for tid in range(0, len(args.bam)))
+    results = Parallel(n_jobs=n, verbose=True)(delayed(runCount)(tid, args.bam[tid], outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
 elif (command == "stats") :
   
     outputDirectory = args.outputDir
