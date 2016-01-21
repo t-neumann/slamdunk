@@ -4,7 +4,14 @@ from __future__ import print_function
 import sys, os, re
 
 import pysam
+import tempfile
 
+from os.path import basename
+from utils import run
+from dunks.utils import removeExtension
+
+projectPath = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+pathComputeOverallRates = os.path.join(projectPath, "plot", "compute_overall_rates.R")
 
 baseNumber = 5
 toBase = [ 'A', 'C', 'G', 'T', 'N' ]
@@ -97,7 +104,7 @@ def getTCCount(rev, rates):
 # rateFile = args.rateFile
 # tcFile = args.tcFile
 
-def statsComputeRates(ref, bam, minQual, rateFile, tcFile):
+def statsComputeOverallRates(ref, bam, minQual, outputCSV, outputPDF, printOnly=False, verbose=True, force=True):
     reffile = pysam.FastaFile(ref)
     samfile = pysam.AlignmentFile(bam, "rb")
     
@@ -128,18 +135,18 @@ def statsComputeRates(ref, bam, minQual, rateFile, tcFile):
                 tc = getTCCount(read.is_reverse, rates)
                 tcCount[tc] += 1
                 
-                #If mapped with NGM-slamseq check if results are the same
-                if(read.has_tag("RA")):
-                    ratesNgm = map(int, read.get_tag("RA").split(","))
-                    tcNgm = getTCCount(read.is_reverse, ratesNgm)
-                    if(not compareLists(rates, ratesNgm) or tc != tcNgm):
-                        print("Difference found:")
-                        print(read)
-                        print(ratesNgm)
-                        print(rates)
-                        print("TC (ngm): " + str(tcNgm))
-                        print("TC (pys): " + str(tc))
-                        #sys.stdin.read(1)
+#                 #If mapped with NGM-slamseq check if results are the same
+#                 if(read.has_tag("RA")):
+#                     ratesNgm = map(int, read.get_tag("RA").split(","))
+#                     tcNgm = getTCCount(read.is_reverse, ratesNgm)
+#                     if(not compareLists(rates, ratesNgm) or tc != tcNgm):
+#                         print("Difference found:")
+#                         print(read)
+#                         print(ratesNgm)
+#                         print(rates)
+#                         print("TC (ngm): " + str(tcNgm))
+#                         print("TC (pys): " + str(tc))
+#                         #sys.stdin.read(1)
         
                 #Add rates from read to total rates
                 if(read.is_reverse):
@@ -165,17 +172,22 @@ def statsComputeRates(ref, bam, minQual, rateFile, tcFile):
     reffile.close()
     
     
-    #Writing T -> C counts to file
-    i = 0;
-    foTC = open(tcFile, "w")
-    for x in tcCount:
-        print(i, x, sep='\t', file=foTC)
-        i += 1
-    foTC.close()
+#     #Writing T -> C counts to file
+#     i = 0;
+#     foTC = open(tcFile, "w")
+#     for x in tcCount:
+#         print(i, x, sep='\t', file=foTC)
+#         i += 1
+#     foTC.close()
     
     #Print rates in correct format for plotting
-    fo = open(rateFile, "w")
+    fo = open(outputCSV, "w")
     printRates(totalRatesFwd, totalRatesRev, fo)
     fo.close()
     
-    
+    f = tempfile.NamedTemporaryFile(delete=False)
+    print(removeExtension(basename(bam)), outputCSV, sep='\t', file=f)
+    f.close()
+        
+    run(pathComputeOverallRates + " -f " + f.name + " -O " + outputPDF, dry=printOnly, verbose=verbose)
+        
