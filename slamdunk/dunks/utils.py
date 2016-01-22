@@ -5,8 +5,6 @@ from __future__ import print_function
 import sys, os
 import subprocess
 
-from os.path import basename
-
 #Replaces the file extension of inFile to with <newExtension> and adds a suffix
 #Example replaceExtension("reads.fq", ".sam", suffix="_namg") => reads_ngm.sam
 def replaceExtension(inFile, newExtension, suffix=""):    
@@ -62,29 +60,29 @@ def checkStep(inFiles, outFiles, force=False):
     
     return True
 
-def run(cmd, verbose=False, dry=False):
+def run(cmd, log=sys.stderr, verbose=False, dry=False):
     if(verbose or dry):
-        print(cmd, file=sys.stderr)
+        print(cmd, file=log)
     
     if(not dry):
         #ret = os.system(cmd)
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
         lines_iterator = iter(p.stdout.readline, b"")
         for line in lines_iterator:
-            print(line, end="") # yield line
+            print(line, end="", file=log) # yield line
         p.wait();
-        if(p.returncode != 0 != 0):
+        if(p.returncode != 0):
             raise RuntimeError("Error while executing command!")
 
-def runIndexBam(inFileBam, verbose=False, dry=False):
+def runIndexBam(inFileBam, log=sys.stderr, verbose=False, dry=False):
     idxFile = inFileBam + ".bai"
     if(dry or checkStep([inFileBam], [idxFile])):
-        run(" ".join(["samtools", "index", inFileBam]), verbose=verbose, dry=dry)
+        run(" ".join(["samtools", "index", inFileBam]), log, verbose=verbose, dry=dry)
 
-def runFlagstat(bam, verbose=False, dry=False):
+def runFlagstat(bam, log=sys.stderr, verbose=False, dry=False):
     flagstat = bam + ".flagstat"
     if(dry or checkStep([bam], [flagstat])):
-        run(" ".join([ "samtools", "flagstat", bam, ">", flagstat]), verbose=verbose, dry=dry)
+        run(" ".join([ "samtools", "flagstat", bam, ">", flagstat]), log, verbose=verbose, dry=dry)
     else:
         print("Skipped flagstat for " + bam)
 

@@ -7,90 +7,102 @@
 #########################################################################
 
 from __future__ import print_function
-import sys, os, subprocess
-import tempfile
+import sys, os
 
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
     
 from os.path import basename
 
 from joblib import Parallel, delayed
-from dunks import tcounter, mapper, filter, stats
-from dunks.utils import files_exist, replaceExtension, run
+from dunks import tcounter, mapper, filter, stats, snps
+from dunks.utils import replaceExtension
+
 ########################################################################
 # Global variables
 ########################################################################
 
-logFile = "slamdunk.log"
-
-# Open log
-log = open(logFile, 'w')
-
-projectPath = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-varScanPath = os.path.join(projectPath, "bin", "VarScan.v2.4.1.jar")
-
-
 printOnly = False
 verbose = False
+
+mainOutput = sys.stderr
+
+logToMainOutput = True
 
 ########################################################################
 # Routine definitions
 ########################################################################
 
+def getLogFile(path):
+    if(logToMainOutput):
+        return mainOutput
+    else:
+        log = open(path, "a")
+        return log
+    
+def closeLogFile(log):
+    if(not logToMainOutput):
+        log.close()
+
+def message(msg):
+    print(msg, file=mainOutput)
+
 def error(msg, code=-1):
-    print(msg)
+    print(msg, file=mainOutput)
     sys.exit(code)
+    
+def stepFinished():
+    print("", end="", file=mainOutput)
+
+def dunkFinished():
+    print("", file=mainOutput)
+
+def runMap(tid, inputBAM, referneceFile, threads, trim5p, outputDirectory) :
+    outputSAM = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".sam", "_slamdunk_mapped"))
+    outputLOG = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".log", "_slamdunk_mapped"))
+    mapper.Map(inputBAM, referneceFile, outputSAM, getLogFile(outputLOG), threads=threads, trim5p=trim5p, printOnly=printOnly, verbose=verbose)
+    stepFinished()
 
 def runSort(tid, bam, outputDirectory):
     inputSAM = os.path.join(outputDirectory, replaceExtension(basename(bam), ".sam", "_slamdunk_mapped"))
     outputBAM = os.path.join(outputDirectory, replaceExtension(basename(bam), ".bam", "_slamdunk_mapped"))
-    mapper.sort(inputSAM, outputBAM, False, printOnly, verbose)
+    outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_slamdunk_mapped"))
+    mapper.sort(inputSAM, outputBAM, getLogFile(outputLOG), False, printOnly, verbose)
+    stepFinished()
 
-def runMap(tid, bam, outputDirectory) :
-    outputSAM = os.path.join(outputDirectory, replaceExtension(basename(bam), ".sam", "_slamdunk_mapped"))
-    mapper.Map(bam, args.referenceFile, outputSAM, threads=args.threads, trim5p=args.trim5, printOnly=printOnly, verbose=verbose)
+def runDedup() :
+    message("slamdunk dedup")
+    # TODO
         
 def runFilter(tid, bam, outputDirectory):
     outputBAM = os.path.join(outputDirectory, replaceExtension(basename(bam), ".bam", "_filtered"))
-    filter.Filter(bam, outputBAM, args.mq, printOnly, verbose)
+    outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_filtered"))
+    filter.Filter(bam, outputBAM, getLogFile(outputLOG), args.mq, printOnly, verbose)
+    stepFinished()
 
-def runSnp(tid, fasta, minCov, minVarFreq, bam, outputDirectory) :
-            
+def runSnp(tid, referenceFile, minCov, minVarFreq, inputBAM, outputDirectory) :
     outputSNP = os.path.join(outputDirectory, replaceExtension(basename(bam), ".txt", "_snp"))
-    
-    fileSNP = open(outputSNP, 'w')
-    
-    mpileupCmd = "samtools mpileup -f" + fasta + " " + bam
-    mpileup = subprocess.Popen(mpileupCmd, shell=True, stdout=subprocess.PIPE, stderr=sys.stderr)
-        
-    varscanCmd = "java -jar " + varScanPath + " mpileup2snp  --strand-filter 0 --min-var-freq " + str(minVarFreq) + " --min-coverage " + str(minCov) + " --variants 1"
-    varscan = subprocess.Popen(varscanCmd, shell=True, stdin=mpileup.stdout, stdout=fileSNP, stderr=sys.stderr)
-    varscan.wait()
-    
-    fileSNP.close()
-        
-def runDedup() :
-    print("slamdunk dedup", end="")
-    for bam in args.bam :
-        print(" " + bam, end="")
-    print()
-        
+    outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_snp"))
+    snps.SNPs(inputBAM, outputSNP, referenceFile, minVarFreq, minCov, getLogFile(outputLOG), printOnly, verbose, True)
+    stepFinished()
+                
 def runCount(tid, bam, outputDirectory, snpDirectory) :
     outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_tcount"))
+    outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_tcount"))
     inputSNP = os.path.join(snpDirectory, replaceExtension(basename(bam), ".txt", "_snp"))
-    tcounter.count(args.ref, args.bed, inputSNP, bam, args.maxLength, args.minQual, outputCSV)
+    tcounter.count(args.ref, args.bed, inputSNP, bam, args.maxLength, args.minQual, outputCSV, getLogFile(outputLOG))
+    stepFinished()
         
 def runStats(tid, bam, referenceFile, minMQ, outputDirectory, computeOverallRates) :
     if(computeOverallRates):
         outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_tcount_overallrates"))
         outputPDF = os.path.join(outputDirectory, replaceExtension(basename(bam), ".pdf", "_tcount_overallrates"))
-        stats.statsComputeOverallRates(referenceFile, bam, minMQ, outputCSV, outputPDF)
-        
+        outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_tcount_overallrates"))
+        stats.statsComputeOverallRates(referenceFile, bam, minMQ, outputCSV, outputPDF, getLogFile(outputLOG))
+    stepFinished()
+
 def runAll() :
-    print("slamdunk all", end="")
-    for bam in args.bam :
-        print(" " + bam, end="")
-    print()
+    message("slamdunk all")
+    # TODO
 
 ########################################################################
 # Argument parsing
@@ -114,8 +126,6 @@ mapparser.add_argument("-r", "--reference", type=str, required=True, dest="refer
 mapparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
 mapparser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
 mapparser.add_argument("-t", "--threads", type=int, required=False, dest="threads", help="Thread number")
-
-# mapparser.add_argument("-i", "--input", type=str, required=True, dest="bam", help="BAM file" )
 
 # filter command
 
@@ -178,51 +188,60 @@ command = args.command
 if (command == "map") :
     outputDirectory = args.outputDir
     n = args.threads
-    print("Running slamDunk map for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+    message("Running slamDunk map for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
     for bam in args.bam:
         runMap(0, bam, outputDirectory)
-   
-    print("Running slamDunk sort for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-    results = Parallel(n_jobs=n, verbose=True)(delayed(runSort)(tid, args.bam[tid], outputDirectory) for tid in range(0, len(args.bam))) 
+    message("Running slamDunk sort for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+    results = Parallel(n_jobs=n, verbose=True)(delayed(runSort)(tid, args.bam[tid], outputDirectory) for tid in range(0, len(args.bam)))
+    dunkFinished()
+     
 elif (command == "filter") :
     outputDirectory = args.outputDir
     n = args.threads
-    print("Running slamDunk filter for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+    message("Running slamDunk filter for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
     results = Parallel(n_jobs=n, verbose=True)(delayed(runFilter)(tid, args.bam[tid], outputDirectory) for tid in range(0, len(args.bam)))
+    dunkFinished()
+    
 elif (command == "snp") :
     outputDirectory = args.outputDir
     fasta = args.fasta
     minCov = args.cov
     minVarFreq = args.var
     n = args.threads
-    print("Running slamDunk SNP for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+    if(n > 1):
+        n = n / 2
+    message("Running slamDunk SNP for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
     results = Parallel(n_jobs=n, verbose=True)(delayed(runSnp)(tid, fasta, minCov, minVarFreq, args.bam[tid], outputDirectory) for tid in range(0, len(args.bam)))
+    dunkFinished()
 
 elif (command == "dedup") :
     runDedup()
+    dunkFinished()
+    
 elif (command == "count") :
     outputDirectory = args.outputDir
     snpDirectory = args.snpDir
     n = args.threads
-    print("Running slamDunk tcount for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+    message("Running slamDunk tcount for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
     results = Parallel(n_jobs=n, verbose=True)(delayed(runCount)(tid, args.bam[tid], outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
-elif (command == "stats") :
-  
+    dunkFinished()
+    
+elif (command == "stats") :  
     outputDirectory = args.outputDir
     n = args.threads
     referenceFile = args.referenceFile
     minMQ = args.mq
     computeOverallRates = args.overallRates
-    print("Running slamDunk stats for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-    results = Parallel(n_jobs=n, verbose=True)(delayed(runStats)(tid, args.bam[tid], referenceFile, minMQ, outputDirectory, computeOverallRates) for tid in range(0, len(args.bam)))  
+    message("Running slamDunk stats for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+    results = Parallel(n_jobs=n, verbose=True)(delayed(runStats)(tid, args.bam[tid], referenceFile, minMQ, outputDirectory, computeOverallRates) for tid in range(0, len(args.bam)))
+    dunkFinished()  
         
 elif (command == "all") :
     runAll()
+    dunkFinished()
     
 #########################################################################
 # Cleanup
 ########################################################################
-
-log.close()
     
 sys.exit(0)

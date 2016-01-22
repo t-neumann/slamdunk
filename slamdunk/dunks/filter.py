@@ -7,12 +7,12 @@ from __future__ import print_function
 
 from utils import checkStep, run, runIndexBam, runFlagstat
 
-def Filter(inputBAM, outputBAM, MQ=2, printOnly=False, verbose=True, force=True):
+def Filter(inputBAM, outputBAM, log, MQ=2, printOnly=False, verbose=True, force=True):
     if(printOnly or checkStep([inputBAM], [outputBAM], force)):
-        run(" ".join([ "samtools", "view -q", str(MQ), "-b", inputBAM, ">", outputBAM]), verbose=verbose, dry=printOnly)
+        run(" ".join([ "samtools", "view -q", str(MQ), "-b", inputBAM, ">", outputBAM]), log, verbose=verbose, dry=printOnly)
     else:
-        print("Skipped filtering for " + inputBAM)
+        print("Skipped filtering for " + inputBAM, file=log)
 
-    runIndexBam(outputBAM, verbose=verbose, dry=printOnly)
-    runFlagstat(outputBAM, verbose=verbose, dry=printOnly)
+    runIndexBam(outputBAM, log, verbose=verbose, dry=printOnly)
+    runFlagstat(outputBAM, log, verbose=verbose, dry=printOnly)
     

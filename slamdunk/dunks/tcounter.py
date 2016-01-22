@@ -2,21 +2,9 @@
 
 # Date located in: -
 from __future__ import print_function
-import sys, os
+import sys
 
 import pysam
-
-# from argparse import ArgumentParser, RawDescriptionHelpFormatter
-# 
-# usage = ""
-# parser = ArgumentParser(description=usage, formatter_class=RawDescriptionHelpFormatter)
-# parser.add_argument("-i", "--input", type=str, required=True, dest="bam", help="BAM file" )
-# parser.add_argument("-r", "--reference", type=str, required=True, dest="ref", help="Reference fasta file" )
-# parser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file" )
-# parser.add_argument("-s", "--snps", type=str, required=False, dest="snp", help="SNP file" )
-# parser.add_argument("-l", "--max-read-length", type=int, required=True, dest="maxLength", help="Max read length in BAM file" )
-# parser.add_argument("-q", "--min-base-qual", type=int, default=0, required=False, dest="minQual", help="Min base quality for T -> C conversions" )
-# args = parser.parse_args()
 
 snpDict = {}
 
@@ -69,7 +57,7 @@ def getTC(read, refSeq, chromosome, refRegion, regionStart, maxReadLength, minQu
     return [tcCount, agCount]
 
 
-def count(ref, bed, snps, bam, maxReadLength, minQual, outputCSV):
+def count(ref, bed, snps, bam, maxReadLength, minQual, outputCSV, log):
     
     fileCSV = open(outputCSV,'w')
     
@@ -138,8 +126,8 @@ def count(ref, bed, snps, bam, maxReadLength, minQual, outputCSV):
             except ValueError:
     #             print("", file=sys.stderr)
                 errorCount += 1
-                #print("Error counting TC reads for region " + region, file=sys.stderr)
-                #print("Msg: " + str(sys.exc_info()[0]), file=sys.stderr)
+                print("Error counting TC reads for region " + region, file=log)
+                print("Msg: " + str(sys.exc_info()[0]), file=log)
             lineCount += 1
 #             if(lineCount % 10 == 0):
 #                 sys.stderr.write("\r%d" % lineCount)
@@ -150,4 +138,4 @@ def count(ref, bed, snps, bam, maxReadLength, minQual, outputCSV):
     
     fileCSV.close()
     
-    print("Coudln't count T->C for " + str(errorCount) + " regions. ", file=sys.stderr)
+    print("Coudln't count T->C for " + str(errorCount) + " regions. ", file=log)

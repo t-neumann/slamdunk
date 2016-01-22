@@ -104,7 +104,7 @@ def getTCCount(rev, rates):
 # rateFile = args.rateFile
 # tcFile = args.tcFile
 
-def statsComputeOverallRates(ref, bam, minQual, outputCSV, outputPDF, printOnly=False, verbose=True, force=True):
+def statsComputeOverallRates(ref, bam, minQual, outputCSV, outputPDF, log, printOnly=False, verbose=True, force=True):
     reffile = pysam.FastaFile(ref)
     samfile = pysam.AlignmentFile(bam, "rb")
     
@@ -154,20 +154,19 @@ def statsComputeOverallRates(ref, bam, minQual, outputCSV, outputPDF, printOnly=
                 else:
                     totalRatesFwd = sumLists(totalRatesFwd, rates)
             except:
-                print("")
-                print("Error computing rates for read " + read.query_name)
-                #print("Msg: " + sys.exc_info()[0])
-                print(read)
+                print("Error computing rates for read " + read.query_name, file=log)
+                print("Msg: " + sys.exc_info()[0], file=log)
+                print(read, file=log)
             #Progress info
             readCount += 1
-            if(readCount % 1000 == 0):
-                sys.stderr.write("\rProcessing %s (%d/%d): %d%%                        " % (ref, refCount, totalRefCount, int(readCount * 100.0 / totalCount)))
-                sys.stderr.flush()
+#             if(readCount % 1000 == 0):
+#                 sys.stderr.write("\rProcessing %s (%d/%d): %d%%                        " % (ref, refCount, totalRefCount, int(readCount * 100.0 / totalCount)))
+#                 sys.stderr.flush()
                 
         refCount += 1
     
     #Cleanup
-    sys.stderr.write("\n")
+#     sys.stderr.write("\n")
     samfile.close()
     reffile.close()
     
@@ -189,5 +188,5 @@ def statsComputeOverallRates(ref, bam, minQual, outputCSV, outputPDF, printOnly=
     print(removeExtension(basename(bam)), outputCSV, sep='\t', file=f)
     f.close()
         
-    run(pathComputeOverallRates + " -f " + f.name + " -O " + outputPDF, dry=printOnly, verbose=verbose)
+    run(pathComputeOverallRates + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
         
