@@ -12,10 +12,11 @@ import sys, os
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
     
 from os.path import basename
+import csv
 
 from joblib import Parallel, delayed
 from dunks import tcounter, mapper, filter, stats, snps
-from dunks.utils import replaceExtension
+from dunks.utils import replaceExtension, removeExtension
 
 ########################################################################
 # Global variables
@@ -26,7 +27,7 @@ verbose = False
 
 mainOutput = sys.stderr
 
-logToMainOutput = True
+logToMainOutput = False
 
 ########################################################################
 # Routine definitions
@@ -51,7 +52,7 @@ def error(msg, code=-1):
     sys.exit(code)
     
 def stepFinished():
-    print("", end="", file=mainOutput)
+    print(".", end="", file=mainOutput)
 
 def dunkFinished():
     print("", file=mainOutput)
@@ -89,15 +90,43 @@ def runCount(tid, bam, outputDirectory, snpDirectory) :
     outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_tcount"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_tcount"))
     inputSNP = os.path.join(snpDirectory, replaceExtension(basename(bam), ".txt", "_snp"))
-    tcounter.count(args.ref, args.bed, inputSNP, bam, args.maxLength, args.minQual, outputCSV, getLogFile(outputLOG))
+    #tcounter.count(args.ref, args.bed, inputSNP, bam, args.maxLength, args.minQual, outputCSV, getLogFile(outputLOG))
     stepFinished()
+    return outputCSV
+    
+def readSampleNames(sampleNames):
+    samples = {}
+    
+    with open(sampleNames, "r") as sampleFile:
+        samplesReader = csv.reader(sampleFile, delimiter='\t')
+        for row in samplesReader:
+            samples[removeExtension(row[0])] = row[1]
+    return samples
+
+def runCountCombine(bams, sampleNames, outputPrefix, outputDirectory):
+    
+    samples = readSampleNames(sampleNames)
+    
+    NON_TC_READ_COUNT = 4
+    TC_READ_COUNT = 5
+    TC_READ_PERC = 6
+    outputFile = os.path.join(outputDirectory, outputPrefix + "_non_tc_counts.csv")
+    tcounter.summary(bams, samples, outputFile, NON_TC_READ_COUNT)
+    outputFile = os.path.join(outputDirectory, outputPrefix + "_tc_counts.csv")
+    tcounter.summary(bams, samples, outputFile, TC_READ_COUNT)
+    outputFile = os.path.join(outputDirectory, outputPrefix + "_tc_percentage.csv")
+    tcounter.summary(bams, samples, outputFile, TC_READ_PERC)
+    stepFinished()
+        
         
 def runStats(tid, bam, referenceFile, minMQ, outputDirectory, computeOverallRates) :
     if(computeOverallRates):
         outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_tcount_overallrates"))
         outputPDF = os.path.join(outputDirectory, replaceExtension(basename(bam), ".pdf", "_tcount_overallrates"))
         outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_tcount_overallrates"))
-        stats.statsComputeOverallRates(referenceFile, bam, minMQ, outputCSV, outputPDF, getLogFile(outputLOG))
+        log = getLogFile(outputLOG)
+        stats.statsComputeOverallRates(referenceFile, bam, minMQ, outputCSV, outputPDF, log)
+        closeLogFile(log)
     stepFinished()
 
 def runAll() :
@@ -154,6 +183,8 @@ dedupparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
 
 countparser = subparsers.add_parser('count', help='Count T/C conversions in SLAM-seq aligned data')
 countparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
+countparser.add_argument("-p", "--ouput-prefix", type=str, required=False, default="summary", dest="outputPrefix", help="Name of output file.")
+countparser.add_argument("-n", "--sample-names", type=str, required=False, dest="sampleNames", help="CSV file containing name for all samples.")
 countparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
 countparser.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", help="Directory containing SNP files.")
 countparser.add_argument("-r", "--reference", type=str, required=True, dest="ref", help="Reference fasta file")
@@ -192,14 +223,14 @@ if (command == "map") :
     for bam in args.bam:
         runMap(0, bam, outputDirectory)
     message("Running slamDunk sort for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-    results = Parallel(n_jobs=n, verbose=True)(delayed(runSort)(tid, args.bam[tid], outputDirectory) for tid in range(0, len(args.bam)))
+    results = Parallel(n_jobs=n, verbose=verbose)(delayed(runSort)(tid, args.bam[tid], outputDirectory) for tid in range(0, len(args.bam)))
     dunkFinished()
      
 elif (command == "filter") :
     outputDirectory = args.outputDir
     n = args.threads
     message("Running slamDunk filter for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-    results = Parallel(n_jobs=n, verbose=True)(delayed(runFilter)(tid, args.bam[tid], outputDirectory) for tid in range(0, len(args.bam)))
+    results = Parallel(n_jobs=n, verbose=verbose)(delayed(runFilter)(tid, args.bam[tid], outputDirectory) for tid in range(0, len(args.bam)))
     dunkFinished()
     
 elif (command == "snp") :
@@ -211,7 +242,7 @@ elif (command == "snp") :
     if(n > 1):
         n = n / 2
     message("Running slamDunk SNP for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-    results = Parallel(n_jobs=n, verbose=True)(delayed(runSnp)(tid, fasta, minCov, minVarFreq, args.bam[tid], outputDirectory) for tid in range(0, len(args.bam)))
+    results = Parallel(n_jobs=n, verbose=verbose)(delayed(runSnp)(tid, fasta, minCov, minVarFreq, args.bam[tid], outputDirectory) for tid in range(0, len(args.bam)))
     dunkFinished()
 
 elif (command == "dedup") :
@@ -223,7 +254,8 @@ elif (command == "count") :
     snpDirectory = args.snpDir
     n = args.threads
     message("Running slamDunk tcount for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-    results = Parallel(n_jobs=n, verbose=True)(delayed(runCount)(tid, args.bam[tid], outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
+    results = Parallel(n_jobs=n, verbose=verbose)(delayed(runCount)(tid, args.bam[tid], outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
+    runCountCombine(results, args.sampleNames, args.outputPrefix, outputDirectory)
     dunkFinished()
     
 elif (command == "stats") :  
@@ -233,7 +265,7 @@ elif (command == "stats") :
     minMQ = args.mq
     computeOverallRates = args.overallRates
     message("Running slamDunk stats for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-    results = Parallel(n_jobs=n, verbose=True)(delayed(runStats)(tid, args.bam[tid], referenceFile, minMQ, outputDirectory, computeOverallRates) for tid in range(0, len(args.bam)))
+    results = Parallel(n_jobs=n, verbose=verbose)(delayed(runStats)(tid, args.bam[tid], referenceFile, minMQ, outputDirectory, computeOverallRates) for tid in range(0, len(args.bam)))
     dunkFinished()  
         
 elif (command == "all") :

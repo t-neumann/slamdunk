@@ -8,7 +8,7 @@ import tempfile
 
 from os.path import basename
 from utils import run
-from dunks.utils import removeExtension
+from dunks.utils import removeExtension, checkStep
 
 projectPath = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 pathComputeOverallRates = os.path.join(projectPath, "plot", "compute_overall_rates.R")
@@ -105,88 +105,95 @@ def getTCCount(rev, rates):
 # tcFile = args.tcFile
 
 def statsComputeOverallRates(ref, bam, minQual, outputCSV, outputPDF, log, printOnly=False, verbose=True, force=True):
-    reffile = pysam.FastaFile(ref)
-    samfile = pysam.AlignmentFile(bam, "rb")
     
-    #Init
-    totalRatesFwd = [0] * 25
-    totalRatesRev = [0] * 25
-    tcCount = [0] * 100
-    refCount = 1
-    totalRefCount = len(reffile.references)
-    
-    refs = list(reffile.references)
-    refs.sort(key=natural_keys)
-    #Go through one chr after the other
-    for ref in refs:
-        readCount = 0
+    if(not checkStep([bam, ref], [outputCSV], force)):
+        print("Skipped computing overall rates for file " + bam, file=log)
+    else:
+        reffile = pysam.FastaFile(ref)
+        samfile = pysam.AlignmentFile(bam, "rb")
         
-        #Read chr into memory
-        refSeq = reffile.fetch(ref)
-        #Get total number of reads mapping to chr
-        totalCount = samfile.count(ref)
-        #Get all reads on chr
-        for read in samfile.fetch(ref):
+        #Init
+        totalRatesFwd = [0] * 25
+        totalRatesRev = [0] * 25
+        tcCount = [0] * 100
+        refCount = 1
+        totalRefCount = len(reffile.references)
+        
+        refs = list(reffile.references)
+        refs.sort(key=natural_keys)
+        #Go through one chr after the other
+        for ref in refs:
+            readCount = 0
             
-            try:
-                #Compute rates for current read
-                rates = computeRatesForRead(read, refSeq, minQual)
-                #Get T -> C conversions for current read
-                tc = getTCCount(read.is_reverse, rates)
-                tcCount[tc] += 1
+            #Read chr into memory
+            refSeq = reffile.fetch(ref)
+            #Get total number of reads mapping to chr
+            totalCount = samfile.count(ref)
+            #Get all reads on chr
+            for read in samfile.fetch(ref):
                 
-#                 #If mapped with NGM-slamseq check if results are the same
-#                 if(read.has_tag("RA")):
-#                     ratesNgm = map(int, read.get_tag("RA").split(","))
-#                     tcNgm = getTCCount(read.is_reverse, ratesNgm)
-#                     if(not compareLists(rates, ratesNgm) or tc != tcNgm):
-#                         print("Difference found:")
-#                         print(read)
-#                         print(ratesNgm)
-#                         print(rates)
-#                         print("TC (ngm): " + str(tcNgm))
-#                         print("TC (pys): " + str(tc))
-#                         #sys.stdin.read(1)
+                try:
+                    #Compute rates for current read
+                    rates = computeRatesForRead(read, refSeq, minQual)
+                    #Get T -> C conversions for current read
+                    tc = getTCCount(read.is_reverse, rates)
+                    tcCount[tc] += 1
+                    
+    #                 #If mapped with NGM-slamseq check if results are the same
+    #                 if(read.has_tag("RA")):
+    #                     ratesNgm = map(int, read.get_tag("RA").split(","))
+    #                     tcNgm = getTCCount(read.is_reverse, ratesNgm)
+    #                     if(not compareLists(rates, ratesNgm) or tc != tcNgm):
+    #                         print("Difference found:")
+    #                         print(read)
+    #                         print(ratesNgm)
+    #                         print(rates)
+    #                         print("TC (ngm): " + str(tcNgm))
+    #                         print("TC (pys): " + str(tc))
+    #                         #sys.stdin.read(1)
+            
+                    #Add rates from read to total rates
+                    if(read.is_reverse):
+                        totalRatesRev = sumLists(totalRatesRev, rates)
+                    else:
+                        totalRatesFwd = sumLists(totalRatesFwd, rates)
+                except:
+                    print("Error computing rates for read " + read.query_name, file=log)
+                    print("Msg: " + str(sys.exc_info()[0]), file=log)
+                    print(read, file=log)
+                #Progress info
+                readCount += 1
+    #             if(readCount % 1000 == 0):
+    #                 sys.stderr.write("\rProcessing %s (%d/%d): %d%%                        " % (ref, refCount, totalRefCount, int(readCount * 100.0 / totalCount)))
+    #                 sys.stderr.flush()
+                    
+            refCount += 1
         
-                #Add rates from read to total rates
-                if(read.is_reverse):
-                    totalRatesRev = sumLists(totalRatesRev, rates)
-                else:
-                    totalRatesFwd = sumLists(totalRatesFwd, rates)
-            except:
-                print("Error computing rates for read " + read.query_name, file=log)
-                print("Msg: " + sys.exc_info()[0], file=log)
-                print(read, file=log)
-            #Progress info
-            readCount += 1
-#             if(readCount % 1000 == 0):
-#                 sys.stderr.write("\rProcessing %s (%d/%d): %d%%                        " % (ref, refCount, totalRefCount, int(readCount * 100.0 / totalCount)))
-#                 sys.stderr.flush()
-                
-        refCount += 1
-    
-    #Cleanup
-#     sys.stderr.write("\n")
-    samfile.close()
-    reffile.close()
-    
-    
-#     #Writing T -> C counts to file
-#     i = 0;
-#     foTC = open(tcFile, "w")
-#     for x in tcCount:
-#         print(i, x, sep='\t', file=foTC)
-#         i += 1
-#     foTC.close()
-    
-    #Print rates in correct format for plotting
-    fo = open(outputCSV, "w")
-    printRates(totalRatesFwd, totalRatesRev, fo)
-    fo.close()
-    
-    f = tempfile.NamedTemporaryFile(delete=False)
-    print(removeExtension(basename(bam)), outputCSV, sep='\t', file=f)
-    f.close()
+        #Cleanup
+    #     sys.stderr.write("\n")
+        samfile.close()
+        reffile.close()
         
-    run(pathComputeOverallRates + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
+    
+    #     #Writing T -> C counts to file
+    #     i = 0;
+    #     foTC = open(tcFile, "w")
+    #     for x in tcCount:
+    #         print(i, x, sep='\t', file=foTC)
+    #         i += 1
+    #     foTC.close()
         
+        #Print rates in correct format for plotting
+        fo = open(outputCSV, "w")
+        printRates(totalRatesFwd, totalRatesRev, fo)
+        fo.close()
+    
+    if(not checkStep([bam, ref], [outputPDF], force)):
+        print("Skipped computing overall rate pdfs for file " + bam, file=log)
+    else:
+        f = tempfile.NamedTemporaryFile(delete=False)
+        print(removeExtension(basename(bam)), outputCSV, sep='\t', file=f)
+        f.close()
+            
+        run(pathComputeOverallRates + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
+            

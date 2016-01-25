@@ -5,8 +5,20 @@ from __future__ import print_function
 import sys
 
 import pysam
+import csv
+import itertools as IT
+
+from utils import removeExtension
+from os.path import basename
 
 snpDict = {}
+
+def getSampleName(fileName, samples):
+    for key in samples:
+        if(key in fileName):
+            return samples[key]
+    
+    return
 
 def isAGSnp(chromosome, position):
     key = chromosome + str(int(position) + 1)
@@ -139,3 +151,36 @@ def count(ref, bed, snps, bam, maxReadLength, minQual, outputCSV, log):
     fileCSV.close()
     
     print("Coudln't count T->C for " + str(errorCount) + " regions. ", file=log)
+
+
+def summary(bams, samples, outputFile, colNumber):
+    filenames = bams
+    handles = [open(filename, 'rb') for filename in filenames]    
+    readers = [csv.reader(f, delimiter='\t') for f in handles]
+    names = ["chr", "start", "end", "gene"] + [getSampleName(removeExtension(basename(f)), samples) for f in filenames]
+
+    with  open(outputFile, 'wb') as h:
+        writer = csv.writer(h, delimiter=';', lineterminator='\n', )
+        writer.writerow(names)
+        header = True
+        for rows in IT.izip_longest(*readers, fillvalue=['']*2):
+            if(not header):
+                combined_row = []
+                firstRow = True
+                for row in rows:
+                    if(firstRow):
+                        combined_row.extend(row[0:4])
+                        combined_row.append(row[colNumber])
+                        
+                        firstRow = False
+                    else:
+                        combined_row.append(row[colNumber])
+            
+                writer.writerow(combined_row)
+            else:
+                header = False
+    
+    for f in handles:
+        f.close()
+
+    

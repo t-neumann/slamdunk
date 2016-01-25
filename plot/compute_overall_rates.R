@@ -77,7 +77,7 @@ for (i in 1:nrow(rates)) {
 	curPlot = qplot(x=rates, y=rate_percent, fill=strand,data=printTab, geom="bar", stat="identity") + geom_text(aes(label = round(rate_percent,digits=2)), size = 1, hjust = 0.5, vjust = 1.5, position = "stack") + ylab("Rate percent %") + xlab(rates$sample[i]) +
 			theme(text = element_text(size=6),axis.text.x = element_text(size=6)) 
 	curPlot + xlim(0,35)	
-	plotList[[length(plotList)+1]] <- curPlot + ylim(0.0,2.5)
+	plotList[[length(plotList)+1]] <- curPlot + ylim(0.0,3.5)
 }
 
 do.call(grid.arrange,  plotList)

@@ -11,8 +11,12 @@ def replaceExtension(inFile, newExtension, suffix=""):
     return os.path.splitext(inFile)[0] + suffix + newExtension
 
 #Removes right-most extension from file name
-def removeExtension(inFile):        
-    return os.path.splitext(inFile)[0]
+def removeExtension(inFile):
+    name = os.path.splitext(inFile)[0]
+    ext = os.path.splitext(inFile)[1]
+    if(ext == ".gz"):
+        name = os.path.splitext(name)[0]
+    return name
 
 def files_exist(files):
     if (type(files) is list) :
