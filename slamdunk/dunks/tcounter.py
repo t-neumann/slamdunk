@@ -10,14 +10,18 @@ import itertools as IT
 
 from utils import removeExtension
 from os.path import basename
+from dunks.utils import files_exist
 
 snpDict = {}
 
 def getSampleName(fileName, samples):
-    for key in samples:
-        if(key in fileName):
-            return samples[key]
-    
+    if samples == None:
+        return removeExtension(fileName)
+    else:
+        for key in samples:
+            if(key in fileName):
+                return samples[key]
+        
     return
 
 def isAGSnp(chromosome, position):
@@ -68,9 +72,27 @@ def getTC(read, refSeq, chromosome, refRegion, regionStart, maxReadLength, minQu
                     
     return [tcCount, agCount]
 
+def countReads(bam):
+    # TODO
+    return 0
+
+def getMappedReadCount(bam):
+    flagStat = bam + ".flagstat"
+    readNumber = 0
+    if(files_exist(flagStat)):
+        with open(flagStat, 'r') as content_file:
+            content = content_file.read()
+            if content.count("\n") > 10:
+                readNumber = int(content.split("\n")[4].split(" ")[0])
+    else:
+        readNumber = countReads(bam)
+    return readNumber
 
 def count(ref, bed, snps, bam, maxReadLength, minQual, outputCSV, log):
     
+    readNumber = getMappedReadCount(bam)
+#     print(readNumber)
+#     return
     fileCSV = open(outputCSV,'w')
     
     reffile = pysam.FastaFile(ref)
@@ -93,7 +115,7 @@ def count(ref, bed, snps, bam, maxReadLength, minQual, outputCSV, log):
     lineCount = 0
     
     #chr    start    stop    reads with T->C    read without T->C    Percentage of read with T->C    Number of forward reads mapping to region    Number of reverse reads mapping to region    T->C SNPs found in region
-    print("chr", "start", "end", "gene_name", "non_tc_read_count", "tc_read_count", "tc_read_perc", "fwd_reads", "rev_reads", "snp_In_UTR", sep='\t', file=fileCSV)
+    print("chr", "start", "end", "gene_name", "non_tc_read_count", "non_tc_norm_read_count", "tc_read_count", "tc_norm_read_count", "tc_read_perc", "fwd_reads", "rev_reads", "snp_In_UTR", sep='\t', file=fileCSV)
     
     errorCount = 0
     with open(bed, "r") as f:
@@ -134,7 +156,7 @@ def count(ref, bed, snps, bam, maxReadLength, minQual, outputCSV, log):
                 if(readCount > 0):
                     percTC = ((readCount - tcCount[0]) * 1.0 / readCount)
                 #chr    start    stop    read without T->C    reads with T->C    Percentage of read with T->C    Number of forward reads mapping to region    Number of reverse reads mapping to region    T->C SNPs found in region
-                print(cols[0], cols[1], cols[2], geneName, tcCount[0], (readCount - tcCount[0]), percTC, countFwd, countRev, snpInUTR, sep='\t', file=fileCSV)
+                print(cols[0], cols[1], cols[2], geneName, tcCount[0], tcCount[0] / readNumber * 1000000, (readCount - tcCount[0]), (readCount - tcCount[0]) / readNumber * 1000000, percTC, countFwd, countRev, snpInUTR, sep='\t', file=fileCSV)
             except ValueError:
     #             print("", file=sys.stderr)
                 errorCount += 1
@@ -157,7 +179,7 @@ def summary(bams, samples, outputFile, colNumber):
     filenames = bams
     handles = [open(filename, 'rb') for filename in filenames]    
     readers = [csv.reader(f, delimiter='\t') for f in handles]
-    names = ["chr", "start", "end", "gene"] + [getSampleName(removeExtension(basename(f)), samples) for f in filenames]
+    names = ["chr", "start", "end", "gene"] + [getSampleName(basename(f), samples) for f in filenames]
 
     with  open(outputFile, 'wb') as h:
         writer = csv.writer(h, delimiter=';', lineterminator='\n', )

@@ -16,7 +16,7 @@ import csv
 
 from joblib import Parallel, delayed
 from dunks import tcounter, mapper, filter, stats, snps
-from dunks.utils import replaceExtension, removeExtension
+from dunks.utils import replaceExtension, removeExtension, files_exist
 
 ########################################################################
 # Global variables
@@ -90,30 +90,39 @@ def runCount(tid, bam, outputDirectory, snpDirectory) :
     outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_tcount"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_tcount"))
     inputSNP = os.path.join(snpDirectory, replaceExtension(basename(bam), ".txt", "_snp"))
-    #tcounter.count(args.ref, args.bed, inputSNP, bam, args.maxLength, args.minQual, outputCSV, getLogFile(outputLOG))
+    tcounter.count(args.ref, args.bed, inputSNP, bam, args.maxLength, args.minQual, outputCSV, getLogFile(outputLOG))
     stepFinished()
     return outputCSV
     
-def readSampleNames(sampleNames):
-    samples = {}
+def readSampleNames(sampleNames, bams):
+    samples = None
     
-    with open(sampleNames, "r") as sampleFile:
-        samplesReader = csv.reader(sampleFile, delimiter='\t')
-        for row in samplesReader:
-            samples[removeExtension(row[0])] = row[1]
+    if(sampleNames != None and files_exist(sampleNames)):
+        samples = {}
+        with open(sampleNames, "r") as sampleFile:
+            samplesReader = csv.reader(sampleFile, delimiter='\t')
+            for row in samplesReader:
+                samples[removeExtension(row[0])] = row[1]
+        
     return samples
 
 def runCountCombine(bams, sampleNames, outputPrefix, outputDirectory):
     
-    samples = readSampleNames(sampleNames)
+    samples = readSampleNames(sampleNames, bams)
     
     NON_TC_READ_COUNT = 4
-    TC_READ_COUNT = 5
-    TC_READ_PERC = 6
+    NON_TC_NORM_READ_COUNT = 5
+    TC_READ_COUNT = 6
+    TC_READ_NORM_COUNT = 7
+    TC_READ_PERC = 8
     outputFile = os.path.join(outputDirectory, outputPrefix + "_non_tc_counts.csv")
     tcounter.summary(bams, samples, outputFile, NON_TC_READ_COUNT)
+    outputFile = os.path.join(outputDirectory, outputPrefix + "_non_tc_norm_counts.csv")
+    tcounter.summary(bams, samples, outputFile, NON_TC_NORM_READ_COUNT)
     outputFile = os.path.join(outputDirectory, outputPrefix + "_tc_counts.csv")
     tcounter.summary(bams, samples, outputFile, TC_READ_COUNT)
+    outputFile = os.path.join(outputDirectory, outputPrefix + "_tc_norm_counts.csv")
+    tcounter.summary(bams, samples, outputFile, TC_READ_NORM_COUNT)
     outputFile = os.path.join(outputDirectory, outputPrefix + "_tc_percentage.csv")
     tcounter.summary(bams, samples, outputFile, TC_READ_PERC)
     stepFinished()
@@ -161,7 +170,7 @@ mapparser.add_argument("-t", "--threads", type=int, required=False, dest="thread
 filterparser = subparsers.add_parser('filter', help='Filter SLAM-seq aligned data')
 filterparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
 filterparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
-filterparser.add_argument("-mq", "--min-mq", type=int, required=False, default=0, dest="mq", help="Minimal mapping quality")
+filterparser.add_argument("-mq", "--min-mq", type=int, required=False, default=2, dest="mq", help="Minimal mapping quality")
 filterparser.add_argument("-t", "--threads", type=int, required=False, dest="threads", help="Thread number")
 
 # snp command
