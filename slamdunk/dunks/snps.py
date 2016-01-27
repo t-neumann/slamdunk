@@ -5,7 +5,7 @@ from __future__ import print_function
 import os
 import subprocess
 
-projectPath = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+projectPath = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 varScanPath = os.path.join(projectPath, "bin", "VarScan.v2.4.1.jar")
 
 def SNPs(inputBAM, outputSNP, referenceFile, minVarFreq, minCov, log, printOnly=False, verbose=True, force=True):
