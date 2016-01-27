@@ -81,8 +81,8 @@ def runFilter(tid, bam, outputDirectory):
     stepFinished()
 
 def runSnp(tid, referenceFile, minCov, minVarFreq, inputBAM, outputDirectory) :
-    outputSNP = os.path.join(outputDirectory, replaceExtension(basename(bam), ".txt", "_snp"))
-    outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_snp"))
+    outputSNP = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".txt", "_snp"))
+    outputLOG = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".log", "_snp"))
     snps.SNPs(inputBAM, outputSNP, referenceFile, minVarFreq, minCov, getLogFile(outputLOG), printOnly, verbose, True)
     stepFinished()
                 
