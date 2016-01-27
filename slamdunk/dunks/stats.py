@@ -104,12 +104,12 @@ def getTCCount(rev, rates):
 # rateFile = args.rateFile
 # tcFile = args.tcFile
 
-def statsComputeOverallRates(ref, bam, minQual, outputCSV, outputPDF, log, printOnly=False, verbose=True, force=True):
+def statsComputeOverallRates(referenceFile, bam, minQual, outputCSV, outputPDF, log, printOnly=False, verbose=True, force=False):
     
-    if(not checkStep([bam, ref], [outputCSV], force)):
+    if(not checkStep([bam, referenceFile], [outputCSV], force)):
         print("Skipped computing overall rates for file " + bam, file=log)
     else:
-        reffile = pysam.FastaFile(ref)
+        reffile = pysam.FastaFile(referenceFile)
         samfile = pysam.AlignmentFile(bam, "rb")
         
         #Init
@@ -117,7 +117,7 @@ def statsComputeOverallRates(ref, bam, minQual, outputCSV, outputPDF, log, print
         totalRatesRev = [0] * 25
         tcCount = [0] * 100
         refCount = 1
-        totalRefCount = len(reffile.references)
+#         totalRefCount = len(reffile.references)
         
         refs = list(reffile.references)
         refs.sort(key=natural_keys)
@@ -128,7 +128,7 @@ def statsComputeOverallRates(ref, bam, minQual, outputCSV, outputPDF, log, print
             #Read chr into memory
             refSeq = reffile.fetch(ref)
             #Get total number of reads mapping to chr
-            totalCount = samfile.count(ref)
+#             totalCount = samfile.count(ref)
             #Get all reads on chr
             for read in samfile.fetch(ref):
                 
@@ -164,7 +164,7 @@ def statsComputeOverallRates(ref, bam, minQual, outputCSV, outputPDF, log, print
                 #Progress info
                 readCount += 1
     #             if(readCount % 1000 == 0):
-    #                 sys.stderr.write("\rProcessing %s (%d/%d): %d%%                        " % (ref, refCount, totalRefCount, int(readCount * 100.0 / totalCount)))
+    #                 sys.stderr.write("\rProcessing %s (%d/%d): %d%%                        " % (referenceFile, refCount, totalRefCount, int(readCount * 100.0 / totalCount)))
     #                 sys.stderr.flush()
                     
             refCount += 1
@@ -188,7 +188,7 @@ def statsComputeOverallRates(ref, bam, minQual, outputCSV, outputPDF, log, print
         printRates(totalRatesFwd, totalRatesRev, fo)
         fo.close()
     
-    if(not checkStep([bam, ref], [outputPDF], force)):
+    if(not checkStep([bam, referenceFile], [outputPDF], force)):
         print("Skipped computing overall rate pdfs for file " + bam, file=log)
     else:
         f = tempfile.NamedTemporaryFile(delete=False)
