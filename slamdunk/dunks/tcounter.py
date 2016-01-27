@@ -8,21 +8,10 @@ import pysam
 import csv
 import itertools as IT
 
-from utils import removeExtension
 from os.path import basename
-from dunks.utils import files_exist
+from dunks.utils import getReadCount, getSampleName
 
 snpDict = {}
-
-def getSampleName(fileName, samples):
-    if samples == None:
-        return removeExtension(fileName)
-    else:
-        for key in samples:
-            if(key in fileName):
-                return samples[key]
-        
-    return
 
 def isAGSnp(chromosome, position):
     key = chromosome + str(int(position) + 1)
@@ -72,25 +61,9 @@ def getTC(read, refSeq, chromosome, refRegion, regionStart, maxReadLength, minQu
                     
     return [tcCount, agCount]
 
-def countReads(bam):
-    # TODO
-    return 0
-
-def getMappedReadCount(bam):
-    flagStat = bam + ".flagstat"
-    readNumber = 0
-    if(files_exist(flagStat)):
-        with open(flagStat, 'r') as content_file:
-            content = content_file.read()
-            if content.count("\n") > 10:
-                readNumber = int(content.split("\n")[4].split(" ")[0])
-    else:
-        readNumber = countReads(bam)
-    return readNumber
-
 def count(ref, bed, snps, bam, maxReadLength, minQual, outputCSV, log):
-    
-    readNumber = getMappedReadCount(bam)
+    flagstat = getReadCount(bam)
+    readNumber = flagstat.MappedReads
 #     print(readNumber)
 #     return
     fileCSV = open(outputCSV,'w')

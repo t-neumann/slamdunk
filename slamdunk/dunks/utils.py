@@ -4,6 +4,10 @@
 from __future__ import print_function
 import sys, os
 import subprocess
+import collections
+import csv
+
+FlagStat = collections.namedtuple('FlagStat' , 'TotalReads MappedReads')
 
 #Replaces the file extension of inFile to with <newExtension> and adds a suffix
 #Example replaceExtension("reads.fq", ".sam", suffix="_namg") => reads_ngm.sam
@@ -90,4 +94,63 @@ def runFlagstat(bam, log=sys.stderr, verbose=False, dry=False):
     else:
         print("Skipped flagstat for " + bam)
 
+def extractMappedReadCount(flagstat):
+    return int(flagstat.split("\n")[4].split(" ")[0])
 
+def extractTotalReadCount(flagstat):
+    return int(flagstat.split("\n")[0].split(" ")[0])
+
+def readFlagStat(bam):
+    flagStat = bam + ".flagstat"
+    if(files_exist(flagStat)):
+        with open(flagStat, 'r') as content_file:
+            content = content_file.read()
+            if content.count("\n") > 10:
+                return FlagStat(MappedReads = extractMappedReadCount(content), TotalReads = extractTotalReadCount(content))
+    return None
+
+
+def countReads(bam):
+    # TODO
+    return None
+
+def getReadCount(bam):
+    
+    flagstat = readFlagStat(bam)
+    if(flagstat == None):
+        flagstat = countReads(bam)
+                
+    return flagstat
+
+def readSampleNames(sampleNames, bams):
+    samples = None
+    
+    if(sampleNames != None and files_exist(sampleNames)):
+        samples = {}
+        with open(sampleNames, "r") as sampleFile:
+            samplesReader = csv.reader(sampleFile, delimiter='\t')
+            for row in samplesReader:
+                samples[removeExtension(row[0])] = row[1]
+        
+    return samples
+
+def getSampleName(fileName, samples):
+    if samples == None:
+        return removeExtension(fileName)
+    else:
+        for key in samples:
+            if(key in fileName):
+                return samples[key]
+        
+    return
+
+def matchFile(sample, files):
+    fileName = None
+    for item in files:
+        if(sample in item):
+            if(fileName == None):
+                fileName = item
+            else:
+                raise RuntimeError("Found more than one matching file in list.")
+            
+    return fileName

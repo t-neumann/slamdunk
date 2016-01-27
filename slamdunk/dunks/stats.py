@@ -8,7 +8,8 @@ import tempfile
 
 from os.path import basename
 from utils import run
-from dunks.utils import removeExtension, checkStep
+from dunks.utils import removeExtension, checkStep, getReadCount, matchFile
+
 
 projectPath = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 pathComputeOverallRates = os.path.join(projectPath, "plot", "compute_overall_rates.R")
@@ -197,3 +198,28 @@ def statsComputeOverallRates(referenceFile, bam, minQual, outputCSV, outputPDF, 
             
         run(pathComputeOverallRates + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
             
+    
+def readSummary(mappedFiles, filteredFiles, snpsFiles, samples, ouputCSV, log, printOnly=False, verbose=True, force=False):
+    if(len(mappedFiles) == len(filteredFiles) and len(filteredFiles) == len(snpsFiles)):
+        outputFile = open(ouputCSV, "w")
+#         print("Filename", "Name",  "Sequenced reads", "Mapped reads", "Filtered reads", "SNP count", "T->C SNP count", sep=";", file=outputFile)
+        print("Filename", "Name",  "Sequenced reads", "Mapped reads", "Filtered reads", sep=";", file=outputFile)
+        for sample in samples:
+            name = samples[sample]
+            mappedFile = matchFile(sample, mappedFiles)
+            filteredFile = matchFile(sample, filteredFiles)
+            snpFile = matchFile(sample, snpsFiles)
+            if(snpFile == None or filteredFile == None or mappedFile == None):
+                raise RuntimeError("Couldn't match all files.")
+            else:
+                mappedStats = getReadCount(mappedFile)
+                filteredStats = getReadCount(filteredFile)
+#                 snpCount, tcSnpCount = snps.countSNPsInFile(snpFile)
+#                 print(sample, name, mappedStats.TotalReads, mappedStats.MappedReads, filteredStats.MappedReads, snpCount, tcSnpCount, file=outputFile, sep=";")
+                print(sample, name, mappedStats.TotalReads, mappedStats.MappedReads, filteredStats.MappedReads, file=outputFile, sep=";")
+        outputFile.close()
+    else:
+        print("Files missing", file=log)
+        
+
+    
