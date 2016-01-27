@@ -12,11 +12,10 @@ import sys, os
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
     
 from os.path import basename
-import csv
 
 from joblib import Parallel, delayed
 from dunks import tcounter, mapper, filter, stats, snps
-from dunks.utils import replaceExtension, removeExtension, files_exist
+from dunks.utils import replaceExtension, readSampleNames
 
 ########################################################################
 # Global variables
@@ -93,18 +92,6 @@ def runCount(tid, bam, outputDirectory, snpDirectory) :
     tcounter.count(args.ref, args.bed, inputSNP, bam, args.maxLength, args.minQual, outputCSV, getLogFile(outputLOG))
     stepFinished()
     return outputCSV
-    
-def readSampleNames(sampleNames, bams):
-    samples = None
-    
-    if(sampleNames != None and files_exist(sampleNames)):
-        samples = {}
-        with open(sampleNames, "r") as sampleFile:
-            samplesReader = csv.reader(sampleFile, delimiter='\t')
-            for row in samplesReader:
-                samples[removeExtension(row[0])] = row[1]
-        
-    return samples
 
 def runCountCombine(bams, sampleNames, outputPrefix, outputDirectory):
     
@@ -204,13 +191,22 @@ countparser.add_argument("-t", "--threads", type=int, required=False, default=1,
 
 # stats command
 
-statsparser = subparsers.add_parser('stats', help='Calculate stats on SLAM-seq datasets')
+statsparser = subparsers.add_parser('stats.rates', help='Calculate stats on SLAM-seq datasets')
 statsparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
 statsparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
 statsparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
 statsparser.add_argument("-mq", "--min-mq", type=int, required=False, default=2, dest="mq", help="Minimal mapping quality")
-statsparser.add_argument('-R', "--compute-rates", dest="overallRates", action='store_true', help="Compute overall conversion rates.")
+#statsparser.add_argument('-R', "--compute-rates", dest="overallRates", action='store_true', help="Compute overall conversion rates.")
 statsparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
+
+# stats summary command
+
+statsSumParser = subparsers.add_parser('stats.summary', help='Prints a CSV file containing the number of sequenced, mapped and filtered reads for all samples')
+statsSumParser.add_argument("-o", "--outputFile", type=str, required=True, dest="outputFile", help="Output file")
+statsSumParser.add_argument("-n", "--sample-names", type=str, required=False, dest="sampleNames", help="CSV file containing name for all samples.")
+statsSumParser.add_argument("-s", "--snp-files", type=str, nargs="+", required=True, dest="snpFiles", help="SNP files for all samples")
+statsSumParser.add_argument("-m", "--mapped-files", type=str, nargs="+", required=True, dest="mappedFiles", help="BAM files for all samples")
+statsSumParser.add_argument("-f", "--filtered-files", type=str, nargs="+", required=True, dest="filteredFiles", help="Filtered BAM files for all samples")
 
 # all command
 
@@ -267,7 +263,7 @@ elif (command == "count") :
     runCountCombine(results, args.sampleNames, args.outputPrefix, outputDirectory)
     dunkFinished()
     
-elif (command == "stats") :  
+elif (command == "stats.rates") :  
     outputDirectory = args.outputDir
     n = args.threads
     referenceFile = args.referenceFile
@@ -275,7 +271,15 @@ elif (command == "stats") :
     computeOverallRates = args.overallRates
     message("Running slamDunk stats for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
     results = Parallel(n_jobs=n, verbose=verbose)(delayed(runStats)(tid, args.bam[tid], referenceFile, minMQ, outputDirectory, computeOverallRates) for tid in range(0, len(args.bam)))
-    dunkFinished()  
+    dunkFinished() 
+    
+elif (command == "stats.summary") :
+    samples = readSampleNames(args.sampleNames, None)
+    n = 1
+    message("Running slamDunk stats read summary for " + str(len(args.mappedFiles)) + " files (" + str(n) + " threads)")
+    outputLog = replaceExtension(args.outputFile, ".log")
+    stats.readSummary(args.mappedFiles, args.filteredFiles, args.snpFiles, samples, args.outputFile, getLogFile(outputLog))
+    dunkFinished() 
         
 elif (command == "all") :
     runAll()
