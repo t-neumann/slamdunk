@@ -61,6 +61,70 @@ def getTC(read, refSeq, chromosome, refRegion, regionStart, maxReadLength, minQu
                     
     return [tcCount, agCount]
 
+def collapse(expandedCSV, collapsedCSV, readNumber, log):
+    
+    tcDict = {}
+    
+    outCSV = open(collapsedCSV, 'w')
+    
+    with open(expandedCSV, 'r') as f:
+        
+        # Skip header
+        next(f)
+
+        for line in f:
+            fields = line.rstrip().split('\t')
+            if (len(fields) == 12) :
+            
+                gene = fields[3]
+                nontc = fields[4]
+                tc = fields[6]
+                fwdReads = fields[9]
+                revReads = fields[10]
+                snps = fields[11]
+                
+                if (gene in tcDict.keys()) :
+                    tcDict[gene]['nontc'] += int(nontc)
+                    tcDict[gene]['tc'] += int(tc)
+                    tcDict[gene]['fwdReads'] += int(fwdReads)
+                    tcDict[gene]['revReads'] += int(revReads)
+                    tcDict[gene]['snps'] += int(snps)
+                else :
+                    tcDict[gene] = {}
+                    tcDict[gene]['nontc'] = int(nontc)
+                    tcDict[gene]['tc'] = int(tc)
+                    tcDict[gene]['fwdReads'] = int(fwdReads)
+                    tcDict[gene]['revReads'] = int(revReads)
+                    tcDict[gene]['snps'] = int(snps)
+            
+        else :
+            print("Error in TC file format - unexpected number of fields (" + str(len(fields)) + ") in the following line:\n" + line, file=log)
+            
+    print("gene_name", "non_tc_read_count", "non_tc_norm_read_count", "tc_read_count", "tc_norm_read_count", "tc_read_perc", "fwd_reads", "rev_reads", "snp_In_UTR", sep='\t', file=outCSV)
+
+    for gene in sorted(tcDict.keys()) :
+        
+        print(gene,end="\t",file=outCSV)
+        print(tcDict[gene]['nontc'],end="\t",file=outCSV)
+        print(float(tcDict[gene]['nontc']) / float(readNumber) * float(1000000),end="\t",file=outCSV)
+        print(tcDict[gene]['tc'],end="\t",file=outCSV)
+        print(float(tcDict[gene]['tc']) / float(readNumber) * float(1000000),end="\t",file=outCSV)
+        
+        percent = 0
+        if (tcDict[gene]['nontc'] + tcDict[gene]['tc'] > 0) :
+            percent = float(tcDict[gene]['tc']) / float((tcDict[gene]['nontc'] + tcDict[gene]['tc']))
+        elif (tcDict[gene]['tc'] > 0) :
+            percent = 1
+        print(percent,end="\t",file=outCSV)
+        
+        print(tcDict[gene]['fwdReads'],end="\t",file=outCSV)
+        print(tcDict[gene]['revReads'],end="\t",file=outCSV)
+        print(tcDict[gene]['snps'],file=outCSV)
+        
+        #sys.stdin.readline()
+        
+    outCSV.close()
+
 def count(ref, bed, snps, bam, maxReadLength, minQual, outputCSV, log):
     flagstat = getReadCount(bam)
     readNumber = flagstat.MappedReads
