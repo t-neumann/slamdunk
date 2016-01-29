@@ -112,6 +112,7 @@ def readFlagStat(bam):
 
 def countReads(bam):
     # TODO
+    raise RuntimeError("Count reads not implemented yet! Run samtools flagstat for " + bam + " and restart.")
     return None
 
 def getReadCount(bam):

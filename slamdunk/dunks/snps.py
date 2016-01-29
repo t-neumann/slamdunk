@@ -18,7 +18,7 @@ def SNPs(inputBAM, outputSNP, referenceFile, minVarFreq, minCov, log, printOnly=
     if(not printOnly):
         mpileup = subprocess.Popen(mpileupCmd, shell=True, stdout=subprocess.PIPE, stderr=log)
         
-    varscanCmd = "java -jar " + varScanPath + " mpileup2snp  --strand-filter 0 --min-var-freq " + str(minVarFreq) + " --min-coverage " + str(minCov) + " --variants 1"
+    varscanCmd = "java -jar " + varScanPath + " mpileup2snp  --strand-filter 0 --output-vcf --min-var-freq " + str(minVarFreq) + " --min-coverage " + str(minCov) + " --variants 1"
     if(verbose):
         print(varscanCmd, file=log)
     if(not printOnly):
@@ -33,7 +33,7 @@ def countSNPsInFile(inputFile):
     with open(inputFile, "r") as snpFile:
             snpReader = csv.reader(snpFile, delimiter='\t')
             for row in snpReader:
-                if(row[2].upper() == "T" and row[3].upper() == "C"):
+                if((row[2].upper() == "T" and row[3].upper() == "C") or (row[2].upper() == "A" and row[3].upper() == "G")):
                     tcSnpCount = tcSnpCount + 1
                 snpCount = snpCount + 1
     return snpCount, tcSnpCount

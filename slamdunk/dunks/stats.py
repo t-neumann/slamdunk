@@ -59,8 +59,7 @@ def computeRatesForRead(read, refSeq, minQual):
         refBase = refSeq[refPos]
         readBase = read.query_sequence[readPos]
         readQlty = read.query_qualities[readPos]
-        
-        if(readQlty >= minQual):
+        if(readQlty >= minQual):            
             rates = incRate(rates, refBase, readBase)
                     
     return rates
@@ -140,25 +139,27 @@ def statsComputeOverallRates(referenceFile, bam, minQual, outputCSV, outputPDF, 
                     tc = getTCCount(read.is_reverse, rates)
                     tcCount[tc] += 1
                     
-    #                 #If mapped with NGM-slamseq check if results are the same
-    #                 if(read.has_tag("RA")):
-    #                     ratesNgm = map(int, read.get_tag("RA").split(","))
-    #                     tcNgm = getTCCount(read.is_reverse, ratesNgm)
-    #                     if(not compareLists(rates, ratesNgm) or tc != tcNgm):
-    #                         print("Difference found:")
-    #                         print(read)
-    #                         print(ratesNgm)
-    #                         print(rates)
-    #                         print("TC (ngm): " + str(tcNgm))
-    #                         print("TC (pys): " + str(tc))
-    #                         #sys.stdin.read(1)
-            
+                    #If mapped with NGM-slamseq check if results are the same
+                    if(read.has_tag("RA")):
+                        ratesNgm = map(int, read.get_tag("RA").split(","))
+                        tcNgm = getTCCount(read.is_reverse, ratesNgm)
+                        if(not compareLists(rates, ratesNgm) or tc != tcNgm):
+                            print("Difference found:")
+                            print(read)
+                            print(ratesNgm)
+                            print(rates)
+                            print("TC (ngm): " + str(tcNgm))
+                            print("TC (pys): " + str(tc))
+                            #sys.stdin.read(1)
+             
                     #Add rates from read to total rates
                     if(read.is_reverse):
                         totalRatesRev = sumLists(totalRatesRev, rates)
                     else:
                         totalRatesFwd = sumLists(totalRatesFwd, rates)
-                except:
+                except IndexError:
+                    #Error is: IndexError: string index out of range
+                    #TODO: use with_seq=False for get_aligned_pairs instead of reading ref sequence manually
                     print("Error computing rates for read " + read.query_name, file=log)
                     print("Msg: " + str(sys.exc_info()[0]), file=log)
                     print(read, file=log)

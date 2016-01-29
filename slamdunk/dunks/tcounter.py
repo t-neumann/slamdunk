@@ -74,17 +74,16 @@ def count(ref, bed, snps, bam, maxReadLength, minQual, outputCSV, log):
     if not snps is None:
         with open(snps, "r") as f:
             for line in f:
-                #print(line)
-                cols = line.rstrip().split("\t")
-                #print(cols[2], cols[3])
-                if(cols[2] == "A" and cols[3] == "G"):
-                    key = cols[0] + cols[1]
-                    snpDict[key] = 2
-                if(cols[2] == 'T' and cols[3] == 'C'):
-                    key = cols[0] + cols[1]
-                    snpDict[key] = 1
-    
-    
+                if(len(line) > 0 and line[0] != "#"):
+                    # Parse VarScan VCF format
+                    cols = line.rstrip().split("\t")
+                    if(cols[3] == "A" and cols[4] == "G"):
+                        key = cols[0] + cols[1]
+                        snpDict[key] = 2
+                    if(cols[3] == 'T' and cols[4] == 'C'):
+                        key = cols[0] + cols[1]
+                        snpDict[key] = 1
+                        
     lineCount = 0
     
     #chr    start    stop    reads with T->C    read without T->C    Percentage of read with T->C    Number of forward reads mapping to region    Number of reverse reads mapping to region    T->C SNPs found in region
@@ -98,7 +97,6 @@ def count(ref, bed, snps, bam, maxReadLength, minQual, outputCSV, log):
             geneName = cols[3]
             tcCount = [0] * maxReadLength
             readCount = 0
-            
             
             try:
                 refRegion = cols[0] + ":" + str(int(cols[1]) - maxReadLength) + "-" + str(int(cols[2]) + maxReadLength)
@@ -129,7 +127,7 @@ def count(ref, bed, snps, bam, maxReadLength, minQual, outputCSV, log):
                 if(readCount > 0):
                     percTC = ((readCount - tcCount[0]) * 1.0 / readCount)
                 #chr    start    stop    read without T->C    reads with T->C    Percentage of read with T->C    Number of forward reads mapping to region    Number of reverse reads mapping to region    T->C SNPs found in region
-                print(cols[0], cols[1], cols[2], geneName, tcCount[0], tcCount[0] / readNumber * 1000000, (readCount - tcCount[0]), (readCount - tcCount[0]) / readNumber * 1000000, percTC, countFwd, countRev, snpInUTR, sep='\t', file=fileCSV)
+                print(cols[0], cols[1], cols[2], geneName, tcCount[0], tcCount[0] * 1000000.0 / readNumber, (readCount - tcCount[0]), (readCount - tcCount[0]) * 1000000.0 / readNumber, percTC, countFwd, countRev, snpInUTR, sep='\t', file=fileCSV)
             except ValueError:
     #             print("", file=sys.stderr)
                 errorCount += 1

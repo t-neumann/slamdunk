@@ -80,7 +80,7 @@ def runFilter(tid, bam, outputDirectory):
     stepFinished()
 
 def runSnp(tid, referenceFile, minCov, minVarFreq, inputBAM, outputDirectory) :
-    outputSNP = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".txt", "_snp"))
+    outputSNP = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".vcf", "_snp"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".log", "_snp"))
     snps.SNPs(inputBAM, outputSNP, referenceFile, minVarFreq, minCov, getLogFile(outputLOG), printOnly, verbose, True)
     stepFinished()
@@ -88,7 +88,10 @@ def runSnp(tid, referenceFile, minCov, minVarFreq, inputBAM, outputDirectory) :
 def runCount(tid, bam, outputDirectory, snpDirectory) :
     outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_tcount"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_tcount"))
-    inputSNP = os.path.join(snpDirectory, replaceExtension(basename(bam), ".txt", "_snp"))
+    if(snpDirectory != None):
+        inputSNP = os.path.join(snpDirectory, replaceExtension(basename(bam), ".vcf", "_snp"))
+    else:
+        inputSNP = None
     tcounter.count(args.ref, args.bed, inputSNP, bam, args.maxLength, args.minQual, outputCSV, getLogFile(outputLOG))
     stepFinished()
     return outputCSV
@@ -115,14 +118,13 @@ def runCountCombine(bams, sampleNames, outputPrefix, outputDirectory):
     stepFinished()
         
         
-def runStats(tid, bam, referenceFile, minMQ, outputDirectory, computeOverallRates) :
-    if(computeOverallRates):
-        outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_tcount_overallrates"))
-        outputPDF = os.path.join(outputDirectory, replaceExtension(basename(bam), ".pdf", "_tcount_overallrates"))
-        outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_tcount_overallrates"))
-        log = getLogFile(outputLOG)
-        stats.statsComputeOverallRates(referenceFile, bam, minMQ, outputCSV, outputPDF, log)
-        closeLogFile(log)
+def runStatsRates(tid, bam, referenceFile, minMQ, outputDirectory) :
+    outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_tcount_overallrates"))
+    outputPDF = os.path.join(outputDirectory, replaceExtension(basename(bam), ".pdf", "_tcount_overallrates"))
+    outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_tcount_overallrates"))
+    log = getLogFile(outputLOG)
+    stats.statsComputeOverallRates(referenceFile, bam, minMQ, outputCSV, outputPDF, log)
+    closeLogFile(log)
     stepFinished()
 
 def runAll() :
@@ -195,7 +197,7 @@ statsparser = subparsers.add_parser('stats.rates', help='Calculate stats on SLAM
 statsparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
 statsparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
 statsparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
-statsparser.add_argument("-mq", "--min-mq", type=int, required=False, default=2, dest="mq", help="Minimal mapping quality")
+statsparser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
 #statsparser.add_argument('-R', "--compute-rates", dest="overallRates", action='store_true', help="Compute overall conversion rates.")
 statsparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
 
@@ -268,9 +270,8 @@ elif (command == "stats.rates") :
     n = args.threads
     referenceFile = args.referenceFile
     minMQ = args.mq
-    computeOverallRates = args.overallRates
     message("Running slamDunk stats for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-    results = Parallel(n_jobs=n, verbose=verbose)(delayed(runStats)(tid, args.bam[tid], referenceFile, minMQ, outputDirectory, computeOverallRates) for tid in range(0, len(args.bam)))
+    results = Parallel(n_jobs=n, verbose=verbose)(delayed(runStatsRates)(tid, args.bam[tid], referenceFile, minMQ, outputDirectory) for tid in range(0, len(args.bam)))
     dunkFinished() 
     
 elif (command == "stats.summary") :
