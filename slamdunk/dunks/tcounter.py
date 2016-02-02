@@ -7,9 +7,10 @@ import csv
 import itertools as IT
 
 from os.path import basename
-from dunks.utils import getReadCount, getSampleName
+from utils.misc import getReadCount, getSampleName
+from utils.BedReader import BedIterator
 
-from slamseq import SNPtools
+from utils import SNPtools
 from slamseq.SlamSeqFile import SlamSeqFile, ReadDirection
 
 
@@ -75,7 +76,7 @@ def collapse(expandedCSV, collapsedCSV, readNumber, log):
         
         #sys.stdin.readline()
         
-    outCSV.close()
+    outCSV.close()    
 
 def count(ref, bed, snpsFile, bam, maxReadLength, minQual, outputCSV, log):
     flagstat = getReadCount(bam)
@@ -90,44 +91,36 @@ def count(ref, bed, snpsFile, bam, maxReadLength, minQual, outputCSV, log):
                       
     #chr    start    stop    reads with T->C    read without T->C    Percentage of read with T->C    Number of forward reads mapping to region    Number of reverse reads mapping to region    T->C SNPs found in region
     print("chr", "start", "end", "gene_name", "non_tc_read_count", "non_tc_norm_read_count", "tc_read_count", "tc_norm_read_count", "tc_read_perc", "fwd_reads", "rev_reads", "snp_In_UTR", sep='\t', file=fileCSV)
-    
-    with open(bed, "r") as f:
-        for line in f:
-            
-            tcCount = [0] * maxReadLength
-            
-            cols = line.rstrip().split("\t")            
-            chromosome = cols[0]
-            start = cols[1]
-            stop = cols[2]
-            geneName = cols[3]
-            
-            readIterator = testFile.readInRegion(chromosome, start, stop, maxReadLength)
-            
-            readCount = 0
-            countFwd = 0
-            countRev = 0
-            for read in readIterator:
-            
-                if(read.direction == ReadDirection.Reverse):
-                    countRev += 1
-                else:
-                    countFwd += 1
-                    
-                readCount += 1
-                tcCount[read.tcCount] += 1
-            
-            snpInUTR = 0
-            if(countRev > countFwd):
-                snpInUTR = snps.getAGSNPsInUTR(chromosome, int(cols[1]), int(cols[2]), 2)
+       
+    for utr in BedIterator(bed):
+        tcCount = [0] * maxReadLength
+                     
+        readIterator = testFile.readInRegion(utr.chromosome, utr.start, utr.stop, maxReadLength)
+        
+        readCount = 0
+        countFwd = 0
+        countRev = 0
+        for read in readIterator:
+        
+            if(read.direction == ReadDirection.Reverse):
+                countRev += 1
             else:
-                snpInUTR = snps.getTCSNPsInUTR(chromosome, int(cols[1]), int(cols[2]), 1)
-            
-            percTC = 0
-            if(readCount > 0):
-                percTC = ((readCount - tcCount[0]) * 1.0 / readCount)
-            #chr    start    stop    read without T->C    reads with T->C    Percentage of read with T->C    Number of forward reads mapping to region    Number of reverse reads mapping to region    T->C SNPs found in region
-            print(chromosome, start, stop, geneName, tcCount[0], tcCount[0] * 1000000.0 / readNumber, (readCount - tcCount[0]), (readCount - tcCount[0]) * 1000000.0 / readNumber, percTC, countFwd, countRev, snpInUTR, sep='\t', file=fileCSV)
+                countFwd += 1
+                
+            readCount += 1
+            tcCount[read.tcCount] += 1
+        
+        snpInUTR = 0
+        if(countRev > countFwd):
+            snpInUTR = snps.getAGSNPsInUTR(utr.chromosome, utr.start, utr.stop, 2)
+        else:
+            snpInUTR = snps.getTCSNPsInUTR(utr.chromosome, utr.start, utr.stop, 1)
+        
+        percTC = 0
+        if(readCount > 0):
+            percTC = ((readCount - tcCount[0]) * 1.0 / readCount)
+        #chr    start    stop    read without T->C    reads with T->C    Percentage of read with T->C    Number of forward reads mapping to region    Number of reverse reads mapping to region    T->C SNPs found in region
+        print(utr.chromosome, utr.start, utr.stop, utr.name, tcCount[0], tcCount[0] * 1000000.0 / readNumber, (readCount - tcCount[0]), (readCount - tcCount[0]) * 1000000.0 / readNumber, percTC, countFwd, countRev, snpInUTR, sep='\t', file=fileCSV)
     
     fileCSV.close()
 

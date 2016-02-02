@@ -4,7 +4,7 @@
 from __future__ import print_function
 import os
 
-from utils import replaceExtension, files_exist, checkStep, run, runIndexBam, removeFile, runFlagstat
+from utils.misc import replaceExtension, files_exist, checkStep, run, runIndexBam, removeFile, runFlagstat
 
 projectPath = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 ngmPath = os.path.join(projectPath, "bin", "NextGenMap", "bin", "ngm-0.4.13", "ngm")

@@ -5,7 +5,7 @@ from __future__ import print_function
 #import sys, os
 #import subprocess
 
-from utils import checkStep, run, runIndexBam, runFlagstat
+from utils.misc import checkStep, run, runIndexBam, runFlagstat
 
 def Filter(inputBAM, outputBAM, log, MQ=2, printOnly=False, verbose=True, force=True):
     if(printOnly or checkStep([inputBAM], [outputBAM], force)):

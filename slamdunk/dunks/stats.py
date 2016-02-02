@@ -5,8 +5,8 @@ import os
 import tempfile
 
 from os.path import basename
-from utils import run
-from dunks.utils import removeExtension, checkStep, getReadCount, matchFile
+from utils.misc import run
+from utils.misc import removeExtension, checkStep, getReadCount, matchFile
 from slamseq.SlamSeqFile import SlamSeqFile, ReadDirection
 
 

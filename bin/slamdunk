@@ -15,7 +15,7 @@ from os.path import basename
 
 from joblib import Parallel, delayed
 from dunks import tcounter, mapper, filter, stats, snps
-from dunks.utils import replaceExtension, readSampleNames
+from utils.misc import replaceExtension, readSampleNames
 
 ########################################################################
 # Global variables

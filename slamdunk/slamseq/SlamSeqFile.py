@@ -10,31 +10,29 @@ class ReadDirection:
     Forward = 1
     Reverse = 2
 
-class SlamSeqRead:
-    
-    readName = None
-    tcCount = None
-    conversionRates = None
-    direction = None 
-    
-#     def getRate(rates, refBase, readBase):
-#         return rates[baseNumber * encodeBase(refBase) + encodeBase(readBase)]
+class SlamSeqConversionRates:
 
-    
-class SlamSeqIterator:
-    
-    _readIterator = None
-#     _refSeq = None
-    _snps = None
-    _maxReadLength = 0
-    _minQual = 0
-    _chromosome = None
-    _startPosition = 0
-    
     _baseNumber = 5
     _toBase = [ 'A', 'C', 'G', 'T', 'N' ]
-
     
+    _data = []
+    
+    # Make the object act like a list
+    def __len__(self):
+        return len(self._data)
+    
+    def __getitem__(self, index):
+        return self._data[index]
+
+    def __repr__(self):
+        return self._data.__repr__() + "(SlamSeqConversionRates)"
+    
+    def __iter__(self):
+        return self._data.__iter__()
+
+    def __init__(self):
+        self._data = [0] * (self._baseNumber * self._baseNumber)
+         
     def encodeBase(self, base):
         if(base.upper() == 'A'):
             return 0
@@ -46,15 +44,38 @@ class SlamSeqIterator:
             return 3
         
         return 4
-
     
-    def incRate(self, rates, refBase, readBase):
-        rates[self._baseNumber * self.encodeBase(refBase) + self.encodeBase(readBase)] += 1
-        return rates
+    def incRate(self, refBase, readBase):
+        self._data[self._baseNumber * self.encodeBase(refBase) + self.encodeBase(readBase)] += 1
 
+    def getRate(self, refBase, readBase):
+        return self._data[self._baseNumber * self._encodeBase(refBase) + self._encodeBase(readBase)]
     
+#     def setRate(self):
+#         print()
+
+class SlamSeqRead:
+    
+    readName = None
+    tcCount = None
+    tcRate = None
+    conversionRates = None
+    direction = None 
+    
+#     def getRate(rates, refBase, readBase):
+#         return rates[baseNumber * encodeBase(refBase) + encodeBase(readBase)]
+    
+class SlamSeqIterator:
+    
+    _readIterator = None
+    _snps = None
+    _maxReadLength = 0
+    _minQual = 0
+    _chromosome = None
+    _startPosition = 0
+        
     def computeRatesForRead(self, read):
-        rates = [0] * 25
+        rates = SlamSeqConversionRates()
     
         for pair in read.get_aligned_pairs(matches_only=True, with_seq=False):
             readPos = pair[0]
@@ -66,7 +87,7 @@ class SlamSeqIterator:
             readQlty = read.query_qualities[readPos]
 #             print(readPos, refPos, readBase, refBase)
             if(readQlty >= self._minQual):            
-                rates = self.incRate(rates, refBase, readBase)
+                rates.incRate(refBase, readBase)
                         
         return rates
 
@@ -76,7 +97,6 @@ class SlamSeqIterator:
             ratesNgm = map(int, read.get_tag("RA").split(","))
         return ratesNgm
         
-    
     def getTCNgm(self, read):
         return int(read.get_tag("TC"))
     
@@ -123,7 +143,7 @@ class SlamSeqIterator:
         if(len(a) != len(b)):
             return False
         for x,y in zip(a, b):
-            if(a != b):
+            if(x != y):
                 return False
     
         return True
@@ -182,9 +202,13 @@ class SlamSeqFile:
     def readInRegion(self, chromosome, start, stop, maxReadLength):
         refRegion = chromosome + ":" + str(int(start) - maxReadLength) + "-" + str(int(stop) + maxReadLength)
         
-        region = chromosome + ":" + start + "-" + stop
-        refSeq = self._referenceFile.fetch(region=refRegion)
-        return SlamSeqIterator(self._bamFile.fetch(region=region), refSeq, chromosome, start, maxReadLength, self._snps)
+        region = chromosome + ":" + str(start) + "-" + str(stop)
+        
+        if(self.isInReferenceFile(chromosome)):
+            refSeq = self._referenceFile.fetch(region=refRegion)
+            return SlamSeqIterator(self._bamFile.fetch(region=region), refSeq, chromosome, start, maxReadLength, self._snps)
+        else:
+            return iter([])
     
     def readsInChromosome(self, chromosome):
         refSeq = self._referenceFile.fetch(region=chromosome)
@@ -202,6 +226,9 @@ class SlamSeqFile:
         '''
         return [ self.atoi(c) for c in re.split('(\d+)', text) ]
 
+    def isInReferenceFile(self, chromosome):
+        return chromosome in list(self._referenceFile.references)
+    
     def getChromosomes(self):
         refs = list(self._referenceFile.references)
         refs.sort(key=self.natural_keys)
