@@ -3,15 +3,15 @@
 # from __future__ import print_function
 # import sys, os, re
 # 
-# #Import utils from parent folder
+# #Import slamseq from parent folder
 # #Extract absolute path of phtools project
 # incPath = os.path.abspath(__file__)
 # incName = "phtools"
 # incI = incPath.find(incName)
 # projectBase = incPath[0:(incI + len(incName) + 1)]
-# #Add utils folder to sys path
-# sys.path.append(projectBase + "utils/")
-# from utils import *
+# #Add slamseq folder to sys path
+# sys.path.append(projectBase + "slamseq/")
+# from slamseq import *
 # from slamseq import *
 # 
 # 
