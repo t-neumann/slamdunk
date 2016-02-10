@@ -5,12 +5,10 @@ import os
 import tempfile
 
 from os.path import basename
-from utils.misc import run, getchar
+from utils.misc import run
 from utils.misc import removeExtension, checkStep, getReadCount, matchFile
 from slamseq.SlamSeqFile import SlamSeqFile, ReadDirection
 from utils import SNPtools
-from utils.BedReader import BedIterator
-
 
 projectPath = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 pathComputeOverallRates = os.path.join(projectPath, "plot", "compute_overall_rates.R")
