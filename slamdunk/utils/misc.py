@@ -22,6 +22,10 @@ def removeExtension(inFile):
         name = os.path.splitext(name)[0]
     return name
 
+def getchar():
+    print("Waiting for input", file=sys.stderr)
+    sys.stdin.readline()
+
 def files_exist(files):
     if (type(files) is list) :
         for f in files:

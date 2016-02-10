@@ -5,13 +5,16 @@ import os
 import tempfile
 
 from os.path import basename
-from utils.misc import run
+from utils.misc import run, getchar
 from utils.misc import removeExtension, checkStep, getReadCount, matchFile
 from slamseq.SlamSeqFile import SlamSeqFile, ReadDirection
+from utils import SNPtools
+from utils.BedReader import BedIterator
 
 
 projectPath = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 pathComputeOverallRates = os.path.join(projectPath, "plot", "compute_overall_rates.R")
+pathConversionPerReadPos = os.path.join(projectPath, "plot", "conversion_per_read_position.R")
 
 baseNumber = 5
 toBase = [ 'A', 'C', 'G', 'T', 'N' ]
@@ -30,7 +33,42 @@ def printRates(ratesFwd, ratesRev, f):
         print(toBase[i] + "\t", end='', file=f)
         for j in range(0,5):
             print(str(ratesFwd[i * 5 + j]) + "\t" + str(ratesRev[i * 5 + j]) + "\t", end='', file=f)
-        print(file=f)            
+        print(file=f)
+        
+# def perUtrTemplate(referenceFile, utrBed, snpsFile, bam, maxReadLength, minQual, outputCSV, log):
+# 
+#     fileCSV = open(outputCSV,'w')
+#     
+#     snps = SNPtools.SNPDictionary(snpsFile)
+# 
+#     #Go through one chr after the other
+#     testFile = SlamSeqFile(bam, referenceFile, snps)
+#                       
+#        
+#     for utr in BedIterator(utrBed):
+#                      
+#         readIterator = testFile.readInRegion(utr.chromosome, utr.start, utr.stop, maxReadLength)
+#         
+#         for read in readIterator:        
+#             print(read)
+#         
+#     fileCSV.close()
+  
+# def perReadTemplate(referenceFile, bam, minQual, outputCSV, log, printOnly=False, verbose=True, force=False):
+#     
+#     if(not checkStep([bam, referenceFile], [outputCSV], force)):
+#         print("Skipped computing xy for file " + bam, file=log)
+#     else:
+#         #Go through one chr after the other
+#         testFile = SlamSeqFile(bam, referenceFile, None)
+#         
+#         chromosomes = testFile.getChromosomes()
+#         
+#         for chromosome in chromosomes:
+#             readIterator = testFile.readsInChromosome(chromosome)
+#                 
+#             for read in readIterator:
+#                 print(read.n)            
 
 def statsComputeOverallRates(referenceFile, bam, minQual, outputCSV, outputPDF, log, printOnly=False, verbose=True, force=False):
     
@@ -109,5 +147,61 @@ def readSummary(mappedFiles, filteredFiles, snpsFiles, samples, ouputCSV, log, p
     else:
         print("Files missing", file=log)
         
-
     
+def tcPerReadPos(referenceFile, bam, minQual, maxReadLength, outputCSV, outputPDF, snpsFile, log, printOnly=False, verbose=True, force=False):
+    
+    if(not checkStep([bam, referenceFile], [outputCSV], force)):
+        print("Skipped computing xy for file " + bam, file=log)
+    else:
+        
+        totalReadCountFwd = [0] * maxReadLength
+        totalReadCountRev = [0] * maxReadLength
+        
+        tcPerPosRev = [0] * maxReadLength
+        tcPerPosFwd = [0] * maxReadLength
+        
+        allPerPosRev = [0] * maxReadLength
+        allPerPosFwd = [0] * maxReadLength
+
+        
+        snps = SNPtools.SNPDictionary(snpsFile)
+        
+        #Go through one chr after the other
+        testFile = SlamSeqFile(bam, referenceFile, snps)
+        
+        chromosomes = testFile.getChromosomes()
+        
+        for chromosome in chromosomes:
+            readIterator = testFile.readsInChromosome(chromosome)
+                
+            for read in readIterator:
+                
+                tcCounts = [0] * maxReadLength
+                mutCounts = [0] * maxReadLength
+                
+                for mismatch in read.mismatches:
+                    mutCounts[mismatch.readPosition] += 1   
+                    if(mismatch.isTCMismatch(read.direction == ReadDirection.Reverse)):
+                        tcCounts[mismatch.readPosition] += 1
+                
+                query_length = len(read.sequence)
+                if(read.direction == ReadDirection.Reverse):
+                    tcPerPosRev = sumLists(tcPerPosRev, tcCounts)
+                    allPerPosRev = sumLists(allPerPosRev, mutCounts)
+                    
+                    for i in range(0, query_length):
+                        totalReadCountRev[i] += 1
+                else:
+                    tcPerPosFwd = sumLists(tcPerPosFwd, tcCounts)
+                    allPerPosFwd = sumLists(allPerPosFwd, mutCounts)
+                    
+                    for i in range(0, query_length):
+                        totalReadCountFwd[i] += 1
+                        
+
+        foTC = open(outputCSV, "w")
+        for i in range(0, maxReadLength):
+            print(allPerPosFwd[i], allPerPosRev[i], tcPerPosFwd[i], tcPerPosRev[i], totalReadCountFwd[i], totalReadCountRev[i],sep='\t', file=foTC)
+        foTC.close()
+            
+        run(pathConversionPerReadPos + " -i " + outputCSV + " -o " + outputPDF, log, dry=printOnly, verbose=verbose)

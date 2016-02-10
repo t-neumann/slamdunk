@@ -3,7 +3,7 @@
 # Date located in: -
 from __future__ import print_function
 
-import csv
+import csv, sys
 import itertools as IT
 
 from os.path import basename
@@ -53,7 +53,7 @@ def collapse(expandedCSV, collapsedCSV, readNumber, log):
         else :
             print("Error in TC file format - unexpected number of fields (" + str(len(fields)) + ") in the following line:\n" + line, file=log)
             
-    print("gene_name", "non_tc_read_count", "non_tc_norm_read_count", "tc_read_count", "tc_norm_read_count", "tc_read_perc", "fwd_reads", "rev_reads", "snp_In_UTR", sep='\t', file=outCSV)
+    print("gene_name", "non_tc_read_count", "non_tc_norm_read_count", "tc_read_count", "tc_norm_read_count", "tc_read_perc", "avg_conversion_rate", "fwd_reads", "rev_reads", "snp_In_UTR", sep='\t', file=outCSV)
 
     for gene in sorted(tcDict.keys()) :
         
@@ -89,8 +89,8 @@ def count(ref, bed, snpsFile, bam, maxReadLength, minQual, outputCSV, log):
     #Go through one chr after the other
     testFile = SlamSeqFile(bam, ref, snps)
                       
-    #chr    start    stop    reads with T->C    read without T->C    Percentage of read with T->C    Number of forward reads mapping to region    Number of reverse reads mapping to region    T->C SNPs found in region
-    print("chr", "start", "end", "gene_name", "non_tc_read_count", "non_tc_norm_read_count", "tc_read_count", "tc_norm_read_count", "tc_read_perc", "fwd_reads", "rev_reads", "snp_In_UTR", sep='\t', file=fileCSV)
+    #chr    start    stop    reads with T->C    read without T->C    Percentage of read with T->C    Number of forward reads mapping to region    Average conversion rate for all reads mapping to the utr    Number of reverse reads mapping to region    T->C SNPs found in region
+    print("chr", "start", "end", "gene_name", "non_tc_read_count", "non_tc_norm_read_count", "tc_read_count", "tc_norm_read_count", "tc_read_perc", "avg_conversion_rate", "fwd_reads", "rev_reads", "snp_In_UTR", sep='\t', file=fileCSV)
        
     for utr in BedIterator(bed):
         tcCount = [0] * maxReadLength
@@ -100,6 +100,7 @@ def count(ref, bed, snpsFile, bam, maxReadLength, minQual, outputCSV, log):
         readCount = 0
         countFwd = 0
         countRev = 0
+        avgConversionRate = 0.0
         for read in readIterator:
         
             if(read.direction == ReadDirection.Reverse):
@@ -109,6 +110,7 @@ def count(ref, bed, snpsFile, bam, maxReadLength, minQual, outputCSV, log):
                 
             readCount += 1
             tcCount[read.tcCount] += 1
+            avgConversionRate += read.tcRate
         
         snpInUTR = 0
         if(countRev > countFwd):
@@ -120,7 +122,11 @@ def count(ref, bed, snpsFile, bam, maxReadLength, minQual, outputCSV, log):
         if(readCount > 0):
             percTC = ((readCount - tcCount[0]) * 1.0 / readCount)
         #chr    start    stop    read without T->C    reads with T->C    Percentage of read with T->C    Number of forward reads mapping to region    Number of reverse reads mapping to region    T->C SNPs found in region
-        print(utr.chromosome, utr.start, utr.stop, utr.name, tcCount[0], tcCount[0] * 1000000.0 / readNumber, (readCount - tcCount[0]), (readCount - tcCount[0]) * 1000000.0 / readNumber, percTC, countFwd, countRev, snpInUTR, sep='\t', file=fileCSV)
+        if(readCount > 0):
+            avgConversionRate = avgConversionRate * 1.0 / readCount
+        else:
+            avgConversionRate = 0.0
+        print(utr.chromosome, utr.start, utr.stop, utr.name, tcCount[0], tcCount[0] * 1000000.0 / readNumber, (readCount - tcCount[0]), (readCount - tcCount[0]) * 1000000.0 / readNumber, percTC, avgConversionRate, countFwd, countRev, snpInUTR, sep='\t', file=fileCSV)
     
     fileCSV.close()
 
