@@ -148,7 +148,7 @@ def readSummary(mappedFiles, filteredFiles, snpsFiles, samples, ouputCSV, log, p
         print("Files missing", file=log)
         
     
-def tcPerReadPos(referenceFile, bam, minQual, maxReadLength, outputCSV, outputPDF, snpsFile, log, printOnly=False, verbose=True, force=False):
+def tcPerReadPos(referenceFile, bam, minQual, maxReadLength, outputCSV, outputPDF, snpsFile, log, printOnly=False, verbose=True, force=True):
     
     if(not checkStep([bam, referenceFile], [outputCSV], force)):
         print("Skipped computing xy for file " + bam, file=log)
