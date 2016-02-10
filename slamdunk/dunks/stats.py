@@ -146,10 +146,10 @@ def readSummary(mappedFiles, filteredFiles, snpsFiles, samples, ouputCSV, log, p
         print("Files missing", file=log)
         
     
-def tcPerReadPos(referenceFile, bam, minQual, maxReadLength, outputCSV, outputPDF, snpsFile, log, printOnly=False, verbose=True, force=True):
+def tcPerReadPos(referenceFile, bam, minQual, maxReadLength, outputCSV, outputPDF, snpsFile, log, printOnly=False, verbose=True, force=False):
     
     if(not checkStep([bam, referenceFile], [outputCSV], force)):
-        print("Skipped computing xy for file " + bam, file=log)
+        print("Skipped computing T->C per reads position for file " + bam, file=log)
     else:
         
         totalReadCountFwd = [0] * maxReadLength
@@ -201,5 +201,8 @@ def tcPerReadPos(referenceFile, bam, minQual, maxReadLength, outputCSV, outputPD
         for i in range(0, maxReadLength):
             print(allPerPosFwd[i], allPerPosRev[i], tcPerPosFwd[i], tcPerPosRev[i], totalReadCountFwd[i], totalReadCountRev[i],sep='\t', file=foTC)
         foTC.close()
-            
+       
+    if(not checkStep([outputCSV], [outputPDF], force)):
+        print("Skipped computing T->C per reads position plot for file " + bam, file=log)
+    else: 
         run(pathConversionPerReadPos + " -i " + outputCSV + " -o " + outputPDF, log, dry=printOnly, verbose=verbose)
