@@ -252,9 +252,10 @@ command = args.command
 if (command == "map") :
     outputDirectory = args.outputDir
     n = args.threads
+    referenceFile = args.referenceFile
     message("Running slamDunk map for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
     for bam in args.bam:
-        runMap(0, bam, outputDirectory)
+        runMap(0, bam, referenceFile, n, args.trim5, outputDirectory)
     message("Running slamDunk sort for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
     results = Parallel(n_jobs=n, verbose=verbose)(delayed(runSort)(tid, args.bam[tid], outputDirectory) for tid in range(0, len(args.bam)))
     dunkFinished()
