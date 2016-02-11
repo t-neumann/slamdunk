@@ -1,8 +1,4 @@
-'''
-Created on Jan 29, 2016
-
-@author: philipp_
-'''
+from __future__ import print_function
 import pysam
 import re
 
@@ -32,7 +28,7 @@ class SlamSeqConversionRates:
         return self._data[index]
 
     def __repr__(self):
-        return self._data.__repr__() + "(SlamSeqConversionRates)"
+        return ",".join(str(x) for x in self._data)
     
     def __iter__(self):
         return self._data.__iter__()
@@ -87,7 +83,8 @@ class SlamSeqAlignmentPosition:
         return self.readBase != self.referenceBase
     
     def __repr__(self):
-        return [self._referencePosition, self.referenceBase, self.readPosition, self.readBase, self.readBaseQlty, self.isSnpPosition].__repr__()
+        #return str(self._referencePosition) + "," +
+        return self.referenceBase + "," + str(self.readPosition) + "," + self.readBase + "," + str(self.readBaseQlty) + "," +  str(self.isSnpPosition)
     
     def isTCMismatch(self, isReverse):
         if(isReverse):
@@ -124,8 +121,48 @@ class SlamSeqRead:
     
     def __repr__(self):
         return "\t".join([self.name, str(self.direction), self.sequence, str(self.tcCount), str(self.tCount), str(self.tcRate), self.conversionRates.__repr__(), self.mismatches.__repr__()])
+
+class SlamSeqWriter:
+    
+    _seperator = '\t'
+    _file = None
+    
+    def __init__(self, fileName):
+        self._file = open(fileName, "w")
+        self._printHeader()
+    
+    def _printHeader(self):
+        print("Name", file=self._file, end=self._seperator)
+        print("Direction",  file=self._file, end=self._seperator)
+        print("Sequence",  file=self._file, end=self._seperator)
+        print("Mismatches",  file=self._file, end=self._seperator)
+        print("tCount",  file=self._file, end=self._seperator)
+        print("tcCount",  file=self._file, end=self._seperator)
+        print("tcRate",  file=self._file, end=self._seperator)
+        print("ConversionRates",  file=self._file)
         
-class SlamSeqIterator:
+    
+    def write(self, slamSeqRead):
+        print(slamSeqRead.name,  file=self._file, end=self._seperator)
+        print(slamSeqRead.direction,  file=self._file, end=self._seperator)
+        print(slamSeqRead.sequence,  file=self._file, end=self._seperator)
+        print(slamSeqRead.tCount,  file=self._file, end=self._seperator)
+        print(slamSeqRead.tcCount,  file=self._file, end=self._seperator)
+        print(slamSeqRead.tcRate,  file=self._file, end=self._seperator)
+        print(slamSeqRead.conversionRates,  file=self._file, end=self._seperator)
+        
+        for mismatch in slamSeqRead.mismatches:
+            print(mismatch,  file=self._file, end=";")
+        
+        print(file=self._file)
+        
+    def close(self):
+        self._file.close()
+        
+    
+    
+
+class SlamSeqBamIterator:
     
     _readIterator = None
     _snps = None
@@ -266,7 +303,7 @@ class SlamSeqIterator:
         
         return slamSeqRead
                 
-class SlamSeqFile:
+class SlamSeqBamFile:
     '''
     classdocs
     '''
@@ -286,13 +323,13 @@ class SlamSeqFile:
         
         if(self.isInReferenceFile(chromosome)):
             refSeq = self._referenceFile.fetch(region=refRegion)
-            return SlamSeqIterator(self._bamFile.fetch(region=region), refSeq, chromosome, start, maxReadLength, self._snps)
+            return SlamSeqBamIterator(self._bamFile.fetch(region=region), refSeq, chromosome, start, maxReadLength, self._snps)
         else:
             return iter([])
     
     def readsInChromosome(self, chromosome):
         refSeq = self._referenceFile.fetch(region=chromosome)
-        return SlamSeqIterator(self._bamFile.fetch(region=chromosome), refSeq, chromosome, 1, 0, self._snps)
+        return SlamSeqBamIterator(self._bamFile.fetch(region=chromosome), refSeq, chromosome, 1, 0, self._snps)
     
     
     def atoi(self, text):
@@ -314,19 +351,9 @@ class SlamSeqFile:
         refs.sort(key=self.natural_keys)
         return refs
 
-#     def __iter__(self):
-#         return self
-# 
-#     def next(self):
-#         if self.i < self.n:
-#             i = self.i
-#             self.i += 1
-#             return i
-#         else:
-#             raise StopIteration()
         
 # snps = SNPtools.SNPDictionary("/project/ngs/philipp/slamdunk-analysis/debug/snps/ngm/26338_mESC-wt_0.5h-4SU_trimmed_fixed_downsample_slamdunk_mapped_filtered_snp.vcf")
-# testFile = SlamSeqFile("/project/ngs/philipp/slamdunk-analysis/debug/filtered/ngm/26338_mESC-wt_0.5h-4SU_trimmed_fixed_downsample_slamdunk_mapped_filtered.bam", "/project/ngs/philipp/slamseq/ref/GRCm38.fa", 55, snps)
+# testFile = SlamSeqBamFile("/project/ngs/philipp/slamdunk-analysis/debug/filtered/ngm/26338_mESC-wt_0.5h-4SU_trimmed_fixed_downsample_slamdunk_mapped_filtered.bam", "/project/ngs/philipp/slamseq/ref/GRCm38.fa", 55, snps)
 # 
 # chromosomes = testFile.getChromosomes()
 # 

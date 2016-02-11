@@ -14,7 +14,7 @@ from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from os.path import basename
 
 from joblib import Parallel, delayed
-from dunks import tcounter, mapper, filter, stats, snps
+from dunks import tcounter, mapper, filter, stats, snps, dump
 from utils.misc import replaceExtension, readSampleNames
 
 ########################################################################
@@ -141,6 +141,21 @@ def runSTcPerReadPos(tid, bam, referenceFile, minMQ, maxReadLength, outputDirect
     
     closeLogFile(log)
     stepFinished()
+    
+def runDumpReadInfo(tid, bam, referenceFile, minMQ, outputDirectory, snpDirectory):
+    outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".sdunk", "_readinfo"))
+    outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_readinfo"))
+    if(snpDirectory != None):
+        inputSNP = os.path.join(snpDirectory, replaceExtension(basename(bam), ".vcf", "_snp"))
+    else:
+        inputSNP = None
+    log = getLogFile(outputLOG)
+    
+    dump.dumpReadInfo(referenceFile, bam, minMQ, outputCSV, inputSNP, log)
+    
+    closeLogFile(log)
+    stepFinished()
+
 
 def runAll() :
     message("slamdunk all")
@@ -236,6 +251,17 @@ conversionRateParser.add_argument("-o", "--outputDir", type=str, required=True, 
 conversionRateParser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
 conversionRateParser.add_argument("-t", "--threads", type=int, required=False, dest="threads", help="Thread number")
 
+# dump read info command
+
+dumpReadInfo = subparsers.add_parser('dump.reads', help='Print all info available for reads')
+dumpReadInfo.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
+dumpReadInfo.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
+dumpReadInfo.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", help="Directory containing SNP files.")
+dumpReadInfo.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")#conversionRateParser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
+dumpReadInfo.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
+dumpReadInfo.add_argument("-t", "--threads", type=int, required=False, dest="threads", help="Thread number")
+
+
 # all command
 
 countparser = subparsers.add_parser('all', help='Run entire SLAMdunk analysis')
@@ -256,6 +282,7 @@ if (command == "map") :
     message("Running slamDunk map for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
     for bam in args.bam:
         runMap(0, bam, referenceFile, n, args.trim5, outputDirectory)
+    dunkFinished()
     message("Running slamDunk sort for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
     results = Parallel(n_jobs=n, verbose=verbose)(delayed(runSort)(tid, args.bam[tid], outputDirectory) for tid in range(0, len(args.bam)))
     dunkFinished()
@@ -318,6 +345,17 @@ if (command == "stats.tcperreadpos") :
     message("Running slamDunk stats.tcperreadpos for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
     results = Parallel(n_jobs=n, verbose=verbose)(delayed(runSTcPerReadPos)(tid, args.bam[tid], referenceFile, minMQ, args.maxLength, outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
     dunkFinished()
+
+if (command == "dump.reads") :
+    outputDirectory = args.outputDir
+    n = args.threads
+    snpDirectory = args.snpDir
+    referenceFile = args.referenceFile
+    minMQ = args.mq
+    message("Running slamDunk dump for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+    results = Parallel(n_jobs=n, verbose=verbose)(delayed(runDumpReadInfo)(tid, args.bam[tid], referenceFile, minMQ, outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
+    dunkFinished()
+
     
 elif (command == "all") :
     runAll()

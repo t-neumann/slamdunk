@@ -11,7 +11,7 @@ from utils.misc import getReadCount, getSampleName
 from utils.BedReader import BedIterator
 
 from utils import SNPtools
-from slamseq.SlamSeqFile import SlamSeqFile, ReadDirection
+from slamseq.SlamSeqFile import SlamSeqBamFile, ReadDirection
 
 
 def collapse(expandedCSV, collapsedCSV, readNumber, log):
@@ -87,7 +87,7 @@ def count(ref, bed, snpsFile, bam, maxReadLength, minQual, outputCSV, log):
     snps = SNPtools.SNPDictionary(snpsFile)
 
     #Go through one chr after the other
-    testFile = SlamSeqFile(bam, ref, snps)
+    testFile = SlamSeqBamFile(bam, ref, snps)
                       
     #chr    start    stop    reads with T->C    read without T->C    Percentage of read with T->C    Number of forward reads mapping to region    Average conversion rate for all reads mapping to the utr    Number of reverse reads mapping to region    T->C SNPs found in region
     print("chr", "start", "end", "gene_name", "non_tc_read_count", "non_tc_norm_read_count", "tc_read_count", "tc_norm_read_count", "tc_read_perc", "avg_conversion_rate", "fwd_reads", "rev_reads", "snp_In_UTR", sep='\t', file=fileCSV)

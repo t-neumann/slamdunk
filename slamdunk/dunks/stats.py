@@ -7,7 +7,7 @@ import tempfile
 from os.path import basename
 from utils.misc import run
 from utils.misc import removeExtension, checkStep, getReadCount, matchFile
-from slamseq.SlamSeqFile import SlamSeqFile, ReadDirection
+from slamseq.SlamSeqFile import SlamSeqBamFile, ReadDirection
 from utils import SNPtools
 
 projectPath = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -40,7 +40,7 @@ def printRates(ratesFwd, ratesRev, f):
 #     snps = SNPtools.SNPDictionary(snpsFile)
 # 
 #     #Go through one chr after the other
-#     testFile = SlamSeqFile(bam, referenceFile, snps)
+#     testFile = SlamSeqBamFile(bam, referenceFile, snps)
 #                       
 #        
 #     for utr in BedIterator(utrBed):
@@ -58,7 +58,7 @@ def printRates(ratesFwd, ratesRev, f):
 #         print("Skipped computing xy for file " + bam, file=log)
 #     else:
 #         #Go through one chr after the other
-#         testFile = SlamSeqFile(bam, referenceFile, None)
+#         testFile = SlamSeqBamFile(bam, referenceFile, None)
 #         
 #         chromosomes = testFile.getChromosomes()
 #         
@@ -79,7 +79,7 @@ def statsComputeOverallRates(referenceFile, bam, minQual, outputCSV, outputPDF, 
         tcCount = [0] * 100
         
         #Go through one chr after the other
-        testFile = SlamSeqFile(bam, referenceFile, None)
+        testFile = SlamSeqBamFile(bam, referenceFile, None)
         
         chromosomes = testFile.getChromosomes()
         
@@ -165,7 +165,7 @@ def tcPerReadPos(referenceFile, bam, minQual, maxReadLength, outputCSV, outputPD
         snps = SNPtools.SNPDictionary(snpsFile)
         
         #Go through one chr after the other
-        testFile = SlamSeqFile(bam, referenceFile, snps)
+        testFile = SlamSeqBamFile(bam, referenceFile, snps)
         
         chromosomes = testFile.getChromosomes()
         
