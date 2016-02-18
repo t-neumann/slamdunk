@@ -166,6 +166,7 @@ class SlamSeqWriter:
 class SlamSeqBamIterator:
     
     _readIterator = None
+    _refSeq = None
     _snps = None
     _maxReadLength = 0
     _minQual = 0

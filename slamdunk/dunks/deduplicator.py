@@ -5,9 +5,9 @@ from __future__ import print_function
 import pysam
 #import subprocess
 
-from utils.misc import checkStep
+from utils.misc import checkStep, runIndexBam, runFlagstat
 
-def Dedup(inputBAM, outputBAM, log, printOnly=False, force=False):
+def Dedup(inputBAM, outputBAM, log, printOnly=False, verbose = True, force=False):
     
     if(printOnly or checkStep([inputBAM], [outputBAM], force)):
         
@@ -55,6 +55,9 @@ def Dedup(inputBAM, outputBAM, log, printOnly=False, force=False):
         print("Retained " + str(retainedReads) + " of " + str(processedReads) + " reads (", file=log, end = "")
         print("{0:.2f}".format(float(retainedReads) / float(processedReads)),file=log,end="")
         print(" compression rate)", file=log)
+        
+        runIndexBam(outputBAM, log, verbose=verbose, dry=printOnly)
+        runFlagstat(outputBAM, log, verbose=verbose, dry=printOnly)
         
     else:
         print("Skipped deduplication for " + inputBAM, file=log)
