@@ -14,7 +14,7 @@ from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from os.path import basename
 
 from joblib import Parallel, delayed
-from dunks import tcounter, mapper, filter, stats, snps, dump
+from dunks import tcounter, mapper, filter, deduplicator, stats, snps, dump
 from utils.misc import replaceExtension, readSampleNames
 
 ########################################################################
@@ -69,9 +69,13 @@ def runSort(tid, bam, outputDirectory):
     mapper.sort(inputSAM, outputBAM, getLogFile(outputLOG), False, printOnly, verbose)
     stepFinished()
 
-def runDedup() :
-    message("slamdunk dedup")
-    # TODO
+def runDedup(tid, bam, outputDirectory) :
+    outputBAM = os.path.join(outputDirectory, replaceExtension(basename(bam), ".bam", "_dedup"))
+    outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_dedup"))
+    log = getLogFile(outputLOG)
+    deduplicator.Dedup(bam, outputBAM, log)
+    closeLogFile(log)
+    stepFinished()
         
 def runFilter(tid, bam, outputDirectory):
     outputBAM = os.path.join(outputDirectory, replaceExtension(basename(bam), ".bam", "_filtered"))
@@ -142,6 +146,21 @@ def runSTcPerReadPos(tid, bam, referenceFile, minMQ, maxReadLength, outputDirect
     closeLogFile(log)
     stepFinished()
     
+def runSTcPerUtr(tid, bam, referenceFile, minMQ, maxReadLength, outputDirectory, snpDirectory):
+    outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_tcperutr"))
+    outputPDF = os.path.join(outputDirectory, replaceExtension(basename(bam), ".pdf", "_tcperutr"))
+    outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_tcperutr"))
+    if(snpDirectory != None):
+        inputSNP = os.path.join(snpDirectory, replaceExtension(basename(bam), ".vcf", "_snp"))
+    else:
+        inputSNP = None
+    log = getLogFile(outputLOG)
+    
+    stats.tcPerUtr(referenceFile, args.bed, bam, minMQ, maxReadLength, outputCSV, outputPDF, inputSNP, log, False, True, True)
+    
+    closeLogFile(log)
+    stepFinished()
+    
 def runDumpReadInfo(tid, bam, referenceFile, minMQ, outputDirectory, snpDirectory):
     outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".sdunk", "_readinfo"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_readinfo"))
@@ -205,13 +224,15 @@ snpparser.add_argument("-t", "--threads", type=int, required=False, default=1, d
 # dedup command
 
 dedupparser = subparsers.add_parser('dedup', help='Deduplicate SLAM-seq aligned data')
+dedupparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
+dedupparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
 dedupparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
 
 # count command
 
 countparser = subparsers.add_parser('count', help='Count T/C conversions in SLAM-seq aligned data')
 countparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
-countparser.add_argument("-p", "--ouput-prefix", type=str, required=False, default="summary", dest="outputPrefix", help="Name of output file.")
+countparser.add_argument("-p", "--output-prefix", type=str, required=False, default="summary", dest="outputPrefix", help="Name of output file.")
 countparser.add_argument("-n", "--sample-names", type=str, required=False, dest="sampleNames", help="CSV file containing name for all samples.")
 countparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
 countparser.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", help="Directory containing SNP files.")
@@ -235,7 +256,7 @@ statsparser.add_argument("-t", "--threads", type=int, required=False, default=1,
 
 statsSumParser = subparsers.add_parser('stats.summary', help='Prints a CSV file containing the number of sequenced, mapped and filtered reads for all samples')
 statsSumParser.add_argument("-o", "--outputFile", type=str, required=True, dest="outputFile", help="Output file")
-statsSumParser.add_argument("-n", "--sample-names", type=str, required=False, dest="sampleNames", help="CSV file containing name for all samples.")
+statsSumParser.add_argument("-n", "--sample-names", type=str, required=True, dest="sampleNames", help="CSV file containing name for all samples.")
 statsSumParser.add_argument("-s", "--snp-files", type=str, nargs="+", required=True, dest="snpFiles", help="SNP files for all samples")
 statsSumParser.add_argument("-m", "--mapped-files", type=str, nargs="+", required=True, dest="mappedFiles", help="BAM files for all samples")
 statsSumParser.add_argument("-f", "--filtered-files", type=str, nargs="+", required=True, dest="filteredFiles", help="Filtered BAM files for all samples")
@@ -250,6 +271,18 @@ conversionRateParser.add_argument("-l", "--max-read-length", type=int, required=
 conversionRateParser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")#conversionRateParser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
 conversionRateParser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
 conversionRateParser.add_argument("-t", "--threads", type=int, required=False, dest="threads", help="Thread number")
+
+# stats utr info command
+
+utrRateParser = subparsers.add_parser('stats.tcperutrpos', help='Get SlamSeq info per utr')
+utrRateParser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
+utrRateParser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
+utrRateParser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
+utrRateParser.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", help="Directory containing SNP files.")
+utrRateParser.add_argument("-l", "--max-read-length", type=int, required=True, dest="maxLength", help="Max read length in BAM file")
+utrRateParser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")#conversionRateParser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
+utrRateParser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
+utrRateParser.add_argument("-t", "--threads", type=int, required=False, dest="threads", help="Thread number")
 
 # dump read info command
 
@@ -307,7 +340,10 @@ elif (command == "snp") :
     dunkFinished()
 
 elif (command == "dedup") :
-    runDedup()
+    outputDirectory = args.outputDir
+    n = args.threads
+    message("Running slamDunk dedup for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+    results = Parallel(n_jobs=n, verbose=verbose)(delayed(runDedup)(tid, args.bam[tid], outputDirectory) for tid in range(0, len(args.bam)))
     dunkFinished()
     
 elif (command == "count") :
@@ -336,7 +372,7 @@ elif (command == "stats.summary") :
     stats.readSummary(args.mappedFiles, args.filteredFiles, args.snpFiles, samples, args.outputFile, getLogFile(outputLog))
     dunkFinished() 
 
-if (command == "stats.tcperreadpos") :
+elif (command == "stats.tcperreadpos") :
     outputDirectory = args.outputDir
     n = args.threads
     snpDirectory = args.snpDir
@@ -345,8 +381,20 @@ if (command == "stats.tcperreadpos") :
     message("Running slamDunk stats.tcperreadpos for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
     results = Parallel(n_jobs=n, verbose=verbose)(delayed(runSTcPerReadPos)(tid, args.bam[tid], referenceFile, minMQ, args.maxLength, outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
     dunkFinished()
+    
+elif (command == "stats.tcperutrpos") :
+    
+    outputDirectory = args.outputDir
+    n = args.threads
+    snpDirectory = args.snpDir
+    referenceFile = args.referenceFile
+    minMQ = args.mq
+    snpDirectory = args.snpDir
+    message("Running slamDunk stats.tcperutrpos for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+    results = Parallel(n_jobs=n, verbose=verbose)(delayed(runSTcPerUtr)(tid, args.bam[tid], referenceFile, minMQ, args.maxLength, outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
+    dunkFinished()
 
-if (command == "dump.reads") :
+elif (command == "dump.reads") :
     outputDirectory = args.outputDir
     n = args.threads
     snpDirectory = args.snpDir
