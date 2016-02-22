@@ -52,6 +52,13 @@ if (is.null(mut$V6)) {
 counts = rbind(c(mut$V1)/c(mut$V5) * 100, c(mut$V2)/c(mut$V6) * 100)
 countsTC = rbind(c(mut$V3)/c(mut$V5) * 100, c(mut$V4)/c(mut$V6) * 100)
 
+##################################################################
+# Workaround for 0 counts (need to work out what's going on there
+
+counts[is.nan(counts)] = 0
+countsTC[is.nan(countsTC)] = 0
+
+##################################################################
 pdf(opt$outputFile, width=10, height=10)
 par(mfrow=c(2,1))
 

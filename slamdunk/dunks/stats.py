@@ -131,24 +131,49 @@ def statsComputeOverallRates(referenceFile, bam, minQual, outputCSV, outputPDF, 
         run(pathComputeOverallRates + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
             
     
-def readSummary(mappedFiles, filteredFiles, snpsFiles, samples, ouputCSV, log, printOnly=False, verbose=True, force=False):
-    if(len(mappedFiles) == len(filteredFiles) and len(filteredFiles) == len(snpsFiles)):
+def readSummary(mappedFiles, filteredFiles, dedupFiles, snpsFiles, samples, ouputCSV, log, printOnly=False, verbose=True, force=False):
+    if(len(mappedFiles) == len(snpsFiles)):
         outputFile = open(ouputCSV, "w")
+                
 #         print("Filename", "Name",  "Sequenced reads", "Mapped reads", "Filtered reads", "SNP count", "T->C SNP count", sep=";", file=outputFile)
-        print("Filename", "Name",  "Sequenced reads", "Mapped reads", "Filtered reads", sep=";", file=outputFile)
+        header = ";".join(["Filename", "Name",  "Sequenced reads", "Mapped reads"])
+        if (filteredFiles != None) :
+            header = header + ";Filtered reads"
+        if (dedupFiles != None) :
+            header = header + ";Dedup reads"
+        print(header, file=outputFile)
+        
         for sample in samples:
             name = samples[sample]
             mappedFile = matchFile(sample, mappedFiles)
-            filteredFile = matchFile(sample, filteredFiles)
+            filteredFile = None
+            mappedFile == None
+            
+            if (filteredFiles != None) :
+                filteredFile = matchFile(sample, filteredFiles)
+            if (dedupFiles != None) :
+                dedupFile = matchFile(sample, dedupFiles)
+
             snpFile = matchFile(sample, snpsFiles)
-            if(snpFile == None or filteredFile == None or mappedFile == None):
+            if((filteredFiles != None and  filteredFile == None) or (dedupFiles != None and dedupFile == None) or snpFile == None or mappedFile == None):
                 raise RuntimeError("Couldn't match all files.")
             else:
                 mappedStats = getReadCount(mappedFile)
-                filteredStats = getReadCount(filteredFile)
+                print(sample, name, mappedStats.TotalReads, mappedStats.MappedReads, file=outputFile, sep=";",end="")
+                
+                if (filteredFiles != None) :
+                    filteredStats = getReadCount(filteredFile)
+                    print(";" + str(filteredStats.MappedReads), file=outputFile, end="")
+                
+                if (dedupFiles != None) :
+                    dedupStats = getReadCount(dedupFile)
+                    print(";" + str(dedupStats.MappedReads), file=outputFile, end="")
+                    
+                print("",file=outputFile)
+                
 #                 snpCount, tcSnpCount = snps.countSNPsInFile(snpFile)
 #                 print(sample, name, mappedStats.TotalReads, mappedStats.MappedReads, filteredStats.MappedReads, snpCount, tcSnpCount, file=outputFile, sep=";")
-                print(sample, name, mappedStats.TotalReads, mappedStats.MappedReads, filteredStats.MappedReads, file=outputFile, sep=";")
+                #print(sample, name, mappedStats.TotalReads, mappedStats.MappedReads, filteredStats.MappedReads, dedupStats.MappedReads, file=outputFile, sep=";")
         outputFile.close()
     else:
         print("Files missing", file=log)
