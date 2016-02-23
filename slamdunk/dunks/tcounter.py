@@ -3,7 +3,7 @@
 # Date located in: -
 from __future__ import print_function
 
-import csv, sys
+import csv
 import itertools as IT
 
 from os.path import basename
@@ -94,7 +94,7 @@ def count(ref, bed, snpsFile, bam, maxReadLength, minQual, outputCSV, log):
        
     for utr in BedIterator(bed):
         tcCount = [0] * maxReadLength
-                     
+    
         readIterator = testFile.readInRegion(utr.chromosome, utr.start, utr.stop, maxReadLength)
         
         readCount = 0
