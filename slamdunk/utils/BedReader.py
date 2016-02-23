@@ -4,6 +4,12 @@ class BedEntry:
     start = 0
     stop = 0
     name = ""
+    
+    def __repr__(self):
+        return (self.chromosome + "\t" + str(self.start) + "\t" + str(self.stop) + "\t" + self.name)
+    
+    def getLength(self):
+        return self.stop - self.start
 
 class BedIterator:
     
