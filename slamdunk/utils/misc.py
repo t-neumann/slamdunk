@@ -55,7 +55,7 @@ def checkStep(inFiles, outFiles, force=False):
     for x in inFiles[1:]:
         inFileDate = max(inFileDate, os.path.getmtime(x))    
     
-    if files_exist(outFiles):
+    if len(outFiles) > 0 and files_exist(outFiles):
         outFileDate = os.path.getmtime(outFiles[0])
         for x in outFiles[1:]:
             outFileDate = min(outFileDate, os.path.getmtime(x))        

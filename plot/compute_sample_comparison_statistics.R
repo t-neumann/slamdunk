@@ -37,8 +37,8 @@ library(getopt)
 
 spec = matrix(c(
 				'help'      , 'h', 0, "logical","print the usage of the command",
-				'sampleTab', "f", 2,"character","csv table of sample counts",
-				'outputPrefix', "O", 2,"character","output file name prefix"
+				'sampleTab', "i", 2,"character","csv table of sample counts",
+				'outputPrefix', "o", 2,"character","output file name prefix"
 		),ncol = 5,byrow=T)
 
 opt = getopt(spec)
