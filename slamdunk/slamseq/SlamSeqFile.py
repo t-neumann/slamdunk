@@ -287,25 +287,25 @@ class SlamSeqBamIterator:
         
         
         # Get TC count and rates from NGM bam file
-#        ngmTC, ngmTCount = self.getTCNgm(read)
-#       ngmRates = self.computeRatesForReadNGM(read)
-#        ngmRate = 0.0
-#        if(ngmTCount > 0):
-#            ngmRate = ngmTC * 100.0 / ngmTCount
+#         ngmTC, ngmTCount = self.getTCNgm(read)
+#         ngmRates = self.computeRatesForReadNGM(read)
+#         ngmRate = 0.0
+#         if(ngmTCount > 0):
+#             ngmRate = ngmTC * 100.0 / ngmTCount
         
         # Check if results from pysam and NGM are the same
         # TODO: remove at some point
-#        if(not self.compareLists(slamSeqRead.conversionRates, ngmRates) or slamSeqRead.tcCount != ngmTC):# or ngmRate != slamSeqRead.tcRate):
-#            print("Difference found:")
-#            print(read)
-#            print(ngmRates)
-#            print(slamSeqRead.conversionRates)
-#            print("TC (ngm): " + str(ngmTC))
-#            print("TC (pys): " + str(slamSeqRead.tcCount))
-#            print("TC rate (ngm): " + str(ngmRate))
-#            print("TC rate (pys): " + str(slamSeqRead.tcRate))
+#         if(not self.compareLists(slamSeqRead.conversionRates, ngmRates) or slamSeqRead.tcCount != ngmTC):# or ngmRate != slamSeqRead.tcRate):
+#             print("Difference found:")
+#             print(read)
+#             print(ngmRates)
+#             print(slamSeqRead.conversionRates)
+#             print("TC (ngm): " + str(ngmTC))
+#             print("TC (pys): " + str(slamSeqRead.tcCount))
+#             print("TC rate (ngm): " + str(ngmRate))
+#             print("TC rate (pys): " + str(slamSeqRead.tcRate))
             #sys.stdin.read(1)
-#            raise RuntimeError("Difference found between NGM and Py.")
+#             raise RuntimeError("Difference found between NGM and Py.")
         
         return slamSeqRead
                 
@@ -328,13 +328,13 @@ class SlamSeqBamFile:
         region = chromosome + ":" + str(start) + "-" + str(stop)
         
         if(self.isInReferenceFile(chromosome)):
-            refSeq = self._referenceFile.fetch(region=refRegion)
+            refSeq = self._referenceFile.fetch(region=refRegion).upper()
             return SlamSeqBamIterator(self._bamFile.fetch(region=region), refSeq, chromosome, start, maxReadLength, self._snps)
         else:
             return iter([])
     
     def readsInChromosome(self, chromosome):
-        refSeq = self._referenceFile.fetch(region=chromosome)
+        refSeq = self._referenceFile.fetch(region=chromosome).upper()
         return SlamSeqBamIterator(self._bamFile.fetch(region=chromosome), refSeq, chromosome, 1, 0, self._snps)
     
     
