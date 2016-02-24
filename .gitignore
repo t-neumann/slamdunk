@@ -1,4 +1,4 @@
 /.project
 /.pydevproject
 /sync.sh
-/*.pyc
+*.pyc
