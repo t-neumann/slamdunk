@@ -3,6 +3,7 @@
 from __future__ import print_function
 import os
 import tempfile
+import math
 
 from os.path import basename
 from utils.misc import run
@@ -27,8 +28,8 @@ def maxLists(a, b):
     return [max(int(x),int(y)) for x, y in zip(a, b)]
 
 def normalizePos(pos, length, factor):
-    return int(round(float(pos) / float(length) * factor))
-
+    #return int(round(float(pos) / float(length) * factor))
+    return int(math.floor(float(pos) / float(length) * factor))
 
 #Print rates in correct format for plotting
 def printRates(ratesFwd, ratesRev, f):
@@ -290,7 +291,7 @@ def tcPerUtr(referenceFile, utrBed, bam, minQual, maxReadLength, outputCSV, outp
                 for mismatch in read.mismatches:
                     #if (mismatch.readPosition >= 12 and mismatch.readPosition < 37 ) :
                         if (mismatch.referencePosition >= 0 and mismatch.referencePosition < utr.getLength()) :
-                            normPos = normalizePos(mismatch.referencePosition, utr.getLength(), utrNormFactor - 1)
+                            normPos = normalizePos(mismatch.referencePosition, utr.getLength(), utrNormFactor)
                             mutCounts[normPos] = 1
                             if(mismatch.isTCMismatch(read.direction == ReadDirection.Reverse)):
                                 tcCounts[normPos] = 1
