@@ -255,8 +255,9 @@ statsparser.add_argument("-t", "--threads", type=int, required=False, default=1,
 # stats summary command
 
 statsSumParser = subparsers.add_parser('stats.summary', help='Prints a CSV file containing the number of sequenced, mapped and filtered reads for all samples')
-statsSumParser.add_argument("-o", "--outputFile", type=str, required=True, dest="outputFile", help="Output file")
+statsSumParser.add_argument("-o", "--outputPrefix", type=str, required=True, dest="outputPrefix", help="Prefix for output files")
 statsSumParser.add_argument("-n", "--sample-names", type=str, required=True, dest="sampleNames", help="CSV file containing name for all samples.")
+statsSumParser.add_argument("-r", "--read-counts", type=str, required=True, dest="readCounts", help="CSV file containing read counts.")
 statsSumParser.add_argument("-s", "--snp-files", type=str, nargs="+", required=True, dest="snpFiles", help="SNP files for all samples")
 statsSumParser.add_argument("-m", "--mapped-files", type=str, nargs="+", required=True, dest="mappedFiles", help="BAM files for all samples")
 statsSumParser.add_argument("-f", "--filtered-files", type=str, nargs="+", required=False, dest="filteredFiles", help="Filtered BAM files for all samples")
@@ -369,8 +370,9 @@ elif (command == "stats.summary") :
     samples = readSampleNames(args.sampleNames, None)
     n = 1
     message("Running slamDunk stats read summary for " + str(len(args.mappedFiles)) + " files (" + str(n) + " threads)")
-    outputLog = replaceExtension(args.outputFile, ".log")
-    stats.readSummary(args.mappedFiles, args.filteredFiles, args.dedupFiles, args.snpFiles, samples, args.outputFile, getLogFile(outputLog))
+    outputLog = args.outputPrefix + ".log"
+    stats.readSummary(args.mappedFiles, args.filteredFiles, args.dedupFiles, args.snpFiles, samples, args.outputPrefix, getLogFile(outputLog))
+    stats.sampleSummary(args.readCounts, args.outputPrefix, getLogFile(outputLog))
     dunkFinished() 
 
 elif (command == "stats.tcperreadpos") :

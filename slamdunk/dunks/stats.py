@@ -3,6 +3,7 @@
 from __future__ import print_function
 import os
 import tempfile
+import math
 
 from os.path import basename
 from utils.misc import run
@@ -14,6 +15,7 @@ from utils.BedReader import BedIterator, BedEntry
 projectPath = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 pathComputeOverallRates = os.path.join(projectPath, "plot", "compute_overall_rates.R")
 pathConversionPerReadPos = os.path.join(projectPath, "plot", "conversion_per_read_position.R")
+pathSampleComparison = os.path.join(projectPath, "plot", "compute_sample_comparison_statistics.R")
 
 utrNormFactor = 100
 baseNumber = 5
@@ -26,8 +28,8 @@ def maxLists(a, b):
     return [max(int(x),int(y)) for x, y in zip(a, b)]
 
 def normalizePos(pos, length, factor):
-    return int(round(float(pos) / float(length) * factor))
-
+    #return int(round(float(pos) / float(length) * factor))
+    return int(math.floor(float(pos) / float(length) * factor))
 
 #Print rates in correct format for plotting
 def printRates(ratesFwd, ratesRev, f):
@@ -131,9 +133,9 @@ def statsComputeOverallRates(referenceFile, bam, minQual, outputCSV, outputPDF, 
         run(pathComputeOverallRates + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
             
     
-def readSummary(mappedFiles, filteredFiles, dedupFiles, snpsFiles, samples, ouputCSV, log, printOnly=False, verbose=True, force=False):
+def readSummary(mappedFiles, filteredFiles, dedupFiles, snpsFiles, samples, outputPrefix, log, printOnly=False, verbose=True, force=False):
     if(len(mappedFiles) == len(snpsFiles)):
-        outputFile = open(ouputCSV, "w")
+        outputFile = open(outputPrefix + "_summary.txt", "w")
                 
 #         print("Filename", "Name",  "Sequenced reads", "Mapped reads", "Filtered reads", "SNP count", "T->C SNP count", sep=";", file=outputFile)
         header = ";".join(["Filename", "Name",  "Sequenced reads", "Mapped reads"])
@@ -178,6 +180,11 @@ def readSummary(mappedFiles, filteredFiles, dedupFiles, snpsFiles, samples, oupu
     else:
         print("Files missing", file=log)
         
+def sampleSummary(readCounts, outputPrefix, log, printOnly=False, verbose=True, force=False):
+    if(not checkStep([readCounts], [], force)):
+        print("Skipped computing pairwise correlation plots for file " + readCounts, file=log)
+    else: 
+        run(pathSampleComparison + " -i " + readCounts + " -o " + outputPrefix, log, dry=printOnly, verbose=verbose)        
     
 def tcPerReadPos(referenceFile, bam, minQual, maxReadLength, outputCSV, outputPDF, snpsFile, log, printOnly=False, verbose=True, force=False):
     
@@ -282,11 +289,12 @@ def tcPerUtr(referenceFile, utrBed, bam, minQual, maxReadLength, outputCSV, outp
                 mutCounts = [0] * utrNormFactor
                 
                 for mismatch in read.mismatches:
-                    if (mismatch.referencePosition >= 0 and mismatch.referencePosition < utr.getLength()) :
-                        normPos = normalizePos(mismatch.referencePosition, utr.getLength(), utrNormFactor - 1)
-                        mutCounts[normPos] = 1
-                    if(mismatch.isTCMismatch(read.direction == ReadDirection.Reverse)):
-                        tcCounts[normPos] = 1
+                    #if (mismatch.readPosition >= 12 and mismatch.readPosition < 37 ) :
+                        if (mismatch.referencePosition >= 0 and mismatch.referencePosition < utr.getLength()) :
+                            normPos = normalizePos(mismatch.referencePosition, utr.getLength(), utrNormFactor)
+                            mutCounts[normPos] = 1
+                            if(mismatch.isTCMismatch(read.direction == ReadDirection.Reverse)):
+                                tcCounts[normPos] = 1
                 
                 if(read.direction == ReadDirection.Reverse):
                     tcReverseCounts = maxLists(tcReverseCounts, tcCounts)
