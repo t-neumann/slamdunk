@@ -160,6 +160,18 @@ def runSTcPerUtr(tid, bam, referenceFile, minMQ, maxReadLength, outputDirectory,
     
     closeLogFile(log)
     stepFinished()
+
+def runUtrCoverage(tid, bam, minMQ, outputDirectory):
+    outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_utrcoverage"))
+    outputPDF = os.path.join(outputDirectory, replaceExtension(basename(bam), ".pdf", "_utrcoverage"))
+    outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_utrcoverage"))
+    log = getLogFile(outputLOG)
+    
+    stats.coveragePerUtr(args.bed, bam, minMQ, outputCSV, outputPDF, log, False, True, True)
+    
+    closeLogFile(log)
+    stepFinished()
+
     
 def runDumpReadInfo(tid, bam, referenceFile, minMQ, outputDirectory, snpDirectory):
     outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".sdunk", "_readinfo"))
@@ -286,6 +298,19 @@ utrRateParser.add_argument("-o", "--outputDir", type=str, required=True, dest="o
 utrRateParser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
 utrRateParser.add_argument("-t", "--threads", type=int, required=False, dest="threads", help="Thread number")
 
+# stats mean coverage for all utrs
+
+utrCoverageParser = subparsers.add_parser('stats.utrcoverage', help='Get SlamSeq info per utr')
+utrCoverageParser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
+# utrCoverageParser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
+utrCoverageParser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
+# utrCoverageParser.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", help="Directory containing SNP files.")
+# utrCoverageParser.add_argument("-l", "--max-read-length", type=int, required=True, dest="maxLength", help="Max read length in BAM file")
+utrCoverageParser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")#conversionRateParser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
+utrCoverageParser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
+utrCoverageParser.add_argument("-t", "--threads", type=int, required=False, dest="threads", help="Thread number")
+
+
 # dump read info command
 
 dumpReadInfo = subparsers.add_parser('dump.reads', help='Print all info available for reads')
@@ -395,6 +420,18 @@ elif (command == "stats.tcperutrpos") :
     snpDirectory = args.snpDir
     message("Running slamDunk stats.tcperutrpos for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
     results = Parallel(n_jobs=n, verbose=verbose)(delayed(runSTcPerUtr)(tid, args.bam[tid], referenceFile, minMQ, args.maxLength, outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
+    dunkFinished()
+
+elif (command == "stats.utrcoverage"):
+
+    outputDirectory = args.outputDir
+    n = args.threads
+#     snpDirectory = args.snpDir
+#     referenceFile = args.referenceFile
+    minMQ = args.mq
+#     snpDirectory = args.snpDir
+    message("Running slamDunk stats.utrcoverage for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+    results = Parallel(n_jobs=n, verbose=verbose)(delayed(runUtrCoverage)(tid, args.bam[tid], minMQ, outputDirectory) for tid in range(0, len(args.bam)))
     dunkFinished()
 
 elif (command == "dump.reads") :
