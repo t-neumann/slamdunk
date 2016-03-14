@@ -119,9 +119,13 @@ class SlamSeqRead:
     sequence = None
     # List of mismatches in alignment
     mismatches = []
+    # Start position in the reference
+    startRefPos = None
+    # End position in the reference
+    endRefPos = None
     
     def __repr__(self):
-        return "\t".join([self.name, str(self.direction), self.sequence, str(self.tcCount), str(self.tCount), str(self.tcRate), self.conversionRates.__repr__(), self.mismatches.__repr__()])
+        return "\t".join([self.name, str(self.direction), self.sequence, str(self.tcCount), str(self.tCount), str(self.tcRate), self.conversionRates.__repr__(), str(self.startRefPos), str(self.endRefPos), self.mismatches.__repr__()])
 
 class SlamSeqWriter:
     
@@ -201,6 +205,7 @@ class SlamSeqBamIterator:
         return int(read.get_tag("TC")), int(read.get_tag("TC")) 
     
     def toAlignmentPos(self, pysamPosition, referenceSequence, read):
+        
         readPos = pysamPosition[0]
         refPos = pysamPosition[1] - int(self._startPosition) + self._maxReadLength + 1
         
@@ -226,13 +231,27 @@ class SlamSeqBamIterator:
     def fillMismatches(self, read):
         mismatchList = []
         tCount = 0
+        startRefPos = None
+        endRefPos = None
         for pair in read.get_aligned_pairs(matches_only=True):
+
+            refPos = pair[1] - int(self._startPosition) + 1
+            if (startRefPos == None):
+                startRefPos = refPos
+            else :
+                startRefPos = min(startRefPos,refPos)
+
+            if (endRefPos == None):
+                endRefPos = refPos
+            else :
+                endRefPos = max(endRefPos,refPos)
+
             alnPosition = self.toAlignmentPos(pair, self._refSeq, read)
             if(alnPosition.isT(read.is_reverse)):
                 tCount += 1
             if(alnPosition.isMismatch() and alnPosition.readBaseQlty >= self._minQual):
                 mismatchList.append(alnPosition)
-        return mismatchList, tCount
+        return mismatchList, tCount, startRefPos, endRefPos
           
     
     def getTC(self, mismatches, isReverse):
@@ -277,7 +296,10 @@ class SlamSeqBamIterator:
             slamSeqRead.direction = ReadDirection.Reverse
         else:
             slamSeqRead.direction = ReadDirection.Forward
-        slamSeqRead.mismatches, slamSeqRead.tCount = self.fillMismatches(read)
+            
+        #slamSeqRead.mismatches, slamSeqRead.tCount = self.fillMismatches(read)
+        slamSeqRead.mismatches, slamSeqRead.tCount, slamSeqRead.startRefPos, slamSeqRead.endRefPos = self.fillMismatches(read) 
+
         slamSeqRead.tcCount = self.getTC(slamSeqRead.mismatches, read.is_reverse) 
         slamSeqRead.conversionRates = self.computeRatesForRead(read)
         slamSeqRead.tcRate = 0.0
