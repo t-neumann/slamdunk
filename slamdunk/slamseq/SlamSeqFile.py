@@ -198,6 +198,7 @@ class SlamSeqBamIterator:
     _readIterator = None
     _refSeq = None
     _snps = None
+    _strand = None
     _maxReadLength = 0
     _minQual = 0
     _chromosome = None
@@ -298,11 +299,12 @@ class SlamSeqBamIterator:
         
         return tcCount
     
-    def __init__(self, readIterator, refSeq, chromosome, startPosition, maxReadLength, snps):
+    def __init__(self, readIterator, refSeq, chromosome, startPosition, strand, maxReadLength, snps):
         self._readIterator = readIterator
         self._refSeq = refSeq
         self._chromosome = chromosome
         self._startPosition = startPosition
+        self._strand = strand
         self._maxReadLength = maxReadLength
         self._snps = snps
         
@@ -321,7 +323,12 @@ class SlamSeqBamIterator:
 
  
     def next(self):
+        
         read = self._readIterator.next()
+        
+        # Strand-specific assay - skip all reads from antisense-strand
+        while((self._strand == "+" and read.is_reverse) or (self._strand == "-" and not read.is_reverse)) :
+            read = self._readIterator.next()
 
         # Create SlamSeqRead
         slamSeqRead = SlamSeqRead()
@@ -379,14 +386,14 @@ class SlamSeqBamFile:
         self._referenceFile = pysam.FastaFile(referenceFile)   
         self._snps = snps
         
-    def readInRegion(self, chromosome, start, stop, maxReadLength):
+    def readInRegion(self, chromosome, start, stop, strand, maxReadLength):
         refRegion = chromosome + ":" + str(int(start) - maxReadLength) + "-" + str(int(stop) + maxReadLength)
         
         region = chromosome + ":" + str(start) + "-" + str(stop)
         
         if(self.isInReferenceFile(chromosome)):
             refSeq = self._referenceFile.fetch(region=refRegion).upper()
-            return SlamSeqBamIterator(self._bamFile.fetch(region=region), refSeq, chromosome, start, maxReadLength, self._snps)
+            return SlamSeqBamIterator(self._bamFile.fetch(region=region), refSeq, chromosome, start, strand, maxReadLength, self._snps)
         else:
             return iter([])
     

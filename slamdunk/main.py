@@ -431,7 +431,7 @@ elif (command == "stats.utrcoverage"):
     minMQ = args.mq
 #     snpDirectory = args.snpDir
     message("Running slamDunk stats.utrcoverage for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-    results = Parallel(n_jobs=n, verbose=verbose)(delayed(runUtrCoverage)(tid, args.bam[tid], minMQ, outputDirectory) for tid in range(0, len(args.bam)))
+    #results = Parallel(n_jobs=n, verbose=verbose)(delayed(runUtrCoverage)(tid, args.bam[tid], minMQ, outputDirectory) for tid in range(0, len(args.bam)))
     dunkFinished()
 
 elif (command == "dump.reads") :

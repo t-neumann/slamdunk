@@ -1,7 +1,4 @@
-#!/software/R/R-3.1.2/bin/Rscript
-#!/usr/bin/Rscript
-#!/software/R/R-3.1.2/bin/Rscript
-#!/biosw/debian7-x86_64/R/3.0.2/bin/Rscript
+#!/usr/bin/env Rscript
 
 #Script to overlap public database file 
 # 

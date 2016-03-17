@@ -1,4 +1,4 @@
-#!/biosw/debian7-x86_64/R/3.0.2/bin/Rscript
+#!/usr/bin/env Rscript
 
 library(getopt)
 
@@ -64,7 +64,9 @@ par(mfrow=c(2,1))
 
 # Scale to next 10
 barplot(counts, beside=T, names.arg=1:nrow(mut), main="All mutations", ylim=c(0,max(10,ceiling(counts / 10) * 10)), xlab=positionLabel, ylab=mutationLabel, legend=c("forward", "reverse"))
+#barplot(counts, beside=T, names.arg=1:nrow(mut), main="All mutations", ylim=c(0,10), xlab=positionLabel, ylab=mutationLabel, legend=c("forward", "reverse"))
 # Scale to next 1
 barplot(countsTC, beside=T, names.arg=1:nrow(mut), main="T->C on fwd, A->G on rev", ylim=c(0,max(1,ceiling(countsTC))), xlab=positionLabel, ylab=mutationLabel, legend=c("forward", "reverse"))
+#barplot(countsTC, beside=T, names.arg=1:nrow(mut), main="T->C on fwd, A->G on rev", ylim=c(0,1), xlab=positionLabel, ylab=mutationLabel, legend=c("forward", "reverse"))
 
 dev.off()
