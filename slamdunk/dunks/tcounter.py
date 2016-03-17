@@ -95,7 +95,7 @@ def count(ref, bed, snpsFile, bam, maxReadLength, minQual, outputCSV, log):
     for utr in BedIterator(bed):
         tcCount = [0] * maxReadLength
     
-        readIterator = testFile.readInRegion(utr.chromosome, utr.start, utr.stop, maxReadLength)
+        readIterator = testFile.readInRegion(utr.chromosome, utr.start, utr.stop, utr.strand, maxReadLength)
         
         readCount = 0
         countFwd = 0

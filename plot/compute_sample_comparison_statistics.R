@@ -1,4 +1,4 @@
-#!/biosw/debian7-x86_64/R/3.0.2/bin/Rscript
+#!/usr/bin/env Rscript
 
 # Script to plot pairwise correlations and PCA
 # 
@@ -80,10 +80,13 @@ select = order(rowVariances, decreasing = TRUE)[seq_len(min(500, length(rowVaria
 
 pca = prcomp(t(values[select, ]))
 
-if (ncol(values) > 2) {
-	col = brewer.pal(ncol(values), "Paired")	
+if (ncol(values) == 2) {
+	col = brewer.pal(3, "Paired")[1:2]	
+} else if (ncol(values) > 12) {
+	getPalette = colorRampPalette(brewer.pal(9, "Set1"))
+	col = getPalette(ncol(values))
 } else {
-	col = brewer.pal(3, "Paired")[1:2]
+	col = brewer.pal(ncol(values), "Paired")
 }
 
 # Get amount of explained variance (see summary(pca))
@@ -91,11 +94,22 @@ varianceProportion = pca$sdev ^ 2 / sum(pca$sdev ^ 2)
 
 pdf(paste(opt$outputPrefix,"_PCA.pdf",sep=""))
 
-xyplot(PC2 ~ PC1, groups = colnames(values), data = as.data.frame(pca$x),
-		pch = 20, cex = 2, aspect = "iso", col = col, main = draw.key(key = list(rect = list(col = col),
-		text = list(colnames(values)), rep = FALSE)), xlab = paste("PC1 (", round(varianceProportion[1],digits=2), " variance)",sep=""),
+if (ncol(values) > 12) {
+
+	xyplot(PC2 ~ PC1, groups = colnames(values), data = as.data.frame(pca$x),
+		pch = 20, cex = 2, aspect = "iso", col = col, xlab = paste("PC1 (", round(varianceProportion[1],digits=2), " variance)",sep=""),
 		ylab = paste("PC2 (", round(varianceProportion[2],digits=2), " variance)",sep=""),
-)
+	)
+
+} else {
+	
+	xyplot(PC2 ~ PC1, groups = colnames(values), data = as.data.frame(pca$x),
+			pch = 20, cex = 2, aspect = "iso", col = col, main = draw.key(key = list(rect = list(col = col),
+							text = list(colnames(values)), rep = FALSE)), xlab = paste("PC1 (", round(varianceProportion[1],digits=2), " variance)",sep=""),
+			ylab = paste("PC2 (", round(varianceProportion[2],digits=2), " variance)",sep=""),
+	)
+	
+}
 
 dev.off()
 
@@ -103,11 +117,14 @@ dev.off()
 # Pairwise correlations
 ##################################################
 
-pdf(paste(opt$outputPrefix,"_pairwiseCorrelation.pdf",sep=""))
+if (ncol(values) <= 12) {
 
-pairs(values,upper.panel=my_panel_smooth,lower.panel=my_panel_cor)
+	pdf(paste(opt$outputPrefix,"_pairwiseCorrelation.pdf",sep=""))
 
-dev.off()
+	pairs(values,upper.panel=my_panel_smooth,lower.panel=my_panel_cor)
+
+	dev.off()
+}
 
 #signal success and exit.
 q(status=0)		
