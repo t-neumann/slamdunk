@@ -54,7 +54,33 @@ class SlamSeqConversionRates:
 
     def getRate(self, refBase, readBase):
         return self._data[self._baseNumber * self._encodeBase(refBase) + self._encodeBase(readBase)]
+
+class SlamSeqInterval:
     
+    _chromosome = None
+    _start = None
+    _stop = None
+    _strand = None
+    _name = None
+    _readsCPM = None
+    _avgConversionRate = None
+    _tCount = None
+    _coveredBp = None
+    
+    def __init__(self, chromosome, start, stop, strand, name, readsCPM, avgConversationRate, tCount, coveredBp):
+        self._chromosome = chromosome
+        self._start = start
+        self._stop = stop
+        self._strand = strand
+        self._name = name
+        self._readsCPM = readsCPM
+        self._avgConversionRate = avgConversationRate
+        self._tCount = tCount
+        self._coveredBp = coveredBp
+        
+    def __repr__(self):
+        return (self._chromosome + "\t" + str(self._start) + "\t" + str(self._stop) + "\t" + self._name + "\t" + self._strand + "\t" + str(self._avgConversionRate) + "\t" + str(self._readsCPM) + "\t" + str(self._tCount) + "\t" + str(self._coveredBp))
+     
 
 class SlamSeqAlignmentPosition:
     # Position on the read. 
@@ -176,6 +202,15 @@ class SlamSeqBamIterator:
     _minQual = 0
     _chromosome = None
     _startPosition = 0
+
+    def getTCount(self, strand):
+        if(strand == "+"):
+            return self._refSeq.lower().count("t")
+        else:
+            return self._refSeq.lower().count("a")
+
+    def getRefSeq(self):
+        return self._refSeq[self._maxReadLength:-self._maxReadLength]
 
     # TODO: merge with fillMismatches
     # pysam code (get_aligend_pairs) should be present only once!        

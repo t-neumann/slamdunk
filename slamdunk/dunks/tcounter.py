@@ -4,14 +4,16 @@
 from __future__ import print_function
 
 import csv
+import sys
 import itertools as IT
+import numpy
 
 from os.path import basename
-from utils.misc import getReadCount, getSampleName
-from utils.BedReader import BedIterator
+from utils.misc import getReadCount, getSampleName, getchar
+from utils.BedReader import BedIterator, BedEntry
 
 from utils import SNPtools
-from slamseq.SlamSeqFile import SlamSeqBamFile, ReadDirection
+from slamseq.SlamSeqFile import SlamSeqBamFile, ReadDirection, SlamSeqInterval
 
 
 def collapse(expandedCSV, collapsedCSV, readNumber, log):
@@ -77,6 +79,97 @@ def collapse(expandedCSV, collapsedCSV, readNumber, log):
         #sys.stdin.readline()
         
     outCSV.close()    
+    
+
+def getMean(values, skipZeros=True):
+    count = 0.0
+    totalSum = 0.0
+    for value in values:
+        if not skipZeros or value > 0:
+            totalSum = totalSum + value
+            count += 1
+    if(count > 0):
+        return totalSum / count
+    else:
+        return 0.0
+
+def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputCSV, log):
+
+    flagstat = getReadCount(bam)
+    readNumber = flagstat.MappedReads
+
+    fileCSV = open(outputCSV,'w')
+    
+    snps = SNPtools.SNPDictionary(snpsFile)
+
+    #Go through one chr after the other
+    testFile = SlamSeqBamFile(bam, ref, snps)
+                         
+    for utr in BedIterator(bed):
+    
+        #utr = BedEntry()
+        #utr.chromosome = "chr6"
+        #utr.start = 106781648
+        #utr.stop = 106782474
+        #utr.name = "Trnt1" 
+#         print(utr, file=sys.stderr)
+        readIterator = testFile.readInRegion(utr.chromosome, utr.start, utr.stop, maxReadLength)
+      
+        tcCountUtr = [0] * (utr.getLength() + 1)
+        coverageUtr = [0] * (utr.getLength() + 1)
+        readCount = 0
+        countFwd = 0
+        countRev = 0
+        for read in readIterator:
+            
+            if(read.direction == ReadDirection.Reverse):
+                countRev += 1
+            else:
+                countFwd += 1
+            
+            for mismatch in read.mismatches:
+                if(mismatch.isTCMismatch(read.direction == ReadDirection.Reverse) and mismatch.referencePosition > 0 and mismatch.referencePosition <= utr.getLength()):
+                    tcCountUtr[mismatch.referencePosition] += 1
+        
+            
+            for i in xrange(read.startRefPos, read.endRefPos + 1):
+                if(i > 0 and i <= utr.getLength()):
+                    coverageUtr[i] += 1
+                
+            readCount += 1
+        
+        tcRateUtr = [ x * 100.0 / y if y > 0 else 0 for x, y in zip(tcCountUtr, coverageUtr)]
+        
+        strand = "-"
+        if countFwd > countRev:
+            strand = "+"
+        
+        refSeq = readIterator.getRefSeq()
+
+        # Get number of covered Ts/As in the UTR and compute average conversion rate for all covered Ts/As
+        coveredTcount = 0
+        avgConversationRate = 0
+        coveredPositions = 0
+        for position in xrange(0, len(coverageUtr)):
+            if(coverageUtr[position] > 0 and ((strand == "+" and refSeq[position] == "T") or (strand == "-" and refSeq[position] == "A"))):
+                coveredTcount += 1
+                avgConversationRate += tcRateUtr[position]
+                #print(refSeq[position] + "\t", utr.start + position - 1, refSeq[position], coverageUtr[position], tcRateUtr[position], file=sys.stderr)
+                # print conversion rates for all covered Ts/As
+                print(utr.chromosome, utr.start + position - 1, utr.start + position, tcRateUtr[position], sep="\t")
+            if(coverageUtr[position] > 0):
+                coveredPositions += 1
+                
+        avgConversationRate = avgConversationRate / coveredTcount
+        # reads per million mapped to the UTR
+        readsCPM = readCount  * 1000000.0 / readNumber
+     
+        # Convert to SlamSeqInterval and print
+        slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, strand, utr.name, readsCPM, avgConversationRate, coveredTcount, coveredPositions)
+        print(slamSeqUtr, file=fileCSV)
+        
+    fileCSV.close()
+
 
 def count(ref, bed, snpsFile, bam, maxReadLength, minQual, outputCSV, log):
     flagstat = getReadCount(bam)

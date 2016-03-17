@@ -96,7 +96,7 @@ def runCount(tid, bam, outputDirectory, snpDirectory) :
         inputSNP = os.path.join(snpDirectory, replaceExtension(basename(bam), ".vcf", "_snp"))
     else:
         inputSNP = None
-    tcounter.count(args.ref, args.bed, inputSNP, bam, args.maxLength, args.minQual, outputCSV, getLogFile(outputLOG))
+    tcounter.computeTconversions(args.ref, args.bed, inputSNP, bam, args.maxLength, args.minQual, outputCSV, getLogFile(outputLOG))
     stepFinished()
     return outputCSV
 
@@ -167,7 +167,7 @@ def runUtrCoverage(tid, bam, minMQ, outputDirectory):
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_utrcoverage"))
     log = getLogFile(outputLOG)
     
-    stats.coveragePerUtr(args.bed, bam, minMQ, outputCSV, outputPDF, log, False, True, True)
+    #stats.coveragePerUtr(args.bed, bam, minMQ, outputCSV, outputPDF, log, False, True, True)
     
     closeLogFile(log)
     stepFinished()
@@ -379,7 +379,7 @@ elif (command == "count") :
     n = args.threads
     message("Running slamDunk tcount for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
     results = Parallel(n_jobs=n, verbose=verbose)(delayed(runCount)(tid, args.bam[tid], outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
-    runCountCombine(results, args.sampleNames, args.outputPrefix, outputDirectory)
+    #runCountCombine(results, args.sampleNames, args.outputPrefix, outputDirectory)
     dunkFinished()
     
 elif (command == "stats.rates") :  
