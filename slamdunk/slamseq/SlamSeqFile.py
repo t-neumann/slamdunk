@@ -234,25 +234,27 @@ class SlamSeqBamIterator:
         tCount = 0
         startRefPos = None
         endRefPos = None
+
         for pair in read.get_aligned_pairs(matches_only=True):
 
-            refPos = pair[1] - int(self._startPosition) + 1
-            if (startRefPos == None):
-                startRefPos = refPos
-            else :
-                startRefPos = min(startRefPos,refPos)
-
-            if (endRefPos == None):
-                endRefPos = refPos
-            else :
-                endRefPos = max(endRefPos,refPos)
+#             refPos = pair[1] - int(self._startPosition) + 1
+#             if (startRefPos == None):
+#                 startRefPos = refPos
+#             else :
+#                 startRefPos = min(startRefPos,refPos)
+# 
+#             if (endRefPos == None):
+#                 endRefPos = refPos
+#             else :
+#                 endRefPos = max(endRefPos,refPos)
 
             alnPosition = self.toAlignmentPos(pair, self._refSeq, read)
             if(alnPosition.isT(read.is_reverse)):
                 tCount += 1
             if(alnPosition.isMismatch() and alnPosition.readBaseQlty >= self._minQual):
                 mismatchList.append(alnPosition)
-        return mismatchList, tCount, startRefPos, endRefPos
+                
+        return mismatchList, tCount, read.reference_start - int(self._startPosition) + 1, read.reference_end - int(self._startPosition) + 1
           
     
     def getTC(self, mismatches, isReverse):
@@ -335,7 +337,7 @@ class SlamSeqBamIterator:
 #             print("TC rate (pys): " + str(slamSeqRead.tcRate))
             #sys.stdin.read(1)
 #             raise RuntimeError("Difference found between NGM and Py.")
-        
+   
         return slamSeqRead
                 
 class SlamSeqBamFile:

@@ -26,7 +26,7 @@ positionLabel = "Position on read"
 mutationLabel = "% of reads with mutation"
 
 if( !is.null(opt$utr)) {
-	positionLabel = "Scaled position on UTR (100 bins)"
+	positionLabel = "Position at 3' UTR end (200 bp upstream)"
 	mutationLabel = "% of UTRs with mutation"
 }
 
