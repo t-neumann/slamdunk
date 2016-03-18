@@ -17,7 +17,7 @@ pathComputeOverallRates = os.path.join(projectPath, "plot", "compute_overall_rat
 pathConversionPerReadPos = os.path.join(projectPath, "plot", "conversion_per_read_position.R")
 pathSampleComparison = os.path.join(projectPath, "plot", "compute_sample_comparison_statistics.R")
 
-utrNormFactor = 100
+utrNormFactor = 201
 baseNumber = 5
 toBase = [ 'A', 'C', 'G', 'T', 'N' ]
 
@@ -255,16 +255,14 @@ def tcPerUtr(referenceFile, utrBed, bam, minQual, maxReadLength, outputCSV, outp
     
         counter = 0
             
-        totalUtrCount = [0] * utrNormFactor
+        totalUtrCountFwd = [0] * utrNormFactor
+        totalUtrCountRev = [0] * utrNormFactor
         
         tcPerPosRev = [0] * utrNormFactor
         tcPerPosFwd = [0] * utrNormFactor
          
         allPerPosRev = [0] * utrNormFactor
         allPerPosFwd = [0] * utrNormFactor
-
-#         tcPerPos = [0] * utrNormFactor
-#         allPerPos = [0] * utrNormFactor
         
         snps = SNPtools.SNPDictionary(snpsFile)
         
@@ -273,15 +271,13 @@ def tcPerUtr(referenceFile, utrBed, bam, minQual, maxReadLength, outputCSV, outp
         
         for utr in BedIterator(utrBed):
                                          
-            readIterator = testFile.readInRegion(utr.chromosome, utr.start, utr.stop, maxReadLength)
+            readIterator = testFile.readInRegion(utr.chromosome, utr.start, utr.stop, utr.strand, maxReadLength)
             
             tcForwardCounts = [0] * utrNormFactor
             mutForwardCounts = [0] * utrNormFactor
             tcReverseCounts = [0] * utrNormFactor
             mutReverseCounts = [0] * utrNormFactor
 
-#             tcForwardCounts =  [0] * utrNormFactor
-#             mutForwardCounts = [0] * utrNormFactor
             
             for read in readIterator:
                 
@@ -289,37 +285,56 @@ def tcPerUtr(referenceFile, utrBed, bam, minQual, maxReadLength, outputCSV, outp
                 mutCounts = [0] * utrNormFactor
                 
                 for mismatch in read.mismatches:
-                    #if (mismatch.readPosition >= 12 and mismatch.readPosition < 37 ) :
-                        if (mismatch.referencePosition >= 0 and mismatch.referencePosition < utr.getLength()) :
-                            normPos = normalizePos(mismatch.referencePosition, utr.getLength(), utrNormFactor)
-                            mutCounts[normPos] = 1
+                            
+                    mismatchPos = mismatch.referencePosition
+                    
+                    if (utr.strand == "+") :
+                                                
+                        if (mismatchPos >= (utr.getLength() - utrNormFactor) and mismatchPos < utr.getLength() + 1) :
+                            mismatchPos = utrNormFactor - (utr.getLength() - mismatchPos) - 1
                             if(mismatch.isTCMismatch(read.direction == ReadDirection.Reverse)):
-                                tcCounts[normPos] = 1
-                
+                                tcCounts[mismatchPos] += 1
+                            else :
+                                mutCounts[mismatchPos] += 1
+                        
+                    else :
+                    
+                        if (mismatchPos >= 0 and mismatchPos < min(utr.getLength(), utrNormFactor)) :
+                            if(mismatch.isTCMismatch(read.direction == ReadDirection.Reverse)):
+                                tcCounts[mismatchPos] += 1
+                            else :
+                                mutCounts[mismatchPos] += 1
+                            
                 if(read.direction == ReadDirection.Reverse):
-                    tcReverseCounts = maxLists(tcReverseCounts, tcCounts)
-                    mutReverseCounts = maxLists(mutReverseCounts, mutCounts)
+                    
+                    tcReverseCounts = sumLists(tcReverseCounts, tcCounts)
+                    mutReverseCounts = sumLists(mutReverseCounts, mutCounts)
+                    
+                    start = max(0, min(min(utr.getLength() + 1, utrNormFactor), read.startRefPos))
+                    end = max(0, min(min(utr.getLength() + 1, utrNormFactor), read.endRefPos))
+                    
+                    for i in range(start, end):
+                        
+                        totalUtrCountRev[i] += 1
                      
                 else:
-                    tcForwardCounts = maxLists(tcForwardCounts, tcCounts)
-                    mutForwardCounts = maxLists(mutForwardCounts, mutCounts)
-
-#                 tcForwardCounts = maxLists(tcForwardCounts, tcCounts)
-#                 mutForwardCounts = maxLists(mutForwardCounts, mutCounts)
+                            
+                    tcForwardCounts = sumLists(tcForwardCounts, tcCounts)
+                    mutForwardCounts = sumLists(mutForwardCounts, mutCounts)
                     
+                    start = min(utr.getLength() + 1,max(utr.getLength() - utrNormFactor + 1,read.startRefPos))
+                    end = min(utr.getLength() + 1,max(utr.getLength() - utrNormFactor + 1,read.endRefPos))
+                
+                    for i in range(start, end):
+                        normPos = utrNormFactor - (utr.getLength() - i) - 1
+                        totalUtrCountFwd[normPos] += 1                 
                         
             tcPerPosFwd = sumLists(tcPerPosFwd, tcForwardCounts)
             allPerPosFwd = sumLists(allPerPosFwd, mutForwardCounts)
              
             tcPerPosRev = sumLists(tcPerPosRev, tcReverseCounts)
             allPerPosRev = sumLists(allPerPosRev, mutReverseCounts)
-
-#             tcPerPos = sumLists(tcPerPos, tcForwardCounts)
-#             allPerPos = sumLists(allPerPos, mutForwardCounts)
             
-            for i in range(0, utrNormFactor):
-                totalUtrCount[i] += 1
-                
             counter += 1
             
             if (verbose and counter % 10000 == 0) :
@@ -327,9 +342,19 @@ def tcPerUtr(referenceFile, utrBed, bam, minQual, maxReadLength, outputCSV, outp
     
         foTC = open(outputCSV, "w")
         
-        for i in range(0, utrNormFactor):
-            print(allPerPosFwd[i], allPerPosRev[i], tcPerPosFwd[i], tcPerPosRev[i], totalUtrCount[i] ,sep='\t', file=foTC)
-#             print(allPerPos[i], tcPerPos[i],totalUtrCount[i] ,sep='\t', file=foTC)
+        reverseAllPerPosRev = allPerPosRev[::-1]
+        reverseAllPerPosRev = reverseAllPerPosRev[0:utrNormFactor-1]
+        reverseTcPerPosRev = tcPerPosRev[::-1]
+        reverseTcPerPosRev = reverseTcPerPosRev[0:utrNormFactor-1]
+        reverseTotalUtrCountRev = totalUtrCountRev[::-1]
+        reverseTotalUtrCountRev = reverseTotalUtrCountRev[0:utrNormFactor-1]
+        
+        allPerPosFwd = allPerPosFwd[1:utrNormFactor]
+        tcPerPosFwd = tcPerPosFwd[1:utrNormFactor]
+        totalUtrCountFwd = totalUtrCountFwd[1:utrNormFactor]
+        
+        for i in range(0, utrNormFactor - 1):
+            print(allPerPosFwd[i], reverseAllPerPosRev[i], tcPerPosFwd[i], reverseTcPerPosRev[i], totalUtrCountFwd[i], reverseTotalUtrCountRev[i],sep='\t', file=foTC)
         foTC.close()
        
     if(not checkStep([outputCSV], [outputPDF], force)):
