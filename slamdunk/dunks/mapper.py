@@ -45,7 +45,7 @@ def runSam2bam(inFile, outFile, log, index=True, sort=True, delinFile=False, onl
         runIndexBam(outFile, log, verbose=verbose, dry=dry)
 
 
-def Map(inputBAM, inputReference, outputSAM, log, threads=1, parameter="--no-progress --slam-seq 2 -e -i 0.95" , outputSuffix="_ngm_slamdunk", trim5p=0, printOnly=False, verbose=True, force=True):    
+def Map(inputBAM, inputReference, outputSAM, log, threads=1, parameter="--no-progress --slam-seq 2 -e" , outputSuffix="_ngm_slamdunk", trim5p=0, printOnly=False, verbose=True, force=True):    
     if(trim5p > 0):
         parameter = parameter + " -5 " + str(trim5p)
                     
