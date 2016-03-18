@@ -55,14 +55,21 @@ def stepFinished():
 
 def dunkFinished():
     print("", file=mainOutput)
+    
+def createDir(directory):
+    if not os.path.exists(directory):
+        message("Creating output directory: " + directory)
+        os.makedirs(directory)
 
 def runMap(tid, inputBAM, referneceFile, threads, trim5p, outputDirectory) :
+    createDir(outputDirectory)
     outputSAM = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".sam", "_slamdunk_mapped"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".log", "_slamdunk_mapped"))
     mapper.Map(inputBAM, referneceFile, outputSAM, getLogFile(outputLOG), threads=threads, trim5p=trim5p, printOnly=printOnly, verbose=verbose)
     stepFinished()
 
 def runSort(tid, bam, outputDirectory):
+    createDir(outputDirectory)
     inputSAM = os.path.join(outputDirectory, replaceExtension(basename(bam), ".sam", "_slamdunk_mapped"))
     outputBAM = os.path.join(outputDirectory, replaceExtension(basename(bam), ".bam", "_slamdunk_mapped"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_slamdunk_mapped"))
@@ -70,6 +77,7 @@ def runSort(tid, bam, outputDirectory):
     stepFinished()
 
 def runDedup(tid, bam, outputDirectory) :
+    createDir(outputDirectory)
     outputBAM = os.path.join(outputDirectory, replaceExtension(basename(bam), ".bam", "_dedup"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_dedup"))
     log = getLogFile(outputLOG)
@@ -78,30 +86,35 @@ def runDedup(tid, bam, outputDirectory) :
     stepFinished()
         
 def runFilter(tid, bam, outputDirectory):
+    createDir(outputDirectory)
     outputBAM = os.path.join(outputDirectory, replaceExtension(basename(bam), ".bam", "_filtered"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_filtered"))
-    filter.Filter(bam, outputBAM, getLogFile(outputLOG), args.mq, printOnly, verbose)
+    filter.Filter(bam, outputBAM, getLogFile(outputLOG), args.mq, 0.85, -1, printOnly, verbose)
     stepFinished()
 
 def runSnp(tid, referenceFile, minCov, minVarFreq, inputBAM, outputDirectory) :
+    createDir(outputDirectory)
     outputSNP = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".vcf", "_snp"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".log", "_snp"))
     snps.SNPs(inputBAM, outputSNP, referenceFile, minVarFreq, minCov, getLogFile(outputLOG), printOnly, verbose, True)
     stepFinished()
                 
 def runCount(tid, bam, outputDirectory, snpDirectory) :
+    createDir(outputDirectory)
     outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_tcount"))
+    outputBedgraphPlus = os.path.join(outputDirectory, replaceExtension(basename(bam), ".bedgraph", "_tcount_plus"))
+    outputBedgraphMinus = os.path.join(outputDirectory, replaceExtension(basename(bam), ".bedgraph", "_tcount_mins"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_tcount"))
     if(snpDirectory != None):
         inputSNP = os.path.join(snpDirectory, replaceExtension(basename(bam), ".vcf", "_snp"))
     else:
         inputSNP = None
-    tcounter.computeTconversions(args.ref, args.bed, inputSNP, bam, args.maxLength, args.minQual, outputCSV, getLogFile(outputLOG))
+    tcounter.computeTconversions(args.ref, args.bed, inputSNP, bam, args.maxLength, args.minQual, outputCSV, outputBedgraphPlus, outputBedgraphMinus, getLogFile(outputLOG))
     stepFinished()
     return outputCSV
 
 def runCountCombine(bams, sampleNames, outputPrefix, outputDirectory):
-    
+    createDir(outputDirectory)
     samples = readSampleNames(sampleNames, bams)
     
     NON_TC_READ_COUNT = 4
@@ -123,6 +136,7 @@ def runCountCombine(bams, sampleNames, outputPrefix, outputDirectory):
         
         
 def runStatsRates(tid, bam, referenceFile, minMQ, outputDirectory) :
+    createDir(outputDirectory)
     outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_tcount_overallrates"))
     outputPDF = os.path.join(outputDirectory, replaceExtension(basename(bam), ".pdf", "_tcount_overallrates"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_tcount_overallrates"))
@@ -132,6 +146,7 @@ def runStatsRates(tid, bam, referenceFile, minMQ, outputDirectory) :
     stepFinished()
     
 def runSTcPerReadPos(tid, bam, referenceFile, minMQ, maxReadLength, outputDirectory, snpDirectory):
+    createDir(outputDirectory)
     outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_tcperreadpos"))
     outputPDF = os.path.join(outputDirectory, replaceExtension(basename(bam), ".pdf", "_tcperreadpos"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_tcperreadpos"))
@@ -147,6 +162,7 @@ def runSTcPerReadPos(tid, bam, referenceFile, minMQ, maxReadLength, outputDirect
     stepFinished()
     
 def runSTcPerUtr(tid, bam, referenceFile, minMQ, maxReadLength, outputDirectory, snpDirectory):
+    createDir(outputDirectory)
     outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_tcperutr"))
     outputPDF = os.path.join(outputDirectory, replaceExtension(basename(bam), ".pdf", "_tcperutr"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_tcperutr"))
@@ -162,6 +178,7 @@ def runSTcPerUtr(tid, bam, referenceFile, minMQ, maxReadLength, outputDirectory,
     stepFinished()
 
 def runUtrCoverage(tid, bam, minMQ, outputDirectory):
+    createDir(outputDirectory)
     outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_utrcoverage"))
     outputPDF = os.path.join(outputDirectory, replaceExtension(basename(bam), ".pdf", "_utrcoverage"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_utrcoverage"))
@@ -174,6 +191,7 @@ def runUtrCoverage(tid, bam, minMQ, outputDirectory):
 
     
 def runDumpReadInfo(tid, bam, referenceFile, minMQ, outputDirectory, snpDirectory):
+    createDir(outputDirectory)
     outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".sdunk", "_readinfo"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_readinfo"))
     if(snpDirectory != None):
