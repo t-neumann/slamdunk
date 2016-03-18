@@ -6,11 +6,10 @@ from __future__ import print_function
 import csv
 import sys
 import itertools as IT
-import numpy
 
 from os.path import basename
-from utils.misc import getReadCount, getSampleName, getchar
-from utils.BedReader import BedIterator, BedEntry
+from utils.misc import getReadCount, getSampleName
+from utils.BedReader import BedIterator
 
 from utils import SNPtools
 from slamseq.SlamSeqFile import SlamSeqBamFile, ReadDirection, SlamSeqInterval
@@ -93,7 +92,7 @@ def getMean(values, skipZeros=True):
     else:
         return 0.0
 
-def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputCSV, log):
+def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputCSV, outputBedgraphPlus, outputBedgraphMinus, log):
 
     flagstat = getReadCount(bam)
     readNumber = flagstat.MappedReads
@@ -104,7 +103,10 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
 
     #Go through one chr after the other
     testFile = SlamSeqBamFile(bam, ref, snps)
+    
+    conversionBedGraph = {}
                          
+    progress = 0
     for utr in BedIterator(bed):
     
         #utr = BedEntry()
@@ -112,8 +114,12 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
         #utr.start = 106781648
         #utr.stop = 106782474
         #utr.name = "Trnt1" 
-#         print(utr, file=sys.stderr)
-        readIterator = testFile.readInRegion(utr.chromosome, utr.start, utr.stop, maxReadLength)
+        #print(utr, file=sys.stderr)
+
+        if(not utr.hasStrand()):
+            raise RuntimeError("Input BED file does not contain stranded intervals.")
+
+        readIterator = testFile.readInRegion(utr.chromosome, utr.start, utr.stop, utr.strand, maxReadLength)
       
         tcCountUtr = [0] * (utr.getLength() + 1)
         coverageUtr = [0] * (utr.getLength() + 1)
@@ -137,40 +143,68 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
                     coverageUtr[i] += 1
                 
             readCount += 1
-        
-        tcRateUtr = [ x * 100.0 / y if y > 0 else 0 for x, y in zip(tcCountUtr, coverageUtr)]
-        
-        strand = "-"
-        if countFwd > countRev:
-            strand = "+"
-        
-        refSeq = readIterator.getRefSeq()
 
-        # Get number of covered Ts/As in the UTR and compute average conversion rate for all covered Ts/As
-        coveredTcount = 0
-        avgConversationRate = 0
-        coveredPositions = 0
-        for position in xrange(0, len(coverageUtr)):
-            if(coverageUtr[position] > 0 and ((strand == "+" and refSeq[position] == "T") or (strand == "-" and refSeq[position] == "A"))):
-                coveredTcount += 1
-                avgConversationRate += tcRateUtr[position]
-                #print(refSeq[position] + "\t", utr.start + position - 1, refSeq[position], coverageUtr[position], tcRateUtr[position], file=sys.stderr)
-                # print conversion rates for all covered Ts/As
-                print(utr.chromosome, utr.start + position - 1, utr.start + position, tcRateUtr[position], sep="\t")
-            if(coverageUtr[position] > 0):
-                coveredPositions += 1
+        if((utr.strand == "+" and countFwd > 0) or (utr.strand == "-" and countRev > 0)):        
+            tcRateUtr = [ x * 100.0 / y if y > 0 else 0 for x, y in zip(tcCountUtr, coverageUtr)]
+            
+            if((utr.strand == "-" and countFwd > countRev) or (utr.strand == "+" and countRev > countFwd)):
+                print("Warning: " + utr.name + " is located on the " + utr.strand + " strand but read counts are higher for the opposite strand (fwd: " + countFwd + ", rev: " + countRev + ")", file=sys.stderr)
                 
-        avgConversationRate = avgConversationRate / coveredTcount
-        # reads per million mapped to the UTR
-        readsCPM = readCount  * 1000000.0 / readNumber
-     
-        # Convert to SlamSeqInterval and print
-        slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, strand, utr.name, readsCPM, avgConversationRate, coveredTcount, coveredPositions)
+            
+            refSeq = readIterator.getRefSeq()
+    
+            # Get number of covered Ts/As in the UTR and compute average conversion rate for all covered Ts/As
+            coveredTcount = 0
+            avgConversationRate = 0
+            coveredPositions = 0
+            for position in xrange(0, len(coverageUtr)):
+                if(coverageUtr[position] > 0 and ((utr.strand == "+" and refSeq[position] == "T") or (utr.strand == "-" and refSeq[position] == "A"))):
+                    coveredTcount += 1
+                    avgConversationRate += tcRateUtr[position]
+                    #print(refSeq[position] + "\t", utr.start + position - 1, refSeq[position], coverageUtr[position], tcRateUtr[position], file=sys.stderr)
+                    # print conversion rates for all covered Ts/As
+                    #print(utr.chromosome, utr.start + position - 1, utr.start + position, tcRateUtr[position], sep="\t")
+                    conversionBedGraph[utr.chromosome + ":" + str(utr.start + position - 1) + ":" + str(utr.strand)] = tcRateUtr[position] 
+                if(coverageUtr[position] > 0):
+                    coveredPositions += 1
+            
+            if(coveredTcount > 0):
+                avgConversationRate = avgConversationRate / coveredTcount
+            else:
+                avgConversationRate = 0
+                
+            # reads per million mapped to the UTR
+            readsCPM = 0
+            if(readNumber > 0):
+                readsCPM = readCount  * 1000000.0 / readNumber
+            
+         
+            # Convert to SlamSeqInterval and print
+            slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, readsCPM, avgConversationRate, coveredTcount, coveredPositions)
+        else:
+            slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, 0, -1, 0, 0)
         print(slamSeqUtr, file=fileCSV)
         
+        if progress % 10 == 0:
+            print("Progress: " + str(progress) + "\r", file=sys.stderr, end="")
+        progress += 1
+        
     fileCSV.close()
+    
+    fileBedgraphPlus = open(outputBedgraphPlus,'w')
+    fileBedgraphMinus = open(outputBedgraphMinus,'w')
+    
+    for position in conversionBedGraph:
+        positionData = position.split(":")
+        if(positionData[2] == "+"):
+            print(positionData[0], positionData[1], int(positionData[1]) + 1, conversionBedGraph[position], file=fileBedgraphPlus)
+        else:
+            print(positionData[0], positionData[1], int(positionData[1]) + 1, conversionBedGraph[position], file=fileBedgraphMinus)
+            
+    fileBedgraphPlus.close()
+    fileBedgraphMinus.close()
 
-
+# @deprecated 
 def count(ref, bed, snpsFile, bam, maxReadLength, minQual, outputCSV, log):
     flagstat = getReadCount(bam)
     readNumber = flagstat.MappedReads

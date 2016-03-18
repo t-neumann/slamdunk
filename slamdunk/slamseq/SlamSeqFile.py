@@ -66,7 +66,7 @@ class SlamSeqInterval:
     _avgConversionRate = None
     _tCount = None
     _coveredBp = None
-    
+        
     def __init__(self, chromosome, start, stop, strand, name, readsCPM, avgConversationRate, tCount, coveredBp):
         self._chromosome = chromosome
         self._start = start

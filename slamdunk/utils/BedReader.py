@@ -11,6 +11,10 @@ class BedEntry:
     
     def getLength(self):
         return self.stop - self.start
+    
+    def hasStrand(self):
+        return self.strand != "."
+    
 
 class BedIterator:
     
