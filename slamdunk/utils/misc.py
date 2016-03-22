@@ -96,7 +96,7 @@ def runFlagstat(bam, log=sys.stderr, verbose=False, dry=False):
     if(dry or checkStep([bam], [flagstat])):
         run(" ".join([ "samtools", "flagstat", bam, ">", flagstat]), log, verbose=verbose, dry=dry)
     else:
-        print("Skipped flagstat for " + bam)
+        print("Skipped flagstat for " + bam, file=log)
 
 def extractMappedReadCount(flagstat):
     return int(flagstat.split("\n")[4].split(" ")[0])
