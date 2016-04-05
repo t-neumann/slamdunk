@@ -26,7 +26,7 @@ verbose = False
 
 mainOutput = sys.stderr
 
-logToMainOutput = True
+logToMainOutput = False
 
 ########################################################################
 # Routine definitions
@@ -62,7 +62,6 @@ def createDir(directory):
         os.makedirs(directory)
 
 def runMap(tid, inputBAM, referneceFile, threads, trim5p, localMapping, outputDirectory) :
-    createDir(outputDirectory)
     outputSAM = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".sam", "_slamdunk_mapped"))
     outputBAI = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".bam.bai", "_slamdunk_mapped"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".log", "_slamdunk_mapped"))
@@ -72,7 +71,6 @@ def runMap(tid, inputBAM, referneceFile, threads, trim5p, localMapping, outputDi
     stepFinished()
 
 def runSort(tid, bam, outputDirectory):
-    createDir(outputDirectory)
     inputSAM = os.path.join(outputDirectory, replaceExtension(basename(bam), ".sam", "_slamdunk_mapped"))
     outputBAM = os.path.join(outputDirectory, replaceExtension(basename(bam), ".bam", "_slamdunk_mapped"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_slamdunk_mapped"))
@@ -80,7 +78,6 @@ def runSort(tid, bam, outputDirectory):
     stepFinished()
 
 def runDedup(tid, bam, outputDirectory) :
-    createDir(outputDirectory)
     outputBAM = os.path.join(outputDirectory, replaceExtension(basename(bam), ".bam", "_dedup"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_dedup"))
     log = getLogFile(outputLOG)
@@ -89,21 +86,18 @@ def runDedup(tid, bam, outputDirectory) :
     stepFinished()
         
 def runFilter(tid, bam, mq, minIdentity, maxNM, outputDirectory):
-    createDir(outputDirectory)
     outputBAM = os.path.join(outputDirectory, replaceExtension(basename(bam), ".bam", "_filtered"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_filtered"))
     filter.Filter(bam, outputBAM, getLogFile(outputLOG), mq, minIdentity, maxNM, printOnly, verbose)
     stepFinished()
 
 def runSnp(tid, referenceFile, minCov, minVarFreq, inputBAM, outputDirectory) :
-    createDir(outputDirectory)
     outputSNP = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".vcf", "_snp"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".log", "_snp"))
     snps.SNPs(inputBAM, outputSNP, referenceFile, minVarFreq, minCov, getLogFile(outputLOG), printOnly, verbose, True)
     stepFinished()
                 
 def runCount(tid, bam, ref, bed, maxLength, minQual, outputDirectory, snpDirectory) :
-    createDir(outputDirectory)
     outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_tcount"))
     outputBedgraphPlus = os.path.join(outputDirectory, replaceExtension(basename(bam), ".bedgraph", "_tcount_plus"))
     outputBedgraphMinus = os.path.join(outputDirectory, replaceExtension(basename(bam), ".bedgraph", "_tcount_mins"))
@@ -117,7 +111,6 @@ def runCount(tid, bam, ref, bed, maxLength, minQual, outputDirectory, snpDirecto
     return outputCSV
 
 def runCountCombine(bams, sampleNames, outputPrefix, outputDirectory):
-    createDir(outputDirectory)
     samples = readSampleNames(sampleNames, bams)
     
     NON_TC_READ_COUNT = 4
@@ -139,7 +132,6 @@ def runCountCombine(bams, sampleNames, outputPrefix, outputDirectory):
         
         
 def runStatsRates(tid, bam, referenceFile, minMQ, outputDirectory) :
-    createDir(outputDirectory)
     outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_tcount_overallrates"))
     outputPDF = os.path.join(outputDirectory, replaceExtension(basename(bam), ".pdf", "_tcount_overallrates"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_tcount_overallrates"))
@@ -147,9 +139,17 @@ def runStatsRates(tid, bam, referenceFile, minMQ, outputDirectory) :
     stats.statsComputeOverallRates(referenceFile, bam, minMQ, outputCSV, outputPDF, log)
     closeLogFile(log)
     stepFinished()
+
+def runStatsRatesUTR(tid, bam, referenceFile, minMQ, outputDirectory, utrFile, maxReadLength) :
+    outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_mutationrates_utr"))
+    outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_mutationrates_utr"))
+    log = getLogFile(outputLOG)
+    stats.statsComputeOverallRatesPerUTR(referenceFile, bam, minMQ, outputCSV, utrFile, maxReadLength, log)
+    closeLogFile(log)
+    stepFinished()
+
     
 def runSTcPerReadPos(tid, bam, referenceFile, minMQ, maxReadLength, outputDirectory, snpDirectory):
-    createDir(outputDirectory)
     outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_tcperreadpos"))
     outputPDF = os.path.join(outputDirectory, replaceExtension(basename(bam), ".pdf", "_tcperreadpos"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_tcperreadpos"))
@@ -165,7 +165,6 @@ def runSTcPerReadPos(tid, bam, referenceFile, minMQ, maxReadLength, outputDirect
     stepFinished()
     
 def runSTcPerUtr(tid, bam, referenceFile, bed, minMQ, maxReadLength, outputDirectory, snpDirectory):
-    createDir(outputDirectory)
     outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_tcperutr"))
     outputPDF = os.path.join(outputDirectory, replaceExtension(basename(bam), ".pdf", "_tcperutr"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_tcperutr"))
@@ -181,7 +180,6 @@ def runSTcPerUtr(tid, bam, referenceFile, bed, minMQ, maxReadLength, outputDirec
     stepFinished()
 
 def runUtrCoverage(tid, bam, minMQ, outputDirectory):
-    createDir(outputDirectory)
     outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_utrcoverage"))
     outputPDF = os.path.join(outputDirectory, replaceExtension(basename(bam), ".pdf", "_utrcoverage"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_utrcoverage"))
@@ -194,7 +192,6 @@ def runUtrCoverage(tid, bam, minMQ, outputDirectory):
 
     
 def runDumpReadInfo(tid, bam, referenceFile, minMQ, outputDirectory, snpDirectory):
-    createDir(outputDirectory)
     outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".sdunk", "_readinfo"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_readinfo"))
     if(snpDirectory != None):
@@ -288,6 +285,17 @@ def run():
     statsparser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
     #statsparser.add_argument('-R', "--compute-rates", dest="overallRates", action='store_true', help="Compute overall conversion rates.")
     statsparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
+
+    # stats rates utr command
+    
+    statsutrrateparser = subparsers.add_parser('stats.utrrates', help='Calculate stats on SLAM-seq datasets')
+    statsutrrateparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
+    statsutrrateparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
+    statsutrrateparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
+    statsutrrateparser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
+    statsutrrateparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
+    statsutrrateparser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
+    statsutrrateparser.add_argument("-l", "--max-read-length", type=int, required=True, dest="maxLength", help="Max read length in BAM file")
     
     # stats summary command
     
@@ -362,6 +370,7 @@ def run():
     
     if (command == "map") :
         outputDirectory = args.outputDir
+        createDir(outputDirectory)
         n = args.threads
         referenceFile = args.referenceFile
         message("Running slamDunk map for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
@@ -374,6 +383,7 @@ def run():
          
     elif (command == "filter") :
         outputDirectory = args.outputDir
+        createDir(outputDirectory)
         n = args.threads
         message("Running slamDunk filter for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
         results = Parallel(n_jobs=n, verbose=verbose)(delayed(runFilter)(tid, args.bam[tid], args.mq, args.identity, args.nm, outputDirectory) for tid in range(0, len(args.bam)))
@@ -381,6 +391,7 @@ def run():
         
     elif (command == "snp") :
         outputDirectory = args.outputDir
+        createDir(outputDirectory)
         fasta = args.fasta
         minCov = args.cov
         minVarFreq = args.var
@@ -393,6 +404,7 @@ def run():
     
     elif (command == "dedup") :
         outputDirectory = args.outputDir
+        createDir(outputDirectory)
         n = args.threads
         message("Running slamDunk dedup for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
         results = Parallel(n_jobs=n, verbose=verbose)(delayed(runDedup)(tid, args.bam[tid], outputDirectory) for tid in range(0, len(args.bam)))
@@ -400,6 +412,7 @@ def run():
         
     elif (command == "count") :
         outputDirectory = args.outputDir
+        createDir(outputDirectory)
         snpDirectory = args.snpDir
         n = args.threads
         message("Running slamDunk tcount for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
@@ -409,13 +422,25 @@ def run():
         
     elif (command == "stats.rates") :  
         outputDirectory = args.outputDir
+        createDir(outputDirectory)
         n = args.threads
         referenceFile = args.referenceFile
         minMQ = args.mq
         message("Running slamDunk stats for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
         results = Parallel(n_jobs=n, verbose=verbose)(delayed(runStatsRates)(tid, args.bam[tid], referenceFile, minMQ, outputDirectory) for tid in range(0, len(args.bam)))
         dunkFinished() 
+    
+    elif (command == "stats.utrrates") :  
+        outputDirectory = args.outputDir
+        createDir(outputDirectory)
+        n = args.threads
+        referenceFile = args.referenceFile
+        minMQ = args.mq
         
+        message("Running slamDunk stats for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runStatsRatesUTR)(tid, args.bam[tid], referenceFile, minMQ, outputDirectory, args.bed, args.maxLength) for tid in range(0, len(args.bam)))
+        dunkFinished()
+    
     elif (command == "stats.summary") :
         samples = readSampleNames(args.sampleNames, None)
         n = 1
@@ -427,6 +452,7 @@ def run():
     
     elif (command == "stats.tcperreadpos") :
         outputDirectory = args.outputDir
+        createDir(outputDirectory)
         n = args.threads
         snpDirectory = args.snpDir
         referenceFile = args.referenceFile
@@ -436,8 +462,8 @@ def run():
         dunkFinished()
         
     elif (command == "stats.tcperutrpos") :
-        
         outputDirectory = args.outputDir
+        createDir(outputDirectory)
         n = args.threads
         snpDirectory = args.snpDir
         referenceFile = args.referenceFile
@@ -448,8 +474,8 @@ def run():
         dunkFinished()
     
     elif (command == "stats.utrcoverage"):
-    
         outputDirectory = args.outputDir
+        createDir(outputDirectory)
         n = args.threads
     #     snpDirectory = args.snpDir
     #     referenceFile = args.referenceFile
@@ -461,6 +487,7 @@ def run():
     
     elif (command == "dump.reads") :
         outputDirectory = args.outputDir
+        createDir(outputDirectory)
         n = args.threads
         snpDirectory = args.snpDir
         referenceFile = args.referenceFile
