@@ -131,7 +131,46 @@ def statsComputeOverallRates(referenceFile, bam, minQual, outputCSV, outputPDF, 
         f.close()
             
         run(pathComputeOverallRates + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
+ 
+
+def statsComputeOverallRatesPerUTR(referenceFile, bam, minQual, outputCSV, utrBed, maxReadLength, log, printOnly=False, verbose=True, force=False):
+    
+    if(not checkStep([bam, referenceFile], [outputCSV], force)):
+        print("Skipped computing overall rates for file " + bam, file=log)
+    else:
+        #Go through one chr after the other
+        testFile = SlamSeqBamFile(bam, referenceFile, None)
+        
+        fo = open(outputCSV, "w")
+        print("Name", "Chr", "Start", "End", "Strand", "ReadCount", sep="\t", end="\t", file=fo)
+        for i in range(0, 5):
+            for j in range(0, 5):
+                print(toBase[i].upper() + "_" + toBase[j].upper(), end="", file=fo)
+                if(i != 4 or j != 4):
+                    print("\t", end="", file=fo)
+        print(file=fo)
+                        
+        for utr in BedIterator(utrBed):
+                                         
+            readIterator = testFile.readInRegion(utr.chromosome, utr.start, utr.stop, utr.strand, maxReadLength)
             
+            #Init
+            totalRates = [0] * 25
+            
+            readCount = 0
+            for read in readIterator:
+                
+                #Compute rates for current read
+                rates = read.conversionRates
+                
+                #Add rates from read to total rates
+                totalRates = sumLists(totalRates, rates)
+                readCount += 1
+                    
+            print(utr.name, utr.chromosome, utr.start, utr.stop, utr.strand, readCount, "\t".join(str(x) for x in totalRates), sep="\t", file=fo)
+        fo.close()
+    
+           
     
 def readSummary(mappedFiles, filteredFiles, dedupFiles, snpsFiles, samples, outputPrefix, log, printOnly=False, verbose=True, force=False):
     if(len(mappedFiles) == len(snpsFiles)):
@@ -239,7 +278,7 @@ def tcPerReadPos(referenceFile, bam, minQual, maxReadLength, outputCSV, outputPD
 
         foTC = open(outputCSV, "w")
         for i in range(0, maxReadLength):
-            print(allPerPosFwd[i], allPerPosRev[i], tcPerPosFwd[i], tcPerPosRev[i], totalReadCountFwd[i], totalReadCountRev[i],sep='\t', file=foTC)
+            print(allPerPosFwd[i], allPerPosRev[i], tcPerPosFwd[i], tcPerPosRev[i], totalReadCountFwd[i], totalReadCountRev[i], sep='\t', file=foTC)
         foTC.close()
        
     if(not checkStep([outputCSV], [outputPDF], force)):
