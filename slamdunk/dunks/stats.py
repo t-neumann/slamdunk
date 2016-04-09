@@ -324,19 +324,25 @@ def tcPerUtr(referenceFile, utrBed, bam, minQual, maxReadLength, outputCSV, outp
                 mutCounts = [0] * utrNormFactor
                 
                 for mismatch in read.mismatches:
-                            
+                             
                     mismatchPos = mismatch.referencePosition
-                    
+
+                    #mismatchPos = read.startRefPos
+                        
                     if (utr.strand == "+") :
                                                 
-                        if (mismatchPos >= (utr.getLength() - utrNormFactor) and mismatchPos < utr.getLength() + 1) :
+                        # New try for UTRs (remove + 1
+                        if (mismatchPos >= (utr.getLength() - utrNormFactor + 1) and mismatchPos < utr.getLength() + 1) :
+                        #if (mismatchPos >= (utr.getLength() - utrNormFactor) and mismatchPos < utr.getLength() + 1) :
                             mismatchPos = utrNormFactor - (utr.getLength() - mismatchPos) - 1
+                            
                             if(mismatch.isTCMismatch(read.direction == ReadDirection.Reverse)):
                                 tcCounts[mismatchPos] += 1
                             else :
-                                mutCounts[mismatchPos] += 1
-                        
+                                mutCounts[mismatchPos] += 1                    
                     else :
+                        
+#                         mismatchPos = read.endRefPos
                     
                         if (mismatchPos >= 0 and mismatchPos < min(utr.getLength(), utrNormFactor)) :
                             if(mismatch.isTCMismatch(read.direction == ReadDirection.Reverse)):

@@ -401,7 +401,7 @@ class SlamSeqBamFile:
     
     def readsInChromosome(self, chromosome):
         refSeq = self._referenceFile.fetch(region=chromosome).upper()
-        return SlamSeqBamIterator(self._bamFile.fetch(region=chromosome), refSeq, chromosome, 1, 0, self._snps)
+        return SlamSeqBamIterator(self._bamFile.fetch(region=chromosome), refSeq, chromosome, 1, ".", 0, self._snps)
     
     
     def atoi(self, text):

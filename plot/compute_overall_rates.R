@@ -71,7 +71,7 @@ for (i in 1:nrow(rates)) {
 	printTab$rate_percent = printTab$rate_percent / total * 100
 	#printTab$rate_percent = printTab$rate_percent / sum(printTab$rate_percent) * 100
 	
-	curPlot = qplot(x=rates, y=rate_percent, fill=strand,data=printTab, geom="bar", stat="identity") + geom_text(aes(label = round(rate_percent,digits=2)), size = 1, hjust = 0.5, vjust = 1.5, position = "stack") + ylab("Rate percent %") + xlab(rates$sample[i]) +
+	curPlot = qplot(x=rates, y=rate_percent, fill=strand,data=printTab) + geom_bar(stat="identity") + geom_text(aes(label = round(rate_percent,digits=2)), size = 1, hjust = 0.5, vjust = 1.5, position = "stack") + ylab("Rate percent %") + xlab(rates$sample[i]) +
 			theme(text = element_text(size=6),axis.text.x = element_text(size=6)) 
 	curPlot + xlim(0,35)	
 	plotList[[length(plotList)+1]] <- curPlot + ylim(0.0,3.5)
