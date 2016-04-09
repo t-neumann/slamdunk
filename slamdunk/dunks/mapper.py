@@ -10,7 +10,7 @@ projectPath = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__
 ngmPath = os.path.join(projectPath, "bin", "NextGenMap", "bin", "ngm-0.4.13", "ngm")
 
 
-def runSam2bam(inFile, outFile, log, index=True, sort=True, delinFile=False, onlyUnique=False, onlyProperPaired=False, filterMQ=0, L=None, verbose=False, dry=False):
+def runSam2bam(inFile, outFile, log, index=True, sort=True, delinFile=False, onlyUnique=False, onlyProperPaired=False, filterMQ=0, L=None, threads=1, verbose=False, dry=False):
     if(delinFile and files_exist(outFile) and not files_exist(inFile)):
         print("Skipping sam2bam for " + outFile, file=log)
     else:
@@ -18,28 +18,25 @@ def runSam2bam(inFile, outFile, log, index=True, sort=True, delinFile=False, onl
             filterMQ = 1;
             
         success = True    
-        if(dry or checkStep([inFile], [outFile])):        
-            cmd = ["samtools", "view", "-Sb", "-o", outFile, inFile]
-            if filterMQ > 0:
-                cmd+=["-q", str(filterMQ)]
-            if onlyProperPaired:
-                cmd+=["-f", "2"]
-            if not L is None:
-                cmd+=["-L", L]
-            run(" ".join(cmd), log, verbose=verbose, dry=dry)
-            
-            if(sort):         
-                tmp = outFile + "_tmp"
-                if(not dry):
-                    os.rename(outFile, tmp)                      
-                run(" ".join(["samtools", "sort", tmp, replaceExtension(outFile, "")]), log, verbose=verbose, dry=dry)
-                if(success):
-                    removeFile(tmp)
-            if(success and delinFile):
-                if(not dry):
-                    removeFile(inFile)
-        else:
-            print("Skipping sam2bam. " + outFile + " already exists.", file=log);
+        cmd = ["samtools", "view", "-@", str(threads), "-Sb", "-o", outFile, inFile]
+        if filterMQ > 0:
+            cmd+=["-q", str(filterMQ)]
+        if onlyProperPaired:
+            cmd+=["-f", "2"]
+        if not L is None:
+            cmd+=["-L", L]
+        run(" ".join(cmd), log, verbose=verbose, dry=dry)
+        
+        if(sort):         
+            tmp = outFile + "_tmp"
+            if(not dry):
+                os.rename(outFile, tmp)                      
+            run(" ".join(["samtools", "sort", "-@", str(threads), tmp, replaceExtension(outFile, "")]), log, verbose=verbose, dry=dry)
+            if(success):
+                removeFile(tmp)
+        if(success and delinFile):
+            if(not dry):
+                removeFile(inFile)
         
     if(index):
         runIndexBam(outFile, log, verbose=verbose, dry=dry)
@@ -60,8 +57,11 @@ def Map(inputBAM, inputReference, outputSAM, log, localMapping, threads=1, param
         print("Skipped mapping for " + inputBAM, file=log)
         
 
-def sort(inputSAM, outputBAM, log, keepSam=True, dry=False, verbose=True):    
+def sort(inputSAM, outputBAM, log, threads=1, keepSam=True, dry=False, verbose=True):    
 
-    runSam2bam(inputSAM, outputBAM, log, True, True, not keepSam, dry=dry, verbose=verbose)
-    runFlagstat(outputBAM, log, dry=dry, verbose=verbose)
+    if(files_exist(inputSAM) and checkStep([inputSAM], [outputBAM + ".flagstat"])):
+        runSam2bam(inputSAM, outputBAM, log, True, True, not keepSam, threads=threads, dry=dry, verbose=verbose)
+        runFlagstat(outputBAM, log, dry=dry, verbose=verbose)
+    else:
+        print("Skipped sorting for " + inputSAM, file=log)
 

@@ -70,11 +70,11 @@ def runMap(tid, inputBAM, referneceFile, threads, trim5p, localMapping, outputDi
         mapper.Map(inputBAM, referneceFile, outputSAM, getLogFile(outputLOG), localMapping, threads=threads, trim5p=trim5p, printOnly=printOnly, verbose=verbose)
     stepFinished()
 
-def runSort(tid, bam, outputDirectory):
+def runSort(tid, bam, threads, outputDirectory):
     inputSAM = os.path.join(outputDirectory, replaceExtension(basename(bam), ".sam", "_slamdunk_mapped"))
     outputBAM = os.path.join(outputDirectory, replaceExtension(basename(bam), ".bam", "_slamdunk_mapped"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_slamdunk_mapped"))
-    mapper.sort(inputSAM, outputBAM, getLogFile(outputLOG), False, printOnly, verbose)
+    mapper.sort(inputSAM, outputBAM, getLogFile(outputLOG), threads, False, printOnly, verbose)
     stepFinished()
 
 def runDedup(tid, bam, outputDirectory) :
@@ -378,7 +378,7 @@ def run():
             runMap(0, bam, referenceFile, n, args.trim5, args.local, outputDirectory)
         dunkFinished()
         message("Running slamDunk sort for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runSort)(tid, args.bam[tid], outputDirectory) for tid in range(0, len(args.bam)))
+        results = Parallel(n_jobs=1, verbose=verbose)(delayed(runSort)(tid, args.bam[tid], n, outputDirectory) for tid in range(0, len(args.bam)))
         dunkFinished()
          
     elif (command == "filter") :

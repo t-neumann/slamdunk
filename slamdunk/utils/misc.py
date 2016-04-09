@@ -84,7 +84,7 @@ def run(cmd, log=sys.stderr, verbose=False, dry=False):
             print(line, end="", file=log) # yield line
         p.wait();
         if(p.returncode != 0):
-            raise RuntimeError("Error while executing command!")
+            raise RuntimeError("Error while executing command: \"" + cmd + "\"")
 
 def runIndexBam(inFileBam, log=sys.stderr, verbose=False, dry=False):
     idxFile = inFileBam + ".bai"
