@@ -2,3 +2,4 @@
 /.pydevproject
 /sync.sh
 *.pyc
+/.DS_Store
