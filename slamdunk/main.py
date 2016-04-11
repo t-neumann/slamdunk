@@ -241,7 +241,7 @@ def run():
     filterparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     filterparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
     filterparser.add_argument("-mq", "--min-mq", type=int, required=False, default=2, dest="mq", help="Minimal mapping quality")
-    filterparser.add_argument("-mi", "--min-identity", type=int, required=False, default=0.8, dest="identity", help="Minimal alignment identity")
+    filterparser.add_argument("-mi", "--min-identity", type=float, required=False, default=0.8, dest="identity", help="Minimal alignment identity")
     filterparser.add_argument("-mn", "--max-nm", type=int, required=False, default=-1, dest="nm", help="Maximal NM for alignments")
     filterparser.add_argument("-t", "--threads", type=int, required=False, dest="threads", help="Thread number")
     
