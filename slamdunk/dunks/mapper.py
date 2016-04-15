@@ -42,7 +42,7 @@ def runSam2bam(inFile, outFile, log, index=True, sort=True, delinFile=False, onl
         runIndexBam(outFile, log, verbose=verbose, dry=dry)
 
 
-def Map(inputBAM, inputReference, outputSAM, log, localMapping, threads=1, parameter="--no-progress --slam-seq 2" , outputSuffix="_ngm_slamdunk", trim5p=0, printOnly=False, verbose=True, force=False):    
+def Map(inputBAM, inputReference, outputSAM, log, localMapping, threads=1, parameter="--no-progress --slam-seq 2" , outputSuffix="_ngm_slamdunk", trim5p=0, topn=1, printOnly=False, verbose=True, force=False):    
     if(trim5p > 0):
         parameter = parameter + " -5 " + str(trim5p)
                     
@@ -50,6 +50,9 @@ def Map(inputBAM, inputReference, outputSAM, log, localMapping, threads=1, param
         parameter = parameter + " -l "
     else:
         parameter = parameter + " -e "
+        
+    if(topn > 1):
+        parameter = parameter + " -n " + str(topn) + " --strata "
         
     if(checkStep([inputReference, inputBAM], [outputSAM], force)):
         run(ngmPath + " -r " + inputReference + " -q " + inputBAM + " -t " + str(threads) + " " + parameter + " -o " + outputSAM, log, verbose=verbose, dry=printOnly)

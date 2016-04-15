@@ -61,13 +61,13 @@ def createDir(directory):
         message("Creating output directory: " + directory)
         os.makedirs(directory)
 
-def runMap(tid, inputBAM, referneceFile, threads, trim5p, localMapping, outputDirectory) :
+def runMap(tid, inputBAM, referneceFile, threads, trim5p, localMapping, topn, outputDirectory) :
     outputSAM = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".sam", "_slamdunk_mapped"))
     outputBAI = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".bam.bai", "_slamdunk_mapped"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".log", "_slamdunk_mapped"))
     # Don't run mapping if sort bam/bai files alread exists
     if(checkStep([inputBAM, referneceFile], [outputBAI])):
-        mapper.Map(inputBAM, referneceFile, outputSAM, getLogFile(outputLOG), localMapping, threads=threads, trim5p=trim5p, printOnly=printOnly, verbose=verbose)
+        mapper.Map(inputBAM, referneceFile, outputSAM, getLogFile(outputLOG), localMapping, threads=threads, trim5p=trim5p, topn=topn, printOnly=printOnly, verbose=verbose)
     stepFinished()
 
 def runSort(tid, bam, threads, outputDirectory):
@@ -232,6 +232,7 @@ def run():
     mapparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
     mapparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
     mapparser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
+    mapparser.add_argument("-n", "--topn", type=int, required=False, dest="topn", default=1, help="Max. number of alignments to report per read")
     mapparser.add_argument("-t", "--threads", type=int, required=False, dest="threads", help="Thread number")
     mapparser.add_argument('-l', "--local", action='store_true', dest="local", help="Use a local alignment algorithm for mapping.")
     
@@ -375,7 +376,7 @@ def run():
         referenceFile = args.referenceFile
         message("Running slamDunk map for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
         for bam in args.bam:
-            runMap(0, bam, referenceFile, n, args.trim5, args.local, outputDirectory)
+            runMap(0, bam, referenceFile, n, args.trim5, args.local, args.topn, outputDirectory)
         dunkFinished()
         message("Running slamDunk sort for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
         results = Parallel(n_jobs=1, verbose=verbose)(delayed(runSort)(tid, args.bam[tid], n, outputDirectory) for tid in range(0, len(args.bam)))
