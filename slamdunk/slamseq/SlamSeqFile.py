@@ -66,8 +66,10 @@ class SlamSeqInterval:
     _avgConversionRate = None
     _tCount = None
     _coveredBp = None
+    _readCount = None
+    _tcReadCount = None
         
-    def __init__(self, chromosome, start, stop, strand, name, readsCPM, avgConversationRate, tCount, coveredBp):
+    def __init__(self, chromosome, start, stop, strand, name, readsCPM, avgConversationRate, tCount, coveredBp, readCount, tcReadCount):
         self._chromosome = chromosome
         self._start = start
         self._stop = stop
@@ -77,9 +79,12 @@ class SlamSeqInterval:
         self._avgConversionRate = avgConversationRate
         self._tCount = tCount
         self._coveredBp = coveredBp
+        self._readCount = readCount
+        self._tcReadCount = tcReadCount
         
     def __repr__(self):
-        return (self._chromosome + "\t" + str(self._start) + "\t" + str(self._stop) + "\t" + self._name + "\t" + self._strand + "\t" + str(self._avgConversionRate) + "\t" + str(self._readsCPM) + "\t" + str(self._tCount) + "\t" + str(self._coveredBp))
+        return (self._chromosome + "\t" + str(self._start) + "\t" + str(self._stop) + "\t" + self._name + "\t" + self._strand + "\t" + str(self._avgConversionRate) + "\t" + str(self._readsCPM) + "\t" + str(self._tCount) + "\t" + str(self._coveredBp) + "\t" + str(self._readCount) + "\t" + str(self._tcReadCount))
+    
      
 
 class SlamSeqAlignmentPosition:
@@ -204,11 +209,11 @@ class SlamSeqBamIterator:
     _chromosome = None
     _startPosition = 0
 
-    def getTCount(self, strand):
-        if(strand == "+"):
-            return self._refSeq.lower().count("t")
-        else:
-            return self._refSeq.lower().count("a")
+#     def getTCount(self, strand):
+#         if(strand == "+"):
+#             return self._refSeq.lower().count("t")
+#         else:
+#             return self._refSeq.lower().count("a")
 
     def getRefSeq(self):
         return self._refSeq[self._maxReadLength:-self._maxReadLength]

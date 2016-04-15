@@ -123,15 +123,21 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
       
         tcCountUtr = [0] * (utr.getLength() + 1)
         coverageUtr = [0] * (utr.getLength() + 1)
-        readCount = 0
+
         countFwd = 0
+        tcCountFwd = 0
         countRev = 0
+        tCountRev = 0
         for read in readIterator:
             
             if(read.direction == ReadDirection.Reverse):
                 countRev += 1
+                if read.tcCount > 0:
+                    tCountRev += 1
             else:
                 countFwd += 1
+                if read.tcCount > 0:
+                    tcCountFwd += 1
             
             for mismatch in read.mismatches:
                 if(mismatch.isTCMismatch(read.direction == ReadDirection.Reverse) and mismatch.referencePosition > 0 and mismatch.referencePosition <= utr.getLength()):
@@ -141,11 +147,16 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
             for i in xrange(read.startRefPos, read.endRefPos + 1):
                 if(i > 0 and i <= utr.getLength()):
                     coverageUtr[i] += 1
-                
-            readCount += 1
+            
 
         if((utr.strand == "+" and countFwd > 0) or (utr.strand == "-" and countRev > 0)):        
             tcRateUtr = [ x * 100.0 / y if y > 0 else 0 for x, y in zip(tcCountUtr, coverageUtr)]
+            
+            readCount = countFwd
+            tcReadCount = tcCountFwd;
+            if(utr.strand == "-"):
+                readCount = countRev
+                tcReadCount = tCountRev
             
             if((utr.strand == "-" and countFwd > countRev) or (utr.strand == "+" and countRev > countFwd)):
                 print("Warning: " + utr.name + " is located on the " + utr.strand + " strand but read counts are higher for the opposite strand (fwd: " + countFwd + ", rev: " + countRev + ")", file=sys.stderr)
@@ -180,13 +191,14 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
             
          
             # Convert to SlamSeqInterval and print
-            slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, readsCPM, avgConversationRate, coveredTcount, coveredPositions)
+            slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, readsCPM, avgConversationRate, coveredTcount, coveredPositions, readCount, tcReadCount)
         else:
-            slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, 0, -1, 0, 0)
-        print(slamSeqUtr, file=fileCSV)
+            slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, 0, -1, 0, 0, 0, 0)
+        #print(slamSeqUtr, file=fileCSV)
+        print(slamSeqUtr)
         
-        if progress % 10 == 0:
-            print("Progress: " + str(progress) + "\r", file=sys.stderr, end="")
+        #if progress % 10 == 0:
+            #print("Progress: " + str(progress) + "\r", file=sys.stderr, end="")
         progress += 1
         
     fileCSV.close()
