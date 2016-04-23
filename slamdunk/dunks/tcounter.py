@@ -194,8 +194,8 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
             slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, readsCPM, avgConversationRate, coveredTcount, coveredPositions, readCount, tcReadCount)
         else:
             slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, 0, -1, 0, 0, 0, 0)
-        #print(slamSeqUtr, file=fileCSV)
-        print(slamSeqUtr)
+        print(slamSeqUtr, file=fileCSV)
+        #print(slamSeqUtr)
         
         #if progress % 10 == 0:
             #print("Progress: " + str(progress) + "\r", file=sys.stderr, end="")

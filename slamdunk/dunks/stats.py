@@ -1,19 +1,20 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
-import os
+import os, sys
 import tempfile
 import math
 
 from os.path import basename
 from utils.misc import run
-from utils.misc import removeExtension, checkStep, getReadCount, matchFile
+from utils.misc import removeExtension, checkStep, getReadCount, matchFile, complement
 from slamseq.SlamSeqFile import SlamSeqBamFile, ReadDirection
 from utils import SNPtools
 from utils.BedReader import BedIterator, BedEntry
 
 projectPath = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 pathComputeOverallRates = os.path.join(projectPath, "plot", "compute_overall_rates.R")
+pathComputeTCContext = os.path.join(projectPath, "plot", "compute_context_TC_rates.R")
 pathConversionPerReadPos = os.path.join(projectPath, "plot", "conversion_per_read_position.R")
 pathSampleComparison = os.path.join(projectPath, "plot", "compute_sample_comparison_statistics.R")
 
@@ -79,7 +80,7 @@ def printRates(ratesFwd, ratesRev, f):
 #                 print(read.n)            
 
 def statsComputeOverallRates(referenceFile, bam, minQual, outputCSV, outputPDF, log, printOnly=False, verbose=True, force=False):
-    
+     
     if(not checkStep([bam, referenceFile], [outputCSV], force)):
         print("Skipped computing overall rates for file " + bam, file=log)
     else:
@@ -87,6 +88,65 @@ def statsComputeOverallRates(referenceFile, bam, minQual, outputCSV, outputPDF, 
         totalRatesFwd = [0] * 25
         totalRatesRev = [0] * 25
         tcCount = [0] * 100
+         
+        #Go through one chr after the other
+        testFile = SlamSeqBamFile(bam, referenceFile, None)
+         
+        chromosomes = testFile.getChromosomes()
+         
+        for chromosome in chromosomes:
+            readIterator = testFile.readsInChromosome(chromosome)
+                 
+            for read in readIterator:
+                 
+                #Compute rates for current read
+                rates = read.conversionRates
+                #Get T -> C conversions for current read
+                tc = read.tcCount
+                tcCount[tc] += 1
+                 
+                #Add rates from read to total rates
+                if(read.direction == ReadDirection.Reverse):
+                    totalRatesRev = sumLists(totalRatesRev, rates)
+                else:
+                    totalRatesFwd = sumLists(totalRatesFwd, rates)
+         
+    #     #Writing T -> C counts to file
+    #     i = 0;
+    #     foTC = open(tcFile, "w")
+    #     for x in tcCount:
+    #         print(i, x, sep='\t', file=foTC)
+    #         i += 1
+    #     foTC.close()
+         
+        #Print rates in correct format for plotting
+        fo = open(outputCSV, "w")
+        printRates(totalRatesFwd, totalRatesRev, fo)
+        fo.close()
+     
+    if(not checkStep([bam, referenceFile], [outputPDF], force)):
+        print("Skipped computing overall rate pdfs for file " + bam, file=log)
+    else:
+        f = tempfile.NamedTemporaryFile(delete=False)
+        print(removeExtension(basename(bam)), outputCSV, sep='\t', file=f)
+        f.close()
+             
+        run(pathComputeOverallRates + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
+        
+def statsComputeTCContext(referenceFile, bam, minQual, outputCSV, outputPDF, log, printOnly=False, verbose=True, force=False):
+    
+    if(not checkStep([bam, referenceFile], [outputCSV], force)):
+        print("Skipped computing overall rates for file " + bam, file=log)
+    else:
+        #Init
+        #combinations = ["AT","CT","GT","TT","NT","AA","CA","GA","TA","NA"]
+        combinations = ["AT","CT","GT","TT","NT"]
+        counts = {}
+        counts['fwd'] = {}
+        counts['rev'] = {}
+        for combination in combinations :
+            counts['fwd'][combination] = 0
+            counts['rev'][combination] = 0
         
         #Go through one chr after the other
         testFile = SlamSeqBamFile(bam, referenceFile, None)
@@ -98,29 +158,28 @@ def statsComputeOverallRates(referenceFile, bam, minQual, outputCSV, outputPDF, 
                 
             for read in readIterator:
                 
-                #Compute rates for current read
-                rates = read.conversionRates
-                #Get T -> C conversions for current read
-                tc = read.tcCount
-                tcCount[tc] += 1
-                
-                #Add rates from read to total rates
-                if(read.direction == ReadDirection.Reverse):
-                    totalRatesRev = sumLists(totalRatesRev, rates)
-                else:
-                    totalRatesFwd = sumLists(totalRatesFwd, rates)
-        
-    #     #Writing T -> C counts to file
-    #     i = 0;
-    #     foTC = open(tcFile, "w")
-    #     for x in tcCount:
-    #         print(i, x, sep='\t', file=foTC)
-    #         i += 1
-    #     foTC.close()
+                # Iterator over mismatches for T -> C conversion contexts
+                # Get mismatches rates for current read
+                for mismatch in read.mismatches:
+                    if(mismatch.isTCMismatch(read.direction == ReadDirection.Reverse)):
+                        context = mismatch.referenceBaseContext + mismatch.referenceBase
+                        if (read.direction == ReadDirection.Reverse) :
+                            context = complement(context)
+                            counts['rev'][context] += 1
+                        else :
+                            counts['fwd'][context] += 1
         
         #Print rates in correct format for plotting
         fo = open(outputCSV, "w")
-        printRates(totalRatesFwd, totalRatesRev, fo)
+        print("\t".join(combinations),file=fo)
+        fwdLine = ""
+        revLine = ""
+        for combination in combinations :
+            fwdLine += str(counts['fwd'][combination]) + "\t"
+            revLine += str(counts['rev'][combination]) + "\t"
+        print(fwdLine.rstrip(),file=fo)
+        print(revLine.rstrip(),file=fo)
+        
         fo.close()
     
     if(not checkStep([bam, referenceFile], [outputPDF], force)):
@@ -129,8 +188,8 @@ def statsComputeOverallRates(referenceFile, bam, minQual, outputCSV, outputPDF, 
         f = tempfile.NamedTemporaryFile(delete=False)
         print(removeExtension(basename(bam)), outputCSV, sep='\t', file=f)
         f.close()
-            
-        run(pathComputeOverallRates + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
+        
+        run(pathComputeTCContext + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
  
 
 def statsComputeOverallRatesPerUTR(referenceFile, bam, minQual, outputCSV, utrBed, maxReadLength, log, printOnly=False, verbose=True, force=False):

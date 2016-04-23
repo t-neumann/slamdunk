@@ -159,3 +159,9 @@ def matchFile(sample, files):
                 raise RuntimeError("Found more than one matching file in list.")
             
     return fileName
+
+def complement(seq):
+    complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'} 
+    bases = list(seq) 
+    bases = [complement[base] for base in bases] 
+    return ''.join(bases)

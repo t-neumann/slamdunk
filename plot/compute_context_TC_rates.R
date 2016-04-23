@@ -1,0 +1,63 @@
+#!/usr/bin/env Rscript
+
+#Script to overlap public database file 
+# 
+# Author: Tobias Neumann, Zuber group, Institute for Molecular Pathology
+# Email: tobias.neumann@imp.ac.at
+###############################################################################
+library(getopt)
+
+
+spec = matrix(c(
+				'help'      , 'h', 0, "logical","print the usage of the command",
+				'rateTab', "f", 2,"character","tsv table of rate files",
+				'outputFile', "O", 2,"character","output pdf file name"
+		),ncol = 5,byrow=T)
+
+opt = getopt(spec)
+
+if ( !is.null(opt$help) || length(opt)==1 ) {
+	#get the script name
+	cmd = commandArgs(FALSE)
+	self = strsplit(cmd[grep("--file",cmd)],"=")[[1]][2]
+	cat(basename(self),": Create mismatch plots from rate tabs.\n\n")
+	#print a friendly message and exit with a non-zero error code
+	cat(getopt(spec,command = self,usage=T))
+	q(status=1);
+}
+
+
+if ( is.null(opt$rateTab) ) stop("arg rateTab must be specified")
+if ( is.null(opt$outputFile) ) { opt$outputFile = "out.pdf" }
+
+require(ggplot2)
+require(gridExtra)
+
+rates = read.table(opt$rateTab,stringsAsFactors=FALSE,col.names = c("sample","file"))
+
+pdf(opt$outputFile)
+
+plotList = list()
+
+for (i in 1:nrow(rates)) {
+	curTab = read.table(rates$file[i],stringsAsFactors=FALSE,header=TRUE)
+	
+	printTab = data.frame(contexts=rep(names(curTab),each=2),strand = rep(c("+","-"),ncol(curTab)),
+	rate_percent = unlist(curTab))
+
+	printTab$rate_percent = printTab$rate_percent / sum(curTab)
+	
+	# Ignore N contexts for now
+	printTab = printTab[-grep("NT",printTab$contexts),]
+	
+	curPlot = qplot(x=contexts, y=rate_percent, fill=strand,data=printTab) + geom_bar(stat="identity") + geom_text(aes(label = round(rate_percent,digits=2)), size = 3, hjust = 0.5, vjust = 1.5, position = "stack") + ylab("TC context percent %") + xlab(rates$sample[i]) +
+			theme(text = element_text(size=6),axis.text.x = element_text(size=6))
+	plotList[[length(plotList)+1]] <- curPlot + ylim(0.0,1.0)
+}
+
+do.call(grid.arrange,  plotList)
+
+dev.off()
+
+#signal success and exit.
+q(status=0)		

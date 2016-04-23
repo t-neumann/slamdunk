@@ -96,26 +96,29 @@ class SlamSeqAlignmentPosition:
     referencePosition = None
     # Base in read
     readBase = None
-    # Bas in reference
+    # Base in reference
     referenceBase = None
     # Base quality
     readBaseQlty = None
     # If the mismatch overlaps with a SNP position (if vcf file is specified)
     isSnpPosition = None
+    # Context of reference base
+    referenceBaseContext = None
     
-    def __init__(self, readPosition, referencePosition, readBase, referenceBase, readBaseQlty, isSnpPos):
+    def __init__(self, readPosition, referencePosition, readBase, referenceBase, readBaseQlty, isSnpPos, referenceBaseContext):
         self.readBase = readBase
         self.readBaseQlty = readBaseQlty
         self.readPosition = readPosition
         self.referenceBase = referenceBase
         self.referencePosition = referencePosition
         self.isSnpPosition = isSnpPos
+        self.referenceBaseContext = referenceBaseContext
         
     def isMismatch(self):
         return self.readBase != self.referenceBase
     
     def __repr__(self):
-        return str(self.referencePosition) + "," + self.referenceBase + "," + str(self.readPosition) + "," + self.readBase + "," + str(self.readBaseQlty) + "," +  str(self.isSnpPosition)
+        return str(self.referencePosition) + "," + self.referenceBase + "," + self.referenceBaseContext + "," + str(self.readPosition) + "," + self.readBase + "," + str(self.readBaseQlty) + "," +  str(self.isSnpPosition)
         #return self.referenceBase + "," + str(self.readPosition) + "," + self.readBase + "," + str(self.readBaseQlty) + "," +  str(self.isSnpPosition)
     
     def isTCMismatch(self, isReverse):
@@ -250,8 +253,14 @@ class SlamSeqBamIterator:
         readPos = pysamPosition[0]
         refPos = pysamPosition[1] - int(self._startPosition) + self._maxReadLength + 1
         
+        context = 'N'
         if(refPos < len(referenceSequence)):
             refBase = self._refSeq[refPos]
+            offset = refPos - 1
+            if (read.is_reverse) :
+                offset = refPos + 1
+            if (offset >= 0 and offset < len(referenceSequence)) :
+                context = self._refSeq[offset]
         else:
             refBase = 'N'
             
@@ -263,10 +272,10 @@ class SlamSeqBamIterator:
         
         if(read.is_reverse):
             isSnpPos = self._snps != None and self._snps.isAGSnp(self._chromosome, int(pysamPosition[1]))
-            return SlamSeqAlignmentPosition(read.query_length - readPos - 1, refPos, readBase, refBase, readQlty, isSnpPos)
+            return SlamSeqAlignmentPosition(read.query_length - readPos - 1, refPos, readBase, refBase, readQlty, isSnpPos, context)
         else:
             isSnpPos = self._snps != None and self._snps.isTCSnp(self._chromosome, int(pysamPosition[1]))
-            return SlamSeqAlignmentPosition(readPos, refPos, readBase, refBase, readQlty, isSnpPos)
+            return SlamSeqAlignmentPosition(readPos, refPos, readBase, refBase, readQlty, isSnpPos, context)
     
     
     def fillMismatches(self, read):

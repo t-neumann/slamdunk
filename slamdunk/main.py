@@ -139,6 +139,15 @@ def runStatsRates(tid, bam, referenceFile, minMQ, outputDirectory) :
     stats.statsComputeOverallRates(referenceFile, bam, minMQ, outputCSV, outputPDF, log)
     closeLogFile(log)
     stepFinished()
+    
+def runStatsTCContext(tid, bam, referenceFile, minMQ, outputDirectory) :
+    outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_tcount_tccontext"))
+    outputPDF = os.path.join(outputDirectory, replaceExtension(basename(bam), ".pdf", "_tcount_tccontext"))
+    outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_tcount_tccontext"))
+    log = getLogFile(outputLOG)
+    stats.statsComputeTCContext(referenceFile, bam, minMQ, outputCSV, outputPDF, log)
+    closeLogFile(log)
+    stepFinished()
 
 def runStatsRatesUTR(tid, bam, referenceFile, minMQ, outputDirectory, utrFile, maxReadLength) :
     outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_mutationrates_utr"))
@@ -286,6 +295,15 @@ def run():
     statsparser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
     #statsparser.add_argument('-R', "--compute-rates", dest="overallRates", action='store_true', help="Compute overall conversion rates.")
     statsparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
+    
+    # context command
+    
+    tccontextparser = subparsers.add_parser('stats.TCcontext', help='Calculate T->C conversion context on SLAM-seq datasets')
+    tccontextparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
+    tccontextparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
+    tccontextparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
+    tccontextparser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
+    tccontextparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
 
     # stats rates utr command
     
@@ -429,7 +447,17 @@ def run():
         minMQ = args.mq
         message("Running slamDunk stats for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
         results = Parallel(n_jobs=n, verbose=verbose)(delayed(runStatsRates)(tid, args.bam[tid], referenceFile, minMQ, outputDirectory) for tid in range(0, len(args.bam)))
-        dunkFinished() 
+        dunkFinished()
+    
+    elif (command == "stats.TCcontext") :  
+        outputDirectory = args.outputDir
+        createDir(outputDirectory)
+        n = args.threads
+        referenceFile = args.referenceFile
+        minMQ = args.mq
+        message("Running slamDunk TC context for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runStatsTCContext)(tid, args.bam[tid], referenceFile, minMQ, outputDirectory) for tid in range(0, len(args.bam)))
+        dunkFinished()
     
     elif (command == "stats.utrrates") :  
         outputDirectory = args.outputDir
