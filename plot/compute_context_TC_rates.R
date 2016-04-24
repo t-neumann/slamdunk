@@ -33,7 +33,7 @@ if ( is.null(opt$outputFile) ) { opt$outputFile = "out.pdf" }
 require(ggplot2)
 require(gridExtra)
 
-rates = read.table(opt$rateTab,stringsAsFactors=FALSE,col.names = c("sample","file"))
+rates = read.table(opt$rateTab,stringsAsFactors=FALSE,col.names = c("sample","file"),comment.char = "")
 
 pdf(opt$outputFile)
 

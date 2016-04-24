@@ -57,7 +57,7 @@ if ( !is.null(opt$help) || length(opt)==1 ) {
 if ( is.null(opt$sampleTab) ) stop("arg sampleTab must be specified")
 if ( is.null(opt$outputPrefix) ) { opt$outputPrefix = "sampleCorrelation" }
 
-rates = read.table(opt$sampleTab,header=TRUE,sep=";")
+rates = read.table(opt$sampleTab,header=TRUE,sep=";", comment.char = "")
 
 if (ncol(rates) < 6) {
 	print("No need for calculating pairwise statistics for single sample")
