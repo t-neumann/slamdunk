@@ -142,7 +142,6 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
             for mismatch in read.mismatches:
                 if(mismatch.isTCMismatch(read.direction == ReadDirection.Reverse) and mismatch.referencePosition > 0 and mismatch.referencePosition <= utr.getLength()):
                     tcCountUtr[mismatch.referencePosition] += 1
-        
             
             for i in xrange(read.startRefPos, read.endRefPos + 1):
                 if(i > 0 and i <= utr.getLength()):
@@ -168,10 +167,20 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
             coveredTcount = 0
             avgConversationRate = 0
             coveredPositions = 0
+            # Get number of reads on T positions and number of reads with T->C conversions on T positions
+            coverageOnTs = 0
+            conversionsOnTs = 0
+            
+            #print(coverageUtr)
+            #print(tcCountUtr)
+            #print(refSeq)
             for position in xrange(0, len(coverageUtr)):
                 if(coverageUtr[position] > 0 and ((utr.strand == "+" and refSeq[position] == "T") or (utr.strand == "-" and refSeq[position] == "A"))):
                     coveredTcount += 1
                     avgConversationRate += tcRateUtr[position]
+                    
+                    coverageOnTs += coverageUtr[position]
+                    conversionsOnTs += tcCountUtr[position]
                     #print(refSeq[position] + "\t", utr.start + position - 1, refSeq[position], coverageUtr[position], tcRateUtr[position], file=sys.stderr)
                     # print conversion rates for all covered Ts/As
                     #print(utr.chromosome, utr.start + position - 1, utr.start + position, tcRateUtr[position], sep="\t")
@@ -191,9 +200,11 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
             
          
             # Convert to SlamSeqInterval and print
-            slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, readsCPM, avgConversationRate, coveredTcount, coveredPositions, readCount, tcReadCount)
+            #slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, readsCPM, avgConversationRate, coveredTcount, coveredPositions, readCount, tcReadCount)
+            slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, readsCPM, coverageOnTs, conversionsOnTs, float(conversionsOnTs) / float(coverageOnTs), readCount, tcReadCount)
         else:
             slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, 0, -1, 0, 0, 0, 0)
+            #slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, 0, 0, 0, 0, 0, 0)
         print(slamSeqUtr, file=fileCSV)
         #print(slamSeqUtr)
         

@@ -63,27 +63,34 @@ class SlamSeqInterval:
     _strand = None
     _name = None
     _readsCPM = None
-    _avgConversionRate = None
-    _tCount = None
-    _coveredBp = None
+    #_avgConversionRate = None
+    #_tCount = None
+    #_coveredBp = None
+    _coverageOnTs = None
+    _conversionsOnTs = None
+    _conversionRate = None
     _readCount = None
     _tcReadCount = None
         
-    def __init__(self, chromosome, start, stop, strand, name, readsCPM, avgConversationRate, tCount, coveredBp, readCount, tcReadCount):
+    def __init__(self, chromosome, start, stop, strand, name, readsCPM, coverageOnTs, conversionsOnTs, conversionRate, readCount, tcReadCount):
         self._chromosome = chromosome
         self._start = start
         self._stop = stop
         self._strand = strand
         self._name = name
         self._readsCPM = readsCPM
-        self._avgConversionRate = avgConversationRate
-        self._tCount = tCount
-        self._coveredBp = coveredBp
+        #self._avgConversionRate = avgConversationRate
+        #self._tCount = tCount
+        #self._coveredBp = coveredBp
+        self._coverageOnTs = coverageOnTs
+        self._conversionsOnTs = conversionsOnTs
+        self._conversionRate = conversionRate
         self._readCount = readCount
         self._tcReadCount = tcReadCount
         
     def __repr__(self):
-        return (self._chromosome + "\t" + str(self._start) + "\t" + str(self._stop) + "\t" + self._name + "\t" + self._strand + "\t" + str(self._avgConversionRate) + "\t" + str(self._readsCPM) + "\t" + str(self._tCount) + "\t" + str(self._coveredBp) + "\t" + str(self._readCount) + "\t" + str(self._tcReadCount))
+        #return (self._chromosome + "\t" + str(self._start) + "\t" + str(self._stop) + "\t" + self._name + "\t" + self._strand + "\t" + str(self._avgConversionRate) + "\t" + str(self._readsCPM) + "\t" + str(self._tCount) + "\t" + str(self._coveredBp) + "\t" + str(self._readCount) + "\t" + str(self._tcReadCount))
+        return (self._chromosome + "\t" + str(self._start) + "\t" + str(self._stop) + "\t" + self._name + "\t" + self._strand + "\t" + str(self._conversionRate) + "\t" + str(self._readsCPM) + "\t" + str(self._coverageOnTs) + "\t" + str(self._conversionsOnTs) + "\t" + str(self._readCount) + "\t" + str(self._tcReadCount))
     
      
 
@@ -310,6 +317,7 @@ class SlamSeqBamIterator:
             if(alnPosition.isMismatch() and alnPosition.readBaseQlty >= self._minQual):
                 mismatchList.append(alnPosition)
                 
+        #return mismatchList, tCount, read.reference_start - int(self._startPosition) + 1, read.reference_end - int(self._startPosition) + 1
         return mismatchList, tCount, read.reference_start - int(self._startPosition) + 1, read.reference_end - int(self._startPosition) + 1
           
     
