@@ -6,21 +6,17 @@
 Welcome to slamdunk's documentation!
 ====================================
 
-Simple header
-^^^^^^^^^^^^^
-
-Here's some code::
-
-    for i in list:
-      print(i)
-
-Guide:
-^^^^^^
+Contents:
+^^^^^^^^^
 
 .. toctree::
-   :maxdepth: 2
-   license
-   help
+   :maxdepth: 3
+   
+   Introduction
+   Installation
+   Usage
+   Dunks
+   FAQ
 
 
 
@@ -30,4 +26,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
