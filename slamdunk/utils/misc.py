@@ -161,7 +161,7 @@ def matchFile(sample, files):
     return fileName
 
 def complement(seq):
-    complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'} 
+    complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A', 'N' : 'N'} 
     bases = list(seq) 
     bases = [complement[base] for base in bases] 
     return ''.join(bases)

@@ -36,23 +36,33 @@ require(gridExtra)
 rates = read.table(opt$rateTab,stringsAsFactors=FALSE,col.names = c("sample","file"),comment.char = "")
 
 pdf(opt$outputFile)
-
 plotList = list()
 
 for (i in 1:nrow(rates)) {
 	curTab = read.table(rates$file[i],stringsAsFactors=FALSE,header=TRUE)
 	
-	printTab = data.frame(contexts=rep(names(curTab),each=2),strand = rep(c("+","-"),ncol(curTab)),
-	rate_percent = unlist(curTab))
+	subFront = curTab[1:2,]
+	subBack = curTab[4:5,]
+	names(subBack) = curTab[3,]
+	
+	printTabFront = data.frame(contexts=rep(names(subFront),each=2),strand = rep(c("+","-"),ncol(subFront)),
+	rate_percent = as.numeric(unlist(subFront)))
+	printTabBack = data.frame(contexts=rep(names(subBack),each=2),strand = rep(c("+","-"),ncol(subBack)),
+		rate_percent = as.numeric(unlist(subBack)))
 
-	printTab$rate_percent = printTab$rate_percent / sum(curTab)
+	printTabFront$rate_percent = printTabFront$rate_percent / sum(printTabFront$rate_percent)
+	printTabBack$rate_percent = printTabBack$rate_percent / sum(printTabBack$rate_percent)
 	
 	# Ignore N contexts for now
-	printTab = printTab[-grep("NT",printTab$contexts),]
+	printTabFront = printTabFront[-grep("NT",printTabFront$contexts),]
+	printTabBack = printTabBack[-grep("TN",printTabBack$contexts),]
 	
-	curPlot = qplot(x=contexts, y=rate_percent, fill=strand,data=printTab) + geom_bar(stat="identity") + geom_text(aes(label = round(rate_percent,digits=2)), size = 3, hjust = 0.5, vjust = 1.5, position = "stack") + ylab("TC context percent %") + xlab(rates$sample[i]) +
-			theme(text = element_text(size=6),axis.text.x = element_text(size=6))
-	plotList[[length(plotList)+1]] <- curPlot + ylim(0.0,1.0)
+	curPlot = qplot(x=contexts, y=rate_percent, fill=strand,data=printTabFront) + geom_bar(stat="identity") + geom_text(aes(label = round(rate_percent,digits=2)), size = 3, hjust = 0.5, vjust = 1.5, position = "stack") + ylab("TC context percent %") + xlab(rates$sample[i]) +
+			theme(text = element_text(size=6),axis.text.x = element_text(size=6), plot.title = element_text(size=10))
+	plotList[[length(plotList)+1]] <- curPlot + ylim(0.0,1.0) + ggtitle("5' T->C context")
+	curPlot = qplot(x=contexts, y=rate_percent, fill=strand,data=printTabBack) + geom_bar(stat="identity") + geom_text(aes(label = round(rate_percent,digits=2)), size = 3, hjust = 0.5, vjust = 1.5, position = "stack") + ylab("TC context percent %") + xlab(rates$sample[i]) +
+			theme(text = element_text(size=6),axis.text.x = element_text(size=6),plot.title = element_text(size=10))
+	plotList[[length(plotList)+1]] <- curPlot + ylim(0.0,1.0) + ggtitle("3' T->C context")
 }
 
 do.call(grid.arrange,  plotList)
