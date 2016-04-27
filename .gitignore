@@ -3,3 +3,5 @@
 /sync.sh
 *.pyc
 /.DS_Store
+/doc/build/
+/bin/NextGenMap/
