@@ -108,21 +108,14 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
                          
     progress = 0
     for utr in BedIterator(bed):
-    
-        #utr = BedEntry()
-        #utr.chromosome = "chr6"
-        #utr.start = 106781648
-        #utr.stop = 106782474
-        #utr.name = "Trnt1" 
-        #print(utr, file=sys.stderr)
 
         if(not utr.hasStrand()):
             raise RuntimeError("Input BED file does not contain stranded intervals.")
 
         readIterator = testFile.readInRegion(utr.chromosome, utr.start, utr.stop, utr.strand, maxReadLength)
       
-        tcCountUtr = [0] * (utr.getLength() + 1)
-        coverageUtr = [0] * (utr.getLength() + 1)
+        tcCountUtr = [0] * utr.getLength()
+        coverageUtr = [0] * utr.getLength()
 
         countFwd = 0
         tcCountFwd = 0
@@ -140,11 +133,11 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
                     tcCountFwd += 1
             
             for mismatch in read.mismatches:
-                if(mismatch.isTCMismatch(read.direction == ReadDirection.Reverse) and mismatch.referencePosition > 0 and mismatch.referencePosition <= utr.getLength()):
+                if(mismatch.isTCMismatch(read.direction == ReadDirection.Reverse) and mismatch.referencePosition >= 0 and mismatch.referencePosition < utr.getLength()):
                     tcCountUtr[mismatch.referencePosition] += 1
             
-            for i in xrange(read.startRefPos, read.endRefPos + 1):
-                if(i > 0 and i <= utr.getLength()):
+            for i in xrange(read.startRefPos, read.endRefPos):
+                if(i >= 0 and i < utr.getLength()):
                     coverageUtr[i] += 1
             
 
@@ -171,9 +164,6 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
             coverageOnTs = 0
             conversionsOnTs = 0
             
-            #print(coverageUtr)
-            #print(tcCountUtr)
-            #print(refSeq)
             for position in xrange(0, len(coverageUtr)):
                 if(coverageUtr[position] > 0 and ((utr.strand == "+" and refSeq[position] == "T") or (utr.strand == "-" and refSeq[position] == "A"))):
                     coveredTcount += 1

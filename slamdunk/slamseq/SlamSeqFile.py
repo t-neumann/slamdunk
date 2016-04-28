@@ -279,7 +279,7 @@ class SlamSeqBamIterator:
             refBase = 'N'
             
         # After retreiving reference base, shift back by read length to retain position within UTR
-        refPos = refPos - self._maxReadLength
+        refPos = refPos - self._maxReadLength - 1
         
         readBase = read.query_sequence[readPos]
         readQlty = read.query_qualities[readPos]
@@ -297,7 +297,7 @@ class SlamSeqBamIterator:
         tCount = 0
         startRefPos = None
         endRefPos = None
-
+        
         for pair in read.get_aligned_pairs(matches_only=True):
 
 #             refPos = pair[1] - int(self._startPosition) + 1
@@ -318,7 +318,8 @@ class SlamSeqBamIterator:
                 mismatchList.append(alnPosition)
                 
         #return mismatchList, tCount, read.reference_start - int(self._startPosition) + 1, read.reference_end - int(self._startPosition) + 1
-        return mismatchList, tCount, read.reference_start - int(self._startPosition) + 1, read.reference_end - int(self._startPosition) + 1
+
+        return mismatchList, tCount, read.reference_start - int(self._startPosition), read.reference_end - int(self._startPosition)
           
     
     def getTC(self, mismatches, isReverse):
@@ -355,7 +356,7 @@ class SlamSeqBamIterator:
  
     def next(self):
         
-        read = self._readIterator.next()
+        read = self._readIterator.next()        
         
         # Strand-specific assay - skip all reads from antisense-strand
         while((self._strand == "+" and read.is_reverse) or (self._strand == "-" and not read.is_reverse)) :
@@ -401,7 +402,6 @@ class SlamSeqBamIterator:
 #             print("TC rate (pys): " + str(slamSeqRead.tcRate))
             #sys.stdin.read(1)
 #             raise RuntimeError("Difference found between NGM and Py.")
-   
         return slamSeqRead
                 
 class SlamSeqBamFile:

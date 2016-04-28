@@ -23,12 +23,16 @@ class SNPDictionary(object):
         self._vcfFile = vcfFile
 
     def _addSNP(self, snp):
-        if(snp[3].upper() == "T" and snp[4].upper() == "G"):
+        if(snp[3].upper() == "T" and snp[4].upper() == "C"):
+        #if(snp[3].upper() == "T" and snp[4].upper() == "G"):
+            
+            #key = snp[0] + (snp[1] - 1)
             key = snp[0] + snp[1]
             self._tcSNPs[key] = True
         
         if(snp[3].upper() == "A" and snp[4].upper() == "G"):
-            key = snp[0] + snp[1]
+            #key = snp[0] + snp[1]
+            key = snp[0] + (snp[1] - 1)
             self._agSNPs[key] = True
     
     #     if not snps is None:

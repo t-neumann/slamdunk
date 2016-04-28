@@ -19,7 +19,7 @@ pathComputeTCContext = os.path.join(projectPath, "plot", "compute_context_TC_rat
 pathConversionPerReadPos = os.path.join(projectPath, "plot", "conversion_per_read_position.R")
 pathSampleComparison = os.path.join(projectPath, "plot", "compute_sample_comparison_statistics.R")
 
-utrNormFactor = 201
+utrNormFactor = 200
 baseNumber = 5
 toBase = [ 'A', 'C', 'G', 'T', 'N' ]
 
@@ -133,7 +133,9 @@ def statsComputeOverallRates(referenceFile, bam, minQual, outputCSV, outputPDF, 
         f.close()
              
         run(pathComputeOverallRates + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
-        
+
+# This is for TC conversions
+    
 # def statsComputeTCContext(referenceFile, bam, minQual, outputCSV, outputPDF, log, printOnly=False, verbose=True, force=False):
 #     
 #     if(not checkStep([bam, referenceFile], [outputCSV], force)):
@@ -223,11 +225,117 @@ def statsComputeOverallRates(referenceFile, bam, minQual, outputCSV, outputPDF, 
 #         
 #         run(pathComputeTCContext + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
  
+# This is for Ts in reads
+
+# def statsComputeTCContext(referenceFile, bam, minQual, outputCSV, outputPDF, log, printOnly=False, verbose=True, force=False):
+#     
+#     if(not checkStep([bam, referenceFile], [outputCSV], force)):
+#         print("Skipped computing overall rates for file " + bam, file=log)
+#     else:
+#         # Init
+#         # combinations = ["AT","CT","GT","TT","NT","AA","CA","GA","TA","NA"]
+#         frontCombinations = ["AT", "CT", "GT", "TT", "NT"]
+#         backCombinations = ["TA", "TC", "TG", "TT", "TN"]
+#         
+#         counts = {}
+#         counts['5prime'] = {}
+#         counts['3prime'] = {}
+#         counts['5prime']['fwd'] = {}
+#         counts['5prime']['rev'] = {}
+#         counts['3prime']['fwd'] = {}
+#         counts['3prime']['rev'] = {}
+#         
+#         for combination in frontCombinations :
+#             counts['5prime']['fwd'][combination] = 0
+#             counts['5prime']['rev'][combination] = 0
+#             
+#         for combination in backCombinations:
+#             counts['3prime']['fwd'][combination] = 0
+#             counts['3prime']['rev'][combination] = 0
+#             
+#         bamFile = pysam.AlignmentFile(bam, "rb")
+#         
+#         # Go through one chr after the other
+#         testFile = SlamSeqBamFile(bam, referenceFile, None)
+#         
+#         chromosomes = testFile.getChromosomes()
+#         
+#         for chromosome in chromosomes:
+#                 
+#             for read in bamFile.fetch(region=chromosome):
+#                 
+#                 i = 0
+#                 while i < len(read.query_sequence):
+#                     if(read.query_sequence[i] == "T" and not read.is_reverse) :
+#                         frontContext = None
+#                         backContext = None
+#                         if (i > 0) :
+#                             frontContext = read.query_sequence[i - 1]
+#                         if (i < (len(read.query_sequence) - 1)) :
+#                             backContext  = read.query_sequence[i + 1]
+#                         
+#                         if (frontContext != None) :
+#                             counts['5prime']['fwd'][frontContext + "T"] += 1
+#                         if (backContext != None) :
+#                             counts['3prime']['fwd']["T" + backContext] += 1
+#                             
+#                     if(read.query_sequence[i] == "A" and read.is_reverse) :
+#                         frontContext = None
+#                         backContext = None
+#                         if (i > 0) :
+#                             backContext = read.query_sequence[i - 1]
+#                         if (i < (len(read.query_sequence) - 1)) :
+#                             frontContext  = read.query_sequence[i + 1]
+#                         
+#                         if (frontContext != None) :
+#                             counts['5prime']['rev'][complement(frontContext + "A")] += 1
+#                         if (backContext != None) :
+#                             counts['3prime']['rev'][complement("A" + backContext)] += 1
+#                     
+#                     i += 1
+#         
+#         # Print rates in correct format for plotting
+#         fo = open(outputCSV, "w")
+#         
+#         print("\t".join(frontCombinations), file=fo)
+#         
+#         frontFwdLine = ""
+#         frontRevLine = ""
+#         backFwdLine = ""
+#         backRevLine = ""
+#         
+#         for combination in frontCombinations :
+#             frontFwdLine += str(counts['5prime']['fwd'][combination]) + "\t"
+#             frontRevLine += str(counts['5prime']['rev'][combination]) + "\t"
+#         
+#         print(frontFwdLine.rstrip(), file=fo)
+#         print(frontRevLine.rstrip(), file=fo)
+#         
+#         print("\t".join(backCombinations), file=fo)
+# 
+#         for combination in backCombinations :
+#             backFwdLine += str(counts['3prime']['fwd'][combination]) + "\t"
+#             backRevLine += str(counts['3prime']['rev'][combination]) + "\t"
+# 
+#         print(backFwdLine.rstrip(), file=fo)
+#         print(backRevLine.rstrip(), file=fo)
+#         
+#         fo.close()
+#     
+#     if(not checkStep([bam, referenceFile], [outputPDF], force)):
+#         print("Skipped computing overall rate pdfs for file " + bam, file=log)
+#     else:
+#         f = tempfile.NamedTemporaryFile(delete=False)
+#         print(removeExtension(basename(bam)), outputCSV, sep='\t', file=f)
+#         f.close()
+#         
+#         run(pathComputeTCContext + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
+        
 def statsComputeTCContext(referenceFile, bam, minQual, outputCSV, outputPDF, log, printOnly=False, verbose=True, force=False):
     
-    if(not checkStep([bam, referenceFile], [outputCSV], force)):
-        print("Skipped computing overall rates for file " + bam, file=log)
-    else:
+    #if(not checkStep([bam, referenceFile], [outputCSV], force)):
+    #    print("Skipped computing overall rates for file " + bam, file=log)
+    #else:
         # Init
         # combinations = ["AT","CT","GT","TT","NT","AA","CA","GA","TA","NA"]
         frontCombinations = ["AT", "CT", "GT", "TT", "NT"]
@@ -236,91 +344,64 @@ def statsComputeTCContext(referenceFile, bam, minQual, outputCSV, outputPDF, log
         counts = {}
         counts['5prime'] = {}
         counts['3prime'] = {}
-        counts['5prime']['fwd'] = {}
-        counts['5prime']['rev'] = {}
-        counts['3prime']['fwd'] = {}
-        counts['3prime']['rev'] = {}
         
         for combination in frontCombinations :
-            counts['5prime']['fwd'][combination] = 0
-            counts['5prime']['rev'][combination] = 0
+            counts['5prime'][combination] = 0
             
         for combination in backCombinations:
-            counts['3prime']['fwd'][combination] = 0
-            counts['3prime']['rev'][combination] = 0
+            counts['3prime'][combination] = 0
+        
+        ref = pysam.FastaFile(referenceFile)
+        
+        #chromosomes = list(ref.references)
+         
+        #for chromosome in chromosomes:
+         
+        for utr in BedIterator("/groups/zuber/zubarchive/USERS/tobias/matthias/SLAMSeq/ref/pooja_UTR_annotation.bed"):
             
-        bamFile = pysam.AlignmentFile(bam, "rb")
-        
-        # Go through one chr after the other
-        testFile = SlamSeqBamFile(bam, referenceFile, None)
-        
-        chromosomes = testFile.getChromosomes()
-        
-        for chromosome in chromosomes:
-                
-            for read in bamFile.fetch(region=chromosome):
-                
-                i = 0
-                while i < len(read.query_sequence):
-                    if(read.query_sequence[i] == "T" and not read.is_reverse) :
-                        frontContext = None
-                        backContext = None
-                        if (i > 0) :
-                            frontContext = read.query_sequence[i - 1]
-                        if (i < (len(read.query_sequence) - 1)) :
-                            backContext  = read.query_sequence[i + 1]
-                        
-                        if (frontContext != None) :
-                            counts['5prime']['fwd'][frontContext + "T"] += 1
-                        if (backContext != None) :
-                            counts['3prime']['fwd']["T" + backContext] += 1
-                            
-                    if(read.query_sequence[i] == "A" and read.is_reverse) :
-                        frontContext = None
-                        backContext = None
-                        if (i > 0) :
-                            backContext = read.query_sequence[i - 1]
-                        if (i < (len(read.query_sequence) - 1)) :
-                            frontContext  = read.query_sequence[i + 1]
-                        
-                        if (frontContext != None) :
-                            counts['5prime']['rev'][complement(frontContext + "A")] += 1
-                        if (backContext != None) :
-                            counts['3prime']['rev'][complement("A" + backContext)] += 1
+            chromosome = utr.chromosome + ":" + str(utr.start) + "-" + str(utr.stop)
+            seq = ref.fetch(region=chromosome).upper()
+            #seq = ref.fetch(chromosome,0).upper()
+            #print("Handling chromosome " + chromosome)
+            
+            i = 0
+            while i < len(seq):
+                if(seq[i] == "T" and i > 0 and i < (len(seq) - 1)) :
+                        frontContext = seq[i - 1]
+                        backContext  = seq[i + 1]
                     
-                    i += 1
+                        counts['5prime'][frontContext + "T"] += 1
+                        counts['3prime']["T" + backContext] += 1
+                    
+                i += 1
         
         # Print rates in correct format for plotting
         fo = open(outputCSV, "w")
-        
+                
         print("\t".join(frontCombinations), file=fo)
         
         frontFwdLine = ""
-        frontRevLine = ""
         backFwdLine = ""
-        backRevLine = ""
         
         for combination in frontCombinations :
-            frontFwdLine += str(counts['5prime']['fwd'][combination]) + "\t"
-            frontRevLine += str(counts['5prime']['rev'][combination]) + "\t"
+            print(combination)
+            frontFwdLine += str(counts['5prime'][combination]) + "\t"
         
         print(frontFwdLine.rstrip(), file=fo)
-        print(frontRevLine.rstrip(), file=fo)
         
         print("\t".join(backCombinations), file=fo)
 
         for combination in backCombinations :
-            backFwdLine += str(counts['3prime']['fwd'][combination]) + "\t"
-            backRevLine += str(counts['3prime']['rev'][combination]) + "\t"
+            print(combination)
+            backFwdLine += str(counts['3prime'][combination]) + "\t"
 
         print(backFwdLine.rstrip(), file=fo)
-        print(backRevLine.rstrip(), file=fo)
         
         fo.close()
     
-    if(not checkStep([bam, referenceFile], [outputPDF], force)):
-        print("Skipped computing overall rate pdfs for file " + bam, file=log)
-    else:
+    #if(not checkStep([bam, referenceFile], [outputPDF], force)):
+    #    print("Skipped computing overall rate pdfs for file " + bam, file=log)
+    #else:
         f = tempfile.NamedTemporaryFile(delete=False)
         print(removeExtension(basename(bam)), outputCSV, sep='\t', file=f)
         f.close()
@@ -510,7 +591,6 @@ def tcPerUtr(referenceFile, utrBed, bam, minQual, maxReadLength, outputCSV, outp
             mutForwardCounts = [0] * utrNormFactor
             tcReverseCounts = [0] * utrNormFactor
             mutReverseCounts = [0] * utrNormFactor
-
             
             for read in readIterator:
                 
@@ -526,9 +606,9 @@ def tcPerUtr(referenceFile, utrBed, bam, minQual, maxReadLength, outputCSV, outp
                     if (utr.strand == "+") :
                                                 
                         # New try for UTRs (remove + 1
-                        if (mismatchPos >= (utr.getLength() - utrNormFactor + 1) and mismatchPos < utr.getLength() + 1) :
+                        if (mismatchPos >= (utr.getLength() - utrNormFactor) and mismatchPos < utr.getLength()) :
                         # if (mismatchPos >= (utr.getLength() - utrNormFactor) and mismatchPos < utr.getLength() + 1) :
-                            mismatchPos = utrNormFactor - (utr.getLength() - mismatchPos) - 1
+                            mismatchPos = utrNormFactor - (utr.getLength() - mismatchPos)
                             
                             if(mismatch.isTCMismatch(read.direction == ReadDirection.Reverse)):
                                 tcCounts[mismatchPos] += 1
@@ -549,8 +629,8 @@ def tcPerUtr(referenceFile, utrBed, bam, minQual, maxReadLength, outputCSV, outp
                     tcReverseCounts = sumLists(tcReverseCounts, tcCounts)
                     mutReverseCounts = sumLists(mutReverseCounts, mutCounts)
                     
-                    start = max(0, min(min(utr.getLength() + 1, utrNormFactor), read.startRefPos))
-                    end = max(0, min(min(utr.getLength() + 1, utrNormFactor), read.endRefPos))
+                    start = max(0, min(min(utr.getLength(), utrNormFactor), read.startRefPos))
+                    end = max(0, min(min(utr.getLength(), utrNormFactor), read.endRefPos))
                     
                     for i in range(start, end):
                         
@@ -561,11 +641,11 @@ def tcPerUtr(referenceFile, utrBed, bam, minQual, maxReadLength, outputCSV, outp
                     tcForwardCounts = sumLists(tcForwardCounts, tcCounts)
                     mutForwardCounts = sumLists(mutForwardCounts, mutCounts)
                     
-                    start = min(utr.getLength() + 1, max(utr.getLength() - utrNormFactor + 1, read.startRefPos))
-                    end = min(utr.getLength() + 1, max(utr.getLength() - utrNormFactor + 1, read.endRefPos))
+                    start = min(utr.getLength(), max(utr.getLength() - utrNormFactor, read.startRefPos))
+                    end = min(utr.getLength(), max(utr.getLength() - utrNormFactor, read.endRefPos))
                 
                     for i in range(start, end):
-                        normPos = utrNormFactor - (utr.getLength() - i) - 1
+                        normPos = utrNormFactor - (utr.getLength() - i)
                         totalUtrCountFwd[normPos] += 1                 
                         
             tcPerPosFwd = sumLists(tcPerPosFwd, tcForwardCounts)
@@ -582,17 +662,23 @@ def tcPerUtr(referenceFile, utrBed, bam, minQual, maxReadLength, outputCSV, outp
         foTC = open(outputCSV, "w")
         
         reverseAllPerPosRev = allPerPosRev[::-1]
-        reverseAllPerPosRev = reverseAllPerPosRev[0:utrNormFactor - 1]
+#         reverseAllPerPosRev = reverseAllPerPosRev[0:utrNormFactor - 1]
         reverseTcPerPosRev = tcPerPosRev[::-1]
-        reverseTcPerPosRev = reverseTcPerPosRev[0:utrNormFactor - 1]
+#         reverseTcPerPosRev = reverseTcPerPosRev[0:utrNormFactor - 1]
         reverseTotalUtrCountRev = totalUtrCountRev[::-1]
-        reverseTotalUtrCountRev = reverseTotalUtrCountRev[0:utrNormFactor - 1]
+#         reverseTotalUtrCountRev = reverseTotalUtrCountRev[0:utrNormFactor - 1]
         
-        allPerPosFwd = allPerPosFwd[1:utrNormFactor]
-        tcPerPosFwd = tcPerPosFwd[1:utrNormFactor]
-        totalUtrCountFwd = totalUtrCountFwd[1:utrNormFactor]
+        #print(allPerPosFwd)
+        #print(tcPerPosFwd)
+        #print(totalUtrCountFwd)
+
+#         allPerPosFwd = allPerPosFwd[1:utrNormFactor]
+#         tcPerPosFwd = tcPerPosFwd[1:utrNormFactor]
+#         totalUtrCountFwd = totalUtrCountFwd[1:utrNormFactor]
         
-        for i in range(0, utrNormFactor - 1):
+        #for i in range(0, utrNormFactor - 1):
+        for i in range(0, utrNormFactor):
+            #print(allPerPosFwd[i], reverseAllPerPosRev[i], tcPerPosFwd[i], reverseTcPerPosRev[i], totalUtrCountFwd[i], reverseTotalUtrCountRev[i], sep='\t', file=foTC)
             print(allPerPosFwd[i], reverseAllPerPosRev[i], tcPerPosFwd[i], reverseTcPerPosRev[i], totalUtrCountFwd[i], reverseTotalUtrCountRev[i], sep='\t', file=foTC)
         foTC.close()
        
