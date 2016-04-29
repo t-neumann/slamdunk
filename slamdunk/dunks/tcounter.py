@@ -100,7 +100,8 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
     fileCSV = open(outputCSV,'w')
     
     snps = SNPtools.SNPDictionary(snpsFile)
-
+    snps.read()
+    
     #Go through one chr after the other
     testFile = SlamSeqBamFile(bam, ref, snps)
     
@@ -225,6 +226,7 @@ def count(ref, bed, snpsFile, bam, maxReadLength, minQual, outputCSV, log):
     fileCSV = open(outputCSV,'w')
     
     snps = SNPtools.SNPDictionary(snpsFile)
+    snps.read()
 
     #Go through one chr after the other
     testFile = SlamSeqBamFile(bam, ref, snps)

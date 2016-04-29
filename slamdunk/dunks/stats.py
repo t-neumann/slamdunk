@@ -338,18 +338,18 @@ def statsComputeTCContext(referenceFile, bam, minQual, outputCSV, outputPDF, log
     #else:
         # Init
         # combinations = ["AT","CT","GT","TT","NT","AA","CA","GA","TA","NA"]
-        frontCombinations = ["AT", "CT", "GT", "TT", "NT"]
-        backCombinations = ["TA", "TC", "TG", "TT", "TN"]
+        #frontCombinations = ["AT", "CT", "GT", "TT", "NT"]
+        #backCombinations = ["TA", "TC", "TG", "TT", "TN"]
         
         counts = {}
         counts['5prime'] = {}
         counts['3prime'] = {}
         
-        for combination in frontCombinations :
-            counts['5prime'][combination] = 0
-            
-        for combination in backCombinations:
-            counts['3prime'][combination] = 0
+#         for combination in frontCombinations :
+#             counts['5prime'][combination] = 0
+#             
+#         for combination in backCombinations:
+#             counts['3prime'][combination] = 0
         
         ref = pysam.FastaFile(referenceFile)
         
@@ -361,41 +361,75 @@ def statsComputeTCContext(referenceFile, bam, minQual, outputCSV, outputPDF, log
             
             chromosome = utr.chromosome + ":" + str(utr.start) + "-" + str(utr.stop)
             seq = ref.fetch(region=chromosome).upper()
+            
             #seq = ref.fetch(chromosome,0).upper()
             #print("Handling chromosome " + chromosome)
             
-            i = 0
-            while i < len(seq):
-                if(seq[i] == "T" and i > 0 and i < (len(seq) - 1)) :
-                        frontContext = seq[i - 1]
-                        backContext  = seq[i + 1]
-                    
-                        counts['5prime'][frontContext + "T"] += 1
-                        counts['3prime']["T" + backContext] += 1
-                    
-                i += 1
+#             i = 0
+#             while i < len(seq):
+#                 if(seq[i] == "T" and i > 0 and i < (len(seq) - 1)) :
+#                         frontContext = seq[i - 1]
+#                         backContext  = seq[i + 1]
+#                     
+#                         counts['5prime'][frontContext + "T"] += 1
+#                         counts['3prime']["T" + backContext] += 1
+#                     
+#                 i += 1
+            for (front, middle, back) in zip(seq[0::1], seq[1::1], seq[2::1]):
+                triplet = front + middle  + back
+                #if (middle == "T") :
+                if (not counts['5prime'].has_key(triplet[0:2])) :
+                    counts['5prime'][triplet[0:2]] = 0
+                counts['5prime'][triplet[0:2]] += 1
+                if (not counts['3prime'].has_key(triplet[1:3])) :
+                    counts['3prime'][triplet[1:3]] = 0
+                counts['3prime'][triplet[1:3]] += 1
         
         # Print rates in correct format for plotting
         fo = open(outputCSV, "w")
+        
+        for baseA in toBase :
+            headerFront = ""
+            headerBack = ""
+            
+            for baseB in toBase :
+                headerFront += baseB + baseA + "\t"
+                headerBack += baseA + baseB + "\t"
                 
-        print("\t".join(frontCombinations), file=fo)
-        
-        frontFwdLine = ""
-        backFwdLine = ""
-        
-        for combination in frontCombinations :
-            print(combination)
-            frontFwdLine += str(counts['5prime'][combination]) + "\t"
-        
-        print(frontFwdLine.rstrip(), file=fo)
-        
-        print("\t".join(backCombinations), file=fo)
-
-        for combination in backCombinations :
-            print(combination)
-            backFwdLine += str(counts['3prime'][combination]) + "\t"
-
-        print(backFwdLine.rstrip(), file=fo)
+            valuesFront = ""
+            valuesBack = ""
+            
+            for baseB in toBase :
+                if (counts['5prime'].has_key(baseB + baseA)) :
+                    valuesFront += str(counts['5prime'][baseB + baseA]) + "\t"
+                else :
+                    valuesFront += "0\t"
+                if (counts['3prime'].has_key(baseA + baseB)):
+                    valuesBack += str(counts['3prime'][baseA + baseB]) + "\t"
+                else:
+                    valuesBack += "0\t"
+                
+            print(headerFront.rstrip(),file=fo)
+            print(valuesFront.rstrip(),file=fo)
+            print(headerBack.rstrip(),file=fo)
+            print(valuesBack.rstrip(),file=fo)
+            
+#         print("\t".join(frontCombinations), file=fo)
+#         
+#         frontFwdLine = ""
+#         backFwdLine = ""
+#         
+#         for combination in frontCombinations :
+#             frontFwdLine += str(counts['5prime'][combination]) + "\t"
+#         
+#         print(frontFwdLine.rstrip(), file=fo)
+#         
+#         print("\t".join(backCombinations), file=fo)
+# 
+#         for combination in backCombinations :
+#             backFwdLine += str(counts['3prime'][combination]) + "\t"
+# 
+#         print(backFwdLine.rstrip(), file=fo)
         
         fo.close()
     
@@ -517,6 +551,7 @@ def tcPerReadPos(referenceFile, bam, minQual, maxReadLength, outputCSV, outputPD
 
         
         snps = SNPtools.SNPDictionary(snpsFile)
+        snps.read()
         
         # Go through one chr after the other
         testFile = SlamSeqBamFile(bam, referenceFile, snps)
@@ -579,6 +614,7 @@ def tcPerUtr(referenceFile, utrBed, bam, minQual, maxReadLength, outputCSV, outp
         allPerPosFwd = [0] * utrNormFactor
         
         snps = SNPtools.SNPDictionary(snpsFile)
+        snps.read()
         
         # Go through one utr after the other
         testFile = SlamSeqBamFile(bam, referenceFile, snps)

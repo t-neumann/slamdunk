@@ -9,7 +9,6 @@ from utils.misc import replaceExtension, files_exist, checkStep, run, runIndexBa
 projectPath = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 ngmPath = os.path.join(projectPath, "bin", "NextGenMap", "bin", "ngm-0.4.13", "ngm")
 
-
 def runSam2bam(inFile, outFile, log, index=True, sort=True, delinFile=False, onlyUnique=False, onlyProperPaired=False, filterMQ=0, L=None, threads=1, verbose=False, dry=False):
     if(delinFile and files_exist(outFile) and not files_exist(inFile)):
         print("Skipping sam2bam for " + outFile, file=log)
@@ -67,7 +66,8 @@ def Map(inputBAM, inputReference, outputSAM, log, quantseqMapping, localMapping,
 def sort(inputSAM, outputBAM, log, threads=1, keepSam=True, dry=False, verbose=True):    
 
     if(files_exist(inputSAM) and checkStep([inputSAM], [outputBAM + ".flagstat"])):
-        runSam2bam(inputSAM, outputBAM, log, True, True, not keepSam, threads=threads, dry=dry, verbose=verbose)
+        #runSam2bam(inputSAM, outputBAM, log, True, True, not keepSam, threads=threads, dry=dry, verbose=verbose)
+        runSam2bam(inputSAM, outputBAM, log, True, False, not keepSam, threads=threads, dry=dry, verbose=verbose)
         runFlagstat(outputBAM, log, dry=dry, verbose=verbose)
     else:
         print("Skipped sorting for " + inputSAM, file=log)

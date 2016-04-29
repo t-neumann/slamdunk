@@ -85,10 +85,10 @@ def runDedup(tid, bam, outputDirectory) :
     closeLogFile(log)
     stepFinished()
         
-def runFilter(tid, bam, mq, minIdentity, maxNM, outputDirectory):
+def runFilter(tid, bam, bed, mq, minIdentity, maxNM, outputDirectory):
     outputBAM = os.path.join(outputDirectory, replaceExtension(basename(bam), ".bam", "_filtered"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_filtered"))
-    filter.Filter(bam, outputBAM, getLogFile(outputLOG), mq, minIdentity, maxNM, printOnly, verbose)
+    filter.Filter(bam, outputBAM, getLogFile(outputLOG), bed, mq, minIdentity, maxNM, printOnly, verbose)
     stepFinished()
 
 def runSnp(tid, referenceFile, minCov, minVarFreq, inputBAM, outputDirectory) :
@@ -251,6 +251,7 @@ def run():
     filterparser = subparsers.add_parser('filter', help='Filter SLAM-seq aligned data')
     filterparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     filterparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
+    filterparser.add_argument("-b", "--bed", type=str, required=False, dest="bed", help="BED file, overrides MQ filter to 0")
     filterparser.add_argument("-mq", "--min-mq", type=int, required=False, default=2, dest="mq", help="Minimal mapping quality")
     filterparser.add_argument("-mi", "--min-identity", type=float, required=False, default=0.8, dest="identity", help="Minimal alignment identity")
     filterparser.add_argument("-mn", "--max-nm", type=int, required=False, default=-1, dest="nm", help="Maximal NM for alignments")
@@ -406,7 +407,7 @@ def run():
         createDir(outputDirectory)
         n = args.threads
         message("Running slamDunk filter for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runFilter)(tid, args.bam[tid], args.mq, args.identity, args.nm, outputDirectory) for tid in range(0, len(args.bam)))
+        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runFilter)(tid, args.bam[tid], args.bed, args.mq, args.identity, args.nm, outputDirectory) for tid in range(0, len(args.bam)))
         dunkFinished()
         
     elif (command == "snp") :

@@ -19,6 +19,7 @@ def dumpReadInfo(referenceFile, bam, minQual, outputCSV, snpsFile, log, printOnl
     else:
                 
         snps = SNPtools.SNPDictionary(snpsFile)
+        snps.read()
     
         outputFile = SlamSeqWriter(outputCSV)
         

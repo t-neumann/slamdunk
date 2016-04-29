@@ -32,7 +32,7 @@ class SNPDictionary(object):
         
         if(snp[3].upper() == "A" and snp[4].upper() == "G"):
             #key = snp[0] + snp[1]
-            key = snp[0] + (snp[1] - 1)
+            key = snp[0] + str(int(snp[1]) - 1)
             self._agSNPs[key] = True
     
     #     if not snps is None:

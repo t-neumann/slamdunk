@@ -2,10 +2,11 @@
 
 # Date located in: -
 from __future__ import print_function
-import pysam
+import pysam, random, os
+from intervaltree import Interval, IntervalTree
 
-from utils.misc import checkStep, run, runIndexBam, runFlagstat
-
+from utils.BedReader import BedIterator
+from utils.misc import checkStep, run, runIndexBam, runFlagstat, replaceExtension, removeFile
 
 def Filter_old(inputBAM, outputBAM, log, MQ=2, printOnly=False, verbose=True, force=True):
     if(printOnly or checkStep([inputBAM], [outputBAM], force)):
@@ -19,34 +20,154 @@ def Filter_old(inputBAM, outputBAM, log, MQ=2, printOnly=False, verbose=True, fo
 
 def pysamIndex(outputBam):
     pysam.index(outputBam)
+    
+def bamSort(outputBAM, log, verbose):
+    
+    tmp = outputBAM + "_tmp"
+    os.rename(outputBAM, tmp)                      
+    #run(" ".join(["samtools", "sort", "-@", str(threads) , tmp, replaceExtension(outFile, "")]), log, verbose=verbose, dry=dry)
+    run(" ".join(["samtools", "sort", tmp, replaceExtension(outputBAM, "")]), log, verbose=verbose, dry=False)
+    removeFile(tmp)
+    
+def bedToIntervallTree(bed):
+    utrs = {}
+        
+    for utr in BedIterator(bed):
 
+        if (not utrs.has_key(utr.chromosome)) :
+            utrs[utr.chromosome] = IntervalTree()
+        
+        utrs[utr.chromosome][utr.start:(utr.stop + 1)] = utr.name
+        
+    return utrs
+    
+def dumpBufferToBam (buffer, outbam):
+    # Randomly write hit from read
+    read = random.choice(buffer.values()).pop()    
+    outbam.write(read)
+#     for key in buffer.keys():
+#         for read in buffer[key]:
+#             outbam.write(read)
+            
+def multimapUTRRetainment (infile, outfile, bed, minIdentity, NM):
+    
+    utrIntervallTreeDict = bedToIntervallTree(bed)
+    
+    # Buffers for multimappers
+    multimapBuffer = {}
+    prevRead = ""
+    # If read maps to another than previously recorded UTR -> do not dump reads to file
+    dumpBuffer = True
+    
+    for read in infile:
+        # First pass general filters
+        if(read.is_unmapped):
+            continue
+        if(float(read.get_tag("XI")) < minIdentity):
+            continue
+        if(NM > -1 and int(read.get_tag("NM")) > NM):
+            continue
+        if (read.mapping_quality == 0) :
+            # Previous read was also multimapper
+            if (read.query_name != prevRead and prevRead != "") :
+                
+                #if (dumpBuffer and (len(multimapBuffer) > 1 or len(multimapBuffer["nonUTR"]) > 0)) :
+                if (dumpBuffer and len(multimapBuffer) > 0) :
+                    dumpBufferToBam(multimapBuffer, outfile)
+                    multimapBuffer = {}
+                    #multimapBuffer["nonUTR"] = []
+                        
+                dumpBuffer = True
+                
+            # Query Intervall tree for given chromosome for UTs
+            chr = infile.getrname(read.reference_id)
+            start = read.reference_start
+            end = read.reference_end
+            
+            if (utrIntervallTreeDict.has_key(chr)) :
+                query = utrIntervallTreeDict[chr][start:end]
+            else :
+                query = set()
+            
+            if len(query) > 0:
+                # First UTR hit is recorded without checks
+                if (len(multimapBuffer) == 1) :
+                    for result in query :
+                        if (not multimapBuffer.has_key(result.data)) :
+                            multimapBuffer[result.data] = []
+                        multimapBuffer[result.data].append(read)
+                # Second UTR hit looks at previous UTR hits -> no dump if hit on different UTR
+                else :
+                    for result in query :
+                        if (not multimapBuffer.has_key(result.data)) :
+                            multimapBuffer[result.data] = []
+                            multimapBuffer[result.data].append(read)
+                            dumpBuffer = False
+                        else :
+                            multimapBuffer[result.data].append(read)
+#             else :
+#                 # If no overlap -> nonUTR
+#                 multimapBuffer["nonUTR"].append(read)
+            
+            prevRead = read.query_name
+        else :
+            # Dump any multimappers before a unique mapper
+            #if (len(multimapBuffer) > 1 or len(multimapBuffer["nonUTR"]) > 0) :
+            if (len(multimapBuffer) > 0) :
+                if (dumpBuffer) :
+                    dumpBufferToBam(multimapBuffer, outfile)
+                multimapBuffer = {}
+                #multimapBuffer["nonUTR"] = []
+                dumpBuffer = True
+                
+            # Record all unique mappers
+            prevRead = read.query_name
+            outfile.write(read)
+            
+    # Dump last portion if it was multimapper
+    #if (dumpBuffer and (len(multimapBuffer) > 1 or len(multimapBuffer["nonUTR"]) > 0)) :
+    if (dumpBuffer and len(multimapBuffer) > 0) :
+        dumpBufferToBam(multimapBuffer, outfile)
+        
 #def pysamFlagstat(outputBam):
 #    pysam.flagstat(outputBam)
 
-def Filter(inputBAM, outputBAM, log, MQ=2, minIdentity=0.8, NM=-1, printOnly=False, verbose=True, force=True):
+def Filter(inputBAM, outputBAM, log, bed, MQ=2, minIdentity=0.8, NM=-1, printOnly=False, verbose=True, force=True):
     if(printOnly or checkStep([inputBAM], [outputBAM], force)):
-    
         
         infile = pysam.AlignmentFile(inputBAM, "rb")
         outfile = pysam.AlignmentFile(outputBAM, "wb", template=infile)
-        for read in infile:
-            if(read.is_unmapped):
-                continue
-            if(read.mapping_quality < MQ):
-                continue
-            if(float(read.get_tag("XI")) < minIdentity):
-                continue
-            if(NM > -1 and int(read.get_tag("NM")) > NM):
-                continue
-            outfile.write(read)
+        
+        # Default filtering without bed
+        if (bed == None) :
+            
+            print("No bed-file supplied. Running default filtering on " + inputBAM + ".",file=log)
+            
+            for read in infile:
+                if(read.is_unmapped):
+                    continue
+                if(read.mapping_quality < MQ):
+                    continue
+                if(float(read.get_tag("XI")) < minIdentity):
+                    continue
+                if(NM > -1 and int(read.get_tag("NM")) > NM):
+                    continue
+                outfile.write(read)
+        else :
+            # Multimap retention strategy filtering when bed is supplied
+            
+            print("Bed-file supplied. Running multimap retention filtering strategy on " + inputBAM + ".",file=log)
+            multimapUTRRetainment (infile, outfile, bed, minIdentity, NM)
         
         infile.close()
         outfile.close()
         
+        # Sort afterwards
+        bamSort(outputBAM, log, verbose)
+        
         pysamIndex(outputBAM)
         #pysamFlagstat(outputBAM)
         runFlagstat(outputBAM, log, verbose=verbose, dry=printOnly)
-        
     
     else:
         print("Skipped filtering for " + inputBAM, file=log)
