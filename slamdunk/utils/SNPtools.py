@@ -50,13 +50,15 @@ class SNPDictionary(object):
 
         
     def read(self):
-        vcfReader = BedTool(self._vcfFile)
-    
-        if(vcfReader.file_type != "vcf"):
-            raise RuntimeError("Wrong file type. Not a vcf file.")
- 
-        for snp in vcfReader:
-            self._addSNP(snp)
+        
+        if (self._vcfFile != None):
+            vcfReader = BedTool(self._vcfFile)
+            
+            if(vcfReader.file_type != "vcf"):
+                raise RuntimeError("Wrong file type. Not a vcf file.")
+     
+            for snp in vcfReader:
+                self._addSNP(snp)
     
             
     def isAGSnp(self, chromosome, position):

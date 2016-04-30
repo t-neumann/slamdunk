@@ -192,7 +192,10 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
          
             # Convert to SlamSeqInterval and print
             #slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, readsCPM, avgConversationRate, coveredTcount, coveredPositions, readCount, tcReadCount)
-            slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, readsCPM, coverageOnTs, conversionsOnTs, float(conversionsOnTs) / float(coverageOnTs), readCount, tcReadCount)
+            conversionRate = 0
+            if (coverageOnTs > 0) :
+                conversionRate = float(conversionsOnTs) / float(coverageOnTs)
+            slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, readsCPM, coverageOnTs, conversionsOnTs, conversionRate, readCount, tcReadCount)
         else:
             slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, 0, -1, 0, 0, 0, 0)
             #slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, 0, 0, 0, 0, 0, 0)
