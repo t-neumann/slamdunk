@@ -23,7 +23,7 @@ if ( !is.null(opt$help) || length(opt)==1 ) {
 	cat(basename(self),": Create mismatch plots from rate tabs.\n\n")
 	#print a friendly message and exit with a non-zero error code
 	cat(getopt(spec,command = self,usage=T))
-	q(status=1);
+	q(status=1)
 }
 
 

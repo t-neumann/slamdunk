@@ -2,7 +2,7 @@
 
 # Date located in: -
 from __future__ import print_function
-import pysam, random, os
+import pysam, random, os, sys
 from intervaltree import Interval, IntervalTree
 
 from utils.BedReader import BedIterator
@@ -41,10 +41,13 @@ def bedToIntervallTree(bed):
         
     return utrs
     
-def dumpBufferToBam (buffer, outbam):
+def dumpBufferToBam (buffer, outbam, infile):
     # Randomly write hit from read
-    read = random.choice(buffer.values()).pop()    
+    read = random.choice(buffer.values()).pop()
+#     printer = read.query_name + "\t" + infile.getrname(read.reference_id) + "\t" + str(read.reference_start) + "\t" + str(read.reference_end) + "\tPRINT\tTrue"
     outbam.write(read)
+    
+#     return printer
 #     for key in buffer.keys():
 #         for read in buffer[key]:
 #             outbam.write(read)
@@ -53,11 +56,17 @@ def multimapUTRRetainment (infile, outfile, bed, minIdentity, NM):
     
     utrIntervallTreeDict = bedToIntervallTree(bed)
     
+#     debugLog = os.path.join("multimapdebug.log")
+#     
+#     fo = open(debugLog, "w")
+    
     # Buffers for multimappers
     multimapBuffer = {}
     prevRead = ""
     # If read maps to another than previously recorded UTR -> do not dump reads to file
     dumpBuffer = True
+    
+#     logList = []
     
     for read in infile:
         # First pass general filters
@@ -73,10 +82,16 @@ def multimapUTRRetainment (infile, outfile, bed, minIdentity, NM):
                 
                 #if (dumpBuffer and (len(multimapBuffer) > 1 or len(multimapBuffer["nonUTR"]) > 0)) :
                 if (dumpBuffer and len(multimapBuffer) > 0) :
-                    dumpBufferToBam(multimapBuffer, outfile)
+                    dumpBufferToBam(multimapBuffer, outfile, infile)
+#                     ret = dumpBufferToBam(multimapBuffer, outfile, infile)
+#                     print(ret,file = fo)
                     multimapBuffer = {}
                     #multimapBuffer["nonUTR"] = []
-                        
+                       
+#                 for entry in logList:
+#                     print(prevRead + "\t" + entry + "\t" + str(dumpBuffer), file = fo)
+#                 logList = []
+                     
                 dumpBuffer = True
                 
             # Query Intervall tree for given chromosome for UTs
@@ -91,7 +106,7 @@ def multimapUTRRetainment (infile, outfile, bed, minIdentity, NM):
             
             if len(query) > 0:
                 # First UTR hit is recorded without checks
-                if (len(multimapBuffer) == 1) :
+                if (len(multimapBuffer) == 0) :
                     for result in query :
                         if (not multimapBuffer.has_key(result.data)) :
                             multimapBuffer[result.data] = []
@@ -108,6 +123,10 @@ def multimapUTRRetainment (infile, outfile, bed, minIdentity, NM):
 #             else :
 #                 # If no overlap -> nonUTR
 #                 multimapBuffer["nonUTR"].append(read)
+#                 for result in query :
+#                     logList.append(chr + "\t" + str(start) + "\t" + str(end) + "\t" + result.data)
+#             else :
+#                 logList.append(chr + "\t" + str(start) + "\t" + str(end) + "\t" + "OFF")
             
             prevRead = read.query_name
         else :
@@ -115,8 +134,13 @@ def multimapUTRRetainment (infile, outfile, bed, minIdentity, NM):
             #if (len(multimapBuffer) > 1 or len(multimapBuffer["nonUTR"]) > 0) :
             if (len(multimapBuffer) > 0) :
                 if (dumpBuffer) :
-                    dumpBufferToBam(multimapBuffer, outfile)
+                    dumpBufferToBam(multimapBuffer, outfile, infile)
+#                     ret = dumpBufferToBam(multimapBuffer, outfile, infile)
+#                     print(ret,file = fo)
                 multimapBuffer = {}
+#                 for entry in logList:
+#                     print(prevRead + "\t" + entry + "\t" + str(dumpBuffer), file = fo)
+#                 logList = []
                 #multimapBuffer["nonUTR"] = []
                 dumpBuffer = True
                 
@@ -128,6 +152,8 @@ def multimapUTRRetainment (infile, outfile, bed, minIdentity, NM):
     #if (dumpBuffer and (len(multimapBuffer) > 1 or len(multimapBuffer["nonUTR"]) > 0)) :
     if (dumpBuffer and len(multimapBuffer) > 0) :
         dumpBufferToBam(multimapBuffer, outfile)
+        
+#     fo.close()
         
 #def pysamFlagstat(outputBam):
 #    pysam.flagstat(outputBam)
