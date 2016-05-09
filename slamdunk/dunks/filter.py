@@ -151,7 +151,7 @@ def multimapUTRRetainment (infile, outfile, bed, minIdentity, NM):
     # Dump last portion if it was multimapper
     #if (dumpBuffer and (len(multimapBuffer) > 1 or len(multimapBuffer["nonUTR"]) > 0)) :
     if (dumpBuffer and len(multimapBuffer) > 0) :
-        dumpBufferToBam(multimapBuffer, outfile)
+        dumpBufferToBam(multimapBuffer, outfile, infile)
         
 #     fo.close()
         

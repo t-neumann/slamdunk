@@ -7,7 +7,7 @@ import os
 from utils.misc import replaceExtension, files_exist, checkStep, run, runIndexBam, removeFile, runFlagstat
 
 projectPath = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-ngmPath = os.path.join(projectPath, "bin", "NextGenMap", "bin", "ngm-0.4.13", "ngm")
+ngmPath = os.path.join(projectPath, "bin", "ngm")
 
 def runSam2bam(inFile, outFile, log, index=True, sort=True, delinFile=False, onlyUnique=False, onlyProperPaired=False, filterMQ=0, L=None, threads=1, verbose=False, dry=False):
     if(delinFile and files_exist(outFile) and not files_exist(inFile)):
