@@ -1,4 +1,4 @@
-FROM ubuntu
+FROM philres/nextgenmap
 
 MAINTAINER Tobias Neumann <tobias.neumann.at@gmail.com>
 
@@ -9,8 +9,8 @@ ENV PATH /software/slamdunk/bin:$PATH
 
 # binutils is required to run opencl programs
 # remove everything that was only needed for building NextGenMap to save image space
-RUN buildDeps='git wget gcc g++ libc6-dev make cmake zlib1g-dev python-pip python-dev python-distribute python-pip bzip2 libncurses-dev' \
-    runDeps='python default-jre binutils r-base unzip' \
+RUN buildDeps='git wget gcc g++ make zlib1g-dev python-pip python-dev python-distribute python-pip bzip2 libncurses-dev' \
+    runDeps='python default-jre r-base' \
     pipmodules='joblib pysam pybedtools intervaltree pandas numpy' \
     && set -x \
     && apt-get update && apt-get install -y $buildDeps $runDeps --no-install-recommends \
@@ -29,9 +29,8 @@ RUN buildDeps='git wget gcc g++ libc6-dev make cmake zlib1g-dev python-pip pytho
     && cd .. \
     && git clone "$SLAMDUNK_DOWNLOAD_URL" \
     && cd slamdunk/bin \
-    && ./build-ngm.sh \
+    && ln -s /software/ngm*/ngm \
     && ./build-varscan.sh \
-    && mkdir /software \
     && cp -r /usr/src/slamdunk /software/ \
     && cd /software \
     && rm -r /usr/src/ \
