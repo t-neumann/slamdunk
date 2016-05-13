@@ -35,4 +35,4 @@ RUN buildDeps='git wget gcc g++ libc6-dev make cmake zlib1g-dev python-pip pytho
     && cp -r /usr/src/slamdunk /software/ \
     && cd /software \
     && rm -r /usr/src/ \
-    && apt-get purge -y $buildDeps
+    && apt-get purge -y --auto-remove $buildDeps
