@@ -67,7 +67,7 @@ def sort(inputSAM, outputBAM, log, threads=1, keepSam=True, dry=False, verbose=T
 
     if(files_exist(inputSAM) and checkStep([inputSAM], [outputBAM + ".flagstat"])):
         #runSam2bam(inputSAM, outputBAM, log, True, True, not keepSam, threads=threads, dry=dry, verbose=verbose)
-        runSam2bam(inputSAM, outputBAM, log, True, False, not keepSam, threads=threads, dry=dry, verbose=verbose)
+        runSam2bam(inputSAM, outputBAM, log, False, False, not keepSam, threads=threads, dry=dry, verbose=verbose)
         runFlagstat(outputBAM, log, dry=dry, verbose=verbose)
     else:
         print("Skipped sorting for " + inputSAM, file=log)
