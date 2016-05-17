@@ -166,9 +166,11 @@ class SlamSeqRead:
     startRefPos = None
     # End position in the reference
     endRefPos = None
+    # Multiple TC-conversion flag
+    isTcRead = None
     
     def __repr__(self):
-        return "\t".join([self.name, str(self.direction), self.sequence, str(self.tcCount), str(self.tCount), str(self.tcRate), self.conversionRates.__repr__(), str(self.startRefPos), str(self.endRefPos), self.mismatches.__repr__()])
+        return "\t".join([self.name, str(self.direction), self.sequence, str(self.tcCount), str(self.tCount), str(self.tcRate), self.conversionRates.__repr__(), str(self.startRefPos), str(self.endRefPos), self.mismatches.__repr__(), str(self.isTcRead)])
 
 class SlamSeqWriter:
     
@@ -379,7 +381,11 @@ class SlamSeqBamIterator:
         slamSeqRead.tcRate = 0.0
         if(slamSeqRead.tCount > 0):
             slamSeqRead.tcRate = slamSeqRead.tcCount * 100.0 / slamSeqRead.tCount     
-        
+            
+        if(slamSeqRead.tcCount > 1) :
+            slamSeqRead.isTcRead = True
+        else :
+            slamSeqRead.isTcRead = False
         
         
         # Get TC count and rates from NGM bam file
@@ -402,6 +408,7 @@ class SlamSeqBamIterator:
 #             print("TC rate (pys): " + str(slamSeqRead.tcRate))
             #sys.stdin.read(1)
 #             raise RuntimeError("Difference found between NGM and Py.")
+
         return slamSeqRead
                 
 class SlamSeqBamFile:

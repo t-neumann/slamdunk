@@ -97,7 +97,7 @@ def runSnp(tid, referenceFile, minCov, minVarFreq, inputBAM, outputDirectory) :
     snps.SNPs(inputBAM, outputSNP, referenceFile, minVarFreq, minCov, getLogFile(outputLOG), printOnly, verbose, True)
     stepFinished()
                 
-def runCount(tid, bam, ref, bed, maxLength, minQual, outputDirectory, snpDirectory) :
+def runCount(tid, bam, ref, bed, maxLength, minQual, strictTCs, outputDirectory, snpDirectory) :
     outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_tcount"))
     outputBedgraphPlus = os.path.join(outputDirectory, replaceExtension(basename(bam), ".bedgraph", "_tcount_plus"))
     outputBedgraphMinus = os.path.join(outputDirectory, replaceExtension(basename(bam), ".bedgraph", "_tcount_mins"))
@@ -106,7 +106,7 @@ def runCount(tid, bam, ref, bed, maxLength, minQual, outputDirectory, snpDirecto
         inputSNP = os.path.join(snpDirectory, replaceExtension(basename(bam), ".vcf", "_snp"))
     else:
         inputSNP = None
-    tcounter.computeTconversions(ref, bed, inputSNP, bam, maxLength, minQual, outputCSV, outputBedgraphPlus, outputBedgraphMinus, getLogFile(outputLOG))
+    tcounter.computeTconversions(ref, bed, inputSNP, bam, maxLength, minQual, outputCSV, outputBedgraphPlus, outputBedgraphMinus, strictTCs, getLogFile(outputLOG))
     stepFinished()
     return outputCSV
 
@@ -284,6 +284,7 @@ def run():
     countparser.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", help="Directory containing SNP files.")
     countparser.add_argument("-r", "--reference", type=str, required=True, dest="ref", help="Reference fasta file")
     countparser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
+    countparser.add_argument("-m", "--multiTCStringency", dest="strictTCs", action='store_true', required=False, help="")
     countparser.add_argument("-l", "--max-read-length", type=int, required=True, dest="maxLength", help="Max read length in BAM file")
     countparser.add_argument("-q", "--min-base-qual", type=int, default=0, required=False, dest="minQual", help="Min base quality for T -> C conversions")
     countparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
@@ -437,7 +438,7 @@ def run():
         snpDirectory = args.snpDir
         n = args.threads
         message("Running slamDunk tcount for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runCount)(tid, args.bam[tid], args.ref, args.bed, args.maxLength, args.minQual, outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
+        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runCount)(tid, args.bam[tid], args.ref, args.bed, args.maxLength, args.minQual, args.strictTCs, outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
         #runCountCombine(results, args.sampleNames, args.outputPrefix, outputDirectory)
         dunkFinished()
         

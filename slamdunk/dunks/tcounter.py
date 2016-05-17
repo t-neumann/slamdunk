@@ -92,8 +92,8 @@ def getMean(values, skipZeros=True):
     else:
         return 0.0
 
-def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputCSV, outputBedgraphPlus, outputBedgraphMinus, log):
-
+def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputCSV, outputBedgraphPlus, outputBedgraphMinus, strictTCs, log):
+    
     flagstat = getReadCount(bam)
     readNumber = flagstat.MappedReads
 
@@ -122,7 +122,15 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
         tcCountFwd = 0
         countRev = 0
         tCountRev = 0
+        
         for read in readIterator:
+            
+            # Overwrite any conversions for non-TC reads (reads with < 2 TC conversions)
+            if (not read.isTcRead and strictTCs) :
+                read.tcCount = 0
+                read.mismatches = []
+                read.conversionRates = 0.0
+                read.tcRate = 0.0
             
             if(read.direction == ReadDirection.Reverse):
                 countRev += 1
