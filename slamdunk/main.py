@@ -61,13 +61,13 @@ def createDir(directory):
         message("Creating output directory: " + directory)
         os.makedirs(directory)
 
-def runMap(tid, inputBAM, referneceFile, threads, trim5p, quantseqMapping, localMapping, topn, outputDirectory) :
+def runMap(tid, inputBAM, referenceFile, threads, trim5p, quantseqMapping, localMapping, topn, outputDirectory) :
     outputSAM = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".sam", "_slamdunk_mapped"))
     outputBAI = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".bam.bai", "_slamdunk_mapped"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".log", "_slamdunk_mapped"))
     # Don't run mapping if sort bam/bai files alread exists
-    if(checkStep([inputBAM, referneceFile], [outputBAI])):
-        mapper.Map(inputBAM, referneceFile, outputSAM, getLogFile(outputLOG), quantseqMapping, localMapping, threads=threads, trim5p=trim5p, topn=topn, printOnly=printOnly, verbose=verbose)
+    if(checkStep([inputBAM, referenceFile], [outputBAI])):
+        mapper.Map(inputBAM, referenceFile, outputSAM, getLogFile(outputLOG), quantseqMapping, localMapping, threads=threads, trim5p=trim5p, topn=topn, printOnly=printOnly, verbose=verbose)
     stepFinished()
 
 def runSort(tid, bam, threads, outputDirectory):
@@ -215,9 +215,100 @@ def runDumpReadInfo(tid, bam, referenceFile, minMQ, outputDirectory, snpDirector
     stepFinished()
 
 
-def runAll() :
+def runAll(args) :
     message("slamdunk all")
-    # TODO
+    
+    # Setup slamdunk run folder
+    
+    outputDirectory = args.outputDir
+    createDir(outputDirectory)
+    
+    n = args.threads
+    referenceFile = args.referenceFile
+    
+    # Run mapper dunk
+    
+    dunkPath = os.path.join(outputDirectory, "map")
+    createDir(dunkPath)
+ 
+    message("Running slamDunk map for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+    for bam in args.bam:
+        runMap(0, bam, referenceFile, n, args.trim5, args.quantseq, args.local, args.topn, dunkPath)
+    message("Running slamDunk sort for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+    results = Parallel(n_jobs=1, verbose=verbose)(delayed(runSort)(tid, args.bam[tid], n, dunkPath) for tid in range(0, len(args.bam)))
+     
+    dunkbufferIn = []
+    
+    for file in args.bam :
+        dunkbufferIn.append(os.path.join(dunkPath, replaceExtension(basename(file), ".bam", "_slamdunk_mapped")))
+            
+    # Run filter dunk
+    
+    ##########################################
+    # TODO: ONLY MULTIMAP RESOLVE WHEN multimap IS SET
+    ##########################################
+    
+    if (args.multimap) :
+        print("Multimap on", file=sys.stderr)
+    else :
+        print("Multimap off", file=sys.stderr)
+        
+    dunkPath = os.path.join(outputDirectory, "filter")
+    createDir(dunkPath)
+       
+    message("Running slamDunk filter for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+    results = Parallel(n_jobs=n, verbose=verbose)(delayed(runFilter)(tid, dunkbufferIn[tid], args.bed, args.mq, args.identity, args.nm, dunkPath) for tid in range(0, len(args.bam)))
+    
+    dunkFinished()
+    
+    # Run filter dunk
+    
+    dunkPath = os.path.join(outputDirectory, "filter")
+    createDir(dunkPath)
+       
+    message("Running slamDunk filter for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+    results = Parallel(n_jobs=n, verbose=verbose)(delayed(runFilter)(tid, args.bam[tid], args.bed, args.mq, args.identity, args.nm, dunkPath) for tid in range(0, len(args.bam)))
+    
+    dunkbufferOut = []
+    
+    for file in dunkbufferIn :
+        dunkbufferOut.append(os.path.join(dunkPath, replaceExtension(basename(bam), ".bam", "_filtered")))
+        
+    dunkbufferIn = dunkbufferOut
+    
+    dunkbufferOut = []
+    
+    dunkFinished()
+    
+    # Run snps dunk
+    
+    dunkPath = os.path.join(outputDirectory, "snp")
+    createDir(dunkPath)
+    
+    minCov = args.cov
+    minVarFreq = args.var
+    
+    snpThread = n
+    if(snpThread > 1):
+        snpThread = snpThread / 2
+    
+    message("Running slamDunk SNP for " + str(len(args.bam)) + " files (" + str(snpThread) + " threads)")
+    results = Parallel(n_jobs=snpThread, verbose=verbose)(delayed(runSnp)(tid, referenceFile, minCov, minVarFreq, dunkbufferIn[tid], dunkPath) for tid in range(0, len(args.bam)))
+    
+    dunkFinished()
+    
+    # Run count dunk
+    
+    dunkPath = os.path.join(outputDirectory, "count")
+    createDir(dunkPath)
+
+    snpDirectory = os.path.join(outputDirectory, "snp")
+    
+    message("Running slamDunk tcount for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+    results = Parallel(n_jobs=n, verbose=verbose)(delayed(runCount)(tid, dunkbufferIn[tid], args.ref, args.bed, args.maxLength, args.minQual, args.strictTCs, dunkPath, snpDirectory) for tid in range(0, len(args.bam)))
+    
+    dunkFinished()
+    
 
 def run():
     ########################################################################
@@ -379,8 +470,26 @@ def run():
     
     # all command
     
-    countparser = subparsers.add_parser('all', help='Run entire SLAMdunk analysis')
-    countparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
+    allparser = subparsers.add_parser('all', help='Run entire SLAMdunk analysis')
+    allparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
+    allparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
+    allparser.add_argument("-b", "--bed", type=str, required=False, dest="bed", help="BED file, overrides MQ filter to 0")
+    allparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for slamdunk run.")
+    allparser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
+    allparser.add_argument("-n", "--topn", type=int, required=False, dest="topn", default=1, help="Max. number of alignments to report per read")
+    allparser.add_argument("-t", "--threads", type=int, required=False, dest="threads", help="Thread number")
+    allparser.add_argument("-q", "--quantseq", dest="quantseq", action='store_true', required=False, help="Run plain Quantseq alignment without SLAM-seq scoring")
+    allparser.add_argument('-l', "--local", action='store_true', dest="local", help="Use a local alignment algorithm for mapping.")
+    allparser.add_argument('-m', "--multimap", action='store_true', dest="multimap", help="Use reference to resolve multimappers (requires -n > 1).")
+    allparser.add_argument("-mq", "--min-mq", type=int, required=False, default=2, dest="mq", help="Minimal mapping quality")
+    allparser.add_argument("-mi", "--min-identity", type=float, required=False, default=0.8, dest="identity", help="Minimal alignment identity")
+    allparser.add_argument("-mn", "--max-nm", type=int, required=False, default=-1, dest="nm", help="Maximal NM for alignments")
+    allparser.add_argument("-mc", "--min-coverage", required=False, dest="cov", type=int, help="Minimimum coverage to call variant", default=10)
+    allparser.add_argument("-mv", "--var-fraction", required=False, dest="var", type=float, help="Minimimum variant fraction variant", default=0.8)
+    allparser.add_argument("-nm", "--sample-names", type=str, required=False, dest="sampleNames", help="CSV file containing name for all samples.")
+    allparser.add_argument("-mts", "--multiTCStringency", dest="strictTCs", action='store_true', required=False, help="")
+    allparser.add_argument("-rl", "--max-read-length", type=int, required=True, dest="maxLength", help="Max read length in BAM file")
+    allparser.add_argument("-mbq", "--min-base-qual", type=int, default=0, required=False, dest="minQual", help="Min base quality for T -> C conversions")
     
     args = parser.parse_args()
     
@@ -530,7 +639,7 @@ def run():
     
         
     elif (command == "all") :
-        runAll()
+        runAll(args)
         dunkFinished()
 
 if __name__ == '__main__':
