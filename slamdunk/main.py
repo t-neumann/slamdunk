@@ -230,13 +230,13 @@ def runAll(args) :
     
     dunkPath = os.path.join(outputDirectory, "map")
     createDir(dunkPath)
- 
+  
     message("Running slamDunk map for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
     for bam in args.bam:
         runMap(0, bam, referenceFile, n, args.trim5, args.quantseq, args.local, args.topn, dunkPath)
     message("Running slamDunk sort for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
     results = Parallel(n_jobs=1, verbose=verbose)(delayed(runSort)(tid, args.bam[tid], n, dunkPath) for tid in range(0, len(args.bam)))
-     
+      
     dunkbufferIn = []
     
     for file in args.bam :
@@ -248,31 +248,27 @@ def runAll(args) :
     # TODO: ONLY MULTIMAP RESOLVE WHEN multimap IS SET
     ##########################################
     
-    if (args.multimap) :
-        print("Multimap on", file=sys.stderr)
-    else :
-        print("Multimap off", file=sys.stderr)
+    bed = args.bed
+    
+    
+    if (args.multimap == None) :
+        bed = None
+        print("Multimap off", file=sys.stderr)       
         
     dunkPath = os.path.join(outputDirectory, "filter")
     createDir(dunkPath)
        
     message("Running slamDunk filter for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-    results = Parallel(n_jobs=n, verbose=verbose)(delayed(runFilter)(tid, dunkbufferIn[tid], args.bed, args.mq, args.identity, args.nm, dunkPath) for tid in range(0, len(args.bam)))
+    results = Parallel(n_jobs=n, verbose=verbose)(delayed(runFilter)(tid, dunkbufferIn[tid], bed, args.mq, args.identity, args.nm, dunkPath) for tid in range(0, len(args.bam)))
     
     dunkFinished()
     
     # Run filter dunk
     
-    dunkPath = os.path.join(outputDirectory, "filter")
-    createDir(dunkPath)
-       
-    message("Running slamDunk filter for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-    results = Parallel(n_jobs=n, verbose=verbose)(delayed(runFilter)(tid, args.bam[tid], args.bed, args.mq, args.identity, args.nm, dunkPath) for tid in range(0, len(args.bam)))
-    
     dunkbufferOut = []
     
     for file in dunkbufferIn :
-        dunkbufferOut.append(os.path.join(dunkPath, replaceExtension(basename(bam), ".bam", "_filtered")))
+        dunkbufferOut.append(os.path.join(dunkPath, replaceExtension(basename(file), ".bam", "_filtered")))
         
     dunkbufferIn = dunkbufferOut
     
@@ -305,7 +301,7 @@ def runAll(args) :
     snpDirectory = os.path.join(outputDirectory, "snp")
     
     message("Running slamDunk tcount for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-    results = Parallel(n_jobs=n, verbose=verbose)(delayed(runCount)(tid, dunkbufferIn[tid], args.ref, args.bed, args.maxLength, args.minQual, args.strictTCs, dunkPath, snpDirectory) for tid in range(0, len(args.bam)))
+    results = Parallel(n_jobs=n, verbose=verbose)(delayed(runCount)(tid, dunkbufferIn[tid], referenceFile, args.bed, args.maxLength, args.minQual, args.strictTCs, dunkPath, snpDirectory) for tid in range(0, len(args.bam)))
     
     dunkFinished()
     
