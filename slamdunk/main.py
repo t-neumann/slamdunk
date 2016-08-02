@@ -234,8 +234,13 @@ def runAll(args) :
     message("Running slamDunk map for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
     for bam in args.bam:
         runMap(0, bam, referenceFile, n, args.trim5, args.quantseq, args.local, args.topn, dunkPath)
+        
+    dunkFinished()
+
     message("Running slamDunk sort for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
     results = Parallel(n_jobs=1, verbose=verbose)(delayed(runSort)(tid, args.bam[tid], n, dunkPath) for tid in range(0, len(args.bam)))
+    
+    dunkFinished()
       
     dunkbufferIn = []
     
@@ -244,16 +249,11 @@ def runAll(args) :
             
     # Run filter dunk
     
-    ##########################################
-    # TODO: ONLY MULTIMAP RESOLVE WHEN multimap IS SET
-    ##########################################
-    
     bed = args.bed
     
-    
-    if (args.multimap == None) :
+    if (not args.multimap) :
         bed = None
-        print("Multimap off", file=sys.stderr)       
+        #print("Multimap off", file=sys.stderr)       
         
     dunkPath = os.path.join(outputDirectory, "filter")
     createDir(dunkPath)
