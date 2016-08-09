@@ -123,6 +123,9 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
         countRev = 0
         tCountRev = 0
         
+        multiMapFwd = 0
+        multiMapRev = 0
+        
         for read in readIterator:
             
             # Overwrite any conversions for non-TC reads (reads with < 2 TC conversions)
@@ -136,10 +139,14 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
                 countRev += 1
                 if read.tcCount > 0:
                     tCountRev += 1
+                if read.isMultimapper:
+                    multiMapRev += 1
             else:
                 countFwd += 1
                 if read.tcCount > 0:
                     tcCountFwd += 1
+                if read.isMultimapper:
+                    multiMapFwd += 1
             
             for mismatch in read.mismatches:
                 if(mismatch.isTCMismatch(read.direction == ReadDirection.Reverse) and mismatch.referencePosition >= 0 and mismatch.referencePosition < utr.getLength()):
@@ -154,10 +161,13 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
             tcRateUtr = [ x * 100.0 / y if y > 0 else 0 for x, y in zip(tcCountUtr, coverageUtr)]
             
             readCount = countFwd
-            tcReadCount = tcCountFwd;
+            tcReadCount = tcCountFwd
+            multiMapCount = multiMapFwd
+            
             if(utr.strand == "-"):
                 readCount = countRev
                 tcReadCount = tCountRev
+                multiMapCount = multiMapRev
             
             if((utr.strand == "-" and countFwd > countRev) or (utr.strand == "+" and countRev > countFwd)):
                 print("Warning: " + utr.name + " is located on the " + utr.strand + " strand but read counts are higher for the opposite strand (fwd: " + countFwd + ", rev: " + countRev + ")", file=sys.stderr)
@@ -174,6 +184,12 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
             conversionsOnTs = 0
             
             for position in xrange(0, len(coverageUtr)):
+#                 if position >= len(refSeq) :
+#                     print(utr)
+#                     print(position,file=sys.stderr)
+#                     print(len(refSeq),file=sys.stderr)
+#                     print(refSeq,file=sys.stderr)
+#                     sys.stdin.readline()
                 if(coverageUtr[position] > 0 and ((utr.strand == "+" and refSeq[position] == "T") or (utr.strand == "-" and refSeq[position] == "A"))):
                     coveredTcount += 1
                     avgConversationRate += tcRateUtr[position]
@@ -203,9 +219,9 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
             conversionRate = 0
             if (coverageOnTs > 0) :
                 conversionRate = float(conversionsOnTs) / float(coverageOnTs)
-            slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, readsCPM, coverageOnTs, conversionsOnTs, conversionRate, readCount, tcReadCount)
+            slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, readsCPM, coverageOnTs, conversionsOnTs, conversionRate, readCount, tcReadCount, multiMapCount)
         else:
-            slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, 0, -1, 0, 0, 0, 0)
+            slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, 0, -1, 0, 0, 0, 0, 0)
             #slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, 0, 0, 0, 0, 0, 0)
         print(slamSeqUtr, file=fileCSV)
         #print(slamSeqUtr)

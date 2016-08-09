@@ -71,8 +71,9 @@ class SlamSeqInterval:
     _conversionRate = None
     _readCount = None
     _tcReadCount = None
+    _multimapCount = None
         
-    def __init__(self, chromosome, start, stop, strand, name, readsCPM, coverageOnTs, conversionsOnTs, conversionRate, readCount, tcReadCount):
+    def __init__(self, chromosome, start, stop, strand, name, readsCPM, coverageOnTs, conversionsOnTs, conversionRate, readCount, tcReadCount, multimapCount):
         self._chromosome = chromosome
         self._start = start
         self._stop = stop
@@ -87,10 +88,11 @@ class SlamSeqInterval:
         self._conversionRate = conversionRate
         self._readCount = readCount
         self._tcReadCount = tcReadCount
+        self._multimapCount = multimapCount
         
     def __repr__(self):
         #return (self._chromosome + "\t" + str(self._start) + "\t" + str(self._stop) + "\t" + self._name + "\t" + self._strand + "\t" + str(self._avgConversionRate) + "\t" + str(self._readsCPM) + "\t" + str(self._tCount) + "\t" + str(self._coveredBp) + "\t" + str(self._readCount) + "\t" + str(self._tcReadCount))
-        return (self._chromosome + "\t" + str(self._start) + "\t" + str(self._stop) + "\t" + self._name + "\t" + self._strand + "\t" + str(self._conversionRate) + "\t" + str(self._readsCPM) + "\t" + str(self._coverageOnTs) + "\t" + str(self._conversionsOnTs) + "\t" + str(self._readCount) + "\t" + str(self._tcReadCount))
+        return (self._chromosome + "\t" + str(self._start) + "\t" + str(self._stop) + "\t" + self._name + "\t" + self._strand + "\t" + str(self._conversionRate) + "\t" + str(self._readsCPM) + "\t" + str(self._coverageOnTs) + "\t" + str(self._conversionsOnTs) + "\t" + str(self._readCount) + "\t" + str(self._tcReadCount) + "\t" + str(self._multimapCount))
     
      
 
@@ -168,9 +170,11 @@ class SlamSeqRead:
     endRefPos = None
     # Multiple TC-conversion flag
     isTcRead = None
+    # Read is Multimapper
+    isMultimapper = None
     
     def __repr__(self):
-        return "\t".join([self.name, str(self.direction), self.sequence, str(self.tcCount), str(self.tCount), str(self.tcRate), self.conversionRates.__repr__(), str(self.startRefPos), str(self.endRefPos), self.mismatches.__repr__(), str(self.isTcRead)])
+        return "\t".join([self.name, str(self.direction), self.sequence, str(self.tcCount), str(self.tCount), str(self.tcRate), self.conversionRates.__repr__(), str(self.startRefPos), str(self.endRefPos), self.mismatches.__repr__(), str(self.isTcRead), str(self.isMultimapper)])
 
 class SlamSeqWriter:
     
@@ -358,7 +362,7 @@ class SlamSeqBamIterator:
  
     def next(self):
         
-        read = self._readIterator.next()        
+        read = self._readIterator.next()      
         
         # Strand-specific assay - skip all reads from antisense-strand
         while((self._strand == "+" and read.is_reverse) or (self._strand == "-" and not read.is_reverse)) :
@@ -372,6 +376,11 @@ class SlamSeqBamIterator:
             slamSeqRead.direction = ReadDirection.Reverse
         else:
             slamSeqRead.direction = ReadDirection.Forward
+            
+        if (read.mapping_quality == 0) :
+            slamSeqRead.isMultimapper = True
+        else :
+            slamSeqRead.isMultimapper = False
             
         #slamSeqRead.mismatches, slamSeqRead.tCount = self.fillMismatches(read)
         slamSeqRead.mismatches, slamSeqRead.tCount, slamSeqRead.startRefPos, slamSeqRead.endRefPos = self.fillMismatches(read) 
@@ -388,15 +397,15 @@ class SlamSeqBamIterator:
             slamSeqRead.isTcRead = False
         
         
-        # Get TC count and rates from NGM bam file
+#         # Get TC count and rates from NGM bam file
 #         ngmTC, ngmTCount = self.getTCNgm(read)
 #         ngmRates = self.computeRatesForReadNGM(read)
 #         ngmRate = 0.0
 #         if(ngmTCount > 0):
 #             ngmRate = ngmTC * 100.0 / ngmTCount
-        
-        # Check if results from pysam and NGM are the same
-        # TODO: remove at some point
+#          
+#         # Check if results from pysam and NGM are the same
+#         # TODO: remove at some point
 #         if(not self.compareLists(slamSeqRead.conversionRates, ngmRates) or slamSeqRead.tcCount != ngmTC):# or ngmRate != slamSeqRead.tcRate):
 #             print("Difference found:")
 #             print(read)
@@ -406,7 +415,7 @@ class SlamSeqBamIterator:
 #             print("TC (pys): " + str(slamSeqRead.tcCount))
 #             print("TC rate (ngm): " + str(ngmRate))
 #             print("TC rate (pys): " + str(slamSeqRead.tcRate))
-            #sys.stdin.read(1)
+#             #sys.stdin.read(1)
 #             raise RuntimeError("Difference found between NGM and Py.")
 
         return slamSeqRead
@@ -425,12 +434,38 @@ class SlamSeqBamFile:
         self._snps = snps
         
     def readInRegion(self, chromosome, start, stop, strand, maxReadLength):
-        refRegion = chromosome + ":" + str(int(start) - maxReadLength) + "-" + str(int(stop) + maxReadLength)
+        
+        fillupLeft = 0
+        leftBorder = int(start) - maxReadLength
+        
+        if (leftBorder < 0) :
+            fillupLeft = abs(leftBorder)
+            leftBorder = 0
+            
+        #refRegion = chromosome + ":" + str(int(start) - maxReadLength) + "-" + str(int(stop) + maxReadLength)
+        refRegion = chromosome + ":" + str(leftBorder) + "-" + str(int(stop) + maxReadLength)
         
         region = chromosome + ":" + str(start) + "-" + str(stop)
         
         if(self.isInReferenceFile(chromosome)):
+            #print(refRegion,file=sys.stderr)
             refSeq = self._referenceFile.fetch(region=refRegion).upper()
+            #testSeq = self._referenceFile.fetch(region=region).upper()
+            #print(testSeq,file=sys.stderr)
+            #print("Length original seq: " + str(len(testSeq)),file=sys.stderr)
+            leftFlank = 'N' * fillupLeft
+            refSeq = leftFlank + refSeq
+            fillupRight = ((stop - start) + 1 + 2 * maxReadLength) - len(refSeq) 
+            #print("Dist " + str(stop - start))
+            #print("ReadLength " + str(2*maxReadLength))
+            #print("Len refSeq " + str(len(refSeq)))
+            rightFlank = 'N' * fillupRight
+            refSeq = refSeq + rightFlank
+            #print("Left fillup " + str(fillupLeft) + " " + leftFlank)
+            #print("Right fillup " + str(fillupRight) + " " + rightFlank)
+            #print(refSeq,file=sys.stderr)
+            #print(len(refSeq),file=sys.stderr)
+            #sys.stdin.readline()
             return SlamSeqBamIterator(self._bamFile.fetch(region=region), refSeq, chromosome, start, strand, maxReadLength, self._snps)
         else:
             return iter([])
