@@ -199,7 +199,7 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
                     #print(refSeq[position] + "\t", utr.start + position - 1, refSeq[position], coverageUtr[position], tcRateUtr[position], file=sys.stderr)
                     # print conversion rates for all covered Ts/As
                     #print(utr.chromosome, utr.start + position - 1, utr.start + position, tcRateUtr[position], sep="\t")
-                    conversionBedGraph[utr.chromosome + ":" + str(utr.start + position - 1) + ":" + str(utr.strand)] = tcRateUtr[position] 
+                    conversionBedGraph[utr.chromosome + ":" + str(utr.start + position) + ":" + str(utr.strand)] = tcRateUtr[position] 
                 if(coverageUtr[position] > 0):
                     coveredPositions += 1
             

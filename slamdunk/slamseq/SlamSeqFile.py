@@ -234,7 +234,7 @@ class SlamSeqBamIterator:
 #             return self._refSeq.lower().count("a")
 
     def getRefSeq(self):
-        return self._refSeq[self._maxReadLength:-self._maxReadLength]
+        return self._refSeq[self._maxReadLength + 1:-self._maxReadLength]
 
     # TODO: merge with fillMismatches
     # pysam code (get_aligend_pairs) should be present only once!        
