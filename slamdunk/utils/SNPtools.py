@@ -4,7 +4,10 @@ Created on Jan 30, 2016
 @author: philipp_
 '''
 
+import os
+
 from pybedtools import BedTool
+
 
 class SNPDictionary(object):
     '''
@@ -52,14 +55,16 @@ class SNPDictionary(object):
     def read(self):
         
         if (self._vcfFile != None):
-            vcfReader = BedTool(self._vcfFile)
-            
-            if(vcfReader.file_type != "vcf"):
-                raise RuntimeError("Wrong file type. Not a vcf file.")
-     
-            for snp in vcfReader:
-                self._addSNP(snp)
-    
+            if(os.path.exists(self._vcfFile)):
+                vcfReader = BedTool(self._vcfFile)
+                
+                if(vcfReader.file_type != "vcf"):
+                    raise RuntimeError("Wrong file type. Not a vcf file.")
+         
+                for snp in vcfReader:
+                    self._addSNP(snp)
+            else:
+                print("Warning: SNP file " + self._vcfFile + " not found.")
             
     def isAGSnp(self, chromosome, position):
         key = chromosome + str(int(position) + 1)
