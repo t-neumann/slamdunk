@@ -22,7 +22,7 @@ from utils.misc import replaceExtension, readSampleNames, checkStep
 ########################################################################
 
 printOnly = False
-verbose = True
+verbose = False
 
 mainOutput = sys.stderr
 
@@ -473,7 +473,7 @@ def run():
     allparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for slamdunk run.")
     allparser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
     allparser.add_argument("-n", "--topn", type=int, required=False, dest="topn", default=1, help="Max. number of alignments to report per read")
-    allparser.add_argument("-t", "--threads", type=int, required=False, dest="threads", help="Thread number")
+    allparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
     allparser.add_argument("-q", "--quantseq", dest="quantseq", action='store_true', required=False, help="Run plain Quantseq alignment without SLAM-seq scoring")
     allparser.add_argument('-l', "--local", action='store_true', dest="local", help="Use a local alignment algorithm for mapping.")
     allparser.add_argument('-m', "--multimap", action='store_true', dest="multimap", help="Use reference to resolve multimappers (requires -n > 1).")
