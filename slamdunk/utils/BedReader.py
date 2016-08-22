@@ -1,11 +1,13 @@
 class BedEntry:
-    
-    chromosome = ""
-    start = 0
-    stop = 0
-    name = ""
-    strand = "."
-    
+
+    def __init__(self):
+        self.chromosome = ""
+        self.start = 0
+        self.stop = 0
+        self.name = ""
+        self.score = "."
+        self.strand = "."
+        
     def __repr__(self):
         return (self.chromosome + "\t" + str(self.start) + "\t" + str(self.stop) + "\t" + self.name)
     
@@ -36,6 +38,7 @@ class BedIterator:
         
         # Add strand info if available
         if (len(cols) > 4) :
+            bedEntry.score = cols[4]
             bedEntry.strand = cols[5]
                 
         return bedEntry
