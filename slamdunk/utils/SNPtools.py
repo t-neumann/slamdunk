@@ -59,7 +59,8 @@ class SNPDictionary(object):
                 vcfReader = BedTool(self._vcfFile)
                 
                 if(vcfReader.file_type != "vcf"):
-                    raise RuntimeError("Wrong file type. Not a vcf file.")
+                    #raise RuntimeError("Wrong file type. Empty or not a vcf file.")
+                    print("Wrong file type. Empty or not a vcf file.")
          
                 for snp in vcfReader:
                     self._addSNP(snp)
