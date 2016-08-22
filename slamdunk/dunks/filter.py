@@ -26,7 +26,7 @@ def bamSort(outputBAM, log, verbose):
     tmp = outputBAM + "_tmp"
     os.rename(outputBAM, tmp)                      
     #run(" ".join(["samtools", "sort", "-@", str(threads) , tmp, replaceExtension(outFile, "")]), log, verbose=verbose, dry=dry)
-    run(" ".join(["samtools", "sort", tmp, replaceExtension(outputBAM, "")]), log, verbose=verbose, dry=False)
+    run(" ".join(["samtools", "sort", "-o", outputBAM, tmp]), log, verbose=verbose, dry=False)
     removeFile(tmp)
     
 def bedToIntervallTree(bed):

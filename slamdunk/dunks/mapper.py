@@ -30,7 +30,7 @@ def runSam2bam(inFile, outFile, log, index=True, sort=True, delinFile=False, onl
             tmp = outFile + "_tmp"
             if(not dry):
                 os.rename(outFile, tmp)                      
-            run(" ".join(["samtools", "sort", "-@", str(threads), tmp, replaceExtension(outFile, "")]), log, verbose=verbose, dry=dry)
+            run(" ".join(["samtools", "sort", "-@", str(threads), "-o",  outFile, tmp]), log, verbose=verbose, dry=dry)
             if(success):
                 removeFile(tmp)
         if(success and delinFile):
