@@ -165,3 +165,20 @@ def complement(seq):
     bases = list(seq) 
     bases = [complement[base] for base in bases] 
     return ''.join(bases)
+
+def shell(cmd):
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
+    p.wait()    
+    if(p.returncode != 0):
+        raise RuntimeError("Error while executing command: " + cmd)
+    else:
+        return p.communicate()[0]
+
+def shellerr(cmd):
+    p = subprocess.Popen(cmd, stderr=subprocess.PIPE, shell=True)
+    p.wait()    
+    if(p.returncode != 0):
+        raise RuntimeError("Error while executing command: " + cmd)
+    else:
+        return p.communicate()[1]  
+    
