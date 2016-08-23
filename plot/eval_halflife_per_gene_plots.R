@@ -99,6 +99,6 @@ for(utr in 1:length(slamDunkMergedRates)) {
   
   lambda = log(2) / bed[utr, ]$score
   t = 0:max(times)
-  lines((1 - exp(-lambda*t)) * max(pulseSimulated$y) ~ t, type="l", lty=2, col="grey")
+  lines((1 - exp(-lambda*t)) * conversionRate ~ t, type="l", lty=2, col="grey")
 }  
 dev.off()
