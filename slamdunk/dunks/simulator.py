@@ -27,6 +27,35 @@ def getCmpBase(base):
     complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A', 'N': 'N'} 
     return complement[base]
 
+def printUTR(utr, outBed):
+    if utr.getLength() > 25:
+        print(utr.chromosome, utr.start, utr.stop, utr.name, utr.score, utr.strand, sep="\t", file=outBed)
+
+def prepareBED(bed, slamSimBed):
+    utrs = []
+    for utr in BedIterator(bed):
+        utrs.append(utr)
+    utrs.sort(key=lambda x: (x.name, x.getLength()))
+    
+    outBed = open(slamSimBed, "w")
+    
+    partList = []
+    lastUtr = None
+    for utr in utrs:
+        currentUtr = utr.name
+        if currentUtr == lastUtr:
+            partList.append(utr)
+        else:
+            if(not lastUtr is None):
+                printUTR(partList[0], outBed)
+            partList = [utr]
+        lastUtr = currentUtr
+    
+    if(not lastUtr is None):
+        printUTR(partList[0], outBed)
+    
+    outBed.close()
+
 def simulateUTR(utrSeq, utr, polyALenght, snpRate, vcfFile):
     utrSeq = list(utrSeq)
     snpCount = 0
@@ -127,22 +156,6 @@ def printFastaEntry(sequence, name, index, conversions, readOutSAM):
           "TC:i:" + str(conversions),
           "ID:i:" + str(index),
            file=readOutSAM, sep="\t")
-    #a.query_name = name + "_" + str(index) + "_" + str(conversions)
-#     a.flag = 4
-#     a.is_unmapped = True
-#     a.reference_id = 0
-#     a.reference_start = 0
-#     a.mapping_quality = 0
-#     a.cigar = None
-#     a.next_reference_id = 0
-#     a.next_reference_start=0
-#     a.template_length=0
-#     a.query_sequence = sequence
-#     a.query_qualities = pysam.qualitystring_to_array("<" * len(sequence))
-#     a.tags = (("TC", conversions),
-#               ("ID", index))
-    #print(a.tostring(None))
-#     outputBAM.write(a)
     
 def convertRead(read, name, index, conversionRate, readOutSAM):
     

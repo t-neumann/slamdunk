@@ -57,6 +57,10 @@ def run():
     # Initialize Subparsers
     subparsers = parser.add_subparsers(help="", dest="command")
     
+    preparebedparse = subparsers.add_parser('preparebed', help='Prepares a UTR BED file for SlamSim')
+    preparebedparse.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
+    preparebedparse.add_argument("-o", "--outputDir", type=str, required=False, dest="outputDir", default=".", help="Output directory for mapped BAM files.")
+    
     turnoverparse = subparsers.add_parser('utrs', help='Simulate utrs and turnover rate')
     turnoverparse.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
     turnoverparse.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
@@ -83,8 +87,14 @@ def run():
     ########################################################################
     
     command = args.command
-    
-    if (command == "utrs") :
+    if (command == "preparebed") :
+        outputDirectory = args.outputDir
+        createDir(outputDirectory)
+        bed = args.bed
+        slamSimBed = os.path.join(outputDirectory, replaceExtension(basename(bed), ".bed", "_original"))
+        simulator.prepareBED(bed, slamSimBed)
+        
+    elif (command == "utrs") :
         outputDirectory = args.outputDir
         createDir(outputDirectory)
         
