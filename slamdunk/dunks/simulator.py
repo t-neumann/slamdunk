@@ -87,10 +87,16 @@ def prepareUTRs(bed, bed12, bed12Fasta, referenceFasta, readLength, explv, snpRa
     print("##fileformat=VCFv4.1", file=vcf)
     print("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO", file=vcf)
     
-    utrFasta = shell("bedtools getfasta -name -s -fi " + referenceFasta + " -bed " + bed + " -fo - ")
+    bed12FastaTmp = bed12Fasta + "_tmp.fa"
+    utrFasta = shell("bedtools getfasta -name -s -fi " + referenceFasta + " -bed " + bed + " -fo " + bed12FastaTmp)
     print(utrFasta)
-    bed12FastaFile = open(bed12Fasta, "w")
     
+    bed12FastaTmpFile = open(bed12FastaTmp, "r")
+    utrFasta = bed12FastaTmpFile.read()
+    bed12FastaTmpFile.close()
+    os.unlink(bed12FastaTmp)
+    
+    bed12FastaFile = open(bed12Fasta, "w")
     utrName = None
     for line in utrFasta.splitlines():
         if(line[0] == ">"):
