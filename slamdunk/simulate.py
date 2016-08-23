@@ -60,8 +60,8 @@ def run():
     turnoverparse = subparsers.add_parser('utrs', help='Simulate utrs and turnover rate')
     turnoverparse.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
     turnoverparse.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
-    turnoverparse.add_argument("-l", "--lower-turnover", type=int, required=False, default=0.005, dest="minTurnover", help="Lower bound for turn over rates")
-    turnoverparse.add_argument("-u", "--upper-turnover", type=int, required=False, default=0.015, dest="maxTurnover", help="Upper bound for turn over rates")
+    turnoverparse.add_argument("-minhl", "--min-halflife", type=int, required=False, default=30, dest="minHalfLife", help="Lower bound for the simulated half lifes in minutes")
+    turnoverparse.add_argument("-maxhl", "--max-halflife", type=int, required=False, default=720, dest="maxHalfLife", help="Upper bound for the simulated half lifes in minutes")
     turnoverparse.add_argument("-o", "--outputDir", type=str, required=False, dest="outputDir", default=".", help="Output directory for mapped BAM files.")
     turnoverparse.add_argument("-s", "--snp-rate", type=float, required=False, default=0.001, dest="snpRate", help="SNP rate in UTRs")
     
@@ -71,9 +71,10 @@ def run():
     simulateparse.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
     simulateparse.add_argument("-l", "--read-length", type=int, required=True, dest="readLength", help="Read length")
     simulateparse.add_argument("-n", "--read-number", type=int, required=False, default=0, dest="readNumber", help="Number of reads to simulate")
-    simulateparse.add_argument("-c", "--read-coverage", type=int, required=False, default=20, dest="readCoverage", help="Read coverage (if read number is not specified)")
+    simulateparse.add_argument("-cov", "--read-coverage", type=int, required=False, default=20, dest="readCoverage", help="Read coverage (if read number is not specified)")
     simulateparse.add_argument("-e", "--sequencing-error", type=float, required=False, default=0.05, dest="seqError", help="Sequencing error")
     simulateparse.add_argument("-t", "--timepoint", type=int, required=True, dest="timePoint", help="Timepoint in minutes")
+    simulateparse.add_argument("-tc", "--tc-rate", type=float, required=False, dest="conversionRate", default=0.2, help="T->C conversion rate")
         
     args = parser.parse_args()
     
@@ -89,11 +90,11 @@ def run():
         
         bed = args.bed
         trunoverBed = os.path.join(outputDirectory, replaceExtension(basename(bed), ".bed", "_utrs"))
-        minTurnover = args.minTurnover
-        maxTurnover = args.maxTurnover
+        minHalflife = args.minHalfLife
+        maxHalfLife = args.maxHalfLife
         snpRate = args.snpRate
         
-        simulator.simulateTurnOver(bed, trunoverBed, minTurnover, maxTurnover)
+        simulator.simulateTurnOver(bed, trunoverBed, minHalflife, maxHalfLife)
         
         referenceFasta = args.referenceFile
         bed12 = os.path.join(outputDirectory, replaceExtension(basename(bed), ".bed12", "_utrs"))
@@ -135,7 +136,8 @@ def run():
         
         bamReadsWithTC = os.path.join(outputDirectory, sampleName + "_reads.bam")
         utrSummary = os.path.join(outputDirectory, sampleName + "_utrsummary.csv")
-        simulator.addTcConversions(bed, faReads, bamReadsWithTC, timePoint, utrSummary)
+        conversionRate = args.conversionRate
+        simulator.addTcConversions(bed, faReads, bamReadsWithTC, timePoint, utrSummary, conversionRate, readNumber)
         
         os.unlink(faReads)
         os.unlink(bedReads)    
