@@ -13,17 +13,14 @@ class SNPDictionary(object):
     '''
     classdocs
     '''
-
-    _vcfFile = None
     
-    _tcSNPs = {}
-    _agSNPs = {}
-
     def __init__(self, vcfFile):
         '''
         Constructor
         '''
         self._vcfFile = vcfFile
+        self._tcSNPs = {}
+        self._agSNPs = {}
 
     def _addSNP(self, snp):
         if(snp[3].upper() == "T" and snp[4].upper() == "C"):

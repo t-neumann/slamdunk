@@ -1,7 +1,6 @@
 from __future__ import print_function
 import pysam
 import re
-import sys
 
 class ReadDirection:
     Forward = 1
@@ -18,8 +17,6 @@ class SlamSeqConversionRates:
 
     _baseNumber = 5
     _toBase = [ 'A', 'C', 'G', 'T', 'N' ]
-    
-    _data = []
     
     # Make the object act like a list
     def __len__(self):
@@ -57,21 +54,18 @@ class SlamSeqConversionRates:
 
 class SlamSeqInterval:
     
-    _chromosome = None
-    _start = None
-    _stop = None
-    _strand = None
-    _name = None
-    _readsCPM = None
-    #_avgConversionRate = None
-    #_tCount = None
-    #_coveredBp = None
-    _coverageOnTs = None
-    _conversionsOnTs = None
-    _conversionRate = None
-    _readCount = None
-    _tcReadCount = None
-    _multimapCount = None
+    #_chromosome = None
+    #_start = None
+    #_stop = None
+    #_strand = None
+    #_name = None
+    #_readsCPM = None
+    #_coverageOnTs = None
+    #_conversionsOnTs = None
+    #_conversionRate = None
+    #_readCount = None
+    #_tcReadCount = None
+    #_multimapCount = None
         
     def __init__(self, chromosome, start, stop, strand, name, readsCPM, coverageOnTs, conversionsOnTs, conversionRate, readCount, tcReadCount, multimapCount):
         self._chromosome = chromosome
@@ -80,9 +74,6 @@ class SlamSeqInterval:
         self._strand = strand
         self._name = name
         self._readsCPM = readsCPM
-        #self._avgConversionRate = avgConversationRate
-        #self._tCount = tCount
-        #self._coveredBp = coveredBp
         self._coverageOnTs = coverageOnTs
         self._conversionsOnTs = conversionsOnTs
         self._conversionRate = conversionRate
@@ -97,31 +88,32 @@ class SlamSeqInterval:
      
 
 class SlamSeqAlignmentPosition:
-    # Position on the read. 
-    # ReadPos 0 on a reverse read is the last position of the read reported 
-    # in the BAM file
-    readPosition = None
-    # Position in the reference sequence were the mismatch occurred
-    referencePosition = None
-    # Base in read
-    readBase = None
-    # Base in reference
-    referenceBase = None
-    # Base quality
-    readBaseQlty = None
-    # If the mismatch overlaps with a SNP position (if vcf file is specified)
-    isSnpPosition = None
-    # Context of reference base
-    referenceBase5PrimeContext = None
-    referenceBase3PrimeContext = None
+    
+    #readPosition = None
+    #referencePosition = None
+    #readBase = None
+    #referenceBase = None
+    #readBaseQlty = None
+    #isSnpPosition = None
+    #referenceBase5PrimeContext = None
+    #referenceBase3PrimeContext = None
     
     def __init__(self, readPosition, referencePosition, readBase, referenceBase, readBaseQlty, isSnpPos, referenceBase5PrimeContext, referenceBase3PrimeContext):
+        # Base in read
         self.readBase = readBase
+        # Base quality
         self.readBaseQlty = readBaseQlty
+        # Position on the read. 
+        # ReadPos 0 on a reverse read is the last position of the read reported 
+        # in the BAM file
         self.readPosition = readPosition
+        # Base in reference
         self.referenceBase = referenceBase
+        # Position in the reference sequence were the mismatch occurred
         self.referencePosition = referencePosition
+        # If the mismatch overlaps with a SNP position (if vcf file is specified)
         self.isSnpPosition = isSnpPos
+        # Context of reference base
         self.referenceBase5PrimeContext = referenceBase5PrimeContext
         self.referenceBase3PrimeContext = referenceBase3PrimeContext
         
@@ -147,39 +139,40 @@ class SlamSeqAlignmentPosition:
 
 class SlamSeqRead:
     
-    # Name of the parsed read
-    name = None
-    # Nuber of Ts that were converted 
-    # to a C on forward reads and A to G on revse reads
-    tcCount = None
-    # Number Ts in the reference
-    tCount = None
-    # Percentage of converted Ts/As
-    tcRate = None
-    # Number of all possible conversions for one reads
-    conversionRates = None
-    # Direction of the reads
-    direction = None 
-    # Read sequence
-    sequence = None
-    # List of mismatches in alignment
-    mismatches = []
-    # Start position in the reference
-    startRefPos = None
-    # End position in the reference
-    endRefPos = None
-    # Multiple TC-conversion flag
-    isTcRead = None
-    # Read is Multimapper
-    isMultimapper = None
-    
+    def __init__(self):
+        # Name of the parsed read
+        self.name = None
+        # Nuber of Ts that were converted 
+        # to a C on forward reads and A to G on revse reads
+        self.tcCount = None
+        # Number Ts in the reference
+        self.tCount = None
+        # Percentage of converted Ts/As
+        self.tcRate = None
+        # Number of all possible conversions for one reads
+        self.conversionRates = None
+        # Direction of the reads
+        self.direction = None 
+        # Read sequence
+        self.sequence = None
+        # List of mismatches in alignment
+        self.mismatches = []
+        # Start position in the reference
+        self.startRefPos = None
+        # End position in the reference
+        self.endRefPos = None
+        # Multiple TC-conversion flag
+        self.isTcRead = None
+        # Read is Multimapper
+        self.isMultimapper = None
+        
     def __repr__(self):
         return "\t".join([self.name, str(self.direction), self.sequence, str(self.tcCount), str(self.tCount), str(self.tcRate), self.conversionRates.__repr__(), str(self.startRefPos), str(self.endRefPos), self.mismatches.__repr__(), str(self.isTcRead), str(self.isMultimapper)])
 
 class SlamSeqWriter:
     
     _seperator = '\t'
-    _file = None
+    #_file = None
     
     def __init__(self, fileName):
         self._file = open(fileName, "w")
@@ -218,14 +211,14 @@ class SlamSeqWriter:
 
 class SlamSeqBamIterator:
     
-    _readIterator = None
-    _refSeq = None
-    _snps = None
-    _strand = None
-    _maxReadLength = 0
-    _minQual = 0
-    _chromosome = None
-    _startPosition = 0
+#     _readIterator = None
+#     _refSeq = None
+#     _snps = None
+#     _strand = None
+#     _maxReadLength = 0
+#     _minQual = 0
+#     _chromosome = None
+#     _startPosition = 0
 
 #     def getTCount(self, strand):
 #         if(strand == "+"):
@@ -338,6 +331,7 @@ class SlamSeqBamIterator:
         return tcCount
     
     def __init__(self, readIterator, refSeq, chromosome, startPosition, strand, maxReadLength, snps):
+    
         self._readIterator = readIterator
         self._refSeq = refSeq
         self._chromosome = chromosome
@@ -345,6 +339,7 @@ class SlamSeqBamIterator:
         self._strand = strand
         self._maxReadLength = maxReadLength
         self._snps = snps
+        self._minQual = 0
         
     def __iter__(self):
         return self
@@ -424,9 +419,9 @@ class SlamSeqBamFile:
     '''
     classdocs
     '''
-    _bamFile = pysam.AlignmentFile
-    _referenceFile = pysam.FastaFile
-    _snps = None
+    #_bamFile = pysam.AlignmentFile
+    #_referenceFile = pysam.FastaFile
+    #_snps = None
 
     def __init__(self, bamFile, referenceFile, snps):
         self._bamFile = pysam.AlignmentFile(bamFile, "rb")

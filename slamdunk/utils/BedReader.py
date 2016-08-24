@@ -15,12 +15,10 @@ class BedEntry:
         return self.stop - self.start
     
     def hasStrand(self):
-        return self.strand != "."
+        return self.strand == "+" or self.strand == "-" 
     
 
 class BedIterator:
-    
-    _bedFile = None
     
     def __init__(self, filename):
         self._bedFile = open(filename, "r")
@@ -36,9 +34,10 @@ class BedIterator:
         bedEntry.stop = int(cols[2]) 
         bedEntry.name = cols[3]
         
-        # Add strand info if available
         if (len(cols) > 4) :
             bedEntry.score = cols[4]
+        # Add strand info if available
+        if (len(cols) > 5) :
             bedEntry.strand = cols[5]
                 
         return bedEntry
