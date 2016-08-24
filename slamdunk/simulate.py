@@ -14,8 +14,7 @@ from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from os.path import basename
 
 from dunks import simulator
-from joblib import Parallel, delayed
-from utils.misc import replaceExtension, readSampleNames, checkStep
+from utils.misc import replaceExtension
 
 ########################################################################
 # Global variables

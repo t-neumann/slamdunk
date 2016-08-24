@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
-import os, sys
+import os
 import tempfile
 import math
 import pysam
 
 from os.path import basename
 from utils.misc import run
-from utils.misc import removeExtension, checkStep, getReadCount, matchFile, complement
+from utils.misc import removeExtension, checkStep, getReadCount, matchFile
 from slamseq.SlamSeqFile import SlamSeqBamFile, ReadDirection
 from utils import SNPtools
-from utils.BedReader import BedIterator, BedEntry
+from utils.BedReader import BedIterator
 
 projectPath = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 pathComputeOverallRates = os.path.join(projectPath, "plot", "compute_overall_rates.R")

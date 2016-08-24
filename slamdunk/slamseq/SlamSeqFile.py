@@ -294,8 +294,8 @@ class SlamSeqBamIterator:
     def fillMismatches(self, read):
         mismatchList = []
         tCount = 0
-        startRefPos = None
-        endRefPos = None
+        #startRefPos = None
+        #endRefPos = None
         
         for pair in read.get_aligned_pairs(matches_only=True):
 
