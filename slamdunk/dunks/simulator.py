@@ -10,8 +10,10 @@ import os
 import glob
 import sys
 
+from utils import SNPtools
 from utils.BedReader import BedIterator
 from utils.misc import shell, run
+from slamseq.SlamSeqFile import SlamSeqBamFile
 
 projectPath = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 rNASeqReadSimulatorPath = os.path.join(projectPath, "bin", "RNASeqReadSimulator-master/")
@@ -48,7 +50,7 @@ def prepareBED(bed, slamSimBed, minLength):
     partList = []
     lastUtr = None
     for utr in utrs:
-        if utr.hasStrand():
+        if utr.hasStrand() and utr.hasNonEmptyName():
             currentUtr = utr.name
             if currentUtr == lastUtr:
                 partList.append(utr)
@@ -318,3 +320,32 @@ def plotHalfLifes(bed, simDir, slamDir, timePointsStr, conversionRate, outputPDF
     else:
         raise RuntimeError("Couldn't match files with timepoints")
     
+def getConversionRateFromBam(bam, ref):
+    
+    testFile = SlamSeqBamFile(bam, ref, SNPtools.SNPDictionary(None))
+    
+    sumConversionRate = 0
+    readCount = 0
+    for chromosome in testFile.getChromosomes():
+        readIterator = testFile.readsInChromosome(chromosome)
+        
+        for read in readIterator:
+            conversionRate = 0
+            if(read.tCount > 0):
+                conversionRate = read.tcCount * 1.0 / read.tCount
+            
+            #if(read.tcCount > 0):
+            sumConversionRate += conversionRate
+            readCount += 1
+            
+            if(readCount % 1000 == 0 and readCount > 0):
+                print(str(readCount) + ": " + str(sumConversionRate) + " / " + str(readCount) + " = " + str(sumConversionRate / readCount))
+            #if(readCount >= 10000):
+            #    break
+        
+    print("Avg. conversion rate: " + str(sumConversionRate / readCount))    
+    
+        
+        
+        
+        

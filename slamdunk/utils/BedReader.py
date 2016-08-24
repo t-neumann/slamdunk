@@ -17,6 +17,8 @@ class BedEntry:
     def hasStrand(self):
         return self.strand == "+" or self.strand == "-" 
     
+    def hasNonEmptyName(self):
+        return self.name != ""
 
 class BedIterator:
     

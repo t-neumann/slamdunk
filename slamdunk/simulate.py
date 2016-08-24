@@ -93,6 +93,9 @@ def run():
     evalhalflifeplotparse.add_argument("-tc", "--tc-rate", type=float, required=False, dest="conversionRate", default=0.02, help="T->C conversion rate")
     evalhalflifeplotparse.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
     
+    utilcrateparse = subparsers.add_parser('util.conversionrate', help='Get conversion rate from mapped BAM files')
+    utilcrateparse.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
+    utilcrateparse.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
     
     args = parser.parse_args()
     
@@ -191,6 +194,12 @@ def run():
         
         simulator.plotHalfLifes(bed, simDir, slamDir, timePoints, conversionRate, outputPDF)
     
+    elif (command == "util.conversionrate") :
+        
+        ref = args.referenceFile
+        bams = args.bam
+        for bam in bams:
+            simulator.getConversionRateFromBam(bam, ref)
     
 if __name__ == '__main__':
     run()
