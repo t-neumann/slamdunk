@@ -40,7 +40,8 @@ def prepareBED(bed, slamSimBed, minLength):
     utrs = []
     for utr in BedIterator(bed):
         utrs.append(utr)
-    utrs.sort(key=lambda x: (x.name, x.getLength()))
+        
+    utrs.sort(key=lambda x: (x.name, -x.getLength()))
     
     outBed = open(slamSimBed, "w")
     
