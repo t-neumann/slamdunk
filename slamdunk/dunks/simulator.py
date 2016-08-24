@@ -320,29 +320,32 @@ def plotHalfLifes(bed, simDir, slamDir, timePointsStr, conversionRate, outputPDF
     else:
         raise RuntimeError("Couldn't match files with timepoints")
     
-def getConversionRateFromBam(bam, ref):
+def getConversionRateFromBam(bam, ref, chromosome, start, end, strand):
     
     testFile = SlamSeqBamFile(bam, ref, SNPtools.SNPDictionary(None))
     
     sumConversionRate = 0
     readCount = 0
-    for chromosome in testFile.getChromosomes():
-        readIterator = testFile.readsInChromosome(chromosome)
+    #for chromosome in testFile.getChromosomes():
+    #    readIterator = testFile.readsInChromosome(chromosome)
+    #readIterator = testFile.readInRegion("chr7", 3217778, 3221036, "+", 55)
+    readIterator = testFile.readInRegion(chromosome, start, end, strand, 100)
         
-        for read in readIterator:
-            conversionRate = 0
-            if(read.tCount > 0):
-                conversionRate = read.tcCount * 1.0 / read.tCount
-            
-            #if(read.tcCount > 0):
-            sumConversionRate += conversionRate
-            readCount += 1
-            
-            if(readCount % 1000 == 0 and readCount > 0):
-                print(str(readCount) + ": " + str(sumConversionRate) + " / " + str(readCount) + " = " + str(sumConversionRate / readCount))
-            #if(readCount >= 10000):
-            #    break
+    for read in readIterator:
+        conversionRate = 0
+        if(read.tCount > 0):
+            conversionRate = read.tcCount * 1.0 / read.tCount
         
+        #if(read.tcCount > 0):
+        sumConversionRate += conversionRate
+        readCount += 1
+        
+        #if(readCount % 1000 == 0 and readCount > 0):
+        #    print(str(readCount) + ": " + str(sumConversionRate) + " / " + str(readCount) + " = " + str(sumConversionRate / readCount))
+        #if(readCount >= 10000):
+        #    break
+    
+    print("Read count: " + str(readCount))
     print("Avg. conversion rate: " + str(sumConversionRate / readCount))    
     
         

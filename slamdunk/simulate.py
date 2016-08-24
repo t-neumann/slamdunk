@@ -77,25 +77,30 @@ def run():
     simulateparse.add_argument("-cov", "--read-coverage", type=int, required=False, default=20, dest="readCoverage", help="Read coverage (if read number is not specified)")
     simulateparse.add_argument("-e", "--sequencing-error", type=float, required=False, default=0.05, dest="seqError", help="Sequencing error")
     simulateparse.add_argument("-t", "--timepoint", type=int, required=True, dest="timePoint", help="Timepoint in minutes")
-    simulateparse.add_argument("-tc", "--tc-rate", type=float, required=False, dest="conversionRate", default=0.02, help="T->C conversion rate")
+    simulateparse.add_argument("-tc", "--tc-rate", type=float, required=False, dest="conversionRate", default=0.03, help="T->C conversion rate")
         
     evalconversionplotparse = subparsers.add_parser('plot.conversions', help='Plots differences in simulated and found conversion rates')
     evalconversionplotparse.add_argument("-sim", "--simDir", type=str, required=True, dest="simDir", help="")
     evalconversionplotparse.add_argument("-slam", "--slamdunkDir", type=str, required=True, dest="slamDir", help="")
     evalconversionplotparse.add_argument("-o", "--outputFile", type=str, required=True, dest="outputFile", help="")
-    evalconversionplotparse.add_argument("-tc", "--tc-rate", type=float, required=False, dest="conversionRate", default=0.02, help="T->C conversion rate")
+    evalconversionplotparse.add_argument("-tc", "--tc-rate", type=float, required=False, dest="conversionRate", default=0.03, help="T->C conversion rate")
     
     evalhalflifeplotparse = subparsers.add_parser('plot.halflifes', help='Plots half lifes')
     evalhalflifeplotparse.add_argument("-sim", "--simDir", type=str, required=True, dest="simDir", help="")
     evalhalflifeplotparse.add_argument("-slam", "--slamdunkDir", type=str, required=True, dest="slamDir", help="")
     evalhalflifeplotparse.add_argument("-t", "--timepoints", type=str, required=True, dest="timepoints", help="")
     evalhalflifeplotparse.add_argument("-o", "--outputFile", type=str, required=True, dest="outputFile", help="")
-    evalhalflifeplotparse.add_argument("-tc", "--tc-rate", type=float, required=False, dest="conversionRate", default=0.02, help="T->C conversion rate")
+    evalhalflifeplotparse.add_argument("-tc", "--tc-rate", type=float, required=False, dest="conversionRate", default=0.03, help="T->C conversion rate")
     evalhalflifeplotparse.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
     
     utilcrateparse = subparsers.add_parser('util.conversionrate', help='Get conversion rate from mapped BAM files')
     utilcrateparse.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     utilcrateparse.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
+    #utilcrateparse.add_argument("-c", "--chromosome", type=str, required=True, dest="chromosome", help="")
+    utilcrateparse.add_argument("-region", "--region", type=str, required=True, dest="region", help="")
+    #utilcrateparse.add_argument("-s", "--start", type=int, required=True, dest="start", help="")
+    #utilcrateparse.add_argument("-e", "--end", type=int, required=True, dest="end", help="")
+    utilcrateparse.add_argument('-rev',required=False, dest="reverse", action='store_true')
     
     args = parser.parse_args()
     
@@ -198,8 +203,17 @@ def run():
         
         ref = args.referenceFile
         bams = args.bam
+        region = args.region
+        region = region.replace(",", "")
+        chromosome = region.split(":")[0]
+        start = int(region.split(":")[1].split("-")[0])
+        end = int(region.split(":")[1].split("-")[1])
+        strand = "+"
+        if(args.reverse):
+            strand = "-"
         for bam in bams:
-            simulator.getConversionRateFromBam(bam, ref)
+            simulator.getConversionRateFromBam(bam, ref, chromosome, start, end, strand)
     
 if __name__ == '__main__':
     run()
+
