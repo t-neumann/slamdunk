@@ -25,7 +25,7 @@ if ( !is.null(opt$help) || length(opt)==3 ) {
 if ( is.null(opt$simulated) ) stop("arg simulated must be specified")
 if ( is.null(opt$slamdunk) ) stop("arg slamdunk must be specified")
 if ( is.null(opt$output) ) stop("arg output must be specified")
-if ( is.null(opt$conversionrate) ) { opt$conversionrate = 0.2 }
+if ( is.null(opt$conversionrate) ) { opt$conversionrate = 0.02 }
 
 simulatedFiles = opt$simulated
 #simulatedFiles = "simulation_1/pooja_UTR_annotation_examples_sample_1_0min_utrsummary.csv,simulation_1/pooja_UTR_annotation_examples_sample_2_15min_utrsummary.csv,simulation_1/pooja_UTR_annotation_examples_sample_3_30min_utrsummary.csv,simulation_1/pooja_UTR_annotation_examples_sample_4_60min_utrsummary.csv,simulation_1/pooja_UTR_annotation_examples_sample_5_180min_utrsummary.csv,simulation_1/pooja_UTR_annotation_examples_sample_6_360min_utrsummary.csv,simulation_1/pooja_UTR_annotation_examples_sample_7_720min_utrsummary.csv,simulation_1/pooja_UTR_annotation_examples_sample_8_1440min_utrsummary.csv"
@@ -57,7 +57,7 @@ for(timepoint in 1:length(filesSimulated)) {
   
   
   #yLim = max(abs(slamdunk$diffconvertedReadsRate))
-  yLim = conversionRate
+  yLim = as.numeric(conversionRate)
   #boxplot(slamdunk$log2diff)
   plot(simulation$readsCPM, slamdunk$diff, main=name, pch=4, ylim=c(-yLim, yLim), ylab="conversion (sim) - conversion (slamdunk)", xlab="read counts per million")
   abline(h=0, lty=2, col="grey")

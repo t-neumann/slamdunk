@@ -36,11 +36,10 @@ def message(msg):
     print(msg, file=mainOutput)
     
 def createDir(directory):
-    if not os.path.exists(directory):
-        message("Creating output directory: " + directory)
-        os.makedirs(directory)
-
-
+    if directory:
+        if not os.path.exists(directory):
+            message("Creating output directory: " + directory)
+            os.makedirs(directory)
 
 def run():
     ########################################################################
@@ -59,6 +58,7 @@ def run():
     
     preparebedparse = subparsers.add_parser('preparebed', help='Prepares a UTR BED file for SlamSim')
     preparebedparse.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
+    preparebedparse.add_argument("-l", "--read-length", type=int, required=True, dest="readLength", help="All UTRs short than the read length are removed.")
     preparebedparse.add_argument("-o", "--outputDir", type=str, required=False, dest="outputDir", default=".", help="Output directory for mapped BAM files.")
     
     turnoverparse = subparsers.add_parser('utrs', help='Simulate utrs and turnover rate')
@@ -78,8 +78,23 @@ def run():
     simulateparse.add_argument("-cov", "--read-coverage", type=int, required=False, default=20, dest="readCoverage", help="Read coverage (if read number is not specified)")
     simulateparse.add_argument("-e", "--sequencing-error", type=float, required=False, default=0.05, dest="seqError", help="Sequencing error")
     simulateparse.add_argument("-t", "--timepoint", type=int, required=True, dest="timePoint", help="Timepoint in minutes")
-    simulateparse.add_argument("-tc", "--tc-rate", type=float, required=False, dest="conversionRate", default=0.2, help="T->C conversion rate")
+    simulateparse.add_argument("-tc", "--tc-rate", type=float, required=False, dest="conversionRate", default=0.02, help="T->C conversion rate")
         
+    evalconversionplotparse = subparsers.add_parser('plot.conversions', help='Plots differences in simulated and found conversion rates')
+    evalconversionplotparse.add_argument("-sim", "--simDir", type=str, required=True, dest="simDir", help="")
+    evalconversionplotparse.add_argument("-slam", "--slamdunkDir", type=str, required=True, dest="slamDir", help="")
+    evalconversionplotparse.add_argument("-o", "--outputFile", type=str, required=True, dest="outputFile", help="")
+    evalconversionplotparse.add_argument("-tc", "--tc-rate", type=float, required=False, dest="conversionRate", default=0.02, help="T->C conversion rate")
+    
+    evalhalflifeplotparse = subparsers.add_parser('plot.halflifes', help='Plots half lifes')
+    evalhalflifeplotparse.add_argument("-sim", "--simDir", type=str, required=True, dest="simDir", help="")
+    evalhalflifeplotparse.add_argument("-slam", "--slamdunkDir", type=str, required=True, dest="slamDir", help="")
+    evalhalflifeplotparse.add_argument("-t", "--timepoints", type=str, required=True, dest="timepoints", help="")
+    evalhalflifeplotparse.add_argument("-o", "--outputFile", type=str, required=True, dest="outputFile", help="")
+    evalhalflifeplotparse.add_argument("-tc", "--tc-rate", type=float, required=False, dest="conversionRate", default=0.02, help="T->C conversion rate")
+    evalhalflifeplotparse.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
+    
+    
     args = parser.parse_args()
     
     ########################################################################
@@ -91,8 +106,9 @@ def run():
         outputDirectory = args.outputDir
         createDir(outputDirectory)
         bed = args.bed
+        readLength = args.readLength
         slamSimBed = os.path.join(outputDirectory, replaceExtension(basename(bed), ".bed", "_original"))
-        simulator.prepareBED(bed, slamSimBed)
+        simulator.prepareBED(bed, slamSimBed, readLength)
         
     elif (command == "utrs") :
         outputDirectory = args.outputDir
@@ -151,8 +167,31 @@ def run():
         
         os.unlink(faReads)
         os.unlink(bedReads)    
+    elif (command == "plot.conversions") :
         
+        simDir = args.simDir
+        slamDir = args.slamDir
+        outputPDF = args.outputFile
+        conversionRate = args.conversionRate
         
+        outputPath = os.path.dirname(outputPDF)
+        createDir(outputPath)
+        
+        simulator.plotconversiondifferences(simDir, slamDir, conversionRate, outputPDF)
+    
+    elif (command == "plot.halflifes") :
+        
+        bed = args.bed
+        simDir = args.simDir
+        slamDir = args.slamDir
+        outputPDF = args.outputFile
+        conversionRate = args.conversionRate
+        timePoints = args.timepoints
+        outputPath = os.path.dirname(outputPDF)
+        createDir(outputPath)
+        
+        simulator.plotHalfLifes(bed, simDir, slamDir, timePoints, conversionRate, outputPDF)
+    
     
 if __name__ == '__main__':
     run()

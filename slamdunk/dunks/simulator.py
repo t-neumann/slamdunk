@@ -7,12 +7,17 @@ import random
 import pysam
 import math
 import os
+import glob
+import sys
 
 from utils.BedReader import BedIterator
 from utils.misc import shell, run
 
 projectPath = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 rNASeqReadSimulatorPath = os.path.join(projectPath, "bin", "RNASeqReadSimulator-master/")
+pathEvalHalfLifes = os.path.join(projectPath, "plot", "eval_halflife_per_gene_plots.R")
+pathEvalConversionrates = os.path.join(projectPath, "plot", "eval_conversion_rate_plots.R")
+
 
 def getRndBaseWithoutDup(base):
     rndBase = getRndBase()
@@ -27,11 +32,11 @@ def getCmpBase(base):
     complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A', 'N': 'N'} 
     return complement[base]
 
-def printUTR(utr, outBed):
-    if utr.getLength() > 25:
+def printUTR(utr, outBed, minLength):
+    if utr.getLength() > minLength:
         print(utr.chromosome, utr.start, utr.stop, utr.name, utr.score, utr.strand, sep="\t", file=outBed)
 
-def prepareBED(bed, slamSimBed):
+def prepareBED(bed, slamSimBed, minLength):
     utrs = []
     for utr in BedIterator(bed):
         utrs.append(utr)
@@ -42,17 +47,20 @@ def prepareBED(bed, slamSimBed):
     partList = []
     lastUtr = None
     for utr in utrs:
-        currentUtr = utr.name
-        if currentUtr == lastUtr:
-            partList.append(utr)
+        if utr.hasStrand():
+            currentUtr = utr.name
+            if currentUtr == lastUtr:
+                partList.append(utr)
+            else:
+                if(not lastUtr is None):
+                    printUTR(partList[0], outBed, minLength)
+                partList = [utr]
+            lastUtr = currentUtr
         else:
-            if(not lastUtr is None):
-                printUTR(partList[0], outBed)
-            partList = [utr]
-        lastUtr = currentUtr
-    
+            print("Warning: Invalid BED entry found: " + str(utr))
+        
     if(not lastUtr is None):
-        printUTR(partList[0], outBed)
+        printUTR(partList[0], outBed, minLength)
     
     outBed.close()
 
@@ -286,3 +294,26 @@ def getTotalUtrLength(bed12File):
         totalUtrLength += utr.getLength()
     return totalUtrLength
         
+        
+def plotconversiondifferences(simDir, slamDir, conversionRate, outputPDF):
+    
+    simFiles = glob.glob(simDir + "*_utrsummary.csv")
+    slamdunkFiles = glob.glob(slamDir + "*_reads_slamdunk_mapped_filtered_tcount.csv")
+    
+    if(len(simFiles) == len(slamdunkFiles)):
+        run("Rscript " + pathEvalConversionrates + " -c " + str(conversionRate) + " -s " + ",".join(simFiles) + " -f " + ",".join(slamdunkFiles) + " -o " + outputPDF, sys.stderr, dry=False, verbose=False)
+    else:
+        raise RuntimeError("Couldn't match files with timepoints")
+    
+
+def plotHalfLifes(bed, simDir, slamDir, timePointsStr, conversionRate, outputPDF):
+    
+    simFiles = glob.glob(simDir + "*_utrsummary.csv")
+    slamdunkFiles = glob.glob(slamDir + "*_reads_slamdunk_mapped_filtered_tcount.csv")
+    timePoints = timePointsStr.split(",")
+    
+    if(len(simFiles) == len(slamdunkFiles) and len(slamdunkFiles) == len(timePoints)):
+        run("Rscript " + pathEvalHalfLifes + " -b " + bed + " -c " + str(conversionRate) + " -s " + ",".join(simFiles) + " -f " + ",".join(slamdunkFiles) + " -t " + ",".join(timePoints) + " -o " + outputPDF, sys.stderr, dry=False, verbose=False)
+    else:
+        raise RuntimeError("Couldn't match files with timepoints")
+    
