@@ -297,8 +297,8 @@ def getTotalUtrLength(bed12File):
         
 def plotconversiondifferences(simDir, slamDir, conversionRate, outputPDF):
     
-    simFiles = glob.glob(simDir + "*_utrsummary.csv")
-    slamdunkFiles = glob.glob(slamDir + "*_reads_slamdunk_mapped_filtered_tcount.csv")
+    simFiles = sorted(glob.glob(simDir + "*_utrsummary.csv"))
+    slamdunkFiles = sorted(glob.glob(slamDir + "*_reads_slamdunk_mapped_filtered_tcount.csv"))
     
     if(len(simFiles) == len(slamdunkFiles)):
         run("Rscript " + pathEvalConversionrates + " -c " + str(conversionRate) + " -s " + ",".join(simFiles) + " -f " + ",".join(slamdunkFiles) + " -o " + outputPDF, sys.stderr, dry=False, verbose=False)
@@ -308,8 +308,8 @@ def plotconversiondifferences(simDir, slamDir, conversionRate, outputPDF):
 
 def plotHalfLifes(bed, simDir, slamDir, timePointsStr, conversionRate, outputPDF):
     
-    simFiles = glob.glob(simDir + "*_utrsummary.csv")
-    slamdunkFiles = glob.glob(slamDir + "*_reads_slamdunk_mapped_filtered_tcount.csv")
+    simFiles = sorted(glob.glob(simDir + "*_utrsummary.csv"))
+    slamdunkFiles = sorted(glob.glob(slamDir + "*_reads_slamdunk_mapped_filtered_tcount.csv"))
     timePoints = timePointsStr.split(",")
     
     if(len(simFiles) == len(slamdunkFiles) and len(slamdunkFiles) == len(timePoints)):
