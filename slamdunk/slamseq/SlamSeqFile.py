@@ -378,6 +378,7 @@ class SlamSeqBamIterator:
             slamSeqRead.isMultimapper = False
             
         #slamSeqRead.mismatches, slamSeqRead.tCount = self.fillMismatches(read)
+        #TODO: pare from NextGenMap tag (MM:z)
         slamSeqRead.mismatches, slamSeqRead.tCount, slamSeqRead.startRefPos, slamSeqRead.endRefPos = self.fillMismatches(read) 
 
         slamSeqRead.tcCount = self.getTC(slamSeqRead.mismatches, read.is_reverse) 

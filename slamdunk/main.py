@@ -313,7 +313,7 @@ def run():
     
     # Info
     usage = "SLAMdunk software for analyzing SLAM-seq data"
-    version = "1.0"
+    version = "0.1.0"
     
     # Main Parsers
     parser = ArgumentParser(description=usage, formatter_class=RawDescriptionHelpFormatter, version=version)
@@ -355,29 +355,39 @@ def run():
     snpparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
     
     # dedup command
-    
-    dedupparser = subparsers.add_parser('dedup', help='Deduplicate SLAM-seq aligned data')
-    dedupparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
-    dedupparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
-    dedupparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
+    #TODO: move to slamdunk-tools
+    #dedupparser = subparsers.add_parser('dedup', help='Deduplicate SLAM-seq aligned data')
+    #dedupparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
+    #dedupparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
+    #dedupparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     
     # count command
     
     countparser = subparsers.add_parser('count', help='Count T/C conversions in SLAM-seq aligned data')
     countparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
-    countparser.add_argument("-p", "--output-prefix", type=str, required=False, default="summary", dest="outputPrefix", help="Name of output file.")
-    countparser.add_argument("-n", "--sample-names", type=str, required=False, dest="sampleNames", help="CSV file containing name for all samples.")
+    # TODO: check
+    #countparser.add_argument("-p", "--output-prefix", type=str, required=False, default="summary", dest="outputPrefix", help="Name of output file.")
+    # TODO: check
+    #countparser.add_argument("-n", "--sample-names", type=str, required=False, dest="sampleNames", help="CSV file containing name for all samples.")
     countparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
     countparser.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", help="Directory containing SNP files.")
     countparser.add_argument("-r", "--reference", type=str, required=True, dest="ref", help="Reference fasta file")
     countparser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
     countparser.add_argument("-m", "--multiTCStringency", dest="strictTCs", action='store_true', required=False, help="")
     countparser.add_argument("-l", "--max-read-length", type=int, required=True, dest="maxLength", help="Max read length in BAM file")
+    #TODO: test
     countparser.add_argument("-q", "--min-base-qual", type=int, default=0, required=False, dest="minQual", help="Min base quality for T -> C conversions")
     countparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
     
-    # stats command
     
+    #halflifeparser = subparsers.add_parser('halflifes', help='Compute half lifes')
+    #halflifeparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
+    #halflifeparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
+    #halflifeparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
+    
+    
+    # stats command
+    #TODO: change to veronikas version
     statsparser = subparsers.add_parser('stats.rates', help='Calculate stats on SLAM-seq datasets')
     statsparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     statsparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
@@ -387,7 +397,7 @@ def run():
     statsparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
     
     # context command
-    
+    # TODO: move to slamdunk-tools
     tccontextparser = subparsers.add_parser('stats.TCcontext', help='Calculate T->C conversion context on SLAM-seq datasets')
     tccontextparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     tccontextparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
@@ -396,7 +406,7 @@ def run():
     tccontextparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
 
     # stats rates utr command
-    
+    # TODO: move to slamdunk-tools
     statsutrrateparser = subparsers.add_parser('stats.utrrates', help='Calculate stats on SLAM-seq datasets')
     statsutrrateparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     statsutrrateparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
@@ -407,7 +417,7 @@ def run():
     statsutrrateparser.add_argument("-l", "--max-read-length", type=int, required=True, dest="maxLength", help="Max read length in BAM file")
     
     # stats summary command
-    
+    # TODO: move to slamdunk-tools
     statsSumParser = subparsers.add_parser('stats.summary', help='Prints a CSV file containing the number of sequenced, mapped and filtered reads for all samples')
     statsSumParser.add_argument("-o", "--outputPrefix", type=str, required=True, dest="outputPrefix", help="Prefix for output files")
     statsSumParser.add_argument("-n", "--sample-names", type=str, required=True, dest="sampleNames", help="CSV file containing name for all samples.")
@@ -418,7 +428,7 @@ def run():
     statsSumParser.add_argument("-d", "--deduplicated-files", type=str, nargs="+", required=False, dest="dedupFiles", help="Deduplicated BAM files for all samples")
     
     # stats read info command
-    
+    # TODO: move to slamdunk-tools
     conversionRateParser = subparsers.add_parser('stats.tcperreadpos', help='Get SlamSeq info per read')
     conversionRateParser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     conversionRateParser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
@@ -429,7 +439,7 @@ def run():
     conversionRateParser.add_argument("-t", "--threads", type=int, required=False, dest="threads", help="Thread number")
     
     # stats utr info command
-    
+    # TODO: move to slamdunk-tools
     utrRateParser = subparsers.add_parser('stats.tcperutrpos', help='Get SlamSeq info per utr')
     utrRateParser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     utrRateParser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
@@ -441,7 +451,7 @@ def run():
     utrRateParser.add_argument("-t", "--threads", type=int, required=False, dest="threads", help="Thread number")
     
     # stats mean coverage for all utrs
-    
+    # TODO: move to slamdunk-tools
     utrCoverageParser = subparsers.add_parser('stats.utrcoverage', help='Get SlamSeq info per utr')
     utrCoverageParser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     # utrCoverageParser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
@@ -454,7 +464,7 @@ def run():
     
     
     # dump read info command
-    
+    # TODO: move to slamdunk-tools
     dumpReadInfo = subparsers.add_parser('dump.reads', help='Print all info available for reads')
     dumpReadInfo.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     dumpReadInfo.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
@@ -482,8 +492,9 @@ def run():
     allparser.add_argument("-mn", "--max-nm", type=int, required=False, default=-1, dest="nm", help="Maximal NM for alignments")
     allparser.add_argument("-mc", "--min-coverage", required=False, dest="cov", type=int, help="Minimimum coverage to call variant", default=10)
     allparser.add_argument("-mv", "--var-fraction", required=False, dest="var", type=float, help="Minimimum variant fraction variant", default=0.8)
-    allparser.add_argument("-nm", "--sample-names", type=str, required=False, dest="sampleNames", help="CSV file containing name for all samples.")
+    #allparser.add_argument("-nm", "--sample-names", type=str, required=False, dest="sampleNames", help="CSV file containing name for all samples.")
     allparser.add_argument("-mts", "--multiTCStringency", dest="strictTCs", action='store_true', required=False, help="")
+    #TOOD: add auto estimation
     allparser.add_argument("-rl", "--max-read-length", type=int, required=True, dest="maxLength", help="Max read length in BAM file")
     allparser.add_argument("-mbq", "--min-base-qual", type=int, default=0, required=False, dest="minQual", help="Min base quality for T -> C conversions")
     

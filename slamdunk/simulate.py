@@ -45,6 +45,9 @@ def run():
     # Argument parsing
     ########################################################################
     
+    # TODO: parameter for simulating expression levels
+    # TODO: more realistic simulation of half lifes
+    
     # Info
     usage = "SLAMdunk software for simulating SLAM-seq data"
     version = "1.0"
