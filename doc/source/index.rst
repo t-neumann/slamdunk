@@ -14,8 +14,10 @@ Contents:
    
    Introduction
    Installation
+   Quickstart
    Usage
    Dunks
+   Tools
    Docker
    FAQ
    Simulation
