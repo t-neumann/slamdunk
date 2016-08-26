@@ -27,6 +27,13 @@ if ( is.null(opt$slamdunk) ) stop("arg slamdunk must be specified")
 if ( is.null(opt$output) ) stop("arg output must be specified")
 if ( is.null(opt$conversionrate) ) { opt$conversionrate = 0.03 }
 
+
+#simulatedFiles = "/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/pooja_UTR_annotation_examples_1_0min_utrsummary.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/pooja_UTR_annotation_examples_2_15min_utrsummary.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/pooja_UTR_annotation_examples_3_30min_utrsummary.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/pooja_UTR_annotation_examples_4_60min_utrsummary.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/pooja_UTR_annotation_examples_5_180min_utrsummary.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/pooja_UTR_annotation_examples_6_360min_utrsummary.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/pooja_UTR_annotation_examples_7_720min_utrsummary.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/pooja_UTR_annotation_examples_8_1440min_utrsummary.csv"
+#slamDunkFiles = "/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_1_0min_reads_slamdunk_mapped_filtered_tcount.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_2_15min_reads_slamdunk_mapped_filtered_tcount.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_3_30min_reads_slamdunk_mapped_filtered_tcount.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_4_60min_reads_slamdunk_mapped_filtered_tcount.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_5_180min_reads_slamdunk_mapped_filtered_tcount.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_6_360min_reads_slamdunk_mapped_filtered_tcount.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_7_720min_reads_slamdunk_mapped_filtered_tcount.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_8_1440min_reads_slamdunk_mapped_filtered_tcount.csv"
+#outputFile = "/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/eval/conversion_rate_per_gene_eval_plots.pdf"
+#timesParameter = "0,15,30,60,180,360,720,1440"
+#conversionRate = 0.03
+
 simulatedFiles = opt$simulated
 #simulatedFiles = "simulation_1/pooja_UTR_annotation_examples_sample_1_0min_utrsummary.csv,simulation_1/pooja_UTR_annotation_examples_sample_2_15min_utrsummary.csv,simulation_1/pooja_UTR_annotation_examples_sample_3_30min_utrsummary.csv,simulation_1/pooja_UTR_annotation_examples_sample_4_60min_utrsummary.csv,simulation_1/pooja_UTR_annotation_examples_sample_5_180min_utrsummary.csv,simulation_1/pooja_UTR_annotation_examples_sample_6_360min_utrsummary.csv,simulation_1/pooja_UTR_annotation_examples_sample_7_720min_utrsummary.csv,simulation_1/pooja_UTR_annotation_examples_sample_8_1440min_utrsummary.csv"
 slamDunkFiles = opt$slamdunk
@@ -38,6 +45,7 @@ conversionRate = opt$conversionrate
 
 pdf(outputFile)
 for(timepoint in 1:length(filesSimulated)) {
+  #timepoint = 5
   simDataFile = filesSimulated[timepoint]
   slamDunkFile = filesSlamDunk[timepoint]
   name = basename(simDataFile)

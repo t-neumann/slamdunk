@@ -84,6 +84,15 @@ def runDedup(tid, bam, outputDirectory) :
     deduplicator.Dedup(bam, outputBAM, log)
     closeLogFile(log)
     stepFinished()
+
+def runHalfLifes(bams, timepoints, outputDirectory) :
+    outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bams[0]), ".tsv", "_halflifes"))
+    outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bams[0]), ".log", "_halflifes"))
+    log = getLogFile(outputLOG)
+    stats.halflifes(",".join(bams), outputCSV, timepoints, log)
+    closeLogFile(log)
+    stepFinished()
+
         
 def runFilter(tid, bam, bed, mq, minIdentity, maxNM, outputDirectory):
     outputBAM = os.path.join(outputDirectory, replaceExtension(basename(bam), ".bam", "_filtered"))
@@ -380,10 +389,10 @@ def run():
     countparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
     
     
-    #halflifeparser = subparsers.add_parser('halflifes', help='Compute half lifes')
-    #halflifeparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
-    #halflifeparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
-    #halflifeparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
+    halflifeparser = subparsers.add_parser('half-lifes', help='Compute half lifes')
+    halflifeparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
+    halflifeparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
+    halflifeparser.add_argument("-time", "--timepoints", type=str, required=True, dest="timepoints", help="Comma seperated list of timespoints. Same order as for input files!")
     
     
     # stats command
@@ -556,6 +565,18 @@ def run():
         message("Running slamDunk tcount for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
         results = Parallel(n_jobs=n, verbose=verbose)(delayed(runCount)(tid, args.bam[tid], args.ref, args.bed, args.maxLength, args.minQual, args.strictTCs, outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
         #runCountCombine(results, args.sampleNames, args.outputPrefix, outputDirectory)
+        dunkFinished()
+        
+    elif (command == "half-lifes") :
+        
+        outputDirectory = args.outputDir
+        createDir(outputDirectory)
+        
+        timepoints = args.timepoints
+        
+        message("Running slamDunk half-lifes for " + str(len(args.bam)) + " files")
+        runHalfLifes(args.bam, timepoints, outputDirectory)
+        #results = Parallel(n_jobs=n, verbose=verbose)(delayed(runHalfLifes)(tid, args.bam[tid], timepoints, outputDirectory) for tid in range(0, len(args.bam)))
         dunkFinished()
         
     elif (command == "stats.rates") :  

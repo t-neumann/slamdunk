@@ -18,6 +18,8 @@ pathComputeOverallRates = os.path.join(projectPath, "plot", "compute_overall_rat
 pathComputeTCContext = os.path.join(projectPath, "plot", "compute_context_TC_rates.R")
 pathConversionPerReadPos = os.path.join(projectPath, "plot", "conversion_per_read_position.R")
 pathSampleComparison = os.path.join(projectPath, "plot", "compute_sample_comparison_statistics.R")
+pathComputeHalfLifes = os.path.join(projectPath, "plot", "compute_halflifes.R")
+
 
 utrNormFactor = 200
 baseNumber = 5
@@ -722,3 +724,9 @@ def tcPerUtr(referenceFile, utrBed, bam, minQual, maxReadLength, outputCSV, outp
         print("Skipped computing T->C per UTR position plot for file " + bam, file=log)
     else: 
         run(pathConversionPerReadPos + " -u -i " + outputCSV + " -o " + outputPDF, log, dry=printOnly, verbose=verbose)
+
+
+def halflifes(bams, outputCSV, timepoints, log, printOnly=False, verbose=True, force=False):
+    
+    run("Rscript " + pathComputeHalfLifes + " -f " + bams + " -t " + timepoints + " -o " + outputCSV, log, dry=printOnly, verbose=verbose) 
+
