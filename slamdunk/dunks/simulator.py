@@ -14,6 +14,7 @@ from utils import SNPtools
 from utils.BedReader import BedIterator
 from utils.misc import shell, run
 from slamseq.SlamSeqFile import SlamSeqBamFile
+from Bio import SeqIO
 
 projectPath = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 rNASeqReadSimulatorPath = os.path.join(projectPath, "bin", "RNASeqReadSimulator-master/")
@@ -178,7 +179,9 @@ def convertRead(read, name, index, conversionRate, readOutSAM):
     
     tCount = 0
     TcCount = 0
-    seq = list(read.sequence)
+    # TODO: Uncomment to go back to pysam
+    #seq = list(read.sequence)
+    seq = list(read.seq.tostring())
     for i in xrange(0, len(seq)):
         if seq[i] == 'T':
             tCount += 1
@@ -262,22 +265,29 @@ def addTcConversions(bed, readInFile, readOutFile, timePoint, utrSummaryFile, co
     reads = []
     lastUtrName = None
     utrName = None
-    with pysam.FastxFile(readInFile) as fh:
-        for entry in fh:
-            utrName = getUtrName(entry.name)
-            if(utrName == lastUtrName):
-                reads.append(entry)
-            elif(lastUtrName == None):
-                reads.append(entry)
-            else:
-                readsCPM = len(reads)  * 1000000.0 / librarySize;
-                readsToConvert, totalTCount, totalTcCount = addTcConversionsToReads(utrs[lastUtrName], reads, timePoint, readOutSAM, conversionRate)
-                printUtrSummary(utrs[lastUtrName], len(reads), readsToConvert, totalTCount, totalTcCount, utrSummary, readsCPM)
-                reads = []
-            lastUtrName = utrName
-        readsCPM = len(reads) * 1000000.0 / librarySize;
-        readsToConvert, totalTCount, totalTcCount = addTcConversionsToReads(utrs[lastUtrName], reads, timePoint, readOutSAM, conversionRate)
-        printUtrSummary(utrs[lastUtrName], len(reads), readsToConvert, totalTCount, totalTcCount, utrSummary, readsCPM)
+    
+    fasta_sequences = SeqIO.parse(open(readInFile),'fasta')
+
+    for entry in fasta_sequences:
+        
+    # TODO: Uncomment to go back to pysam
+    #with pysam.FastxFile(readInFile) as fh:
+        #for entry in fh:
+            #utrName = getUtrName(entry.name)
+        utrName = getUtrName(entry.id)
+        if(utrName == lastUtrName):
+            reads.append(entry)
+        elif(lastUtrName == None):
+            reads.append(entry)
+        else:
+            readsCPM = len(reads)  * 1000000.0 / librarySize;
+            readsToConvert, totalTCount, totalTcCount = addTcConversionsToReads(utrs[lastUtrName], reads, timePoint, readOutSAM, conversionRate)
+            printUtrSummary(utrs[lastUtrName], len(reads), readsToConvert, totalTCount, totalTcCount, utrSummary, readsCPM)
+            reads = []
+        lastUtrName = utrName
+    readsCPM = len(reads) * 1000000.0 / librarySize;
+    readsToConvert, totalTCount, totalTcCount = addTcConversionsToReads(utrs[lastUtrName], reads, timePoint, readOutSAM, conversionRate)
+    printUtrSummary(utrs[lastUtrName], len(reads), readsToConvert, totalTCount, totalTcCount, utrSummary, readsCPM)
         
             
     readOutSAM.close()       
@@ -346,9 +356,4 @@ def getConversionRateFromBam(bam, ref, chromosome, start, end, strand):
         #    break
     
     print("Read count: " + str(readCount))
-    print("Avg. conversion rate: " + str(sumConversionRate / readCount))    
-    
-        
-        
-        
-        
+    print("Avg. conversion rate: " + str(sumConversionRate / readCount))
