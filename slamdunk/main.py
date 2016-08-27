@@ -314,6 +314,15 @@ def runAll(args) :
     
     dunkFinished()
     
+    dunkPath = os.path.join(outputDirectory, "count")
+    createDir(dunkPath)
+    
+    #timepoints = args.timepoints
+        
+    #message("Running slamDunk half-lifes for " + str(len(args.bam)) + " files")
+    #runHalfLifes(args.bam, timepoints, outputDirectory)
+    
+    #dunkFinished()
 
 def run():
     ########################################################################

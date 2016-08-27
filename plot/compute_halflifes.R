@@ -79,7 +79,7 @@ computeHalfLife <- function(rates, timepoints) {
   
   tryCatch( {
     fit = nls(rates ~ a*(1-exp(-k*(timepoints))), start=list(a=a_start,k=k_start))
-    halfLifePred = log(2, base = exp(1))/coef(fit)[2]
+    halfLifePred = log(2, base = exp(1))/coef(fit)[2] * 60
     C = coef(fit)[1]
     k = coef(fit)[2]
   }, error=function(e){})
