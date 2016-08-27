@@ -20,7 +20,7 @@ projectPath = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__
 rNASeqReadSimulatorPath = os.path.join(projectPath, "bin", "RNASeqReadSimulator-master/")
 pathEvalHalfLifes = os.path.join(projectPath, "plot", "eval_halflife_per_gene_plots.R")
 pathEvalConversionrates = os.path.join(projectPath, "plot", "eval_conversion_rate_plots.R")
-
+pathEvalHalfLife = os.path.join(projectPath, "plot", "eval_halflifes_error_plot.R")
 
 def getRndBaseWithoutDup(base):
     rndBase = getRndBase()
@@ -329,6 +329,9 @@ def plotHalfLifes(bed, simDir, slamDir, timePointsStr, conversionRate, outputPDF
         run("Rscript " + pathEvalHalfLifes + " -b " + bed + " -c " + str(conversionRate) + " -s " + ",".join(simFiles) + " -f " + ",".join(slamdunkFiles) + " -t " + ",".join(timePoints) + " -o " + outputPDF, sys.stderr, dry=False, verbose=False)
     else:
         raise RuntimeError("Couldn't match files with timepoints")
+    
+def evalHalfLifes(simHLFile, predHLFile, outputPDF, erroutputCSV):
+    run("Rscript " + pathEvalHalfLife + " -p " + predHLFile + " -s " + simHLFile + " -o " + outputPDF + " -m " + erroutputCSV, sys.stderr, dry=False, verbose=False)
     
 def getConversionRateFromBam(bam, ref, chromosome, start, end, strand):
     

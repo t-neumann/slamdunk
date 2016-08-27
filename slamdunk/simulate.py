@@ -88,7 +88,13 @@ def run():
     evalconversionplotparse.add_argument("-o", "--outputFile", type=str, required=True, dest="outputFile", help="")
     evalconversionplotparse.add_argument("-tc", "--tc-rate", type=float, required=False, dest="conversionRate", default=0.03, help="T->C conversion rate")
     
-    evalhalflifeplotparse = subparsers.add_parser('plot.halflifes', help='Plots half lifes')
+    evalhalflifeparse = subparsers.add_parser('plot.halflifes', help='Plots half lifes')
+    evalhalflifeparse.add_argument("-sim", "--simulated-hl", type=str, required=True, dest="simHL", help="Simulated half-lifes")
+    evalhalflifeparse.add_argument("-pred", "--predicted-hl", type=str, required=True, dest="predHL", help="Predicted half-lifes")
+    evalhalflifeparse.add_argument("-o", "--outputFile", type=str, required=True, dest="outputFile", help="")
+    evalhalflifeparse.add_argument("-e", "--erroroutputFile", type=str, required=True, dest="erroutputFile", help="")
+    
+    evalhalflifeplotparse = subparsers.add_parser('plot.halflifespergene', help='Plots half lifes')
     evalhalflifeplotparse.add_argument("-sim", "--simDir", type=str, required=True, dest="simDir", help="")
     evalhalflifeplotparse.add_argument("-slam", "--slamdunkDir", type=str, required=True, dest="slamDir", help="")
     evalhalflifeplotparse.add_argument("-t", "--timepoints", type=str, required=True, dest="timepoints", help="")
@@ -99,10 +105,7 @@ def run():
     utilcrateparse = subparsers.add_parser('util.conversionrate', help='Get conversion rate from mapped BAM files')
     utilcrateparse.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     utilcrateparse.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
-    #utilcrateparse.add_argument("-c", "--chromosome", type=str, required=True, dest="chromosome", help="")
     utilcrateparse.add_argument("-region", "--region", type=str, required=True, dest="region", help="")
-    #utilcrateparse.add_argument("-s", "--start", type=int, required=True, dest="start", help="")
-    #utilcrateparse.add_argument("-e", "--end", type=int, required=True, dest="end", help="")
     utilcrateparse.add_argument('-rev',required=False, dest="reverse", action='store_true')
     
     args = parser.parse_args()
@@ -189,7 +192,7 @@ def run():
         
         simulator.plotconversiondifferences(simDir, slamDir, conversionRate, outputPDF)
     
-    elif (command == "plot.halflifes") :
+    elif (command == "plot.halflifespergene") :
         
         bed = args.bed
         simDir = args.simDir
@@ -201,6 +204,16 @@ def run():
         createDir(outputPath)
         
         simulator.plotHalfLifes(bed, simDir, slamDir, timePoints, conversionRate, outputPDF)
+        
+    elif (command == "plot.halflifes") :
+        
+        simHLFile = args.simHL
+        predHLFile = args.predHL
+        
+        outputPDF = args.outputFile
+        erroutputCSV = args.erroutputFile
+        
+        simulator.evalHalfLifes(simHLFile, predHLFile, outputPDF, erroutputCSV)
     
     elif (command == "util.conversionrate") :
         
