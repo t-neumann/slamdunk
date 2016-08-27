@@ -43,7 +43,7 @@ filesSlamDunk = as.character(ordered(strsplit(slamDunkFiles, ",")[[1]]))
 outputFile = opt$output
 conversionRate = opt$conversionrate
 
-pdf(outputFile)
+pdf(outputFile, width = 15, height = 6)
 for(timepoint in 1:length(filesSimulated)) {
   #timepoint = 5
   simDataFile = filesSimulated[timepoint]
@@ -57,17 +57,27 @@ for(timepoint in 1:length(filesSimulated)) {
   
   slamdunk = read.table(slamDunkFile)
   colnames(slamdunk) = c("chr", "start", "stop", "name", "strand", "conversionRate", "readsCPM", "tCount", "tcCount", "readCount", "convertedReads", "multiMapCount")
+  slamdunk$readsCPM_sim = simulation$readsCPM
   slamdunk$log2diff = log2((simulation$conversionRate + 0.0000001) / (slamdunk$conversionRate + 0.0000001))
   slamdunk$diff = (simulation$conversionRate - slamdunk$conversionRate)
-  slamdunk$convertedReadsRate = slamdunk$convertedReads / slamdunk$readCount
-  slamdunk$diffconvertedReadsRate = (simulation$convertedReads - slamdunk$convertedReads)
+  #slamdunk$convertedReadsRate = slamdunk$convertedReads / slamdunk$readCount
+  #slamdunk$diffconvertedReadsRate = (simulation$convertedReads - slamdunk$convertedReads)
+  #slamdunk$diffconvertedReadsRatediff = ((simulation$convertedReads / simulation$readCount) - (slamdunk$convertedReads / slamdunk$readCount))
   #plot(simulation$V11 ~ slamdunk$V6, xlim=c(0, 0.01), ylim=c(0, 0.01))
   
-  
+  par(mfrow=c(1,2))
   #yLim = max(abs(slamdunk$diffconvertedReadsRate))
   yLim = as.numeric(conversionRate)
   #boxplot(slamdunk$log2diff)
-  plot(simulation$readsCPM, slamdunk$diff, main=name, pch=4, ylim=c(-yLim, yLim), ylab="conversion (sim) - conversion (slamdunk)", xlab="read counts per million")
+  slamDunkUniq = slamdunk[slamdunk$multiMapCount <= 0, ]
+  slamDunkMulti = slamdunk[slamdunk$multiMapCount > 0, ]
+  plot(slamDunkUniq$readsCPM_sim, slamDunkUniq$diff, main=name, pch=4, ylim=c(-yLim, yLim), ylab="conversion (sim) - conversion (slamdunk)", xlab="read counts per million")
+  points(slamDunkMulti$readsCPM_sim, slamDunkMulti$diff, pch=4, col="red")
+  abline(h=0, lty=2, col="grey")
+  
+  yLim = 4
+  plot(slamDunkUniq$readsCPM_sim, slamDunkUniq$log2diff, main=name, pch=4, ylim=c(-yLim, yLim), ylab="log2(conversion (sim) / conversion (slamdunk))", xlab="read counts per million")
+  points(slamDunkMulti$readsCPM_sim, slamDunkMulti$log2diff, pch=4, col="red")
   abline(h=0, lty=2, col="grey")
 } 
 dev.off()
