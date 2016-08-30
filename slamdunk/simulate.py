@@ -91,6 +91,7 @@ def run():
     evalhalflifeparse = subparsers.add_parser('plot.halflifes', help='Plots half lifes')
     evalhalflifeparse.add_argument("-sim", "--simulated-hl", type=str, required=True, dest="simHL", help="Simulated half-lifes")
     evalhalflifeparse.add_argument("-pred", "--predicted-hl", type=str, required=True, dest="predHL", help="Predicted half-lifes")
+    evalhalflifeparse.add_argument("-true", "--true-hl", type=str, required=True, dest="trueHL", help="Predicted half-lifes")
     evalhalflifeparse.add_argument("-o", "--outputFile", type=str, required=True, dest="outputFile", help="")
     evalhalflifeparse.add_argument("-e", "--erroroutputFile", type=str, required=True, dest="erroutputFile", help="")
     
@@ -207,13 +208,15 @@ def run():
         
     elif (command == "plot.halflifes") :
         
+        trueHLFile = args.trueHL
         simHLFile = args.simHL
         predHLFile = args.predHL
+        
         
         outputPDF = args.outputFile
         erroutputCSV = args.erroutputFile
         
-        simulator.evalHalfLifes(simHLFile, predHLFile, outputPDF, erroutputCSV)
+        simulator.evalHalfLifes(trueHLFile, simHLFile, predHLFile, outputPDF, erroutputCSV)
     
     elif (command == "util.conversionrate") :
         

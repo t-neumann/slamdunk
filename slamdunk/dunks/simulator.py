@@ -330,8 +330,8 @@ def plotHalfLifes(bed, simDir, slamDir, timePointsStr, conversionRate, outputPDF
     else:
         raise RuntimeError("Couldn't match files with timepoints")
     
-def evalHalfLifes(simHLFile, predHLFile, outputPDF, erroutputCSV):
-    run("Rscript " + pathEvalHalfLife + " -p " + predHLFile + " -s " + simHLFile + " -o " + outputPDF + " -m " + erroutputCSV, sys.stderr, dry=False, verbose=False)
+def evalHalfLifes(trueHLFile, simHLFile, predHLFile, outputPDF, erroutputCSV):
+    run("Rscript " + pathEvalHalfLife + " -t " + trueHLFile + " -p " + predHLFile + " -s " + simHLFile + " -o " + outputPDF + " -m " + erroutputCSV, sys.stderr, dry=False, verbose=False)
     
 def getConversionRateFromBam(bam, ref, chromosome, start, end, strand):
     

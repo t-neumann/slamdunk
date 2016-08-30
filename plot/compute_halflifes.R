@@ -1,4 +1,11 @@
 #!/usr/bin/env Rscript
+#
+# Script to compute half-lifes from SlamSeq data 
+# 
+# Author: Bhat Pooja, Philipp Rescheneder
+# Email: pooja.bhat@imba.oeaw.ac.at, philipp.rescheneder@univie.ac.at 
+###############################################################################
+
 library(getopt)
 
 spec = matrix(c(
