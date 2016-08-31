@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 
+#SPLASH:
+
+#Systematic Performance evaLuAtion of Slamdunk beHaviour (accomplishemnt, achievement)
+
+
 #########################################################################
 # Main routine for the SLAMdunk simulation
 #########################################################################

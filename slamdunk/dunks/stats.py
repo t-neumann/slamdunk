@@ -15,6 +15,7 @@ from utils.BedReader import BedIterator
 
 projectPath = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 pathComputeOverallRates = os.path.join(projectPath, "plot", "compute_overall_rates.R")
+pathComputeGlobalRates = os.path.join(projectPath, "plot", "globalRatePlotter.R")
 pathComputeTCContext = os.path.join(projectPath, "plot", "compute_context_TC_rates.R")
 pathConversionPerReadPos = os.path.join(projectPath, "plot", "conversion_per_read_position.R")
 pathSampleComparison = os.path.join(projectPath, "plot", "compute_sample_comparison_statistics.R")
@@ -444,7 +445,7 @@ def statsComputeTCContext(referenceFile, bam, minQual, outputCSV, outputPDF, log
         
         run(pathComputeTCContext + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
 
-def statsComputeOverallRatesPerUTR(referenceFile, bam, minQual, outputCSV, utrBed, maxReadLength, log, printOnly=False, verbose=True, force=False):
+def statsComputeOverallRatesPerUTR(referenceFile, bam, minQual, outputCSV, outputPDF, utrBed, maxReadLength, log, printOnly=False, verbose=True, force=False):
     
     if(not checkStep([bam, referenceFile], [outputCSV], force)):
         print("Skipped computing overall rates for file " + bam, file=log)
@@ -480,7 +481,15 @@ def statsComputeOverallRatesPerUTR(referenceFile, bam, minQual, outputCSV, utrBe
                     
             print(utr.name, utr.chromosome, utr.start, utr.stop, utr.strand, readCount, "\t".join(str(x) for x in totalRates), sep="\t", file=fo)
         fo.close()
-    
+        
+    if(not checkStep([bam, referenceFile], [outputPDF], force)):
+        print("Skipped computing global rate pdfs for file " + bam, file=log)
+    else:
+        f = tempfile.NamedTemporaryFile(delete=False)
+        print(removeExtension(basename(bam)), outputCSV, sep='\t', file=f)
+        f.close()
+              
+        run(pathComputeGlobalRates + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
            
     
 def readSummary(mappedFiles, filteredFiles, dedupFiles, snpsFiles, samples, outputPrefix, log, printOnly=False, verbose=True, force=False):
