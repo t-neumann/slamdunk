@@ -8,10 +8,16 @@ This section covers the installation of *slamdunk*. Alternatively one could also
 .. code:: bash
 
     # Having root permissions
-    pip install pysam joblib pybedtools
+    pip install pysam joblib pybedtools intervaltree pandas numpy
     
     # Local user only
-    pip install --user pysam joblib pybedtools
+    pip install --user pysam joblib pybedtools intervaltree pandas numpy
+    
+1. Install required R libraries:
+
+.. code:: bash
+
+    R -e 'install.packages(c("getopt","ggplot2","gridExtra","RColorBrewer","lattice","matrixStats"),repos="https://cran.wu.ac.at/")'
     
 2. Clone from `Github <https://github.com/t-neumann/slamdunk>`_.
 
@@ -37,7 +43,7 @@ This section covers the installation of *slamdunk*. Alternatively one could also
 
     ./build-varscan.sh
     
-5. Run *slamdunk* (optionally put it in your *$PATH* to run it from anywhere).
+5. Run *slamdunk* (optionally put it in your *$PATH*  to run it from anywhere).
 
 .. code:: bash
 
