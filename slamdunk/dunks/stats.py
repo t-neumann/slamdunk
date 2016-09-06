@@ -230,220 +230,220 @@ def statsComputeOverallRates(referenceFile, bam, minQual, outputCSV, outputPDF, 
  
 # This is for Ts in reads
 
-# def statsComputeTCContext(referenceFile, bam, minQual, outputCSV, outputPDF, log, printOnly=False, verbose=True, force=False):
+def statsComputeTCContext(referenceFile, bam, minQual, outputCSV, outputPDF, log, printOnly=False, verbose=True, force=False):
+     
+    if(not checkStep([bam, referenceFile], [outputCSV], force)):
+        print("Skipped computing overall rates for file " + bam, file=log)
+    else:
+        # Init
+        # combinations = ["AT","CT","GT","TT","NT","AA","CA","GA","TA","NA"]
+        frontCombinations = ["AT", "CT", "GT", "TT", "NT"]
+        backCombinations = ["TA", "TC", "TG", "TT", "TN"]
+         
+        counts = {}
+        counts['5prime'] = {}
+        counts['3prime'] = {}
+        counts['5prime']['fwd'] = {}
+        counts['5prime']['rev'] = {}
+        counts['3prime']['fwd'] = {}
+        counts['3prime']['rev'] = {}
+         
+        for combination in frontCombinations :
+            counts['5prime']['fwd'][combination] = 0
+            counts['5prime']['rev'][combination] = 0
+             
+        for combination in backCombinations:
+            counts['3prime']['fwd'][combination] = 0
+            counts['3prime']['rev'][combination] = 0
+             
+        bamFile = pysam.AlignmentFile(bam, "rb")
+         
+        # Go through one chr after the other
+        testFile = SlamSeqBamFile(bam, referenceFile, None)
+         
+        chromosomes = testFile.getChromosomes()
+         
+        for chromosome in chromosomes:
+                 
+            for read in bamFile.fetch(region=chromosome):
+                 
+                i = 0
+                while i < len(read.query_sequence):
+                    if(read.query_sequence[i] == "T" and not read.is_reverse) :
+                        frontContext = None
+                        backContext = None
+                        if (i > 0) :
+                            frontContext = read.query_sequence[i - 1]
+                        if (i < (len(read.query_sequence) - 1)) :
+                            backContext  = read.query_sequence[i + 1]
+                         
+                        if (frontContext != None) :
+                            counts['5prime']['fwd'][frontContext + "T"] += 1
+                        if (backContext != None) :
+                            counts['3prime']['fwd']["T" + backContext] += 1
+                             
+                    if(read.query_sequence[i] == "A" and read.is_reverse) :
+                        frontContext = None
+                        backContext = None
+                        if (i > 0) :
+                            backContext = read.query_sequence[i - 1]
+                        if (i < (len(read.query_sequence) - 1)) :
+                            frontContext  = read.query_sequence[i + 1]
+                         
+                        if (frontContext != None) :
+                            counts['5prime']['rev'][complement(frontContext + "A")] += 1
+                        if (backContext != None) :
+                            counts['3prime']['rev'][complement("A" + backContext)] += 1
+                     
+                    i += 1
+         
+        # Print rates in correct format for plotting
+        fo = open(outputCSV, "w")
+         
+        print("\t".join(frontCombinations), file=fo)
+         
+        frontFwdLine = ""
+        frontRevLine = ""
+        backFwdLine = ""
+        backRevLine = ""
+         
+        for combination in frontCombinations :
+            frontFwdLine += str(counts['5prime']['fwd'][combination]) + "\t"
+            frontRevLine += str(counts['5prime']['rev'][combination]) + "\t"
+         
+        print(frontFwdLine.rstrip(), file=fo)
+        print(frontRevLine.rstrip(), file=fo)
+         
+        print("\t".join(backCombinations), file=fo)
+ 
+        for combination in backCombinations :
+            backFwdLine += str(counts['3prime']['fwd'][combination]) + "\t"
+            backRevLine += str(counts['3prime']['rev'][combination]) + "\t"
+ 
+        print(backFwdLine.rstrip(), file=fo)
+        print(backRevLine.rstrip(), file=fo)
+         
+        fo.close()
+     
+    if(not checkStep([bam, referenceFile], [outputPDF], force)):
+        print("Skipped computing overall rate pdfs for file " + bam, file=log)
+    else:
+        f = tempfile.NamedTemporaryFile(delete=False)
+        print(removeExtension(basename(bam)), outputCSV, sep='\t', file=f)
+        f.close()
+         
+        run(pathComputeTCContext + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
+        
+# def statsComputeTCContext(referenceFile, bam, bed, minQual, outputCSV, outputPDF, log, printOnly=False, verbose=True, force=False):
 #     
-#     if(not checkStep([bam, referenceFile], [outputCSV], force)):
-#         print("Skipped computing overall rates for file " + bam, file=log)
-#     else:
+#     #if(not checkStep([bam, referenceFile], [outputCSV], force)):
+#     #    print("Skipped computing overall rates for file " + bam, file=log)
+#     #else:
 #         # Init
 #         # combinations = ["AT","CT","GT","TT","NT","AA","CA","GA","TA","NA"]
-#         frontCombinations = ["AT", "CT", "GT", "TT", "NT"]
-#         backCombinations = ["TA", "TC", "TG", "TT", "TN"]
+#         #frontCombinations = ["AT", "CT", "GT", "TT", "NT"]
+#         #backCombinations = ["TA", "TC", "TG", "TT", "TN"]
 #         
 #         counts = {}
 #         counts['5prime'] = {}
 #         counts['3prime'] = {}
-#         counts['5prime']['fwd'] = {}
-#         counts['5prime']['rev'] = {}
-#         counts['3prime']['fwd'] = {}
-#         counts['3prime']['rev'] = {}
 #         
-#         for combination in frontCombinations :
-#             counts['5prime']['fwd'][combination] = 0
-#             counts['5prime']['rev'][combination] = 0
+# #         for combination in frontCombinations :
+# #             counts['5prime'][combination] = 0
+# #             
+# #         for combination in backCombinations:
+# #             counts['3prime'][combination] = 0
+#         
+#         ref = pysam.FastaFile(referenceFile)
+#         
+#         #chromosomes = list(ref.references)
+#          
+#         #for chromosome in chromosomes:
+#          
+#         for utr in BedIterator(bed):
 #             
-#         for combination in backCombinations:
-#             counts['3prime']['fwd'][combination] = 0
-#             counts['3prime']['rev'][combination] = 0
+#             chromosome = utr.chromosome + ":" + str(utr.start) + "-" + str(utr.stop)
+#             seq = ref.fetch(region=chromosome).upper()
 #             
-#         bamFile = pysam.AlignmentFile(bam, "rb")
-#         
-#         # Go through one chr after the other
-#         testFile = SlamSeqBamFile(bam, referenceFile, None)
-#         
-#         chromosomes = testFile.getChromosomes()
-#         
-#         for chromosome in chromosomes:
-#                 
-#             for read in bamFile.fetch(region=chromosome):
-#                 
-#                 i = 0
-#                 while i < len(read.query_sequence):
-#                     if(read.query_sequence[i] == "T" and not read.is_reverse) :
-#                         frontContext = None
-#                         backContext = None
-#                         if (i > 0) :
-#                             frontContext = read.query_sequence[i - 1]
-#                         if (i < (len(read.query_sequence) - 1)) :
-#                             backContext  = read.query_sequence[i + 1]
-#                         
-#                         if (frontContext != None) :
-#                             counts['5prime']['fwd'][frontContext + "T"] += 1
-#                         if (backContext != None) :
-#                             counts['3prime']['fwd']["T" + backContext] += 1
-#                             
-#                     if(read.query_sequence[i] == "A" and read.is_reverse) :
-#                         frontContext = None
-#                         backContext = None
-#                         if (i > 0) :
-#                             backContext = read.query_sequence[i - 1]
-#                         if (i < (len(read.query_sequence) - 1)) :
-#                             frontContext  = read.query_sequence[i + 1]
-#                         
-#                         if (frontContext != None) :
-#                             counts['5prime']['rev'][complement(frontContext + "A")] += 1
-#                         if (backContext != None) :
-#                             counts['3prime']['rev'][complement("A" + backContext)] += 1
-#                     
-#                     i += 1
+#             #seq = ref.fetch(chromosome,0).upper()
+#             #print("Handling chromosome " + chromosome)
+#             
+# #             i = 0
+# #             while i < len(seq):
+# #                 if(seq[i] == "T" and i > 0 and i < (len(seq) - 1)) :
+# #                         frontContext = seq[i - 1]
+# #                         backContext  = seq[i + 1]
+# #                     
+# #                         counts['5prime'][frontContext + "T"] += 1
+# #                         counts['3prime']["T" + backContext] += 1
+# #                     
+# #                 i += 1
+#             for (front, middle, back) in zip(seq[0::1], seq[1::1], seq[2::1]):
+#                 triplet = front + middle  + back
+#                 #if (middle == "T") :
+#                 if (not counts['5prime'].has_key(triplet[0:2])) :
+#                     counts['5prime'][triplet[0:2]] = 0
+#                 counts['5prime'][triplet[0:2]] += 1
+#                 if (not counts['3prime'].has_key(triplet[1:3])) :
+#                     counts['3prime'][triplet[1:3]] = 0
+#                 counts['3prime'][triplet[1:3]] += 1
 #         
 #         # Print rates in correct format for plotting
 #         fo = open(outputCSV, "w")
 #         
-#         print("\t".join(frontCombinations), file=fo)
-#         
-#         frontFwdLine = ""
-#         frontRevLine = ""
-#         backFwdLine = ""
-#         backRevLine = ""
-#         
-#         for combination in frontCombinations :
-#             frontFwdLine += str(counts['5prime']['fwd'][combination]) + "\t"
-#             frontRevLine += str(counts['5prime']['rev'][combination]) + "\t"
-#         
-#         print(frontFwdLine.rstrip(), file=fo)
-#         print(frontRevLine.rstrip(), file=fo)
-#         
-#         print("\t".join(backCombinations), file=fo)
-# 
-#         for combination in backCombinations :
-#             backFwdLine += str(counts['3prime']['fwd'][combination]) + "\t"
-#             backRevLine += str(counts['3prime']['rev'][combination]) + "\t"
-# 
-#         print(backFwdLine.rstrip(), file=fo)
-#         print(backRevLine.rstrip(), file=fo)
+#         for baseA in toBase :
+#             headerFront = ""
+#             headerBack = ""
+#             
+#             for baseB in toBase :
+#                 headerFront += baseB + baseA + "\t"
+#                 headerBack += baseA + baseB + "\t"
+#                 
+#             valuesFront = ""
+#             valuesBack = ""
+#             
+#             for baseB in toBase :
+#                 if (counts['5prime'].has_key(baseB + baseA)) :
+#                     valuesFront += str(counts['5prime'][baseB + baseA]) + "\t"
+#                 else :
+#                     valuesFront += "0\t"
+#                 if (counts['3prime'].has_key(baseA + baseB)):
+#                     valuesBack += str(counts['3prime'][baseA + baseB]) + "\t"
+#                 else:
+#                     valuesBack += "0\t"
+#                 
+#             print(headerFront.rstrip(),file=fo)
+#             print(valuesFront.rstrip(),file=fo)
+#             print(headerBack.rstrip(),file=fo)
+#             print(valuesBack.rstrip(),file=fo)
+#             
+# #         print("\t".join(frontCombinations), file=fo)
+# #         
+# #         frontFwdLine = ""
+# #         backFwdLine = ""
+# #         
+# #         for combination in frontCombinations :
+# #             frontFwdLine += str(counts['5prime'][combination]) + "\t"
+# #         
+# #         print(frontFwdLine.rstrip(), file=fo)
+# #         
+# #         print("\t".join(backCombinations), file=fo)
+# # 
+# #         for combination in backCombinations :
+# #             backFwdLine += str(counts['3prime'][combination]) + "\t"
+# # 
+# #         print(backFwdLine.rstrip(), file=fo)
 #         
 #         fo.close()
 #     
-#     if(not checkStep([bam, referenceFile], [outputPDF], force)):
-#         print("Skipped computing overall rate pdfs for file " + bam, file=log)
-#     else:
-#         f = tempfile.NamedTemporaryFile(delete=False)
-#         print(removeExtension(basename(bam)), outputCSV, sep='\t', file=f)
-#         f.close()
-#         
-#         run(pathComputeTCContext + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
-        
-def statsComputeTCContext(referenceFile, bam, minQual, outputCSV, outputPDF, log, printOnly=False, verbose=True, force=False):
-    
-    #if(not checkStep([bam, referenceFile], [outputCSV], force)):
-    #    print("Skipped computing overall rates for file " + bam, file=log)
-    #else:
-        # Init
-        # combinations = ["AT","CT","GT","TT","NT","AA","CA","GA","TA","NA"]
-        #frontCombinations = ["AT", "CT", "GT", "TT", "NT"]
-        #backCombinations = ["TA", "TC", "TG", "TT", "TN"]
-        
-        counts = {}
-        counts['5prime'] = {}
-        counts['3prime'] = {}
-        
-#         for combination in frontCombinations :
-#             counts['5prime'][combination] = 0
-#             
-#         for combination in backCombinations:
-#             counts['3prime'][combination] = 0
-        
-        ref = pysam.FastaFile(referenceFile)
-        
-        #chromosomes = list(ref.references)
-         
-        #for chromosome in chromosomes:
-         
-        for utr in BedIterator("/groups/zuber/zubarchive/USERS/tobias/matthias/SLAMSeq/ref/pooja_UTR_annotation.bed"):
-            
-            chromosome = utr.chromosome + ":" + str(utr.start) + "-" + str(utr.stop)
-            seq = ref.fetch(region=chromosome).upper()
-            
-            #seq = ref.fetch(chromosome,0).upper()
-            #print("Handling chromosome " + chromosome)
-            
-#             i = 0
-#             while i < len(seq):
-#                 if(seq[i] == "T" and i > 0 and i < (len(seq) - 1)) :
-#                         frontContext = seq[i - 1]
-#                         backContext  = seq[i + 1]
-#                     
-#                         counts['5prime'][frontContext + "T"] += 1
-#                         counts['3prime']["T" + backContext] += 1
-#                     
-#                 i += 1
-            for (front, middle, back) in zip(seq[0::1], seq[1::1], seq[2::1]):
-                triplet = front + middle  + back
-                #if (middle == "T") :
-                if (not counts['5prime'].has_key(triplet[0:2])) :
-                    counts['5prime'][triplet[0:2]] = 0
-                counts['5prime'][triplet[0:2]] += 1
-                if (not counts['3prime'].has_key(triplet[1:3])) :
-                    counts['3prime'][triplet[1:3]] = 0
-                counts['3prime'][triplet[1:3]] += 1
-        
-        # Print rates in correct format for plotting
-        fo = open(outputCSV, "w")
-        
-        for baseA in toBase :
-            headerFront = ""
-            headerBack = ""
-            
-            for baseB in toBase :
-                headerFront += baseB + baseA + "\t"
-                headerBack += baseA + baseB + "\t"
-                
-            valuesFront = ""
-            valuesBack = ""
-            
-            for baseB in toBase :
-                if (counts['5prime'].has_key(baseB + baseA)) :
-                    valuesFront += str(counts['5prime'][baseB + baseA]) + "\t"
-                else :
-                    valuesFront += "0\t"
-                if (counts['3prime'].has_key(baseA + baseB)):
-                    valuesBack += str(counts['3prime'][baseA + baseB]) + "\t"
-                else:
-                    valuesBack += "0\t"
-                
-            print(headerFront.rstrip(),file=fo)
-            print(valuesFront.rstrip(),file=fo)
-            print(headerBack.rstrip(),file=fo)
-            print(valuesBack.rstrip(),file=fo)
-            
-#         print("\t".join(frontCombinations), file=fo)
-#         
-#         frontFwdLine = ""
-#         backFwdLine = ""
-#         
-#         for combination in frontCombinations :
-#             frontFwdLine += str(counts['5prime'][combination]) + "\t"
-#         
-#         print(frontFwdLine.rstrip(), file=fo)
-#         
-#         print("\t".join(backCombinations), file=fo)
-# 
-#         for combination in backCombinations :
-#             backFwdLine += str(counts['3prime'][combination]) + "\t"
-# 
-#         print(backFwdLine.rstrip(), file=fo)
-        
-        fo.close()
-    
-    #if(not checkStep([bam, referenceFile], [outputPDF], force)):
-    #    print("Skipped computing overall rate pdfs for file " + bam, file=log)
-    #else:
-        f = tempfile.NamedTemporaryFile(delete=False)
-        print(removeExtension(basename(bam)), outputCSV, sep='\t', file=f)
-        f.close()
-        
-        run(pathComputeTCContext + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
+#     #if(not checkStep([bam, referenceFile], [outputPDF], force)):
+#     #    print("Skipped computing overall rate pdfs for file " + bam, file=log)
+#     #else:
+# #         f = tempfile.NamedTemporaryFile(delete=False)
+# #         print(removeExtension(basename(bam)), outputCSV, sep='\t', file=f)
+# #         f.close()
+# #         
+# #         run(pathComputeTCContext + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
 
 def statsComputeOverallRatesPerUTR(referenceFile, bam, minQual, outputCSV, outputPDF, utrBed, maxReadLength, log, printOnly=False, verbose=True, force=False):
     

@@ -83,18 +83,18 @@ def runHalfLifes(bams, timepoints, outputDirectory) :
     stepFinished()
     
 def runStatsRates(tid, bam, referenceFile, minMQ, outputDirectory) :
-    outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_tcount_overallrates"))
-    outputPDF = os.path.join(outputDirectory, replaceExtension(basename(bam), ".pdf", "_tcount_overallrates"))
-    outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_tcount_overallrates"))
+    outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_overallrates"))
+    outputPDF = os.path.join(outputDirectory, replaceExtension(basename(bam), ".pdf", "_overallrates"))
+    outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_overallrates"))
     log = getLogFile(outputLOG)
     stats.statsComputeOverallRates(referenceFile, bam, minMQ, outputCSV, outputPDF, log)
     closeLogFile(log)
     stepFinished()
     
 def runStatsTCContext(tid, bam, referenceFile, minMQ, outputDirectory) :
-    outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_tcount_tccontext"))
-    outputPDF = os.path.join(outputDirectory, replaceExtension(basename(bam), ".pdf", "_tcount_tccontext"))
-    outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_tcount_tccontext"))
+    outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_tccontext"))
+    outputPDF = os.path.join(outputDirectory, replaceExtension(basename(bam), ".pdf", "_tccontext"))
+    outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_tccontext"))
     log = getLogFile(outputLOG)
     stats.statsComputeTCContext(referenceFile, bam, minMQ, outputCSV, outputPDF, log)
     closeLogFile(log)
@@ -168,16 +168,14 @@ def runDumpReadInfo(tid, bam, referenceFile, minMQ, outputDirectory, snpDirector
 
 
 def run():
+    
     ########################################################################
     # Argument parsing
     ########################################################################
     
-    # TODO: parameter for simulating expression levels
-    # TODO: more realistic simulation of half lifes
-    
     # Info
     usage = "AlleyOop utility tools and diagnostics for SLAMSeq data"
-    version = "1.0"
+    version = "0.1.0"
     
     # Main Parsers
     parser = ArgumentParser(description=usage, formatter_class=RawDescriptionHelpFormatter, version=version)
@@ -186,8 +184,7 @@ def run():
     subparsers = parser.add_subparsers(help="", dest="command")
     
     # stats command
-    #TODO: change to veronikas version
-    statsparser = subparsers.add_parser('stats.rates', help='Calculate stats on SLAM-seq datasets')
+    statsparser = subparsers.add_parser('stats.rates', help='Calculate overall conversion rates on SLAM-seq datasets')
     statsparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     statsparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
     statsparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
@@ -196,17 +193,16 @@ def run():
     statsparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
     
     # context command
-    # TODO: move to slamdunk-tools
     tccontextparser = subparsers.add_parser('stats.TCcontext', help='Calculate T->C conversion context on SLAM-seq datasets')
     tccontextparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
+    #tccontextparser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
     tccontextparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
     tccontextparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
     tccontextparser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
     tccontextparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
 
     # stats rates utr command
-    # TODO: move to slamdunk-tools
-    statsutrrateparser = subparsers.add_parser('stats.utrrates', help='Calculate stats on SLAM-seq datasets')
+    statsutrrateparser = subparsers.add_parser('stats.utrrates', help='Calculate conversion rates per UTR on SLAM-seq datasets')
     statsutrrateparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     statsutrrateparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
     statsutrrateparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
@@ -216,8 +212,7 @@ def run():
     statsutrrateparser.add_argument("-l", "--max-read-length", type=int, required=True, dest="maxLength", help="Max read length in BAM file")
     
     # stats summary command
-    # TODO: move to slamdunk-tools
-    statsSumParser = subparsers.add_parser('stats.summary', help='Prints a CSV file containing the number of sequenced, mapped and filtered reads for all samples')
+    statsSumParser = subparsers.add_parser('stats.summary', help='Display summary information and statistics on read numbers')
     statsSumParser.add_argument("-o", "--outputPrefix", type=str, required=True, dest="outputPrefix", help="Prefix for output files")
     statsSumParser.add_argument("-n", "--sample-names", type=str, required=True, dest="sampleNames", help="CSV file containing name for all samples.")
     statsSumParser.add_argument("-r", "--read-counts", type=str, required=True, dest="readCounts", help="CSV file containing read counts.")
@@ -227,8 +222,7 @@ def run():
     statsSumParser.add_argument("-d", "--deduplicated-files", type=str, nargs="+", required=False, dest="dedupFiles", help="Deduplicated BAM files for all samples")
     
     # stats read info command
-    # TODO: move to slamdunk-tools
-    conversionRateParser = subparsers.add_parser('stats.tcperreadpos', help='Get SlamSeq info per read')
+    conversionRateParser = subparsers.add_parser('stats.tcperreadpos', help='Calculate conversion rates per read position on SLAM-seq datasets')
     conversionRateParser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     conversionRateParser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
     conversionRateParser.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", help="Directory containing SNP files.")
@@ -238,8 +232,7 @@ def run():
     conversionRateParser.add_argument("-t", "--threads", type=int, required=False, dest="threads", help="Thread number")
     
     # stats utr info command
-    # TODO: move to slamdunk-tools
-    utrRateParser = subparsers.add_parser('stats.tcperutrpos', help='Get SlamSeq info per utr')
+    utrRateParser = subparsers.add_parser('stats.tcperutrpos', help='Calculate conversion rates per UTR position on SLAM-seq datasets')
     utrRateParser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     utrRateParser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
     utrRateParser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
@@ -250,8 +243,7 @@ def run():
     utrRateParser.add_argument("-t", "--threads", type=int, required=False, dest="threads", help="Thread number")
     
     # stats mean coverage for all utrs
-    # TODO: move to slamdunk-tools
-    utrCoverageParser = subparsers.add_parser('stats.utrcoverage', help='Get SlamSeq info per utr')
+    utrCoverageParser = subparsers.add_parser('stats.utrcoverage', help='Calculate UTR coverage on SLAM-seq datasets')
     utrCoverageParser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     # utrCoverageParser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
     utrCoverageParser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
@@ -261,10 +253,8 @@ def run():
     utrCoverageParser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
     utrCoverageParser.add_argument("-t", "--threads", type=int, required=False, dest="threads", help="Thread number")
     
-    
     # dump read info command
-    # TODO: move to slamdunk-tools
-    dumpReadInfo = subparsers.add_parser('dump.reads', help='Print all info available for reads')
+    dumpReadInfo = subparsers.add_parser('dump.reads', help='Print all info available for slamdunk reads')
     dumpReadInfo.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     dumpReadInfo.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
     dumpReadInfo.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", help="Directory containing SNP files.")
@@ -284,7 +274,7 @@ def run():
         outputDirectory = args.outputDir
         createDir(outputDirectory)
         n = args.threads
-        message("Running slamDunk dedup for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+        message("Running alleyoop dedup for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
         results = Parallel(n_jobs=n, verbose=verbose)(delayed(runDedup)(tid, args.bam[tid], outputDirectory) for tid in range(0, len(args.bam)))
         dunkFinished()
         
@@ -295,7 +285,7 @@ def run():
         
         timepoints = args.timepoints
         
-        message("Running slamDunk half-lifes for " + str(len(args.bam)) + " files")
+        message("Running alleyoop half-lifes for " + str(len(args.bam)) + " files")
         runHalfLifes(args.bam, timepoints, outputDirectory)
         #results = Parallel(n_jobs=n, verbose=verbose)(delayed(runHalfLifes)(tid, args.bam[tid], timepoints, outputDirectory) for tid in range(0, len(args.bam)))
         dunkFinished()
@@ -306,7 +296,7 @@ def run():
         n = args.threads
         referenceFile = args.referenceFile
         minMQ = args.mq
-        message("Running slamDunk stats for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+        message("Running alleyoop stats for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
         results = Parallel(n_jobs=n, verbose=verbose)(delayed(runStatsRates)(tid, args.bam[tid], referenceFile, minMQ, outputDirectory) for tid in range(0, len(args.bam)))
         dunkFinished()
     
@@ -316,7 +306,7 @@ def run():
         n = args.threads
         referenceFile = args.referenceFile
         minMQ = args.mq
-        message("Running slamDunk TC context for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+        message("Running alleyoop TC context for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
         results = Parallel(n_jobs=n, verbose=verbose)(delayed(runStatsTCContext)(tid, args.bam[tid], referenceFile, minMQ, outputDirectory) for tid in range(0, len(args.bam)))
         dunkFinished()
     
@@ -327,14 +317,14 @@ def run():
         referenceFile = args.referenceFile
         minMQ = args.mq
         
-        message("Running slamDunk stats for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+        message("Running alleyoop stats for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
         results = Parallel(n_jobs=n, verbose=verbose)(delayed(runStatsRatesUTR)(tid, args.bam[tid], referenceFile, minMQ, outputDirectory, args.bed, args.maxLength) for tid in range(0, len(args.bam)))
         dunkFinished()
     
     elif (command == "stats.summary") :
         samples = readSampleNames(args.sampleNames, None)
         n = 1
-        message("Running slamDunk stats read summary for " + str(len(args.mappedFiles)) + " files (" + str(n) + " threads)")
+        message("Running alleyoop stats read summary for " + str(len(args.mappedFiles)) + " files (" + str(n) + " threads)")
         outputLog = args.outputPrefix + ".log"
         stats.readSummary(args.mappedFiles, args.filteredFiles, args.dedupFiles, args.snpFiles, samples, args.outputPrefix, getLogFile(outputLog))
         stats.sampleSummary(args.readCounts, args.outputPrefix, getLogFile(outputLog))
@@ -347,7 +337,7 @@ def run():
         snpDirectory = args.snpDir
         referenceFile = args.referenceFile
         minMQ = args.mq
-        message("Running slamDunk stats.tcperreadpos for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+        message("Running alleyoop stats.tcperreadpos for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
         results = Parallel(n_jobs=n, verbose=verbose)(delayed(runSTcPerReadPos)(tid, args.bam[tid], referenceFile, minMQ, args.maxLength, outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
         dunkFinished()
         
@@ -359,7 +349,7 @@ def run():
         referenceFile = args.referenceFile
         minMQ = args.mq
         snpDirectory = args.snpDir
-        message("Running slamDunk stats.tcperutrpos for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+        message("Running alleyoop stats.tcperutrpos for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
         results = Parallel(n_jobs=n, verbose=verbose)(delayed(runSTcPerUtr)(tid, args.bam[tid], referenceFile, args.bed, minMQ, args.maxLength, outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
         dunkFinished()
     
@@ -371,7 +361,7 @@ def run():
     #     referenceFile = args.referenceFile
         minMQ = args.mq
     #     snpDirectory = args.snpDir
-        message("Running slamDunk stats.utrcoverage for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+        message("Running alleyoop stats.utrcoverage for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
         #results = Parallel(n_jobs=n, verbose=verbose)(delayed(runUtrCoverage)(tid, args.bam[tid], minMQ, outputDirectory) for tid in range(0, len(args.bam)))
         dunkFinished()
     
@@ -382,7 +372,7 @@ def run():
         snpDirectory = args.snpDir
         referenceFile = args.referenceFile
         minMQ = args.mq
-        message("Running slamDunk dump for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+        message("Running alleyoop dump.reads for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
         results = Parallel(n_jobs=n, verbose=verbose)(delayed(runDumpReadInfo)(tid, args.bam[tid], referenceFile, minMQ, outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
         dunkFinished()
     
