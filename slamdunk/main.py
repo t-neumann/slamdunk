@@ -372,13 +372,6 @@ def run():
     snpparser.add_argument("-a", "--var-fraction", required=False, dest="var", type=float, help="Minimimum variant fraction to call variant", default=0.8)
     snpparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
     
-    # dedup command
-    #TODO: move to slamdunk-tools
-    #dedupparser = subparsers.add_parser('dedup', help='Deduplicate SLAM-seq aligned data')
-    #dedupparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
-    #dedupparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
-    #dedupparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
-    
     # count command
     
     countparser = subparsers.add_parser('count', help='Count T/C conversions in SLAM-seq aligned data')

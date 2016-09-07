@@ -2,7 +2,7 @@
 
 #ALLEYOOP:
 
-#Additional sLamdunk heLpEr tools for anY diagnostics Or plots
+#Additional sLamdunk heLpEr tools for anY diagnOstics Or Plots
 
 
 #########################################################################
@@ -182,6 +182,12 @@ def run():
     
     # Initialize Subparsers
     subparsers = parser.add_subparsers(help="", dest="command")
+    
+    # dedup command
+    dedupparser = subparsers.add_parser('dedup', help='Deduplicate SLAM-seq aligned data')
+    dedupparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
+    dedupparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
+    dedupparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     
     # stats command
     statsparser = subparsers.add_parser('stats.rates', help='Calculate overall conversion rates on SLAM-seq datasets')

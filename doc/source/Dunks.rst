@@ -71,6 +71,7 @@ Input
 File     Description
 =======  =======================================================
 **bam**  The raw mapped reads in BAM format from the *map* dunk.
+**-b**   (optional) Bed file with coordinates of 3'UTRs.
 =======  =======================================================
 
 Output
@@ -101,7 +102,7 @@ Parameter  Required  Description
 **-mi**              Minimum alignment identity required to retain a read (default: 0.8).
 **-nm**              Maximum number of mismatches allowed in a read (default: -1).
 **-t**               The number of threads to use for this dunk. This dunk runs single-threaded so the number of threads should be equal to the number of available samples (default: 1).
-**bam**    x         Fastq/BAM file(s) containing the raw mapped reads. Can be multiple if multiple samples are analysed simultaneously.
+**bam**    x         BAM file(s) containing the raw mapped reads. Can be multiple if multiple samples are analysed simultaneously.
 =========  ========  =================================================================================================================================================================================
 
 -------------------------------------------------------------------------------------------------------------------------------
@@ -150,7 +151,7 @@ Parameter  Required  Description
 **-c**               Minimum coverage to call a variant (default: 10).
 **-a**               Minimum variant fraction to call a variant (default: 0.8).
 **-t**               The number of threads to use for this dunk. VarScan2 runs multi-threaded, so it is recommended to use more threads than available samples (default: 1).
-**bam**              Fastq/BAM file(s) containing the final filtered reads. Can be multiple if multiple samples are analysed simultaneously.
+**bam**              BAM file(s) containing the final filtered reads. Can be multiple if multiple samples are analysed simultaneously.
 =========  ========  ==================================================================================================================================================================
 
 ------------------------------------------------------
@@ -172,6 +173,7 @@ File     Description
 =======  =============================================================================================
 **bam**  The final filtered reads in BAM format from the *filter* dunk.
 **-s**   (optional) The called variants from the *snp* dunk to filter false-positive T->C conversions.
+**-b**   Bed file with coordinates of 3'UTRs.
 =======  =============================================================================================
 
 Output
@@ -203,7 +205,7 @@ Parameter  Required  Description
 **-m**               Flag to activate the multiple T->C conversion stringency: Only T->C conversions in reads with more than 1 T->C conversion will be counted.
 **-q**               Minimum base quality for T->C conversions to be counted (default: 0).
 **-t**               The number of threads to use for this dunk. This dunk runs single-threaded so the number of threads should be equal to the number of available samples (default: 1)
-**bam**    x         Fastq/BAM file(s) containing the final filtered reads. Can be multiple if multiple samples are analysed simultaneously.
+**bam**    x         BAM file(s) containing the final filtered reads. Can be multiple if multiple samples are analysed simultaneously.
 =========  ========  ================================================================================================================================================================================
 
 ------------------------------------------------------
@@ -217,10 +219,10 @@ provides parameters to keep full control over all dunks.
 .. code:: bash
 
     slamdunk all [-h] -r <reference fasta> [-b <bed file>] -o <output directory> [-5 <bp to trim from 5' end>]
-                    [-n <Output up to N alignments per multimapper>] [-t <threads>] [-q] [-l] [-m] [-mq <MQ cutoff>]
-                    [-mi <identity cutoff>] [-nm <NM cutoff>] [-mc <coverage cutoff>] [-mv <variant fraction cutoff>] [-mts] -rl
-                    <maximum read length> [-mbq <minimum base quality>]
-                    bam [bam ...]
+                 [-n <Output up to N alignments per multimapper>] [-t <threads>] [-q] [-l] [-m] [-mq <MQ cutoff>]
+                 [-mi <identity cutoff>] [-nm <NM cutoff>] [-mc <coverage cutoff>] [-mv <variant fraction cutoff>] [-mts] -rl
+                 <maximum read length> [-mbq <minimum base quality>]
+                 bam [bam ...]
                 
 Input
 """""
@@ -228,6 +230,7 @@ Input
 File                 Description
 ===================  ======================================================================================
 **Reference fasta**  The reference sequence of the genome to map against in fasta format.
+**-b**               Bed file with coordinates of 3'UTRs.
 **bam**              The raw unmapped reads in fastq / BAM format (multiple read files can be run at once).
 ===================  ======================================================================================
 

@@ -6,7 +6,7 @@ Usage
 The flow of *Slamdunk* is depicted in the following scheme:
 
 
-.. image:: img/slamdunk-pipline.png
+.. image:: img/slamdunk-pipeline.png
 
 The idea is to always process all samples with one command line call of a given dunk. Output files typically get the same name as the input files with a certain prefix (e.g. "slamdunk_mapped").
 The command line interface follows the "samtools/bwa" style. Meaning that all commands are available through the central executable/script *slamdunk* (located in the bin directory)
