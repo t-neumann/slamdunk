@@ -14,45 +14,43 @@ The *map* dunk is used to map reads to a given genome using `NextGenMap's <http:
                 
 Input
 """""
-
-* **Reference fasta**: The reference sequence of the genome to map against in fasta format.
-
-
-* **bam**: The raw unmapped reads in fastq / BAM format (multiple read files can be run at once).
+===================  ======================================================================================
+**Reference fasta**  The reference sequence of the genome to map against in fasta format.
+**bam**              The raw unmapped reads in fastq / BAM format (multiple read files can be run at once).
+===================  ======================================================================================
 
 Output
 """"""
 
-* **Mapped BAM file**: One BAM file per sample containing the mapped reads. Output files have the same name as the input files with the prefix "_slamdunk_mapped.bam".
-   For example::
+Output files have the same name as the input files with the prefix "_slamdunk_mapped.bam".
+For example::
    
     34330_An312_wt-2n_mRNA-slamseq-autoquant_0h-R1.fq.gz -> 
     34330_An312_wt-2n_mRNA-slamseq-autoquant_0h-R1.fq_slamdunk_mapped.bam
     
-* **Mapped bam index file**: One BAM index file accompanying each mapped BAM file.
 
-* **Mapped bam flagstat file**: One BAM flagstat file accompanying each mapped BAM file containing basic statistics on the mapped BAM file.
+============================  ===========================================================================================================
+**Mapped BAM file**           One BAM file per sample containing the mapped reads. 
+**Mapped bam index file**     The raw unmapped reads in fastq / BAM format (multiple read files can be run at once).
+**Mapped bam flagstat file**  One BAM flagstat file accompanying each mapped BAM file containing basic statistics on the mapped BAM file.
+============================  ===========================================================================================================
 
 Parameters
 """"""""""
 
-* **-h** Prints the help.
+=======      ===========================================================================================================================================
+**-h**       Prints the help.
+**-r**       The reference fasta file.
+**-o**       The output directory where all output files of this dunk will be placed.
+**-5**       Number of bases that will be hard-clipped from the 5' end of each read.
+**-n**       The maximum number of alignments that will be reported for a multi-mapping read (i.e. reads with multiple alignments of equal best scores).
+**-t**       The number of threads to use for this dunk. NextGenMap runs multi-threaded, so it is recommended to use more threads than available samples.
+**-q**       Deactivates NextGenMap's SLAMSeq alignment settings. Can be used to align plain QuantSeq data instead of SLAMSeq data.
+**-l**       Switches to local alignment instead of semi-global alignment. Semi-global alignments are the default for NextGenMap.  
+**bam**      Fastq/BAM file(s) containing the raw unmapped reads. Can be multiple if multiple samples are analysed simultaneously.
+=======      ===========================================================================================================================================
 
-* **-r** The reference fasta file.
-
-* **-o** The output directory where all output files of this dunk will be placed. 
-
-* **-5** Number of bases that will be hard-clipped from the 5' end of each read.
-
-* **-n** The maximum number of alignments that will be reported for a multi-mapping read (i.e. reads with multiple alignments of equal best scores).
-
-* **-t** The number of threads to use for this dunk. NextGenMap runs multi-threaded, so it is recommended to use more threads than available samples.
-
-* **-q** Deactivates NextGenMap's SLAMSeq alignment settings. Can be used to align plain QuantSeq data instead of SLAMSeq data.
-
-* **-l** Switches to local alignment instead of semi-global alignment. Semi-global alignments are the default for NextGenMap.
-
-* **bam** Fastq/BAM file(s) containing the raw unmapped reads. Can be multiple if multiple samples are analysed simultaneously.
+------------------------------------------------------
 
 filter
 ^^^^^^
@@ -107,6 +105,7 @@ Parameters
 
 * **bam** Fastq/BAM file(s) containing the raw mapped reads. Can be multiple if multiple samples are analysed simultaneously.
 
+------------------------------------------------------
 
 snp
 ^^^
@@ -149,6 +148,8 @@ Parameters
 * **-t** The number of threads to use for this dunk. VarScan2 runs multi-threaded, so it is recommended to use more threads than available samples.
 
 * **bam** Fastq/BAM file(s) containing the final filtered reads. Can be multiple if multiple samples are analysed simultaneously.
+
+------------------------------------------------------
 
 count
 ^^^^^
@@ -202,5 +203,65 @@ Parameters
 * **-t** The number of threads to use for this dunk. This dunk runs single-threaded so the number of threads should be equal to the number of available samples.
 
 * **bam** Fastq/BAM file(s) containing the final filtered reads. Can be multiple if multiple samples are analysed simultaneously.
+
+------------------------------------------------------
+
+all
+^^^
+
+The *all* dunk is used to run an entire *slamdunk* run at once. It sequentially calls the *map*, *filter*, *snp* and *count* dunks and
+provides parameters to keep full control over all dunks.
+
+.. code:: bash
+
+    slamdunk all [-h] -r <reference fasta> [-b <bed file>] -o <output directory> [-5 <bp to trim from 5' end>]
+                    [-n <Output up to N alignments per multimapper>] [-t <threads>] [-q] [-l] [-m] [-mq <MQ cutoff>]
+                    [-mi <identity cutoff>] [-nm <NM cutoff>] [-mc <coverage cutoff>] [-mv <variant fraction cutoff>] [-mts] -rl
+                    <maximum read length> [-mbq <minimum base quality>]
+                    bam [bam ...]
+                
+Input
+"""""
+===================  ======================================================================================
+**Reference fasta**  The reference sequence of the genome to map against in fasta format.
+**bam**              The raw unmapped reads in fastq / BAM format (multiple read files can be run at once).
+===================  ======================================================================================
+
+Output
+""""""
+
+One separate directory will be created for each dunk output:
+
+==========  =============
+**map**     *map* dunk
+**filter**  *filter* dunk
+**snp**     *snp* dunk
+**count**   *count* dunk
+==========  =============
+
+Parameters
+""""""""""
+========     =====================================================================================================================================================
+**-h**       Prints the help.
+**-r**       The reference fasta file.
+**-b**       BED-file containing coordinates for 3' UTRs.
+**-o**       The output directory where all output files of this dunk will be placed.
+**-5**       Number of bases that will be hard-clipped from the 5' end of each read (*map*).
+**-n**       The maximum number of alignments that will be reported for a multi-mapping read (i.e. reads with multiple alignments of equal best scores) (*map*).
+**-t**       The number of threads to use for this dunk. NextGenMap runs multi-threaded, so it is recommended to use more threads than available samples.
+**-q**       Deactivates NextGenMap's SLAMSeq alignment settings. Can be used to align plain QuantSeq data instead of SLAMSeq data (*map*).
+**-l**       Switches to local alignment instead of semi-global alignment. Semi-global alignments are the default for NextGenMap (*map*).
+**-m**       Use 3'UTR annotation to filter multimappers (*filter*).
+**-mq**      Minimum mapping quality required to retain a read (*filter*).
+**-mi**      Minimum alignment identity required to retain a read (*filter*).
+**-nm**      Maximum number of mismatches allowed in a read (*filter*).
+**-mc**      Minimum coverage to call a variant (*snp*).
+**-mv**      Minimum variant fraction to call a variant (*snp*).
+**-mts**     Flag to activate the multiple T->C conversion stringency: Only T->C conversions in reads with more than 1 T->C conversion will be counted. (*count*).
+**-rl**      Maximum read length (*count*).
+**-mbq**     Minimum base quality for T->C conversions to be counted (*count*).
+**bam**      Fastq/BAM file(s) containing the raw unmapped reads. Can be multiple if multiple samples are analysed simultaneously.
+========     =====================================================================================================================================================
+
 
                     
