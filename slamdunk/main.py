@@ -357,9 +357,9 @@ def run():
     filterparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     filterparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
     filterparser.add_argument("-b", "--bed", type=str, required=False, dest="bed", help="BED file, overrides MQ filter to 0")
-    filterparser.add_argument("-mq", "--min-mq", type=int, required=False, default=2, dest="mq", help="Minimal mapping quality")
-    filterparser.add_argument("-mi", "--min-identity", type=float, required=False, default=0.8, dest="identity", help="Minimal alignment identity")
-    filterparser.add_argument("-mn", "--max-nm", type=int, required=False, default=-1, dest="nm", help="Maximal NM for alignments")
+    filterparser.add_argument("-mq", "--min-mq", type=int, required=False, default=2, dest="mq", help="Minimum mapping quality")
+    filterparser.add_argument("-mi", "--min-identity", type=float, required=False, default=0.8, dest="identity", help="Minimum alignment identity")
+    filterparser.add_argument("-nm", "--max-nm", type=int, required=False, default=-1, dest="nm", help="Maximum NM for alignments")
     filterparser.add_argument("-t", "--threads", type=int, required=False, dest="threads", help="Thread number")
     
     # snp command
@@ -369,7 +369,7 @@ def run():
     snpparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
     snpparser.add_argument("-f", "--fasta", required=True, dest="fasta", type=str, help="Reference fasta file")
     snpparser.add_argument("-c", "--min-coverage", required=False, dest="cov", type=int, help="Minimimum coverage to call variant", default=10)
-    snpparser.add_argument("-a", "--var-fraction", required=False, dest="var", type=float, help="Minimimum variant fraction variant", default=0.8)
+    snpparser.add_argument("-a", "--var-fraction", required=False, dest="var", type=float, help="Minimimum variant fraction to call variant", default=0.8)
     snpparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
     
     # dedup command
@@ -505,11 +505,11 @@ def run():
     allparser.add_argument("-q", "--quantseq", dest="quantseq", action='store_true', required=False, help="Run plain Quantseq alignment without SLAM-seq scoring")
     allparser.add_argument('-l', "--local", action='store_true', dest="local", help="Use a local alignment algorithm for mapping.")
     allparser.add_argument('-m', "--multimap", action='store_true', dest="multimap", help="Use reference to resolve multimappers (requires -n > 1).")
-    allparser.add_argument("-mq", "--min-mq", type=int, required=False, default=2, dest="mq", help="Minimal mapping quality")
-    allparser.add_argument("-mi", "--min-identity", type=float, required=False, default=0.8, dest="identity", help="Minimal alignment identity")
-    allparser.add_argument("-mn", "--max-nm", type=int, required=False, default=-1, dest="nm", help="Maximal NM for alignments")
+    allparser.add_argument("-mq", "--min-mq", type=int, required=False, default=2, dest="mq", help="Minimum mapping quality")
+    allparser.add_argument("-mi", "--min-identity", type=float, required=False, default=0.8, dest="identity", help="Minimum alignment identity")
+    allparser.add_argument("-nm", "--max-nm", type=int, required=False, default=-1, dest="nm", help="Maximum NM for alignments")
     allparser.add_argument("-mc", "--min-coverage", required=False, dest="cov", type=int, help="Minimimum coverage to call variant", default=10)
-    allparser.add_argument("-mv", "--var-fraction", required=False, dest="var", type=float, help="Minimimum variant fraction variant", default=0.8)
+    allparser.add_argument("-mv", "--var-fraction", required=False, dest="var", type=float, help="Minimimum variant fraction to call variant", default=0.8)
     #allparser.add_argument("-nm", "--sample-names", type=str, required=False, dest="sampleNames", help="CSV file containing name for all samples.")
     allparser.add_argument("-mts", "--multiTCStringency", dest="strictTCs", action='store_true', required=False, help="")
     #TOOD: add auto estimation
