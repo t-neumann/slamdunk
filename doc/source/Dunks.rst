@@ -218,7 +218,7 @@ provides parameters to keep full control over all dunks.
 
 .. code:: bash
 
-    slamdunk all [-h] -r <reference fasta> [-b <bed file>] -o <output directory> [-5 <bp to trim from 5' end>]
+    slamdunk all [-h] -r <reference fasta> -b <bed file> -o <output directory> [-5 <bp to trim from 5' end>]
                  [-n <Output up to N alignments per multimapper>] [-t <threads>] [-q] [-l] [-m] [-mq <MQ cutoff>]
                  [-mi <identity cutoff>] [-nm <NM cutoff>] [-mc <coverage cutoff>] [-mv <variant fraction cutoff>] [-mts] -rl
                  <maximum read length> [-mbq <minimum base quality>]

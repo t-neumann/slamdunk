@@ -45,7 +45,7 @@ Parameters
 Parameter  Required  Description
 =========  ========  =====================================================================================================================================================================
 **-h**               Prints the help.
-**-o**     x         The output directory where all output files of this dunk will be placed.
+**-o**     x         The output directory where all output files of this tool will be placed.
 **-r**     x         The reference fasta file.
 **-mq**              Minimum base quality for T->C conversions to be counted (default: 0).
 **-t**               The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.  
@@ -96,7 +96,7 @@ Parameters
 Parameter  Required  Description
 =========  ========  =====================================================================================================================================================================
 **-h**               Prints the help.
-**-o**     x         The output directory where all output files of this dunk will be placed.
+**-o**     x         The output directory where all output files of this tool will be placed.
 **-r**     x         The reference fasta file.
 **-mq**              Minimum base quality for T->C conversions to be counted (default: 0).
 **-t**               The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.  
@@ -147,7 +147,7 @@ Parameters
 Parameter  Required  Description
 =========  ========  =====================================================================================================================================================================
 **-h**               Prints the help.
-**-o**     x         The output directory where all output files of this dunk will be placed.
+**-o**     x         The output directory where all output files of this tool will be placed.
 **-r**     x         The reference fasta file.
 **-mq**              Minimum base quality for T->C conversions to be counted (default: 0).
 **-t**               The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.  
@@ -200,7 +200,7 @@ Parameters
 Parameter  Required  Description
 =========  ========  =====================================================================================================================================================================
 **-h**               Prints the help.
-**-o**     x         The output directory where all output files of this dunk will be placed.
+**-o**     x         The output directory where all output files of this tool will be placed.
 **-r**     x         The reference fasta file.
 **-mq**              Minimum base quality for T->C conversions to be counted (default: 0).
 **-t**               The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.
@@ -265,7 +265,7 @@ Parameters
 Parameter  Required  Description
 =========  ========  =====================================================================================================================================================================
 **-h**               Prints the help.
-**-o**     x         The output directory where all output files of this dunk will be placed.
+**-o**     x         The output directory where all output files of this tool will be placed.
 **-r**     x         The reference fasta file.
 **-mq**              Minimum base quality for T->C conversions to be counted (default: 0).
 **-t**               The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.
@@ -324,7 +324,7 @@ Parameters
 Parameter  Required  Description
 =========  ========  =====================================================================================================================================================================
 **-h**               Prints the help.
-**-o**     x         The output directory where all output files of this dunk will be placed.
+**-o**     x         The output directory where all output files of this tool will be placed.
 **-r**     x         The reference fasta file.
 **-b**     x         Bed file with coordinates of 3'UTRs.
 **-mq**              Minimum base quality for T->C conversions to be counted (default: 0).
@@ -397,7 +397,7 @@ Parameters
 Parameter  Required  Description
 =========  ========  =====================================================================================================================================================================
 **-h**               Prints the help.
-**-o**     x         The output directory where all output files of this dunk will be placed.
+**-o**     x         The output directory where all output files of this tool will be placed.
 **-r**     x         The reference fasta file.
 **-mq**              Minimum base quality for T->C conversions to be counted (default: 0).
 **-t**               The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.
