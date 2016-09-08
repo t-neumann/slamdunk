@@ -164,7 +164,7 @@ The *count* dunk calculates all relevant numbers on statistics of SLAMSeq reads 
 .. code:: bash
 
      slamdunk count [-h] -o <output directory> [-s <SNP directory>] -r <reference fasta> -b <bed file> [-m]
-                    -l <maximum read length> [-q <minimum base quality>] [-t <threads] bam [bam ...]
+                     [-l <maximum read length>] [-q <minimum base quality>] [-t <threads] bam [bam ...]
                     
 Input
 """""
@@ -201,7 +201,7 @@ Parameter  Required  Description
 **-s**               The output directory of the *snp* dunk containing the called variants.
 **-r**     x         The reference fasta file.
 **-b**     x         BED-file containing coordinates for 3' UTRs.
-**-l**     x         Maximum read length.
+**-l**               Maximum read length (will be automatically estimated if not set).
 **-m**               Flag to activate the multiple T->C conversion stringency: Only T->C conversions in reads with more than 1 T->C conversion will be counted.
 **-q**               Minimum base quality for T->C conversions to be counted (default: 0).
 **-t**               The number of threads to use for this dunk. This dunk runs single-threaded so the number of threads should be equal to the number of available samples (default: 1)
@@ -220,9 +220,8 @@ provides parameters to keep full control over all dunks.
 
     slamdunk all [-h] -r <reference fasta> -b <bed file> -o <output directory> [-5 <bp to trim from 5' end>]
                  [-n <Output up to N alignments per multimapper>] [-t <threads>] [-q] [-l] [-m] [-mq <MQ cutoff>]
-                 [-mi <identity cutoff>] [-nm <NM cutoff>] [-mc <coverage cutoff>] [-mv <variant fraction cutoff>] [-mts] -rl
-                 <maximum read length> [-mbq <minimum base quality>]
-                 bam [bam ...]
+                 [-mi <identity cutoff>] [-nm <NM cutoff>] [-mc <coverage cutoff>] [-mv <variant fraction cutoff>] [-mts]
+                 [-rl <maximum read length>] [-mbq <minimum base quality>] bam [bam ...]
                 
 Input
 """""
@@ -269,7 +268,7 @@ Parameter  Required  Description
 **-mc**              Minimum coverage to call a variant (default: 10) **[snp]**.
 **-mv**              Minimum variant fraction to call a variant (default: 0.8) **[snp]**.
 **-mts**             Flag to activate the multiple T->C conversion stringency: Only T->C conversions in reads with more than 1 T->C conversion will be counted. **[count]**.
-**-rl**              Maximum read length **[count]**.
+**-rl**              Maximum read length (will be automatically estimated if not set) **[count]**.
 **-mbq**             Minimum base quality for T->C conversions to be counted (default: 0) **[count]**.
 **bam**              Fastq/BAM file(s) containing the raw unmapped reads. Can be multiple if multiple samples are analysed simultaneously.
 =========  ========  =====================================================================================================================================================

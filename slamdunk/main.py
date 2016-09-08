@@ -15,7 +15,7 @@ from os.path import basename
 
 from joblib import Parallel, delayed
 from dunks import tcounter, mapper, filter, deduplicator, stats, snps, dump
-from utils.misc import replaceExtension, readSampleNames, checkStep
+from utils.misc import replaceExtension, readSampleNames, checkStep, estimateMaxReadLength
 
 ########################################################################
 # Global variables
@@ -115,7 +115,18 @@ def runCount(tid, bam, ref, bed, maxLength, minQual, strictTCs, outputDirectory,
         inputSNP = os.path.join(snpDirectory, replaceExtension(basename(bam), ".vcf", "_snp"))
     else:
         inputSNP = None
-    tcounter.computeTconversions(ref, bed, inputSNP, bam, maxLength, minQual, outputCSV, outputBedgraphPlus, outputBedgraphMinus, strictTCs, getLogFile(outputLOG))
+        
+    if (maxLength == None) :
+        maxLength = estimateMaxReadLength(bam)
+    if (maxLength < 0) :
+        print("Could not reliable estimate maximum read length. Please specify --max-read-length parameter.")
+        sys.exit(0)
+    
+    log = getLogFile(outputLOG)
+    
+    print("Using " + str(maxLength) + " as maximum read length.",file=log)
+    
+    tcounter.computeTconversions(ref, bed, inputSNP, bam, maxLength, minQual, outputCSV, outputBedgraphPlus, outputBedgraphMinus, strictTCs, log)
     stepFinished()
     return outputCSV
 
@@ -385,7 +396,7 @@ def run():
     countparser.add_argument("-r", "--reference", type=str, required=True, dest="ref", help="Reference fasta file")
     countparser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
     countparser.add_argument("-m", "--multiTCStringency", dest="strictTCs", action='store_true', required=False, help="")
-    countparser.add_argument("-l", "--max-read-length", type=int, required=True, dest="maxLength", help="Max read length in BAM file")
+    countparser.add_argument("-l", "--max-read-length", type=int, required=False, dest="maxLength", help="Max read length in BAM file")
     #TODO: test
     countparser.add_argument("-q", "--min-base-qual", type=int, default=0, required=False, dest="minQual", help="Min base quality for T -> C conversions")
     countparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
@@ -551,13 +562,13 @@ def run():
         results = Parallel(n_jobs=n, verbose=verbose)(delayed(runSnp)(tid, fasta, minCov, minVarFreq, args.bam[tid], outputDirectory) for tid in range(0, len(args.bam)))
         dunkFinished()
     
-    elif (command == "dedup") :
-        outputDirectory = args.outputDir
-        createDir(outputDirectory)
-        n = args.threads
-        message("Running slamDunk dedup for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runDedup)(tid, args.bam[tid], outputDirectory) for tid in range(0, len(args.bam)))
-        dunkFinished()
+#     elif (command == "dedup") :
+#         outputDirectory = args.outputDir
+#         createDir(outputDirectory)
+#         n = args.threads
+#         message("Running slamDunk dedup for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+#         results = Parallel(n_jobs=n, verbose=verbose)(delayed(runDedup)(tid, args.bam[tid], outputDirectory) for tid in range(0, len(args.bam)))
+#         dunkFinished()
         
     elif (command == "count") :
         outputDirectory = args.outputDir

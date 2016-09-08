@@ -3,11 +3,30 @@
 # Date located in: -
 from __future__ import print_function
 import sys, os
+import pysam
 import subprocess
 import collections
 import csv
 
 FlagStat = collections.namedtuple('FlagStat' , 'TotalReads MappedReads')
+
+def estimateMaxReadLength(bam):
+
+    readfile = pysam.AlignmentFile(bam, "rb")
+    
+    minLength = sys.maxint
+    maxLength = 0
+    
+    for read in readfile.head(n = 1000) :
+        minLength = min(minLength, read.query_length)
+        maxLength = max(maxLength, read.query_length)
+        
+    range = maxLength - minLength
+    
+    if (range <= 10) :
+        return(maxLength + 10)
+    else:
+        return(-1)
 
 #Replaces the file extension of inFile to with <newExtension> and adds a suffix
 #Example replaceExtension("reads.fq", ".sam", suffix="_namg") => reads_ngm.sam

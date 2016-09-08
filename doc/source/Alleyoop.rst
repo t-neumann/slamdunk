@@ -164,7 +164,7 @@ to all possible conversions from it's starting base e.g. A->G / (A->A + A->G + A
 
 .. code:: bash
 
-    alleyoop stats.utrrates [-h] -o <output directory> -r <reference fasta> [-mq <MQ cutoff>]
+    alleyoop stats.utrrates [-h] -o <output directory> [-r <reference fasta>] [-mq <MQ cutoff>]
                             [-t <threads>] -b <bed file> -l <maximum read length> bam [bam ...]
                 
 Input
@@ -205,7 +205,7 @@ Parameter  Required  Description
 **-mq**              Minimum base quality for T->C conversions to be counted (default: 0).
 **-t**               The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.
 **-b**     x         Bed file with coordinates of 3'UTRs.
-**-l**     x         Maximum read length in all samples.
+**-l**               Maximum read length in all samples (will be automatically estimated if not set).
 **bam**    x         BAM file(s) containing the final filtered reads. Can be multiple if multiple samples are analysed simultaneously.
 =========  ========  =====================================================================================================================================================================
 
@@ -227,7 +227,7 @@ along reads.
 .. code:: bash
 
     alleyoop stats.tcperreadpos [-h] -r <reference fasta> [-s <SNP directory>]
-                                 -l <maximum read length> -o <output directory> [-mq <MQ cutoff>]
+                                [-l <maximum read length>] -o <output directory> [-mq <MQ cutoff>]
                                 [-t <threads>] bam [bam ...]
                 
 Input
@@ -270,7 +270,7 @@ Parameter  Required  Description
 **-mq**              Minimum base quality for T->C conversions to be counted (default: 0).
 **-t**               The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.
 **-s**               The called variants from the *snp* dunk to filter false-positive T->C conversions.
-**-l**     x         Maximum read length in all samples.
+**-l**               Maximum read length in all samples (will be automatically estimated if not set).
 **bam**    x         BAM file(s) containing the final filtered reads. Can be multiple if multiple samples are analysed simultaneously.
 =========  ========  =====================================================================================================================================================================
 
@@ -287,7 +287,7 @@ along UTRs. Only most 3' 200bp of each UTR will be considered because:
 .. code:: bash
 
    alleyoop stats.tcperutrpos [-h] -r <reference fasta> -b <bed file> [-s <SNP directory>] 
-                               -l <maximum read length> -o <output directory> [-mq <MQ cutoff>]
+                              [-l <maximum read length>] -o <output directory> [-mq <MQ cutoff>]
                               [-t <threads>] bam [bam ...]
                 
 Input
@@ -330,7 +330,7 @@ Parameter  Required  Description
 **-mq**              Minimum base quality for T->C conversions to be counted (default: 0).
 **-t**               The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.
 **-s**               The called variants from the *snp* dunk to filter false-positive T->C conversions.
-**-l**     x         Maximum read length in all samples.
+**-l**               Maximum read length in all samples (will be automatically estimated if not set).
 **bam**    x         BAM file(s) containing the final filtered reads. Can be multiple if multiple samples are analysed simultaneously.
 =========  ========  =====================================================================================================================================================================
 

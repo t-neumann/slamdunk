@@ -19,8 +19,8 @@ from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from os.path import basename
 
 from joblib import Parallel, delayed
-from dunks import tcounter, mapper, filter, deduplicator, stats, snps, dump
-from utils.misc import replaceExtension, readSampleNames
+from dunks import deduplicator, stats, dump
+from utils.misc import replaceExtension, readSampleNames, estimateMaxReadLength
 
 ########################################################################
 # Global variables
@@ -104,7 +104,17 @@ def runStatsRatesUTR(tid, bam, referenceFile, minMQ, outputDirectory, utrFile, m
     outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_mutationrates_utr"))
     outputPDF = os.path.join(outputDirectory, replaceExtension(basename(bam), ".pdf", "_mutationrates_utr"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_mutationrates_utr"))
+    
+    if (maxReadLength == None) :
+        maxReadLength = estimateMaxReadLength(bam)
+    if (maxReadLength < 0) :
+        print("Could not reliable estimate maximum read length. Please specify --max-read-length parameter.")
+        sys.exit(0)
+    
     log = getLogFile(outputLOG)
+    
+    print("Using " + str(maxReadLength) + " as maximum read length.",file=log)
+    
     stats.statsComputeOverallRatesPerUTR(referenceFile, bam, minMQ, outputCSV, outputPDF, utrFile, maxReadLength, log)
     closeLogFile(log)
     stepFinished()
@@ -118,7 +128,16 @@ def runSTcPerReadPos(tid, bam, referenceFile, minMQ, maxReadLength, outputDirect
         inputSNP = os.path.join(snpDirectory, replaceExtension(basename(bam), ".vcf", "_snp"))
     else:
         inputSNP = None
+        
+    if (maxReadLength == None) :
+        maxReadLength = estimateMaxReadLength(bam)
+    if (maxReadLength < 0) :
+        print("Could not reliable estimate maximum read length. Please specify --max-read-length parameter.")
+        sys.exit(0)
+    
     log = getLogFile(outputLOG)
+    
+    print("Using " + str(maxReadLength) + " as maximum read length.",file=log)
     
     stats.tcPerReadPos(referenceFile, bam, minMQ, maxReadLength, outputCSV, outputPDF, inputSNP, log)
     
@@ -133,7 +152,16 @@ def runSTcPerUtr(tid, bam, referenceFile, bed, minMQ, maxReadLength, outputDirec
         inputSNP = os.path.join(snpDirectory, replaceExtension(basename(bam), ".vcf", "_snp"))
     else:
         inputSNP = None
+    
+    if (maxReadLength == None) :
+        maxReadLength = estimateMaxReadLength(bam)
+    if (maxReadLength < 0) :
+        print("Could not reliable estimate maximum read length. Please specify --max-read-length parameter.")
+        sys.exit(0)
+    
     log = getLogFile(outputLOG)
+    
+    print("Using " + str(maxReadLength) + " as maximum read length.",file=log)
     
     stats.tcPerUtr(referenceFile, bed, bam, minMQ, maxReadLength, outputCSV, outputPDF, inputSNP, log, False, True, True)
     
@@ -215,7 +243,7 @@ def run():
     statsutrrateparser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
     statsutrrateparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
     statsutrrateparser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
-    statsutrrateparser.add_argument("-l", "--max-read-length", type=int, required=True, dest="maxLength", help="Max read length in BAM file")
+    statsutrrateparser.add_argument("-l", "--max-read-length", type=int, required=False, dest="maxLength", help="Max read length in BAM file")
     
     # stats summary command
     statsSumParser = subparsers.add_parser('stats.summary', help='Display summary information and statistics on read numbers')
@@ -232,7 +260,7 @@ def run():
     conversionRateParser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     conversionRateParser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
     conversionRateParser.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", help="Directory containing SNP files.")
-    conversionRateParser.add_argument("-l", "--max-read-length", type=int, required=True, dest="maxLength", help="Max read length in BAM file")
+    conversionRateParser.add_argument("-l", "--max-read-length", type=int, required=False, dest="maxLength", help="Max read length in BAM file")
     conversionRateParser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")#conversionRateParser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
     conversionRateParser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
     conversionRateParser.add_argument("-t", "--threads", type=int, required=False, dest="threads", help="Thread number")
@@ -243,7 +271,7 @@ def run():
     utrRateParser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
     utrRateParser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
     utrRateParser.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", help="Directory containing SNP files.")
-    utrRateParser.add_argument("-l", "--max-read-length", type=int, required=True, dest="maxLength", help="Max read length in BAM file")
+    utrRateParser.add_argument("-l", "--max-read-length", type=int, required=False, dest="maxLength", help="Max read length in BAM file")
     utrRateParser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")#conversionRateParser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
     utrRateParser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
     utrRateParser.add_argument("-t", "--threads", type=int, required=False, dest="threads", help="Thread number")

@@ -7,8 +7,7 @@ import math
 import pysam
 
 from os.path import basename
-from utils.misc import run
-from utils.misc import removeExtension, checkStep, getReadCount, matchFile
+from utils.misc import run, removeExtension, checkStep, getReadCount, matchFile, complement 
 from slamseq.SlamSeqFile import SlamSeqBamFile, ReadDirection
 from utils import SNPtools
 from utils.BedReader import BedIterator

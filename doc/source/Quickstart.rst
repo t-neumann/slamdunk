@@ -26,6 +26,8 @@ This will run the entire *slamdunk* analysis with the most relevant output files
 * Folder *count*: Tab-separated *tcount* files containing the SLAMSeq statistics per UTR (see section **TODO**)
 * Folder *filter*: BAM-files with the final mapped reads for visualization and further processing
 
+------------------------------------------------------
+
 If you want to have a very quick sanity check whether your desired conversion rates have been achieved, use this *alleyoop* command
 to plot the UTR conversion rates in your sample:
 
