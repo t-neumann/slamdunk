@@ -15,6 +15,7 @@ Contents:
    Introduction
    Installation
    Quickstart
+   Basics
    Usage
    Dunks
    Alleyoop

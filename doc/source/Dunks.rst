@@ -159,12 +159,15 @@ Parameter  Required  Description
 count
 ^^^^^
 
-The *count* dunk calculates all relevant numbers on statistics of SLAMSeq reads for each given 3' UTR. Central output will be *tcount* table.
+The *count* dunk calculates all relevant numbers on statistics of SLAMSeq reads for each given 3' UTR. Central output will be *tcount* table
+(see :ref:`tcount-file`).
 
 .. code:: bash
 
      slamdunk count [-h] -o <output directory> [-s <SNP directory>] -r <reference fasta> -b <bed file> [-m]
                      [-l <maximum read length>] [-q <minimum base quality>] [-t <threads] bam [bam ...]
+                     
+**Note:** Since QuantSeq is a strand-specific assay, only sense reads will be considered for the final analysis!
                     
 Input
 """""
@@ -178,12 +181,12 @@ File     Description
 
 Output
 """"""
-==================  ===================================================================================================
+==================  =======================================================================================================
 File                Description
-==================  ===================================================================================================
-**Tcount file**     A tab-separated *tcount* file per sample containing the SLAMSeq statistics.
+==================  =======================================================================================================
+**Tcount file**     A tab-separated *tcount* file per sample containing the SLAMSeq statistics (see :ref:`tcount-file`).
 **Bedgraph file**   A bedgraph file per sample showing the T->C conversion rate on each covered reference T nucleotide.
-==================  ===================================================================================================
+==================  =======================================================================================================
 
 Output files have the same name as the input files with the prefix "_tcount".
 For example::

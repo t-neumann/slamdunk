@@ -23,7 +23,7 @@ Parameter  Description
 
 This will run the entire *slamdunk* analysis with the most relevant output files being:
 
-* Folder *count*: Tab-separated *tcount* files containing the SLAMSeq statistics per UTR (see section **TODO**)
+* Folder *count*: Tab-separated *tcount* files containing the SLAMSeq statistics per UTR (see :ref:`tcount-file`)
 * Folder *filter*: BAM-files with the final mapped reads for visualization and further processing
 
 ------------------------------------------------------

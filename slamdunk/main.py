@@ -32,6 +32,8 @@ logToMainOutput = False
 # Routine definitions
 ########################################################################
 
+# TODO: CLEAN UP ALL THAT HAS BEEN MOVED TO ALLEYOOP
+
 def getLogFile(path):
     if(logToMainOutput):
         return mainOutput
@@ -410,91 +412,91 @@ def run():
     
     # stats command
     #TODO: change to veronikas version
-    statsparser = subparsers.add_parser('stats.rates', help='Calculate stats on SLAM-seq datasets')
-    statsparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
-    statsparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
-    statsparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
-    statsparser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
-    #statsparser.add_argument('-R', "--compute-rates", dest="overallRates", action='store_true', help="Compute overall conversion rates.")
-    statsparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
-    
+#     statsparser = subparsers.add_parser('stats.rates', help='Calculate stats on SLAM-seq datasets')
+#     statsparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
+#     statsparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
+#     statsparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
+#     statsparser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
+#     #statsparser.add_argument('-R', "--compute-rates", dest="overallRates", action='store_true', help="Compute overall conversion rates.")
+#     statsparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
+#     
     # context command
     # TODO: move to slamdunk-tools
-    tccontextparser = subparsers.add_parser('stats.TCcontext', help='Calculate T->C conversion context on SLAM-seq datasets')
-    tccontextparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
-    tccontextparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
-    tccontextparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
-    tccontextparser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
-    tccontextparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
+#     tccontextparser = subparsers.add_parser('stats.TCcontext', help='Calculate T->C conversion context on SLAM-seq datasets')
+#     tccontextparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
+#     tccontextparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
+#     tccontextparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
+#     tccontextparser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
+#     tccontextparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
 
     # stats rates utr command
     # TODO: move to slamdunk-tools
-    statsutrrateparser = subparsers.add_parser('stats.utrrates', help='Calculate stats on SLAM-seq datasets')
-    statsutrrateparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
-    statsutrrateparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
-    statsutrrateparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
-    statsutrrateparser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
-    statsutrrateparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
-    statsutrrateparser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
-    statsutrrateparser.add_argument("-l", "--max-read-length", type=int, required=True, dest="maxLength", help="Max read length in BAM file")
-    
+#     statsutrrateparser = subparsers.add_parser('stats.utrrates', help='Calculate stats on SLAM-seq datasets')
+#     statsutrrateparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
+#     statsutrrateparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
+#     statsutrrateparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
+#     statsutrrateparser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
+#     statsutrrateparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
+#     statsutrrateparser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
+#     statsutrrateparser.add_argument("-l", "--max-read-length", type=int, required=True, dest="maxLength", help="Max read length in BAM file")
+#     
     # stats summary command
     # TODO: move to slamdunk-tools
-    statsSumParser = subparsers.add_parser('stats.summary', help='Prints a CSV file containing the number of sequenced, mapped and filtered reads for all samples')
-    statsSumParser.add_argument("-o", "--outputPrefix", type=str, required=True, dest="outputPrefix", help="Prefix for output files")
-    statsSumParser.add_argument("-n", "--sample-names", type=str, required=True, dest="sampleNames", help="CSV file containing name for all samples.")
-    statsSumParser.add_argument("-r", "--read-counts", type=str, required=True, dest="readCounts", help="CSV file containing read counts.")
-    statsSumParser.add_argument("-s", "--snp-files", type=str, nargs="+", required=True, dest="snpFiles", help="SNP files for all samples")
-    statsSumParser.add_argument("-m", "--mapped-files", type=str, nargs="+", required=True, dest="mappedFiles", help="BAM files for all samples")
-    statsSumParser.add_argument("-f", "--filtered-files", type=str, nargs="+", required=False, dest="filteredFiles", help="Filtered BAM files for all samples")
-    statsSumParser.add_argument("-d", "--deduplicated-files", type=str, nargs="+", required=False, dest="dedupFiles", help="Deduplicated BAM files for all samples")
-    
+#     statsSumParser = subparsers.add_parser('stats.summary', help='Prints a CSV file containing the number of sequenced, mapped and filtered reads for all samples')
+#     statsSumParser.add_argument("-o", "--outputPrefix", type=str, required=True, dest="outputPrefix", help="Prefix for output files")
+#     statsSumParser.add_argument("-n", "--sample-names", type=str, required=True, dest="sampleNames", help="CSV file containing name for all samples.")
+#     statsSumParser.add_argument("-r", "--read-counts", type=str, required=True, dest="readCounts", help="CSV file containing read counts.")
+#     statsSumParser.add_argument("-s", "--snp-files", type=str, nargs="+", required=True, dest="snpFiles", help="SNP files for all samples")
+#     statsSumParser.add_argument("-m", "--mapped-files", type=str, nargs="+", required=True, dest="mappedFiles", help="BAM files for all samples")
+#     statsSumParser.add_argument("-f", "--filtered-files", type=str, nargs="+", required=False, dest="filteredFiles", help="Filtered BAM files for all samples")
+#     statsSumParser.add_argument("-d", "--deduplicated-files", type=str, nargs="+", required=False, dest="dedupFiles", help="Deduplicated BAM files for all samples")
+#     
     # stats read info command
     # TODO: move to slamdunk-tools
-    conversionRateParser = subparsers.add_parser('stats.tcperreadpos', help='Get SlamSeq info per read')
-    conversionRateParser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
-    conversionRateParser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
-    conversionRateParser.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", help="Directory containing SNP files.")
-    conversionRateParser.add_argument("-l", "--max-read-length", type=int, required=True, dest="maxLength", help="Max read length in BAM file")
-    conversionRateParser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")#conversionRateParser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
-    conversionRateParser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
-    conversionRateParser.add_argument("-t", "--threads", type=int, required=False, dest="threads", help="Thread number")
-    
+#     conversionRateParser = subparsers.add_parser('stats.tcperreadpos', help='Get SlamSeq info per read')
+#     conversionRateParser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
+#     conversionRateParser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
+#     conversionRateParser.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", help="Directory containing SNP files.")
+#     conversionRateParser.add_argument("-l", "--max-read-length", type=int, required=True, dest="maxLength", help="Max read length in BAM file")
+#     conversionRateParser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")#conversionRateParser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
+#     conversionRateParser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
+#     conversionRateParser.add_argument("-t", "--threads", type=int, required=False, dest="threads", help="Thread number")
+#     
     # stats utr info command
     # TODO: move to slamdunk-tools
-    utrRateParser = subparsers.add_parser('stats.tcperutrpos', help='Get SlamSeq info per utr')
-    utrRateParser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
-    utrRateParser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
-    utrRateParser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
-    utrRateParser.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", help="Directory containing SNP files.")
-    utrRateParser.add_argument("-l", "--max-read-length", type=int, required=True, dest="maxLength", help="Max read length in BAM file")
-    utrRateParser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")#conversionRateParser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
-    utrRateParser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
-    utrRateParser.add_argument("-t", "--threads", type=int, required=False, dest="threads", help="Thread number")
-    
+#     utrRateParser = subparsers.add_parser('stats.tcperutrpos', help='Get SlamSeq info per utr')
+#     utrRateParser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
+#     utrRateParser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
+#     utrRateParser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
+#     utrRateParser.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", help="Directory containing SNP files.")
+#     utrRateParser.add_argument("-l", "--max-read-length", type=int, required=True, dest="maxLength", help="Max read length in BAM file")
+#     utrRateParser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")#conversionRateParser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
+#     utrRateParser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
+#     utrRateParser.add_argument("-t", "--threads", type=int, required=False, dest="threads", help="Thread number")
+#     
     # stats mean coverage for all utrs
     # TODO: move to slamdunk-tools
-    utrCoverageParser = subparsers.add_parser('stats.utrcoverage', help='Get SlamSeq info per utr')
-    utrCoverageParser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
-    # utrCoverageParser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
-    utrCoverageParser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
-    # utrCoverageParser.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", help="Directory containing SNP files.")
-    # utrCoverageParser.add_argument("-l", "--max-read-length", type=int, required=True, dest="maxLength", help="Max read length in BAM file")
-    utrCoverageParser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")#conversionRateParser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
-    utrCoverageParser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
-    utrCoverageParser.add_argument("-t", "--threads", type=int, required=False, dest="threads", help="Thread number")
-    
+#     utrCoverageParser = subparsers.add_parser('stats.utrcoverage', help='Get SlamSeq info per utr')
+#     utrCoverageParser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
+#     # utrCoverageParser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
+#     utrCoverageParser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
+#     # utrCoverageParser.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", help="Directory containing SNP files.")
+#     # utrCoverageParser.add_argument("-l", "--max-read-length", type=int, required=True, dest="maxLength", help="Max read length in BAM file")
+#     utrCoverageParser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")#conversionRateParser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
+#     utrCoverageParser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
+#     utrCoverageParser.add_argument("-t", "--threads", type=int, required=False, dest="threads", help="Thread number")
+#     
     
     # dump read info command
     # TODO: move to slamdunk-tools
-    dumpReadInfo = subparsers.add_parser('dump.reads', help='Print all info available for reads')
-    dumpReadInfo.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
-    dumpReadInfo.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
-    dumpReadInfo.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", help="Directory containing SNP files.")
-    dumpReadInfo.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")#conversionRateParser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
-    dumpReadInfo.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
-    dumpReadInfo.add_argument("-t", "--threads", type=int, required=False, dest="threads", help="Thread number")
-    
+#     dumpReadInfo = subparsers.add_parser('dump.reads', help='Print all info available for reads')
+#     dumpReadInfo.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
+#     dumpReadInfo.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
+#     dumpReadInfo.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", help="Directory containing SNP files.")
+#     dumpReadInfo.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")#conversionRateParser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
+#     dumpReadInfo.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
+#     dumpReadInfo.add_argument("-t", "--threads", type=int, required=False, dest="threads", help="Thread number")
+#     
     
     # all command
     
@@ -527,6 +529,8 @@ def run():
     ########################################################################
     
     command = args.command
+    
+    # TODO: CLEAN UP ALL THAT HAS BEEN MOVED TO ALLEYOOP
     
     if (command == "map") :
         outputDirectory = args.outputDir
