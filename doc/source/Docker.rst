@@ -7,7 +7,7 @@ Docker
 All you need is to install the Docker engine and run the *slamdunk* Docker image.
 
 Docker images
-^^^^^^^^^^^^^
+-------------
 
 You can directly use the *slamdunk* Docker images from `Docker hub <https://hub.docker.com/>`_. Two images are available:
 
@@ -31,7 +31,7 @@ You can also build them from scratch using any of the two *Dockerfiles* in `slam
 
 
 Running the Docker container locally
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+------------------------------------
 
 Once the container images is pulled/created, *slamdunk* can be run out of the box. The only difference is that the data containing directory has to be mounted on the container and 
 all files are relative to that mounting point.
@@ -43,7 +43,7 @@ all files are relative to that mounting point.
     docker run -m 8g -v $(pwd):/data tobneu/slamdunk slamdunk map -o /data/map -r /data/GRCm38.fa -5 5 -n 1 /data/testset.fq.gz
 
 Running a Docker container on AWS
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------------
 
 Many cloud providers provide Docker support these days. The most prominent cloud provider are the `Amazon Web Services <https://aws.amazon.com/>`_ (AWS) have a nice integration
 into `Docker machine` which easily let's you install Docker engine on AWS machines.

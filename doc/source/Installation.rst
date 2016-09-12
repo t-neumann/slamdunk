@@ -3,7 +3,7 @@ Installation
 
 This section covers the installation of *slamdunk*. Alternatively one could also run *slamdunk* from out of the box :ref:`docker-label` containers.
 
-1. Install required python modules `pysam`, `joblib` and `pybedtools`:
+1. Install required python modules `pysam`, `joblib`, `pybedtools`, `intervaltree`, `pandas` and `numpy`:
 
 .. code:: bash
 
@@ -13,7 +13,7 @@ This section covers the installation of *slamdunk*. Alternatively one could also
     # Local user only
     pip install --user pysam joblib pybedtools intervaltree pandas numpy
     
-1. Install required R libraries:
+1. Install required R libraries `getopt`, `ggplot2`, `gridExtra`, `RColorBrewer`, `lattice` and `matrixStats`:
 
 .. code:: bash
 

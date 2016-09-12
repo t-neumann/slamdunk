@@ -51,5 +51,5 @@ Parameter  Description
 This will produce a plot like the following example where you can clearly see that individual conversions for a given starting base are balanced and unbiased,
 except for the T->C conversions in this SLAMSeq sample with longer labelling times. 
 
-.. image:: img/stats.utrrates.png
-   :width: 600px
+.. .. image:: img/stats.utrrates.png
+..   :width: 600px

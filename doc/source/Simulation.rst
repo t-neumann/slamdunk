@@ -1,8 +1,8 @@
 Simulating SlamSeq data
-=====
+=======================
 
 Example
-^^^^^^^
+-------
 
 .. code:: bash
 

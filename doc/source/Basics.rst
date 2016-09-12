@@ -4,7 +4,7 @@ Basics
 .. _conversionRates:
 
 Conversion rates
-^^^^^^^^^^^^^^^^
+----------------
 
 The individual measured conversion rates within a 3' UTR are highly dependent on the T-content of a given UTR and the number of reads that cover those Ts.
 The more reads containing Ts, the more accurate the overall estimation of the conversion rate of T>Cs in this given 3' UTR will be.
@@ -22,10 +22,10 @@ T-positions with many reads.
 **Note:** Since QuantSeq is a strand-specific assay, only sense reads will be considered for the final analysis!
 
 Multimapper reconciliation
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------
 
 Definition and importance
-"""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Multimappers are reads which align to more than one position in the genome with equal best alignment scores.
 
@@ -36,7 +36,7 @@ However, there are also several caveats: For genes with isoforms or homologous g
 the signal, since the reads will likely not account equally for all regions, but rather originate mainly from a single region which cannot be unambiguously assigned. 
 
 Reassignment strategy
-"""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^
 
 We have settled for a very conservative multimapper reassignment strategy:
 
@@ -60,7 +60,7 @@ In short, the procedure is as follows, illustrated by the example below:
 .. _tcount-file:
 
 Tcount file format
-^^^^^^^^^^^^^^^^^^
+------------------
 
 The *tcount* file is the central output file of *slamdunk*. It contains all results, conversion rates and other statistics for each UTR which is the
 main starting point for any subsequent analysis that will follow e.g. transcript half-life estimates or DE analysis.

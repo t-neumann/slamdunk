@@ -199,7 +199,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
   ('index', 'slamdunk.tex', u'slamdunk Documentation',
-   u'Tobias Neumann, Philipp Rescheneder', 'manual'),
+   u'Tobias Neumann, Philipp Rescheneder', 'howto'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -208,7 +208,7 @@ latex_documents = [
 
 # For "manual" documents, if this is true, then toplevel headings are parts,
 # not chapters.
-#latex_use_parts = False
+#latex_use_parts = True
 
 # If true, show page references after internal links.
 #latex_show_pagerefs = False
