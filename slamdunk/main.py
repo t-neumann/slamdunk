@@ -63,13 +63,13 @@ def createDir(directory):
         message("Creating output directory: " + directory)
         os.makedirs(directory)
 
-def runMap(tid, inputBAM, referenceFile, threads, trim5p, quantseqMapping, localMapping, topn, outputDirectory) :
+def runMap(tid, inputBAM, referenceFile, threads, trim5p, maxPolyA, quantseqMapping, localMapping, topn, outputDirectory) :
     outputSAM = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".sam", "_slamdunk_mapped"))
     outputBAI = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".bam.bai", "_slamdunk_mapped"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".log", "_slamdunk_mapped"))
     # Don't run mapping if sort bam/bai files alread exists
     if(checkStep([inputBAM, referenceFile], [outputBAI])):
-        mapper.Map(inputBAM, referenceFile, outputSAM, getLogFile(outputLOG), quantseqMapping, localMapping, threads=threads, trim5p=trim5p, topn=topn, printOnly=printOnly, verbose=verbose)
+        mapper.Map(inputBAM, referenceFile, outputSAM, getLogFile(outputLOG), quantseqMapping, localMapping, threads=threads, trim5p=trim5p, maxPolyA=maxPolyA, topn=topn, printOnly=printOnly, verbose=verbose)
     stepFinished()
 
 def runSort(tid, bam, threads, outputDirectory):
@@ -255,7 +255,7 @@ def runAll(args) :
   
     message("Running slamDunk map for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
     for bam in args.bam:
-        runMap(0, bam, referenceFile, n, args.trim5, args.quantseq, args.local, args.topn, dunkPath)
+        runMap(0, bam, referenceFile, n, args.trim5, args.maxPolyA, args.quantseq, args.local, args.topn, dunkPath)
         
     dunkFinished()
 
@@ -360,6 +360,7 @@ def run():
     mapparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
     mapparser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
     mapparser.add_argument("-n", "--topn", type=int, required=False, dest="topn", default=1, help="Max. number of alignments to report per read")
+    mapparser.add_argument("-a", "--max-polya", type=int, required=False, dest="maxPolyA", default=4, help="Max number of As at the 3' end of a read.")
     mapparser.add_argument("-t", "--threads", type=int, required=False, dest="threads", help="Thread number")
     mapparser.add_argument("-q", "--quantseq", dest="quantseq", action='store_true', required=False, help="Run plain Quantseq alignment without SLAM-seq scoring")
     mapparser.add_argument('-l', "--local", action='store_true', dest="local", help="Use a local alignment algorithm for mapping.")
@@ -506,6 +507,7 @@ def run():
     allparser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file with 3'UTR coordinates")
     allparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for slamdunk run.")
     allparser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
+    allparser.add_argument("-a", "--max-polya", type=int, required=False, dest="maxPolyA", default=4, help="Max number of As at the 3' end of a read.")
     allparser.add_argument("-n", "--topn", type=int, required=False, dest="topn", default=1, help="Max. number of alignments to report per read")
     allparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
     allparser.add_argument("-q", "--quantseq", dest="quantseq", action='store_true', required=False, help="Run plain Quantseq alignment without SLAM-seq scoring")
@@ -539,7 +541,7 @@ def run():
         referenceFile = args.referenceFile
         message("Running slamDunk map for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
         for bam in args.bam:
-            runMap(0, bam, referenceFile, n, args.trim5, args.quantseq, args.local, args.topn, outputDirectory)
+            runMap(0, bam, referenceFile, n, args.trim5, args.quantseq, args.local, args.topn, args.maxPolyA, outputDirectory)
         dunkFinished()
         message("Running slamDunk sort for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
         results = Parallel(n_jobs=1, verbose=verbose)(delayed(runSort)(tid, args.bam[tid], n, outputDirectory) for tid in range(0, len(args.bam)))
