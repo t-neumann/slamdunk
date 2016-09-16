@@ -75,9 +75,11 @@ chromosome       String    Chromosome on which the 3' UTR resides
 start            Integer   Start position of the 3' UTR
 end              Integer   End position of the 3' UTR
 name             String    Name or ID of the 3' UTR supplied by the user
+length           Integer   Length of the 3' UTR
 strand           String    Strand of the 3' UTR
 conversionRate   Float     Average conversion rate (see :ref:`conversionRates`)
 readsCPM         Float     Normalized number of reads as counts per million
+Tcontent         Integer   Number of Ts in the 3' UTR (As for - strand UTRs)
 coverageOnTs     Integer   Cumulative coverage on all Ts in the 3' UTR
 conversionsOnTs  Integer   Cumulative number of T>C conversions in the 3' UTR
 readCount        Integer   Number of reads aligning to the 3' UTR
@@ -89,9 +91,9 @@ Here is an example:
 
 .. code:: bash
 
-   chr10    83761918  83762291  ENSMUSG00000087651      +        0.00563063063063        10.6160236544     1776     10       136      3        55
-   chr10    83761918  83762761  ENSMUSG00000087651      +        0.00675324675325        21.9345782859     3850     26       281      11       55
-   chr7     38194971  38195089  ENSMUSG00000054676      +        0.0      0.780589974586    111      0        10       0        0
-   chr7     38194796  38197568  ENSMUSG00000054676      +        0.021164021164    6.01054280431     945      20       77       9        0
-   chr16    8856039   8856689   ENSMUSG00000022507      +        0.00797607178465        7.7278407484      1003     8        99       4        0
-   chr16    8856039   8858191   ENSMUSG00000022507      +        0.00889192886457        35.7510208361     5848     52       458      23       0
+   chr13   14197734        14199362        ENSMUSG00000039219      1628    +       0.0466045272969 4.00770947448   587     751     35      59      29      0
+   chr2    53217389        53219220        ENSMUSG00000026960      1831    +       0.0270802560315 28.3936027175   709     6093    165     418     138     2
+   chr2    53217389        53218446        ENSMUSG00000026960      1057    +       0.0268910814471 23.9783295677   407     5169    139     353     118     0
+   chr3    95495394        95495567        ENSMUSG00000015522      173     +       0.0290697674419 1.08683646766   53      172     5       16      5       0
+   chr3    95495394        95497237        ENSMUSG00000015522      1843    +       0.0253636702723 11.6834920273   584     2681    68      172     55      4
+   chr6    113388777       113389056       ENSMUSG00000079426      279     +       0.0168514412417 16.7780379694   71      2255    38      247     38      3

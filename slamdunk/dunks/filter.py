@@ -41,10 +41,11 @@ def bedToIntervallTree(bed):
         
     return utrs
     
-def dumpBufferToBam (buffer, outbam, infile):
+def dumpBufferToBam (buffer, multimapList, outbam, infile):
     # Randomly write hit from read
     read = random.choice(buffer.values()).pop()
 #     printer = read.query_name + "\t" + infile.getrname(read.reference_id) + "\t" + str(read.reference_start) + "\t" + str(read.reference_end) + "\tPRINT\tTrue"
+    read.set_tag("RD", multimapList.rstrip(" "), "Z")
     outbam.write(read)
     
 #     return printer
@@ -65,7 +66,8 @@ def multimapUTRRetainment (infile, outfile, bed, minIdentity, NM):
     prevRead = ""
     # If read maps to another than previously recorded UTR -> do not dump reads to file
     dumpBuffer = True
-    
+    # This string tracks all multiple alignments
+    multimapList = ""
 #     logList = []
     
     for read in infile:
@@ -82,7 +84,7 @@ def multimapUTRRetainment (infile, outfile, bed, minIdentity, NM):
                 
                 #if (dumpBuffer and (len(multimapBuffer) > 1 or len(multimapBuffer["nonUTR"]) > 0)) :
                 if (dumpBuffer and len(multimapBuffer) > 0) :
-                    dumpBufferToBam(multimapBuffer, outfile, infile)
+                    dumpBufferToBam(multimapBuffer, multimapList, outfile, infile)
 #                     ret = dumpBufferToBam(multimapBuffer, outfile, infile)
 #                     print(ret,file = fo)
                     multimapBuffer = {}
@@ -93,6 +95,7 @@ def multimapUTRRetainment (infile, outfile, bed, minIdentity, NM):
 #                 logList = []
                      
                 dumpBuffer = True
+                multimapList = ""
                 
             # Query Intervall tree for given chromosome for UTs
             chr = infile.getrname(read.reference_id)
@@ -128,13 +131,15 @@ def multimapUTRRetainment (infile, outfile, bed, minIdentity, NM):
 #             else :
 #                 logList.append(chr + "\t" + str(start) + "\t" + str(end) + "\t" + "OFF")
             
+            multimapList = multimapList + chr + ":" + str(start) + "-" + str(end) + " "
+            
             prevRead = read.query_name
         else :
             # Dump any multimappers before a unique mapper
             #if (len(multimapBuffer) > 1 or len(multimapBuffer["nonUTR"]) > 0) :
             if (len(multimapBuffer) > 0) :
                 if (dumpBuffer) :
-                    dumpBufferToBam(multimapBuffer, outfile, infile)
+                    dumpBufferToBam(multimapBuffer, multimapList, outfile, infile)
 #                     ret = dumpBufferToBam(multimapBuffer, outfile, infile)
 #                     print(ret,file = fo)
                 multimapBuffer = {}
@@ -143,6 +148,7 @@ def multimapUTRRetainment (infile, outfile, bed, minIdentity, NM):
 #                 logList = []
                 #multimapBuffer["nonUTR"] = []
                 dumpBuffer = True
+                multimapList = ""
                 
             # Record all unique mappers
             prevRead = read.query_name
@@ -151,7 +157,7 @@ def multimapUTRRetainment (infile, outfile, bed, minIdentity, NM):
     # Dump last portion if it was multimapper
     #if (dumpBuffer and (len(multimapBuffer) > 1 or len(multimapBuffer["nonUTR"]) > 0)) :
     if (dumpBuffer and len(multimapBuffer) > 0) :
-        dumpBufferToBam(multimapBuffer, outfile, infile)
+        dumpBufferToBam(multimapBuffer, multimapList, outfile, infile)
         
 #     fo.close()
         
