@@ -5,10 +5,11 @@ from __future__ import print_function
 
 import csv
 import sys
+import pysam
 import itertools as IT
 
 from os.path import basename
-from utils.misc import getReadCount, getSampleName
+from utils.misc import getReadCount, getSampleName, complement
 from utils.BedReader import BedIterator
 
 from utils import SNPtools
@@ -94,6 +95,8 @@ def getMean(values, skipZeros=True):
 
 def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputCSV, outputBedgraphPlus, outputBedgraphMinus, strictTCs, log):
     
+    referenceFile = pysam.FastaFile(ref)
+    
     flagstat = getReadCount(bam)
     readNumber = flagstat.MappedReads
 
@@ -112,6 +115,21 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
 
         if(not utr.hasStrand()):
             raise RuntimeError("Input BED file does not contain stranded intervals.")
+        
+        # Retreive reference sequence
+        region = utr.chromosome + ":" + str(utr.start + 1) + "-" + str(utr.stop)
+        
+        Tcontent = 0
+        
+        if(utr.chromosome in list(referenceFile.references)):
+            #print(refRegion,file=sys.stderr)
+            refSeq = referenceFile.fetch(region=region).upper()
+            
+            if (utr.strand == "-") :
+                #refSeq = complement(refSeq[::-1])
+                Tcontent = refSeq.count("A")
+            else :
+                Tcontent = refSeq.count("T")
 
         readIterator = testFile.readInRegion(utr.chromosome, utr.start, utr.stop, utr.strand, maxReadLength)
       
@@ -219,9 +237,9 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
             conversionRate = 0
             if (coverageOnTs > 0) :
                 conversionRate = float(conversionsOnTs) / float(coverageOnTs)
-            slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, readsCPM, coverageOnTs, conversionsOnTs, conversionRate, readCount, tcReadCount, multiMapCount)
+            slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, Tcontent, readsCPM, coverageOnTs, conversionsOnTs, conversionRate, readCount, tcReadCount, multiMapCount)
         else:
-            slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, 0, -1, 0, 0, 0, 0, 0)
+            slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, Tcontent, 0, -1, 0, 0, 0, 0, 0)
             #slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, 0, 0, 0, 0, 0, 0)
         print(slamSeqUtr, file=fileCSV)
         #print(slamSeqUtr)

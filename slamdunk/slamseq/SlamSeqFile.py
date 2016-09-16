@@ -67,12 +67,13 @@ class SlamSeqInterval:
     #_tcReadCount = None
     #_multimapCount = None
         
-    def __init__(self, chromosome, start, stop, strand, name, readsCPM, coverageOnTs, conversionsOnTs, conversionRate, readCount, tcReadCount, multimapCount):
+    def __init__(self, chromosome, start, stop, strand, name, Tcontent, readsCPM, coverageOnTs, conversionsOnTs, conversionRate, readCount, tcReadCount, multimapCount):
         self._chromosome = chromosome
         self._start = start
         self._stop = stop
         self._strand = strand
         self._name = name
+        self._Tcontent = Tcontent
         self._readsCPM = readsCPM
         self._coverageOnTs = coverageOnTs
         self._conversionsOnTs = conversionsOnTs
@@ -83,7 +84,7 @@ class SlamSeqInterval:
         
     def __repr__(self):
         #return (self._chromosome + "\t" + str(self._start) + "\t" + str(self._stop) + "\t" + self._name + "\t" + self._strand + "\t" + str(self._avgConversionRate) + "\t" + str(self._readsCPM) + "\t" + str(self._tCount) + "\t" + str(self._coveredBp) + "\t" + str(self._readCount) + "\t" + str(self._tcReadCount))
-        return (self._chromosome + "\t" + str(self._start) + "\t" + str(self._stop) + "\t" + self._name + "\t" + self._strand + "\t" + str(self._conversionRate) + "\t" + str(self._readsCPM) + "\t" + str(self._coverageOnTs) + "\t" + str(self._conversionsOnTs) + "\t" + str(self._readCount) + "\t" + str(self._tcReadCount) + "\t" + str(self._multimapCount))
+        return (self._chromosome + "\t" + str(self._start) + "\t" + str(self._stop) + "\t" + self._name + "\t" + str(self._stop - self._start) + "\t" + self._strand + "\t" + str(self._conversionRate) + "\t" + str(self._readsCPM) + "\t" + str(self._Tcontent) + "\t" + str(self._coverageOnTs) + "\t" + str(self._conversionsOnTs) + "\t" + str(self._readCount) + "\t" + str(self._tcReadCount) + "\t" + str(self._multimapCount))
     
      
 
