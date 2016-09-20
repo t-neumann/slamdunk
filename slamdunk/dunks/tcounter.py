@@ -112,14 +112,15 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
                          
     progress = 0
     for utr in BedIterator(bed):
-
+        Tcontent = 0
+        slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, Tcontent, 0, -1, 0, 0, 0, 0, 0)
         if(not utr.hasStrand()):
             raise RuntimeError("Input BED file does not contain stranded intervals.")
         
+        if utr.start < 0:
+            raise RuntimeError("Negativ start coordinate found. Please check the following entry in your BED file: " + utr)
         # Retreive reference sequence
         region = utr.chromosome + ":" + str(utr.start + 1) + "-" + str(utr.stop)
-        
-        Tcontent = 0
         
         if(utr.chromosome in list(referenceFile.references)):
             #print(refRegion,file=sys.stderr)
@@ -238,8 +239,7 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
             if (coverageOnTs > 0) :
                 conversionRate = float(conversionsOnTs) / float(coverageOnTs)
             slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, Tcontent, readsCPM, coverageOnTs, conversionsOnTs, conversionRate, readCount, tcReadCount, multiMapCount)
-        else:
-            slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, Tcontent, 0, -1, 0, 0, 0, 0, 0)
+        #else:
             #slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, 0, 0, 0, 0, 0, 0)
         print(slamSeqUtr, file=fileCSV)
         #print(slamSeqUtr)
