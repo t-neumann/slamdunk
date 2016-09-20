@@ -65,10 +65,10 @@ def createDir(directory):
 
 def runMap(tid, inputBAM, referenceFile, threads, trim5p, maxPolyA, quantseqMapping, localMapping, topn, outputDirectory) :
     outputSAM = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".sam", "_slamdunk_mapped"))
-    outputBAI = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".bam.bai", "_slamdunk_mapped"))
+    outputBAM = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".bam.flagstat", "_slamdunk_mapped"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".log", "_slamdunk_mapped"))
     # Don't run mapping if sort bam/bai files alread exists
-    if(checkStep([inputBAM, referenceFile], [outputBAI])):
+    if(checkStep([inputBAM, referenceFile], [outputBAM])):
         mapper.Map(inputBAM, referenceFile, outputSAM, getLogFile(outputLOG), quantseqMapping, localMapping, threads=threads, trim5p=trim5p, maxPolyA=maxPolyA, topn=topn, printOnly=printOnly, verbose=verbose)
     stepFinished()
 
