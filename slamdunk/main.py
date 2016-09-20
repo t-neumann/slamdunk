@@ -72,7 +72,7 @@ def runMap(tid, inputBAM, referenceFile, threads, trim5p, maxPolyA, quantseqMapp
         mapper.Map(inputBAM, referenceFile, outputSAM, getLogFile(outputLOG), quantseqMapping, localMapping, threads=threads, trim5p=trim5p, maxPolyA=maxPolyA, topn=topn, printOnly=printOnly, verbose=verbose)
     stepFinished()
 
-def runSort(tid, bam, threads, outputDirectory):
+def runSam2Bam(tid, bam, threads, outputDirectory):
     inputSAM = os.path.join(outputDirectory, replaceExtension(basename(bam), ".sam", "_slamdunk_mapped"))
     outputBAM = os.path.join(outputDirectory, replaceExtension(basename(bam), ".bam", "_slamdunk_mapped"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_slamdunk_mapped"))
@@ -259,11 +259,11 @@ def runAll(args) :
         
     dunkFinished()
 
-    message("Running slamDunk sort for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-    results = Parallel(n_jobs=1, verbose=verbose)(delayed(runSort)(tid, args.bam[tid], n, dunkPath) for tid in range(0, len(args.bam)))
-    
+    message("Running slamDunk sam2bam for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+    results = Parallel(n_jobs=1, verbose=verbose)(delayed(runSam2Bam)(tid, args.bam[tid], n, dunkPath) for tid in range(0, len(args.bam)))
+     
     dunkFinished()
-      
+       
     dunkbufferIn = []
     
     for file in args.bam :
@@ -372,7 +372,7 @@ def run():
     filterparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
     filterparser.add_argument("-b", "--bed", type=str, required=False, dest="bed", help="BED file, overrides MQ filter to 0")
     filterparser.add_argument("-mq", "--min-mq", type=int, required=False, default=2, dest="mq", help="Minimum mapping quality")
-    filterparser.add_argument("-mi", "--min-identity", type=float, required=False, default=0.8, dest="identity", help="Minimum alignment identity")
+    filterparser.add_argument("-mi", "--min-identity", type=float, required=False, default=0.95, dest="identity", help="Minimum alignment identity")
     filterparser.add_argument("-nm", "--max-nm", type=int, required=False, default=-1, dest="nm", help="Maximum NM for alignments")
     filterparser.add_argument("-t", "--threads", type=int, required=False, dest="threads", help="Thread number")
     
@@ -514,7 +514,7 @@ def run():
     allparser.add_argument('-l', "--local", action='store_true', dest="local", help="Use a local alignment algorithm for mapping.")
     allparser.add_argument('-m', "--multimap", action='store_true', dest="multimap", help="Use reference to resolve multimappers (requires -n > 1).")
     allparser.add_argument("-mq", "--min-mq", type=int, required=False, default=2, dest="mq", help="Minimum mapping quality")
-    allparser.add_argument("-mi", "--min-identity", type=float, required=False, default=0.8, dest="identity", help="Minimum alignment identity")
+    allparser.add_argument("-mi", "--min-identity", type=float, required=False, default=0.95, dest="identity", help="Minimum alignment identity")
     allparser.add_argument("-nm", "--max-nm", type=int, required=False, default=-1, dest="nm", help="Maximum NM for alignments")
     allparser.add_argument("-mc", "--min-coverage", required=False, dest="cov", type=int, help="Minimimum coverage to call variant", default=10)
     allparser.add_argument("-mv", "--var-fraction", required=False, dest="var", type=float, help="Minimimum variant fraction to call variant", default=0.8)
@@ -544,9 +544,9 @@ def run():
             runMap(0, bam, referenceFile, n, args.trim5, args.quantseq, args.local, args.topn, args.maxPolyA, outputDirectory)
         dunkFinished()
         message("Running slamDunk sort for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-        results = Parallel(n_jobs=1, verbose=verbose)(delayed(runSort)(tid, args.bam[tid], n, outputDirectory) for tid in range(0, len(args.bam)))
+        results = Parallel(n_jobs=1, verbose=verbose)(delayed(runSam2Bam)(tid, args.bam[tid], n, outputDirectory) for tid in range(0, len(args.bam)))
         dunkFinished()
-         
+          
     elif (command == "filter") :
         outputDirectory = args.outputDir
         createDir(outputDirectory)
