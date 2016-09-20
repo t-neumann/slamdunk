@@ -50,7 +50,7 @@ def Map(inputBAM, inputReference, outputSAM, log, quantseqMapping, localMapping,
         parameter = parameter + " -5 " + str(trim5p)
     
     if(maxPolyA > -1):
-        parameter = parameter + " --max-polya " + str(trim5p)
+        parameter = parameter + " --max-polya " + str(maxPolyA)
     
     if(localMapping is True):
         parameter = parameter + " -l "
