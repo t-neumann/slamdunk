@@ -164,7 +164,7 @@ def multimapUTRRetainment (infile, outfile, bed, minIdentity, NM):
 #def pysamFlagstat(outputBam):
 #    pysam.flagstat(outputBam)
 
-def Filter(inputBAM, outputBAM, log, bed, MQ=2, minIdentity=0.8, NM=-1, printOnly=False, verbose=True, force=True):
+def Filter(inputBAM, outputBAM, log, bed, MQ=2, minIdentity=0.8, NM=-1, printOnly=False, verbose=True, force=False):
     if(printOnly or checkStep([inputBAM], [outputBAM], force)):
         
         infile = pysam.AlignmentFile(inputBAM, "rb")
