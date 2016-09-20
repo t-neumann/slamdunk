@@ -521,7 +521,7 @@ def run():
     #allparser.add_argument("-nm", "--sample-names", type=str, required=False, dest="sampleNames", help="CSV file containing name for all samples.")
     allparser.add_argument("-mts", "--multiTCStringency", dest="strictTCs", action='store_true', required=False, help="")
     #TOOD: add auto estimation
-    allparser.add_argument("-rl", "--max-read-length", type=int, required=True, dest="maxLength", help="Max read length in BAM file")
+    allparser.add_argument("-rl", "--max-read-length", type=int, required=False, dest="maxLength", help="Max read length in BAM file")
     allparser.add_argument("-mbq", "--min-base-qual", type=int, default=0, required=False, dest="minQual", help="Min base quality for T -> C conversions")
     
     args = parser.parse_args()
