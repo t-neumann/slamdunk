@@ -2,11 +2,12 @@
 
 # Date located in: -
 from __future__ import print_function
-import pysam, random, os, sys
-from intervaltree import Interval, IntervalTree
+import pysam, random, os
+from intervaltree import IntervalTree
+
 
 from utils.BedReader import BedIterator
-from utils.misc import checkStep, run, runIndexBam, runFlagstat, replaceExtension, removeFile
+from utils.misc import checkStep, run, runIndexBam, runFlagstat, removeFile
 
 def Filter_old(inputBAM, outputBAM, log, MQ=2, printOnly=False, verbose=True, force=True):
     if(printOnly or checkStep([inputBAM], [outputBAM], force)):
@@ -19,7 +20,8 @@ def Filter_old(inputBAM, outputBAM, log, MQ=2, printOnly=False, verbose=True, fo
 
 
 def pysamIndex(outputBam):
-    pysam.index(outputBam)
+    pysam.index(outputBam)  # @UndefinedVariable
+
     
 def bamSort(outputBAM, log, verbose):
     
