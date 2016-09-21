@@ -105,7 +105,7 @@ def runFilter(tid, bam, bed, mq, minIdentity, maxNM, outputDirectory):
 def runSnp(tid, referenceFile, minCov, minVarFreq, inputBAM, outputDirectory) :
     outputSNP = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".vcf", "_snp"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".log", "_snp"))
-    snps.SNPs(inputBAM, outputSNP, referenceFile, minVarFreq, minCov, getLogFile(outputLOG), printOnly, verbose, True)
+    snps.SNPs(inputBAM, outputSNP, referenceFile, minVarFreq, minCov, getLogFile(outputLOG), printOnly, verbose, False)
     stepFinished()
                 
 def runCount(tid, bam, ref, bed, maxLength, minQual, strictTCs, outputDirectory, snpDirectory) :
