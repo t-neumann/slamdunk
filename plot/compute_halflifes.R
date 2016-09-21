@@ -90,8 +90,13 @@ computeHalfLife <- function(rates, timepoints) {
     C = coef(fit)[1]
     k = coef(fit)[2]
   }, error=function(e){})
+  summary(fit)
   
-  c(halfLifePred, C, k)
+  RSS.p <- sum(residuals(fit)^2)
+  TSS <- sum((rates - mean(rates))^2)
+  rsquared = 1 - (RSS.p/TSS)
+  
+  c(halfLifePred, C, k, rsquared)
 }
 
 perRead = F
@@ -105,7 +110,8 @@ for(utr in 1:nrow(slamDunkMergedRates)) {
   pulseSlamDunk = data.frame(y = as.numeric(t(slamDunkMergedRates[utr, 8:(7 + length(times))])[,1]), x = times)
   
   result = computeHalfLife(pulseSlamDunk$y, pulseSlamDunk$x)
-  
+  #rates = pulseSlamDunk$y
+  #timepoints = pulseSlamDunk$x
   halfLifeTable = rbind(halfLifeTable, cbind(slamDunkMergedRates[utr, c("chr", "start", "stop", "name", "strand", "readsCPM", "multiMapCount")], result[1]))
 }  
 
