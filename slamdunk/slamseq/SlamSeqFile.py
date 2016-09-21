@@ -434,6 +434,8 @@ class SlamSeqBamFile:
         
         fillupLeft = 0
         leftBorder = int(start) - maxReadLength
+        if(leftBorder < 0):
+            return iter([])
         
         if (leftBorder < 0) :
             fillupLeft = abs(leftBorder)
