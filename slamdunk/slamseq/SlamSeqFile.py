@@ -1,18 +1,11 @@
 from __future__ import print_function
 import pysam
-import re
+import re,sys    
 
 class ReadDirection:
     Forward = 1
     Reverse = 2
 
-#               Read
-#             A     C     G     T     N
-#      A      0     1     2     3     4
-# R    C      5     6     7     8     9
-# e    G     10    11    12    13    14
-# f    T     15    16    17    18    19
-#      N     20    21    22    23    24
 class SlamSeqConversionRates:
 
     _baseNumber = 5
@@ -124,6 +117,14 @@ class SlamSeqAlignmentPosition:
     def __repr__(self):
         return str(self.referencePosition) + "," + self.referenceBase + "," + self.referenceBase5PrimeContext + "," + self.referenceBase3PrimeContext + "," + str(self.readPosition) + "," + self.readBase + "," + str(self.readBaseQlty) + "," +  str(self.isSnpPosition)
         #return self.referenceBase + "," + str(self.readPosition) + "," + self.readBase + "," + str(self.readBaseQlty) + "," +  str(self.isSnpPosition)
+        
+    def __eq__(self, other):
+        return (isinstance(other, SlamSeqAlignmentPosition) and self.readBase == other.readBase and self.referenceBase == other.referenceBase
+            and self.readBaseQlty == other.readBaseQlty and self.readPosition == other.readPosition and self.referencePosition == other.referencePosition
+            and self.isSnpPosition == other.isSnpPosition)
+                
+    def __ne__(self, other):
+        return not self.__eq__(other)
     
     def isTCMismatch(self, isReverse):
         if(isReverse):
@@ -143,7 +144,7 @@ class SlamSeqRead:
     def __init__(self):
         # Name of the parsed read
         self.name = None
-        # Nuber of Ts that were converted 
+        # Number of Ts that were converted 
         # to a C on forward reads and A to G on revse reads
         self.tcCount = None
         # Number Ts in the reference
@@ -241,7 +242,114 @@ class SlamSeqBamIterator:
                 rates.incRate(alnPosition.referenceBase, alnPosition.readBase)
                         
         return rates
+    
+    #               Read
+    #             A     C     G     T     N
+    #      A      0     1     2     3     4
+    # R    C      5     6     7     8     9
+    # e    G     10    11    12    13    14
+    # f    T     15    16    17    18    19
+    #      N     20    21    22    23    24
 
+    def MPTagToConversion(self, MPTag):
+        if (MPTag == "0") :
+            return "A","C"
+        if (MPTag == "1") :
+            return "A","C"
+        if (MPTag == "2") :
+            return "A","G"
+        if (MPTag == "3") :
+            return "A","T"
+        if (MPTag == "4") :
+            return "A","N"
+        if (MPTag == "5") :
+            return "C","A"
+        if (MPTag == "6") :
+            return "C","C"
+        if (MPTag == "7") :
+            return "C","G"
+        if (MPTag == "8") :
+            return "C","T"
+        if (MPTag == "9") :
+            return "C","N"
+        if (MPTag == "10") :
+            return "G","A"
+        if (MPTag == "11") :
+            return "G","C"
+        if (MPTag == "12") :
+            return "G","G"
+        if (MPTag == "13") :
+            return "G","T"
+        if (MPTag == "14") :
+            return "G","N"
+        if (MPTag == "15") :
+            return "T","A"
+        if (MPTag == "16") :
+            return "T","C"
+        if (MPTag == "17") :
+            return "T","G"
+        if (MPTag == "18") :
+            return "T","T"
+        if (MPTag == "19") :
+            return "T","N"
+        if (MPTag == "20") :
+            return "N","A"
+        if (MPTag == "21") :
+            return "N","C"
+        if (MPTag == "22") :
+            return "N","G"
+        if (MPTag == "23") :
+            return "N","T"
+        if (MPTag == "24") :
+            return "N","N"
+        
+        return None
+    
+    def fillMismatchesNGM(self, read):
+        
+        # TODO:
+        # DO WE NEED THE TCOUNT???
+        
+        # tCount = 0
+        
+        #if(alnPosition.isT(read.is_reverse)):
+        #        tCount += 1
+        #    if(alnPosition.isMismatch() and alnPosition.readBaseQlty >= self._minQual):
+        #        mismatchList.append(alnPosition)
+        #readQlty = read.query_qualities[readPos]
+
+        tcCount = 0
+        
+        mismatchList = []
+        if (read.has_tag("MP")) :
+            
+            #print(read)
+            ngmMismatches = read.get_tag("MP").split(",")
+            for mismatch in ngmMismatches:
+                conversion, readpos, refpos = mismatch.split(":")
+                refBase, readBase = self.MPTagToConversion(conversion)
+                readPos = int(refpos) - 1
+               
+                readQlty = read.query_qualities[readPos]
+                
+                if(read.is_reverse):
+                    refPos = read.reference_start - self._startPosition + read.query_length - int(refpos)
+                    isSnpPos = self._snps != None and self._snps.isAGSnp(self._chromosome, refPos)
+                else :
+                    refPos = read.reference_start - self._startPosition + int(refpos) - 1
+                    isSnpPos = self._snps != None and self._snps.isTCSnp(self._chromosome, refPos)
+                    
+                #print("Pos " + pos + "\nconversion " + conversion +"\nrefBase " + refBase + "\nreadBase " + readBase + "\nreadPos "  + str(readPos) + "\nrefPos" + str(refPos))
+
+                alnPos = SlamSeqAlignmentPosition(readPos, refPos, readBase, refBase, readQlty, isSnpPos, "N","N")
+                
+                if (alnPos.isTCMismatch(read.is_reverse)) :
+                    tcCount += 1
+                
+                mismatchList.append(alnPos)
+                    
+        return mismatchList, tcCount
+    
     def computeRatesForReadNGM(self, read):
         ratesNgm = None
         if(read.has_tag("RA")):
@@ -354,7 +462,6 @@ class SlamSeqBamIterator:
                 return False
     
         return True
-
  
     def next(self):
         
@@ -380,7 +487,7 @@ class SlamSeqBamIterator:
             
         #slamSeqRead.mismatches, slamSeqRead.tCount = self.fillMismatches(read)
         #TODO: pare from NextGenMap tag (MM:z)
-        slamSeqRead.mismatches, slamSeqRead.tCount, slamSeqRead.startRefPos, slamSeqRead.endRefPos = self.fillMismatches(read) 
+        slamSeqRead.mismatches, slamSeqRead.tCount, slamSeqRead.startRefPos, slamSeqRead.endRefPos = self.fillMismatches(read)
 
         slamSeqRead.tcCount = self.getTC(slamSeqRead.mismatches, read.is_reverse) 
         slamSeqRead.conversionRates = self.computeRatesForRead(read)
@@ -392,6 +499,24 @@ class SlamSeqBamIterator:
             slamSeqRead.isTcRead = True
         else :
             slamSeqRead.isTcRead = False
+            
+        ngmStartRefPos = read.reference_start - int(self._startPosition)
+        ngmEndRefPos = read.reference_end - int(self._startPosition)
+        ngmMismatches, ngmTcCount = self.fillMismatchesNGM(read)
+        
+        #print(slamSeqRead.tCount)
+        #print(slamSeqRead.tcCount)
+        #print(slamSeqRead.isTcRead)
+        #print(slamSeqRead.conversionRates)
+#         print(ngmMismatches)   
+#         print(slamSeqRead.mismatches)
+#         print(ngmTcCount)
+#         print(slamSeqRead.tcCount)
+#         print(slamSeqRead.startRefPos)
+#         print(ngmStartRefPos)
+#         print(slamSeqRead.endRefPos)
+#         print(ngmEndRefPos)
+#         sys.stdin.readline()
         
         
 #         # Get TC count and rates from NGM bam file
@@ -401,19 +526,19 @@ class SlamSeqBamIterator:
 #         if(ngmTCount > 0):
 #             ngmRate = ngmTC * 100.0 / ngmTCount
 #          
-#         # Check if results from pysam and NGM are the same
-#         # TODO: remove at some point
-#         if(not self.compareLists(slamSeqRead.conversionRates, ngmRates) or slamSeqRead.tcCount != ngmTC):# or ngmRate != slamSeqRead.tcRate):
-#             print("Difference found:")
-#             print(read)
-#             print(ngmRates)
-#             print(slamSeqRead.conversionRates)
-#             print("TC (ngm): " + str(ngmTC))
-#             print("TC (pys): " + str(slamSeqRead.tcCount))
+        # Check if results from pysam and NGM are the same
+        # TODO: remove at some point
+        if(not self.compareLists(slamSeqRead.mismatches, ngmMismatches) or slamSeqRead.tcCount != ngmTcCount):# or ngmRate != slamSeqRead.tcRate):
+            print("Difference found:")
+            print(read)
+            print(ngmMismatches)
+            print(slamSeqRead.mismatches)            
+            print("TC (ngm): " + str(ngmTcCount))
+            print("TC (pys): " + str(slamSeqRead.tcCount))
 #             print("TC rate (ngm): " + str(ngmRate))
 #             print("TC rate (pys): " + str(slamSeqRead.tcRate))
-#             #sys.stdin.read(1)
-#             raise RuntimeError("Difference found between NGM and Py.")
+            sys.stdin.read(1)
+            #raise RuntimeError("Difference found between NGM and Py.")
 
         return slamSeqRead
                 
