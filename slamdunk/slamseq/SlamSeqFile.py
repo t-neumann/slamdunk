@@ -326,17 +326,17 @@ class SlamSeqBamIterator:
             #print(read)
             ngmMismatches = read.get_tag("MP").split(",")
             for mismatch in ngmMismatches:
-                conversion, readpos, refpos = mismatch.split(":")
+                conversion, readPos, refPos = mismatch.split(":")
                 refBase, readBase = self.MPTagToConversion(conversion)
-                readPos = int(refpos) - 1
+                readPos = int(readPos) - 1
                
                 readQlty = read.query_qualities[readPos]
                 
                 if(read.is_reverse):
-                    refPos = read.reference_start - self._startPosition + read.query_length - int(refpos)
+                    refPos = read.reference_start - self._startPosition + read.query_length - int(refPos)
                     isSnpPos = self._snps != None and self._snps.isAGSnp(self._chromosome, refPos)
                 else :
-                    refPos = read.reference_start - self._startPosition + int(refpos) - 1
+                    refPos = read.reference_start - self._startPosition + int(refPos) - 1
                     isSnpPos = self._snps != None and self._snps.isTCSnp(self._chromosome, refPos)
                     
                 #print("Pos " + pos + "\nconversion " + conversion +"\nrefBase " + refBase + "\nreadBase " + readBase + "\nreadPos "  + str(readPos) + "\nrefPos" + str(refPos))
