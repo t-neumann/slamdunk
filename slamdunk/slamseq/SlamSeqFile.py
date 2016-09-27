@@ -326,17 +326,17 @@ class SlamSeqBamIterator:
             #print(read)
             ngmMismatches = read.get_tag("MP").split(",")
             for mismatch in ngmMismatches:
-                conversion, pos = mismatch.split(":")
+                conversion, readpos, refpos = mismatch.split(":")
                 refBase, readBase = self.MPTagToConversion(conversion)
-                readPos = int(pos) - 1
+                readPos = int(refpos) - 1
                
                 readQlty = read.query_qualities[readPos]
                 
                 if(read.is_reverse):
-                    refPos = read.reference_start - self._startPosition + read.query_length - int(pos)
+                    refPos = read.reference_start - self._startPosition + read.query_length - int(refpos)
                     isSnpPos = self._snps != None and self._snps.isAGSnp(self._chromosome, refPos)
                 else :
-                    refPos = read.reference_start - self._startPosition + int(pos) - 1
+                    refPos = read.reference_start - self._startPosition + int(refpos) - 1
                     isSnpPos = self._snps != None and self._snps.isTCSnp(self._chromosome, refPos)
                     
                 #print("Pos " + pos + "\nconversion " + conversion +"\nrefBase " + refBase + "\nreadBase " + readBase + "\nreadPos "  + str(readPos) + "\nrefPos" + str(refPos))
@@ -500,9 +500,9 @@ class SlamSeqBamIterator:
         else :
             slamSeqRead.isTcRead = False
             
-#         ngmStartRefPos = read.reference_start - int(self._startPosition)
-#         ngmEndRefPos = read.reference_end - int(self._startPosition)
-#         ngmMismatches, ngmTcCount = self.fillMismatchesNGM(read)
+        ngmStartRefPos = read.reference_start - int(self._startPosition)
+        ngmEndRefPos = read.reference_end - int(self._startPosition)
+        ngmMismatches, ngmTcCount = self.fillMismatchesNGM(read)
         
         #print(slamSeqRead.tCount)
         #print(slamSeqRead.tcCount)
@@ -528,17 +528,17 @@ class SlamSeqBamIterator:
 #          
         # Check if results from pysam and NGM are the same
         # TODO: remove at some point
-#         if(not self.compareLists(slamSeqRead.mismatches, ngmMismatches) or slamSeqRead.tcCount != ngmTcCount):# or ngmRate != slamSeqRead.tcRate):
-#             print("Difference found:")
-#             print(read)
-#             print(ngmMismatches)
-#             print(slamSeqRead.mismatches)            
-#             print("TC (ngm): " + str(ngmTcCount))
-#             print("TC (pys): " + str(slamSeqRead.tcCount))
-# #             print("TC rate (ngm): " + str(ngmRate))
-# #             print("TC rate (pys): " + str(slamSeqRead.tcRate))
-#             sys.stdin.read(1)
-#             raise RuntimeError("Difference found between NGM and Py.")
+        if(not self.compareLists(slamSeqRead.mismatches, ngmMismatches) or slamSeqRead.tcCount != ngmTcCount):# or ngmRate != slamSeqRead.tcRate):
+            print("Difference found:")
+            print(read)
+            print(ngmMismatches)
+            print(slamSeqRead.mismatches)            
+            print("TC (ngm): " + str(ngmTcCount))
+            print("TC (pys): " + str(slamSeqRead.tcCount))
+#             print("TC rate (ngm): " + str(ngmRate))
+#             print("TC rate (pys): " + str(slamSeqRead.tcRate))
+            sys.stdin.read(1)
+            #raise RuntimeError("Difference found between NGM and Py.")
 
         return slamSeqRead
                 
