@@ -11,16 +11,16 @@ Docker images
 
 You can directly use the *slamdunk* Docker images from `Docker hub <https://hub.docker.com/>`_. Two images are available:
 
-* `slamdunk <https://hub.docker.com/r/tobneu/slamdunk/>`_: Build upon NextGenMap's `Docker image <https://hub.docker.com/r/philres/nextgenmap/>`_ (preferred)
+.. * `slamdunk <https://hub.docker.com/r/tobneu/slamdunk/>`_: Build upon NextGenMap's `Docker image <https://hub.docker.com/r/philres/nextgenmap/>`_ (preferred)
 * `slamdunk-full <https://hub.docker.com/r/tobneu/slamdunk-full/>`_: Build from scratch from a clean Ubuntu image
 
 You can also build them from scratch using any of the two *Dockerfiles* in `slamdunk/docker`:
 
-.. code:: bash
+..    # Build NGM-based image
+..    cd slamdunk/docker/nextgenmap
+..    docker build -t <user>/<imagename> .
 
-    # Build NGM-based image
-    cd slamdunk/docker/nextgenmap
-    docker build -t <user>/<imagename> .
+.. code:: bash
     
     # Build Ubuntu-based image
     cd slamdunk/docker/ubuntu
