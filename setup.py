@@ -1,20 +1,56 @@
-"""A setuptools based setup module.
-See:
+"""Slamdunk: SLAM-seq data analysis software 
+Template taken from:
 https://packaging.python.org/en/latest/distributing.html
 https://github.com/pypa/sampleproject
 """
 
-# Always prefer setuptools over distutils
-from setuptools import setup, find_packages
-# To use a consistent encoding
-from codecs import open
-from os import path
+import os, sys
+try:
+    from setuptools import setup, find_packages
+    from setuptools.command.install import install as _install
+    from setuptools.command.sdist import sdist as _sdist
+    from setuptools.command.bdist_egg import bdist_egg as _bdist_egg
+    from codecs import open
+    from os import path
+except ImportError:
+    from distutils.core import setup
+    from distutils.command.install import install as _install
+    from distutils.command.sdist import sdist as _sdist
+    from distutils.command.bdist_egg import bdist_egg as _bdist_egg
 
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the README file
 with open(path.join(here, 'README'), encoding='utf-8') as f:
     long_description = f.read()
+    
+def _runExternalBuilds(dir):
+    print("BUILD:")
+    print(dir)
+    
+class install(_install):
+    def run(self):
+        #from subprocess import call
+        #call(["pip install -r requirements.txt --no-clean"], shell=True)
+        self.execute(_runExternalBuilds, (self.install_lib,),msg="Installing stuff")
+        _install.run(self)
+        #self.execute(_run_build_tables, (self.install_lib,),
+        #            msg="Build the lexing/parsing tables")
+        
+class bdist_egg(_bdist_egg):
+    def run(self):
+        #print("CALLING BDIST")
+        #call(["pip install -r requirements.txt --no-clean"], shell=True)
+        _bdist_egg.run(self)
+
+
+class sdist(_sdist):
+    def make_release_tree(self, basedir, files):
+        print("Basedir: " + basedir)
+        _sdist.make_release_tree(self, basedir, files)
+        self.execute(_runExternalBuilds, (basedir,),msg="Dsitributing stuff")
+#         self.execute(_run_build_tables, (basedir,),
+#                      msg="Build the lexing/parsing tables")
 
 setup(
     name='slamdunk',
@@ -75,13 +111,13 @@ setup(
 
     # Alternatively, if you want to distribute just a my_module.py, uncomment
     # this:
-    #   py_modules=["my_module"],
+    py_modules=["slamdunk.main", "slamdunk.toolbox","slamdunk.simulate"],
 
     # List run-time dependencies here.  These will be installed by pip when
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['joblib pybedtools intervaltree pandas numpy biopython'],
+    install_requires=['joblib','pybedtools','intervaltree','pandas','numpy','biopython'],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
@@ -108,7 +144,7 @@ setup(
     # To provide executable scripts, use entry points in preference to the
     # "scripts" keyword. Entry points provide cross-platform support and allow
     # pip to create the appropriate form of executable for the target platform.
-    entry_points={
-        'scripts': ['bin/slamdunk', 'bin/alleyoop', 'bin/slamsim'],
-    },
+    scripts= ['bin/slamdunk', 'bin/alleyoop', 'bin/slamsim'],
+    
+    cmdclass={'install': install, 'sdist': sdist, 'bdist_egg': bdist_egg},
 )
