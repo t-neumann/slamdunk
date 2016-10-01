@@ -19,6 +19,7 @@ pathComputeTCContext = os.path.join(projectPath, "plot", "compute_context_TC_rat
 pathConversionPerReadPos = os.path.join(projectPath, "plot", "conversion_per_read_position.R")
 pathSampleComparison = os.path.join(projectPath, "plot", "compute_sample_comparison_statistics.R")
 pathComputeHalfLifes = os.path.join(projectPath, "plot", "compute_halflifes.R")
+pathMergeRates = os.path.join(projectPath, "plot", "merge_rate_files.R")
 
 
 utrNormFactor = 200
@@ -738,3 +739,6 @@ def halflifes(bams, outputCSV, timepoints, log, printOnly=False, verbose=True, f
     
     run("Rscript " + pathComputeHalfLifes + " -f " + bams + " -t " + timepoints + " -o " + outputCSV, log, dry=printOnly, verbose=verbose) 
 
+def mergeRates(bams, outputCSV, timepoints, log, printOnly=False, verbose=True, force=False):
+    
+    run("Rscript " + pathMergeRates + " -f " + bams + " -t " + timepoints + " -o " + outputCSV, log, dry=printOnly, verbose=verbose) 
