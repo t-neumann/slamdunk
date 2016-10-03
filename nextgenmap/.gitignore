@@ -1,0 +1,14 @@
+/bin
+/build
+/.settings
+.project
+.cproject
+/ngm-0.4.4
+/.kdev4
+.pydevproject
+lib/libgff
+.DS_Store
+/docs/
+/test/
+/cibiv.sh
+/cshl.sh
