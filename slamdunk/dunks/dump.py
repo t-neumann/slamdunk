@@ -3,9 +3,9 @@
 from __future__ import print_function
 import os
 
-from utils.misc import checkStep
-from slamseq.SlamSeqFile import SlamSeqBamFile, SlamSeqWriter
-from utils import SNPtools
+from slamdunk.utils.misc import checkStep
+from slamdunk.slamseq.SlamSeqFile import SlamSeqBamFile, SlamSeqWriter
+from slamdunk.utils import SNPtools
 
 projectPath = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 pathComputeOverallRates = os.path.join(projectPath, "plot", "compute_overall_rates.R")

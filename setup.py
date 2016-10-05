@@ -20,37 +20,37 @@ except ImportError:
 
 here = path.abspath(path.dirname(__file__))
 
-# Get the long description from the README file
+#Get the long description from the README file
 with open(path.join(here, 'README'), encoding='utf-8') as f:
     long_description = f.read()
-    
-def _runExternalBuilds(dir):
-    print("BUILD:")
-    print(dir)
-    
-class install(_install):
-    def run(self):
-        #from subprocess import call
-        #call(["pip install -r requirements.txt --no-clean"], shell=True)
-        self.execute(_runExternalBuilds, (self.install_lib,),msg="Installing stuff")
-        _install.run(self)
-        #self.execute(_run_build_tables, (self.install_lib,),
-        #            msg="Build the lexing/parsing tables")
-        
-class bdist_egg(_bdist_egg):
-    def run(self):
-        #print("CALLING BDIST")
-        #call(["pip install -r requirements.txt --no-clean"], shell=True)
-        _bdist_egg.run(self)
-
-
-class sdist(_sdist):
-    def make_release_tree(self, basedir, files):
-        print("Basedir: " + basedir)
-        _sdist.make_release_tree(self, basedir, files)
-        self.execute(_runExternalBuilds, (basedir,),msg="Dsitributing stuff")
-#         self.execute(_run_build_tables, (basedir,),
-#                      msg="Build the lexing/parsing tables")
+     
+# def _runExternalBuilds(dir):
+#     print("BUILD:")
+#     print(dir)
+#     
+# class install(_install):
+#     def run(self):
+#         #from subprocess import call
+#         #call(["pip install -r requirements.txt --no-clean"], shell=True)
+#         self.execute(_runExternalBuilds, (self.install_lib,),msg="Installing stuff")
+#         _install.run(self)
+#         #self.execute(_run_build_tables, (self.install_lib,),
+#         #            msg="Build the lexing/parsing tables")
+#         
+# class bdist_egg(_bdist_egg):
+#     def run(self):
+#         #print("CALLING BDIST")
+#         #call(["pip install -r requirements.txt --no-clean"], shell=True)
+#         _bdist_egg.run(self)
+# 
+# 
+# class sdist(_sdist):
+#     def make_release_tree(self, basedir, files):
+#         print("Basedir: " + basedir)
+#         _sdist.make_release_tree(self, basedir, files)
+#         self.execute(_runExternalBuilds, (basedir,),msg="Dsitributing stuff")
+# #         self.execute(_run_build_tables, (basedir,),
+# #                      msg="Build the lexing/parsing tables")
 
 setup(
     name='slamdunk',
@@ -111,13 +111,13 @@ setup(
 
     # Alternatively, if you want to distribute just a my_module.py, uncomment
     # this:
-    py_modules=["slamdunk.main", "slamdunk.toolbox","slamdunk.simulate"],
+    #py_modules=["slamdunk.main", "slamdunk.toolbox","slamdunk.simulate"],
 
     # List run-time dependencies here.  These will be installed by pip when
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['joblib','pybedtools','intervaltree','pandas','numpy','biopython'],
+    install_requires=['joblib','pybedtools','intervaltree','pandas','numpy','biopython','pysam', 'cython'],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
@@ -144,7 +144,14 @@ setup(
     # To provide executable scripts, use entry points in preference to the
     # "scripts" keyword. Entry points provide cross-platform support and allow
     # pip to create the appropriate form of executable for the target platform.
-    scripts= ['bin/slamdunk', 'bin/alleyoop', 'bin/slamsim'],
+    entry_points={
+    'console_scripts': [
+        'slamdunk=slamdunk.main:run',
+        'alleyoop=slamdunk.toolbox:run',
+        'slamsim=slamdunk.simulate:run',
+    ],
+    },
+    #scripts= ['bin/slamdunk', 'bin/alleyoop', 'bin/slamsim'],
     
-    cmdclass={'install': install, 'sdist': sdist, 'bdist_egg': bdist_egg},
+#     cmdclass={'install': install, 'sdist': sdist, 'bdist_egg': bdist_egg},
 )

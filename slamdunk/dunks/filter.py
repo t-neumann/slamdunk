@@ -6,8 +6,8 @@ import pysam, random, os
 from intervaltree import IntervalTree
 
 
-from utils.BedReader import BedIterator
-from utils.misc import checkStep, run, runIndexBam, runFlagstat, removeFile
+from slamdunk.utils.BedReader import BedIterator
+from slamdunk.utils.misc import checkStep, run, runIndexBam, runFlagstat, removeFile
 
 def Filter_old(inputBAM, outputBAM, log, MQ=2, printOnly=False, verbose=True, force=True):
     if(printOnly or checkStep([inputBAM], [outputBAM], force)):

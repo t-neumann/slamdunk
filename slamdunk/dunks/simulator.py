@@ -10,10 +10,10 @@ import os
 import glob
 import sys
 
-from utils import SNPtools
-from utils.BedReader import BedIterator
-from utils.misc import shell, run
-from slamseq.SlamSeqFile import SlamSeqBamFile
+from slamdunk.utils import SNPtools
+from slamdunk.utils.BedReader import BedIterator
+from slamdunk.utils.misc import shell, run
+from slamdunk.slamseq.SlamSeqFile import SlamSeqBamFile
 from Bio import SeqIO
 
 projectPath = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

@@ -7,5 +7,5 @@ try:
 except ImportError:
 	sys.exc_clear()
 
-import simulate
+from slamdunk import simulate
 simulate.run()

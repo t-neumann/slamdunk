@@ -5,7 +5,7 @@ from __future__ import print_function
 import os
 import subprocess
 import csv
-from utils.misc import checkStep
+from slamdunk.utils.misc import checkStep
 
 projectPath = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 varScanPath = os.path.join(projectPath, "bin", "VarScan.v2.4.1.jar")

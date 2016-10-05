@@ -7,10 +7,10 @@ import math
 import pysam
 
 from os.path import basename
-from utils.misc import run, removeExtension, checkStep, getReadCount, matchFile, complement 
-from slamseq.SlamSeqFile import SlamSeqBamFile, ReadDirection
-from utils import SNPtools
-from utils.BedReader import BedIterator
+from slamdunk.utils.misc import run, removeExtension, checkStep, getReadCount, matchFile, complement 
+from slamdunk.slamseq.SlamSeqFile import SlamSeqBamFile, ReadDirection
+from slamdunk.utils import SNPtools
+from slamdunk.utils.BedReader import BedIterator
 
 projectPath = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 pathComputeOverallRates = os.path.join(projectPath, "plot", "compute_overall_rates.R")

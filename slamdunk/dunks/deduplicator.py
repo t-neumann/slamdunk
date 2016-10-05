@@ -5,7 +5,7 @@ from __future__ import print_function
 import pysam
 #import subprocess
 
-from utils.misc import checkStep, runIndexBam, runFlagstat
+from slamdunk.utils.misc import checkStep, runIndexBam, runFlagstat
 
 def Dedup(inputBAM, outputBAM, log, printOnly=False, verbose = True, force=False):
     

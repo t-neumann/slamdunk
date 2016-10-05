@@ -4,7 +4,7 @@
 from __future__ import print_function
 import os
 
-from utils.misc import files_exist, checkStep, run, runIndexBam, removeFile, runFlagstat
+from slamdunk.utils.misc import files_exist, checkStep, run, runIndexBam, removeFile, runFlagstat
 
 projectPath = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 ngmPath = os.path.join(projectPath, "bin", "ngm")

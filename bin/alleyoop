@@ -7,5 +7,5 @@ try:
 except ImportError:
 	sys.exc_clear()
 
-import toolbox
+from slamdunk import toolbox
 toolbox.run()
