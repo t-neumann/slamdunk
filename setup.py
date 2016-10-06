@@ -50,7 +50,7 @@ def _runExternalBuilds(dir):
     print("Building Samtools.")
     syscall = "(cd " + os.path.join(dir, name, "bin") + " ; ./build-samtools.sh)"
     print(syscall)    
-    #call([syscall], shell=True)
+    call([syscall], shell=True)
     syscall = "(cd " + os.path.join(dir, name, "bin") + " ; ./build-ngm.sh)"
     print(syscall)
     call([syscall], shell=True)
