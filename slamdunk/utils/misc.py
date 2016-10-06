@@ -91,6 +91,12 @@ def checkStep(inFiles, outFiles, force=False):
     
     return True
 
+def getBinary(name):
+    
+    projectPath = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    
+    return os.path.join(projectPath, "bin", name)
+
 def run(cmd, log=sys.stderr, verbose=False, dry=False):
     if(verbose or dry):
         print(cmd, file=log)
@@ -108,12 +114,12 @@ def run(cmd, log=sys.stderr, verbose=False, dry=False):
 def runIndexBam(inFileBam, log=sys.stderr, verbose=False, dry=False):
     idxFile = inFileBam + ".bai"
     if(dry or checkStep([inFileBam], [idxFile])):
-        run(" ".join(["samtools", "index", inFileBam]), log, verbose=verbose, dry=dry)
+        run(" ".join([getBinary("samtools"), "index", inFileBam]), log, verbose=verbose, dry=dry)
 
 def runFlagstat(bam, log=sys.stderr, verbose=False, dry=False):
     flagstat = bam + ".flagstat"
     if(dry or checkStep([bam], [flagstat])):
-        run(" ".join([ "samtools", "flagstat", bam, ">", flagstat]), log, verbose=verbose, dry=dry)
+        run(" ".join([ getBinary("samtools"), "flagstat", bam, ">", flagstat]), log, verbose=verbose, dry=dry)
     else:
         print("Skipped flagstat for " + bam, file=log)
 

@@ -4,10 +4,9 @@
 from __future__ import print_function
 import os
 
-from slamdunk.utils.misc import files_exist, checkStep, run, runIndexBam, removeFile, runFlagstat
+from slamdunk.utils.misc import files_exist, checkStep, run, runIndexBam, removeFile, runFlagstat, getBinary
 
-projectPath = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-ngmPath = os.path.join(projectPath, "bin", "ngm")
+projectPath = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def runSam2bam(inFile, outFile, log, index=True, sort=True, delinFile=False, onlyUnique=False, onlyProperPaired=False, filterMQ=0, L=None, threads=1, verbose=False, dry=False):
     if(delinFile and files_exist(outFile) and not files_exist(inFile)):
@@ -17,7 +16,7 @@ def runSam2bam(inFile, outFile, log, index=True, sort=True, delinFile=False, onl
             filterMQ = 1;
             
         success = True    
-        cmd = ["samtools", "view", "-@", str(threads), "-Sb", "-o", outFile, inFile]
+        cmd = [getBinary("samtools"), "view", "-@", str(threads), "-Sb", "-o", outFile, inFile]
         if filterMQ > 0:
             cmd+=["-q", str(filterMQ)]
         if onlyProperPaired:
@@ -30,7 +29,7 @@ def runSam2bam(inFile, outFile, log, index=True, sort=True, delinFile=False, onl
             tmp = outFile + "_tmp"
             if(not dry):
                 os.rename(outFile, tmp)                      
-            run(" ".join(["samtools", "sort", "-@", str(threads), "-o",  outFile, tmp]), log, verbose=verbose, dry=dry)
+            run(" ".join([getBinary("samtools"), "sort", "-@", str(threads), "-o",  outFile, tmp]), log, verbose=verbose, dry=dry)
             if(success):
                 removeFile(tmp)
         if(success and delinFile):
@@ -61,7 +60,7 @@ def Map(inputBAM, inputReference, outputSAM, log, quantseqMapping, localMapping,
         parameter = parameter + " -n " + str(topn) + " --strata "
         
     if(checkStep([inputReference, inputBAM], [outputSAM], force)):
-        run(ngmPath + " -r " + inputReference + " -q " + inputBAM + " -t " + str(threads) + " " + parameter + " -o " + outputSAM, log, verbose=verbose, dry=printOnly)
+        run(getBinary("ngm") + " -r " + inputReference + " -q " + inputBAM + " -t " + str(threads) + " " + parameter + " -o " + outputSAM, log, verbose=verbose, dry=printOnly)
     else:
         print("Skipped mapping for " + inputBAM, file=log)
         
