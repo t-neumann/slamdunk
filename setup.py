@@ -6,6 +6,7 @@ https://github.com/pypa/sampleproject
 
 import os, sys
 try:
+    from slamdunk import __file__ as pip_loc
     from setuptools import setup, find_packages
     from setuptools.command.install import install as _install
     from setuptools.command.sdist import sdist as _sdist
@@ -19,29 +20,74 @@ except ImportError:
     from distutils.command.bdist_egg import bdist_egg as _bdist_egg
 
 here = path.abspath(path.dirname(__file__))
+name = "slamdunk"
 
 #Get the long description from the README file
 with open(path.join(here, 'README'), encoding='utf-8') as f:
     long_description = f.read()
+    
+# Copy bin recursively
+
+def package_files(directory):
+    paths = []
+    for (path, directories, filenames) in os.walk(directory):
+        for filename in filenames:
+            paths.append(os.path.join(filename))
+    return paths
+
+extra_files = package_files('bin')
+
+print(extra_files)
      
-# def _runExternalBuilds(dir):
-#     print("BUILD:")
-#     print(dir)
-#     
-# class install(_install):
-#     def run(self):
-#         #from subprocess import call
-#         #call(["pip install -r requirements.txt --no-clean"], shell=True)
-#         self.execute(_runExternalBuilds, (self.install_lib,),msg="Installing stuff")
-#         _install.run(self)
-#         #self.execute(_run_build_tables, (self.install_lib,),
-#         #            msg="Build the lexing/parsing tables")
-#         
+def _runExternalBuilds(dir):
+    
+    from subprocess import call
+    
+    print("Move bin to slamdunk.")
+    syscall = "mv " + os.path.join(dir, "bin") + " " + os.path.join(dir, name, "bin")
+    print(syscall)
+    call([syscall], shell=True)
+    print("Building Samtools.")
+    syscall = "(cd " + os.path.join(dir, name, "bin") + " ; ./build-samtools.sh)"
+    print(syscall)    
+    #call([syscall], shell=True)
+    syscall = "(cd " + os.path.join(dir, name, "bin") + " ; ./build-ngm.sh)"
+    print(syscall)
+    call([syscall], shell=True)
+    syscall = "(cd " + os.path.join(dir, name, "bin") + " ; ./build-varscan.sh)"
+    print(syscall)    
+    call([syscall], shell=True)
+    syscall = "(cd " + os.path.join(dir, name, "bin") + " ; ./build-rnaseqreadsimulator.sh)"
+    call([syscall], shell=True)
+     
+class install(_install):
+    def run(self):
+        #from subprocess import call
+        #call(["pip install -r requirements.txt --no-clean"], shell=True)
+        _install.run(self)
+        self.execute(_runExternalBuilds, (self.install_lib,),msg="Installing external dependencies")
+
+         
 # class bdist_egg(_bdist_egg):
 #     def run(self):
-#         #print("CALLING BDIST")
-#         #call(["pip install -r requirements.txt --no-clean"], shell=True)
+#         from subprocess import call
+#         call(["pip install -r requirements.txt --no-clean"], shell=True)
 #         _bdist_egg.run(self)
+#         print("BDIST DIR")
+#         print(self.bdist_dir)
+#         print("printenv")
+#         print(sys.prefix)
+#         print(getuserbase()) 
+#         import site;
+#         print(site.getsitepackages())
+#         print(pip_loc)
+#         call(["printenv"], shell=True)
+
+# class build(build_module.build):
+#   def run(self):
+#     build_module.build.run(self)
+#     print("now let's get this shit done")
+      
 # 
 # 
 # class sdist(_sdist):
@@ -53,7 +99,7 @@ with open(path.join(here, 'README'), encoding='utf-8') as f:
 # #                      msg="Build the lexing/parsing tables")
 
 setup(
-    name='slamdunk',
+    name = name,
 
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
@@ -131,15 +177,15 @@ setup(
     # If there are data files included in your packages that need to be
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
-#     package_data={
-#         'sample': ['package_data.dat'],
-#     },
+    package_data={
+        'bin': extra_files,
+    },
 
     # Although 'package_data' is the preferred approach, in some case you may
     # need to place data files outside of your packages. See:
     # http://docs.python.org/3.4/distutils/setupscript.html#installing-additional-files # noqa
     # In this case, 'data_file' will be installed into '<sys.prefix>/my_data'
-#     data_files=[('my_data', ['data/data_file'])],
+    #data_files=[('bin', extra_files)],
 
     # To provide executable scripts, use entry points in preference to the
     # "scripts" keyword. Entry points provide cross-platform support and allow
@@ -153,5 +199,5 @@ setup(
     },
     #scripts= ['bin/slamdunk', 'bin/alleyoop', 'bin/slamsim'],
     
-#     cmdclass={'install': install, 'sdist': sdist, 'bdist_egg': bdist_egg},
+    cmdclass={'install': install},
 )
