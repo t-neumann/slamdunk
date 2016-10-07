@@ -110,6 +110,24 @@ def run(cmd, log=sys.stderr, verbose=False, dry=False):
         p.wait();
         if(p.returncode != 0):
             raise RuntimeError("Error while executing command: \"" + cmd + "\"")
+        
+def callR(cmd, log=sys.stderr, verbose=False, dry=False):
+    
+    os.environ['R_LIBS_SITE'] = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),"bin","Rlibs")
+    
+    if(verbose or dry):
+        print(cmd, file=log)
+    
+    if(not dry):
+        
+        #ret = os.system(cmd)
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+        lines_iterator = iter(p.stdout.readline, b"")
+        for line in lines_iterator:
+            print(line, end="", file=log) # yield line
+        p.wait();
+        if(p.returncode != 0):
+            raise RuntimeError("Error while executing command: \"" + cmd + "\"")
 
 def runIndexBam(inFileBam, log=sys.stderr, verbose=False, dry=False):
     idxFile = inFileBam + ".bai"

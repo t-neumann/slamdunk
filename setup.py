@@ -35,18 +35,21 @@ def package_files(directory):
             paths.append(os.path.join(filename))
     return paths
 
-extra_files = package_files('bin')
-
-print(extra_files)
+bin_files = package_files(name + '/bin')
+plot_files = package_files(name + '/plot')
      
 def _runExternalBuilds(dir):
     
     from subprocess import call
     
-    print("Move bin to slamdunk.")
-    syscall = "mv " + os.path.join(dir, "bin") + " " + os.path.join(dir, name, "bin")
-    print(syscall)
-    call([syscall], shell=True)
+    #print("Move plot to slamdunk.")
+    #syscall = "mv " + os.path.join(dir, "plot") + " " + os.path.join(dir, name, "plot")
+    #print(syscall)
+    #call([syscall], shell=True)
+    #print("Move bin to slamdunk.")
+    #syscall = "mv " + os.path.join(dir, "bin") + " " + os.path.join(dir, name, "bin")
+    #print(syscall)
+    #call([syscall], shell=True)
     print("Building Samtools.")
     syscall = "(cd " + os.path.join(dir, name, "bin") + " ; ./build-samtools.sh)"
     print(syscall)    
@@ -153,7 +156,7 @@ setup(
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    packages=find_packages(exclude=['contrib', 'doc', 'tests']),
+    packages=find_packages(exclude=['doc', 'tests']),
 
     # Alternatively, if you want to distribute just a my_module.py, uncomment
     # this:
@@ -178,7 +181,8 @@ setup(
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
     package_data={
-        'bin': extra_files,
+        'slamdunk.bin': bin_files,
+        'slamdunk.plot': plot_files,
     },
 
     # Although 'package_data' is the preferred approach, in some case you may

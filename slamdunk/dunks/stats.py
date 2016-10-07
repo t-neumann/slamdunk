@@ -20,7 +20,6 @@ pathConversionPerReadPos = os.path.join(projectPath, "plot", "conversion_per_rea
 pathSampleComparison = os.path.join(projectPath, "plot", "compute_sample_comparison_statistics.R")
 pathComputeHalfLifes = os.path.join(projectPath, "plot", "compute_halflifes.R")
 
-
 utrNormFactor = 200
 baseNumber = 5
 toBase = [ 'A', 'C', 'G', 'T', 'N' ]
