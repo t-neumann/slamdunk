@@ -14,8 +14,8 @@ from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from os.path import basename
 
 from joblib import Parallel, delayed
-from slamdunk.dunks import tcounter, mapper, filter, deduplicator, stats, snps, dump
-from slamdunk.utils.misc import replaceExtension, readSampleNames, checkStep, estimateMaxReadLength
+from dunks import tcounter, mapper, filter, deduplicator, stats, snps, dump
+from utils.misc import replaceExtension, readSampleNames, checkStep, estimateMaxReadLength
 
 ########################################################################
 # Global variables

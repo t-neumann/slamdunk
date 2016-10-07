@@ -50,6 +50,10 @@ def _runExternalBuilds(dir):
     #syscall = "mv " + os.path.join(dir, "bin") + " " + os.path.join(dir, name, "bin")
     #print(syscall)
     #call([syscall], shell=True)
+    #print("Preparing R environment.")
+    #syscall = "(cd " + os.path.join(dir, name, "contrib") + " ; ./setup-R-environment.sh)"
+    #print(syscall)    
+    #call([syscall], shell=True)
     print("Building Samtools.")
     syscall = "(cd " + os.path.join(dir, name, "contrib") + " ; ./build-samtools.sh)"
     print(syscall)    
@@ -64,10 +68,6 @@ def _runExternalBuilds(dir):
     call([syscall], shell=True)
     print("Building RNASeqReadSimulator.")
     syscall = "(cd " + os.path.join(dir, name, "contrib") + " ; ./build-rnaseqreadsimulator.sh)"
-    call([syscall], shell=True)
-    print("Preparing R environment.")
-    syscall = "(cd " + os.path.join(dir, name, "contrib") + " ; ./setup-R-environment.sh)"
-    print(syscall)    
     call([syscall], shell=True)
      
 class install(_install):

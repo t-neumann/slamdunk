@@ -18,8 +18,8 @@ from argparse import ArgumentParser, RawDescriptionHelpFormatter
     
 from os.path import basename
 
-from slamdunk.dunks import simulator
-from slamdunk.utils.misc import replaceExtension
+from dunks import simulator
+from utils.misc import replaceExtension
 
 ########################################################################
 # Global variables
