@@ -5,7 +5,16 @@
 # Author: Tobias Neumann, Zuber group, Institute for Molecular Pathology
 # Email: tobias.neumann@imp.ac.at
 ###############################################################################
-library(getopt)
+
+# Load packages only from local Rslamdunk library 
+libLoc = .libPaths()[grep("Rslamdunk",.libPaths())]
+
+# Check if libraries are available, install otherwise
+source(paste(libLoc,'/../checkLibraries.R',sep=""))
+
+checkLib(libLoc)
+
+library(getopt, lib.loc = libLoc)
 
 
 spec = matrix(c(
@@ -30,8 +39,8 @@ if ( !is.null(opt$help) || length(opt)==1 ) {
 if ( is.null(opt$rateTab) ) stop("arg rateTab must be specified")
 if ( is.null(opt$outputFile) ) { opt$outputFile = "out.pdf" }
 
-require(ggplot2)
-require(gridExtra)
+library(ggplot2, lib.loc = libLoc)
+library(gridExtra , lib.loc = libLoc)
 
 rates = read.table(opt$rateTab,stringsAsFactors=FALSE,col.names = c("sample","file"), comment.char = "")
 

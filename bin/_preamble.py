@@ -15,7 +15,7 @@ path = os.path.abspath(sys.argv[0])
 while os.path.dirname(path) != path:
     if os.path.exists(os.path.join(path, 'slamdunk', '__init__.py')):
         
-        #sys.path.insert(0, os.path.join(path, 'slamdunk'))
-        sys.path.insert(0, path)
+        sys.path.insert(0, os.path.join(path, 'slamdunk'))
+        #sys.path.insert(0, path)
         break
     path = os.path.dirname(path)

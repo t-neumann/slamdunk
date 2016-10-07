@@ -95,7 +95,13 @@ def getBinary(name):
     
     projectPath = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     
-    return os.path.join(projectPath, "bin", name)
+    return os.path.join(projectPath, "contrib", name)
+
+def getPlotter(name):
+    
+    projectPath = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    
+    return os.path.join(projectPath, "plot", name + ".R")
 
 def run(cmd, log=sys.stderr, verbose=False, dry=False):
     if(verbose or dry):
@@ -113,7 +119,9 @@ def run(cmd, log=sys.stderr, verbose=False, dry=False):
         
 def callR(cmd, log=sys.stderr, verbose=False, dry=False):
     
-    os.environ['R_LIBS_SITE'] = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),"bin","Rlibs")
+    RLIBS_VARIABLE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),"plot","Rslamdunk")
+        
+    os.environ['R_LIBS_SITE'] = RLIBS_VARIABLE
     
     if(verbose or dry):
         print(cmd, file=log)

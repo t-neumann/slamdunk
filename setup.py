@@ -6,18 +6,18 @@ https://github.com/pypa/sampleproject
 
 import os, sys
 try:
-    from slamdunk import __file__ as pip_loc
+    #from slamdunk import __file__ as pip_loc
     from setuptools import setup, find_packages
     from setuptools.command.install import install as _install
-    from setuptools.command.sdist import sdist as _sdist
-    from setuptools.command.bdist_egg import bdist_egg as _bdist_egg
+    #from setuptools.command.sdist import sdist as _sdist
+    #from setuptools.command.bdist_egg import bdist_egg as _bdist_egg
     from codecs import open
     from os import path
 except ImportError:
     from distutils.core import setup
     from distutils.command.install import install as _install
-    from distutils.command.sdist import sdist as _sdist
-    from distutils.command.bdist_egg import bdist_egg as _bdist_egg
+    #from distutils.command.sdist import sdist as _sdist
+    #from distutils.command.bdist_egg import bdist_egg as _bdist_egg
 
 here = path.abspath(path.dirname(__file__))
 name = "slamdunk"
@@ -35,7 +35,7 @@ def package_files(directory):
             paths.append(os.path.join(filename))
     return paths
 
-bin_files = package_files(name + '/bin')
+bin_files = package_files(name + '/contrib')
 plot_files = package_files(name + '/plot')
      
 def _runExternalBuilds(dir):
@@ -51,16 +51,23 @@ def _runExternalBuilds(dir):
     #print(syscall)
     #call([syscall], shell=True)
     print("Building Samtools.")
-    syscall = "(cd " + os.path.join(dir, name, "bin") + " ; ./build-samtools.sh)"
+    syscall = "(cd " + os.path.join(dir, name, "contrib") + " ; ./build-samtools.sh)"
     print(syscall)    
     call([syscall], shell=True)
-    syscall = "(cd " + os.path.join(dir, name, "bin") + " ; ./build-ngm.sh)"
+    print("Building NGM.")
+    syscall = "(cd " + os.path.join(dir, name, "contrib") + " ; ./build-ngm.sh)"
     print(syscall)
     call([syscall], shell=True)
-    syscall = "(cd " + os.path.join(dir, name, "bin") + " ; ./build-varscan.sh)"
+    print("Building Varscan2.")
+    syscall = "(cd " + os.path.join(dir, name, "contrib") + " ; ./build-varscan.sh)"
     print(syscall)    
     call([syscall], shell=True)
-    syscall = "(cd " + os.path.join(dir, name, "bin") + " ; ./build-rnaseqreadsimulator.sh)"
+    print("Building RNASeqReadSimulator.")
+    syscall = "(cd " + os.path.join(dir, name, "contrib") + " ; ./build-rnaseqreadsimulator.sh)"
+    call([syscall], shell=True)
+    print("Preparing R environment.")
+    syscall = "(cd " + os.path.join(dir, name, "contrib") + " ; ./setup-R-environment.sh)"
+    print(syscall)    
     call([syscall], shell=True)
      
 class install(_install):
@@ -109,7 +116,7 @@ setup(
     # https://packaging.python.org/en/latest/single_source_version.html
     version='0.1.0',
 
-    description='SLAMdunk application for analyzing SLAM-seq data',
+    description='SLAMdunk suite for analyzing SLAM-seq data',
     long_description=long_description,
 
     # The project's main homepage.
@@ -181,7 +188,7 @@ setup(
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
     package_data={
-        'slamdunk.bin': bin_files,
+        'slamdunk.contrib': bin_files,
         'slamdunk.plot': plot_files,
     },
 
@@ -196,9 +203,9 @@ setup(
     # pip to create the appropriate form of executable for the target platform.
     entry_points={
     'console_scripts': [
-        'slamdunk=slamdunk.main:run',
-        'alleyoop=slamdunk.toolbox:run',
-        'slamsim=slamdunk.simulate:run',
+        'slamdunk=slamdunk.slamdunk:run',
+        'alleyoop=slamdunk.alleyoop:run',
+        'splash=slamdunk.splash:run',
     ],
     },
     #scripts= ['bin/slamdunk', 'bin/alleyoop', 'bin/slamsim'],

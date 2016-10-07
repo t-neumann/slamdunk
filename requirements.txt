@@ -1,6 +1,0 @@
-joblib
-pybedtools
-intervaltree
-pandas
-numpy
-biopython
