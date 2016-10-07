@@ -120,6 +120,9 @@ def run(cmd, log=sys.stderr, verbose=False, dry=False):
 def callR(cmd, log=sys.stderr, verbose=False, dry=False):
     
     RLIBS_VARIABLE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),"plot","Rslamdunk")
+    
+    if not os.path.exists(RLIBS_VARIABLE):
+        os.makedirs(RLIBS_VARIABLE)
         
     os.environ['R_LIBS_SITE'] = RLIBS_VARIABLE
     
