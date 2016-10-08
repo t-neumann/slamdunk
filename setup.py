@@ -54,6 +54,10 @@ def _runExternalBuilds(dir):
     #syscall = "(cd " + os.path.join(dir, name, "contrib") + " ; ./setup-R-environment.sh)"
     #print(syscall)    
     #call([syscall], shell=True)
+    print("Setting up R library destination.")
+    syscall = "mkdir -p " + os.path.join(dir, name, "plot", "Rslamdunk")
+    print(syscall)
+    call([syscall], shell=True)
     print("Building Samtools.")
     syscall = "(cd " + os.path.join(dir, name, "contrib") + " ; ./build-samtools.sh)"
     print(syscall)    
@@ -114,7 +118,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.1.0',
+    version='0.1.3',
 
     description='SLAMdunk suite for analyzing SLAM-seq data',
     long_description=long_description,

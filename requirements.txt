@@ -1,0 +1,8 @@
+joblib
+pybedtools
+intervaltree
+pandas
+numpy
+biopython
+pysam
+cython
