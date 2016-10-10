@@ -3,38 +3,61 @@ Installation
 
 This section covers the installation of *slamdunk*. Alternatively one could also run *slamdunk* from out of the box :ref:`docker-label` containers.
 
+There are 2 different possibilities:
+
+1. Installation from `PyPI <https://pypi.python.org/pypi>`_ using the :ref:`pip-label` **(recommended)**
+
+2. Installation from :ref:`source-label`
+
 ------------
 Requirements
 ------------
 
 There are no major requirements for *slamdunk*. The python package will acquire all external dependencies by itself.
 
-Both *alleyoop* and *splash*, however, utilize `R <https://www.r-project.org/>`_ for various calculations and diagnostic plots.
+"""""""""
+R runtime
+"""""""""
 
-Therefore, a global installation of R is required to run those tools (minimum version **R 3.0.1**).
+Both *alleyoop* and *splash* utilize `R <https://www.r-project.org/>`_ for various calculations and diagnostic plots.
+Therefore, a global installation of R is required to run those tools.
 
-All required R libraries listed below will be installed upon the first run of any tool that requires them.
+* Minimum required R version: **R 3.0.1**
 
-=================== 
-Required library              
-===================  
-*getopt*
-*ggplot2*
-*gridExtra*
-*RColorBrewer*
-*lattice*
-*matrixStats*
-*dplyr*
-*tidyr*
-===================
 
------------------
-Pip (recommended)
------------------
+* Required packages (from `CRAN <https://cran.r-project.org/>`_):
 
-There is no official release yet, so there will be test versions on `TestPyPI <https://testpypi.python.org/pypi>`_ not guaranteed to be in line with latest developments.
++----------------+
+| R packages     |
++================+
+| *getopt*       |
++----------------+
+| *ggplot2*      |
++----------------+
+| *gridExtra*    |
++----------------+
+| *RColorBrewer* |
++----------------+
+| *lattice*      |
++----------------+
+| *matrixStats*  |
++----------------+
+| *dplyr*        |
++----------------+
+| *tidyr*        |
++----------------+
 
-If you want to be absolutely sure you're pulling the latest version, check out the instructions on how to install *slamdunk* from source.
+**Note:** All required R packages will be installed upon the first analysis run of *alleyoop* or *splash*.
+
+.. _pip-label:
+
+--------------------
+Python Package Index
+--------------------
+
+`pip <https://pypi.python.org/pypi/pip>`_ is the recommended tool for installing Python packages. It allows a convenient and simple installation
+of *slamdunk* from  the `Python Package Index PyPI <https://pypi.python.org/pypi>`_.
+
 
 .. code:: bash
 
@@ -43,6 +66,11 @@ If you want to be absolutely sure you're pulling the latest version, check out t
     
     # Local user only
     pip install --extra-index-url https://testpypi.python.org/pypi --user slamdunk
+    
+**Note:** There is no official *slamdunk* release yet, so there will be a test version on `TestPyPI <https://testpypi.python.org/pypi>`_ not guaranteed to be in line with latest developments.
+If you want to be absolutely sure you're pulling the latest version, install *slamdunk* from :ref:`source-label`.
+
+.. _source-label:
 
 ------
 Source
