@@ -66,6 +66,8 @@ of *slamdunk* from  the `Python Package Index PyPI <https://pypi.python.org/pypi
     
     # Local user only
     pip install --extra-index-url https://testpypi.python.org/pypi --user slamdunk
+    export PATH=$PATH:$HOME/.local/bin/
+    
     
 **Note:** There is no official *slamdunk* release yet, so there will be a test version on `TestPyPI <https://testpypi.python.org/pypi>`_ not guaranteed to be in line with latest developments.
 If you want to be absolutely sure you're pulling the latest version, install *slamdunk* from :ref:`source-label`.
