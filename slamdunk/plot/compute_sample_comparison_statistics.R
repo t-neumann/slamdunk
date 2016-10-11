@@ -31,9 +31,15 @@ my_panel_smooth <- function(x, y,lcol="red")
 	abline(0,1,col=lcol)
 }
 
-# Script start
+# Load packages only from local Rslamdunk library 
+libLoc = .libPaths()[grep("Rslamdunk",.libPaths())]
 
-library(getopt)
+# Check if libraries are available, install otherwise
+source(paste(libLoc,'/../checkLibraries.R',sep=""))
+
+checkLib(libLoc)
+
+library(getopt, lib.loc = libLoc)
 
 spec = matrix(c(
 				'help'      , 'h', 0, "logical","print the usage of the command",
@@ -64,9 +70,9 @@ if (ncol(rates) < 6) {
 	quit(status=0)
 }
 
-require(RColorBrewer)
-require(lattice)
-require(matrixStats)
+library(RColorBrewer, lib.loc = libLoc)
+library(lattice, lib.loc = libLoc)
+library(matrixStats, lib.loc = libLoc)
 
 values = data.matrix(rates[,c(5:ncol(rates))])
 

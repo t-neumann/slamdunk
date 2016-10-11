@@ -1,6 +1,6 @@
 #git clone https://github.com/Cibiv/NextGenMap.git
 
-cd ../nextgenmap
+cd ../../nextgenmap
 mkdir build
 cd build
 cmake ..

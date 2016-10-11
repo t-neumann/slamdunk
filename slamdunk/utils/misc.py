@@ -91,6 +91,18 @@ def checkStep(inFiles, outFiles, force=False):
     
     return True
 
+def getBinary(name):
+    
+    projectPath = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    
+    return os.path.join(projectPath, "contrib", name)
+
+def getPlotter(name):
+    
+    projectPath = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    
+    return os.path.join(projectPath, "plot", name + ".R")
+
 def run(cmd, log=sys.stderr, verbose=False, dry=False):
     if(verbose or dry):
         print(cmd, file=log)
@@ -104,16 +116,38 @@ def run(cmd, log=sys.stderr, verbose=False, dry=False):
         p.wait();
         if(p.returncode != 0):
             raise RuntimeError("Error while executing command: \"" + cmd + "\"")
+        
+def callR(cmd, log=sys.stderr, verbose=False, dry=False):
+    
+    RLIBS_VARIABLE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),"plot","Rslamdunk")
+    
+    if not os.path.exists(RLIBS_VARIABLE):
+        os.makedirs(RLIBS_VARIABLE)
+        
+    os.environ['R_LIBS_SITE'] = RLIBS_VARIABLE
+    
+    if(verbose or dry):
+        print(cmd, file=log)
+    
+    if(not dry):
+        
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+        lines_iterator = iter(p.stdout.readline, b"")
+        for line in lines_iterator:
+            print(line, end="", file=log) # yield line
+        p.wait();
+        if(p.returncode != 0):
+            raise RuntimeError("Error while executing command: \"" + cmd + "\"")
 
 def runIndexBam(inFileBam, log=sys.stderr, verbose=False, dry=False):
     idxFile = inFileBam + ".bai"
     if(dry or checkStep([inFileBam], [idxFile])):
-        run(" ".join(["samtools", "index", inFileBam]), log, verbose=verbose, dry=dry)
+        run(" ".join([getBinary("samtools"), "index", inFileBam]), log, verbose=verbose, dry=dry)
 
 def runFlagstat(bam, log=sys.stderr, verbose=False, dry=False):
     flagstat = bam + ".flagstat"
     if(dry or checkStep([bam], [flagstat])):
-        run(" ".join([ "samtools", "flagstat", bam, ">", flagstat]), log, verbose=verbose, dry=dry)
+        run(" ".join([ getBinary("samtools"), "flagstat", bam, ">", flagstat]), log, verbose=verbose, dry=dry)
     else:
         print("Skipped flagstat for " + bam, file=log)
 

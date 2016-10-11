@@ -1,5 +1,14 @@
 #!/usr/bin/env Rscript
-library(getopt)
+
+# Load packages only from local Rslamdunk library 
+libLoc = .libPaths()[grep("Rslamdunk",.libPaths())]
+
+# Check if libraries are available, install otherwise
+source(paste(libLoc,'/../checkLibraries.R',sep=""))
+
+checkLib(libLoc)
+
+library(getopt, lib.loc = libLoc)
 
 spec = matrix(c(
   'help'      , 'h', 0, "logical","print the usage of the command",
@@ -26,7 +35,6 @@ if ( is.null(opt$simulated) ) stop("arg simulated must be specified")
 if ( is.null(opt$slamdunk) ) stop("arg slamdunk must be specified")
 if ( is.null(opt$output) ) stop("arg output must be specified")
 if ( is.null(opt$conversionrate) ) { opt$conversionrate = 0.03 }
-
 
 #simulatedFiles = "/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/pooja_UTR_annotation_examples_1_0min_utrsummary.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/pooja_UTR_annotation_examples_2_15min_utrsummary.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/pooja_UTR_annotation_examples_3_30min_utrsummary.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/pooja_UTR_annotation_examples_4_60min_utrsummary.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/pooja_UTR_annotation_examples_5_180min_utrsummary.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/pooja_UTR_annotation_examples_6_360min_utrsummary.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/pooja_UTR_annotation_examples_7_720min_utrsummary.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/pooja_UTR_annotation_examples_8_1440min_utrsummary.csv"
 #slamDunkFiles = "/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_1_0min_reads_slamdunk_mapped_filtered_tcount.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_2_15min_reads_slamdunk_mapped_filtered_tcount.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_3_30min_reads_slamdunk_mapped_filtered_tcount.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_4_60min_reads_slamdunk_mapped_filtered_tcount.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_5_180min_reads_slamdunk_mapped_filtered_tcount.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_6_360min_reads_slamdunk_mapped_filtered_tcount.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_7_720min_reads_slamdunk_mapped_filtered_tcount.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_8_1440min_reads_slamdunk_mapped_filtered_tcount.csv"

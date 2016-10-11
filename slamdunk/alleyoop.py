@@ -193,14 +193,7 @@ def runDumpReadInfo(tid, bam, referenceFile, minMQ, outputDirectory, snpDirector
     
     closeLogFile(log)
     stepFinished()
-    
-def runMergeRates(bams, timepoints, outputCSV) :
-    
-    outputLOG = replaceExtension(outputCSV, ".log")
-    log = getLogFile(outputLOG)
-    stats.mergeRates(",".join(bams), outputCSV, timepoints, log)
-    closeLogFile(log)
-    stepFinished()
+
 
 def run():
     
@@ -302,12 +295,6 @@ def run():
     dumpReadInfo.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")#conversionRateParser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
     dumpReadInfo.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
     dumpReadInfo.add_argument("-t", "--threads", type=int, required=False, dest="threads", help="Thread number")
-    
-    countmergeparser = subparsers.add_parser('merge.rates', help='Merge count files')
-    countmergeparser.add_argument("-o", "--output", type=str, required=True, dest="outputFile", help="Output file")
-    countmergeparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
-    countmergeparser.add_argument("-time", "--timepoints", type=str, required=True, dest="timepoints", help="Comma seperated list of timespoints. Same order as for input files!")
-    
     
     args = parser.parse_args()
     
@@ -422,17 +409,6 @@ def run():
         message("Running alleyoop dump.reads for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
         results = Parallel(n_jobs=n, verbose=verbose)(delayed(runDumpReadInfo)(tid, args.bam[tid], referenceFile, minMQ, outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
         dunkFinished()
-    
-    elif (command == "merge.rates"):
-        
-        outputCSV = args.outputFile
-        
-        timepoints = args.timepoints
-        
-        message("Running slamDunk merge-rates for " + str(len(args.bam)) + " files")
-        runMergeRates(args.bam, timepoints, outputCSV)
-        dunkFinished()
-        
     
 if __name__ == '__main__':
     run()

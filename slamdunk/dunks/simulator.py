@@ -10,13 +10,13 @@ import os
 import glob
 import sys
 
-from utils import SNPtools
-from utils.BedReader import BedIterator
-from utils.misc import shell, run
-from slamseq.SlamSeqFile import SlamSeqBamFile
+from slamdunk.utils import SNPtools
+from slamdunk.utils.BedReader import BedIterator
+from slamdunk.utils.misc import shell, run
+from slamdunk.slamseq.SlamSeqFile import SlamSeqBamFile
 from Bio import SeqIO
 
-projectPath = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+projectPath = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 rNASeqReadSimulatorPath = os.path.join(projectPath, "bin", "RNASeqReadSimulator-master/")
 pathEvalHalfLifes = os.path.join(projectPath, "plot", "eval_halflife_per_gene_plots.R")
 pathEvalConversionrates = os.path.join(projectPath, "plot", "eval_conversion_rate_plots.R")

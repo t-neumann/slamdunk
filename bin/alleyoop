@@ -7,5 +7,5 @@ try:
 except ImportError:
 	sys.exc_clear()
 
-import toolbox
-toolbox.run()
+from slamdunk import alleyoop
+alleyoop.run()

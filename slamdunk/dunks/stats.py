@@ -7,20 +7,18 @@ import math
 import pysam
 
 from os.path import basename
-from utils.misc import run, removeExtension, checkStep, getReadCount, matchFile, complement 
-from slamseq.SlamSeqFile import SlamSeqBamFile, ReadDirection
-from utils import SNPtools
-from utils.BedReader import BedIterator
+from slamdunk.utils.misc import run, removeExtension, checkStep, getReadCount, matchFile, complement , getPlotter, callR
+from slamdunk.slamseq.SlamSeqFile import SlamSeqBamFile, ReadDirection
+from slamdunk.utils import SNPtools
+from slamdunk.utils.BedReader import BedIterator
 
-projectPath = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-pathComputeOverallRates = os.path.join(projectPath, "plot", "compute_overall_rates.R")
-pathComputeGlobalRates = os.path.join(projectPath, "plot", "globalRatePlotter.R")
-pathComputeTCContext = os.path.join(projectPath, "plot", "compute_context_TC_rates.R")
-pathConversionPerReadPos = os.path.join(projectPath, "plot", "conversion_per_read_position.R")
-pathSampleComparison = os.path.join(projectPath, "plot", "compute_sample_comparison_statistics.R")
-pathComputeHalfLifes = os.path.join(projectPath, "plot", "compute_halflifes.R")
-pathMergeRates = os.path.join(projectPath, "plot", "merge_rate_files.R")
-
+# projectPath = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# pathComputeOverallRates = os.path.join(projectPath, "plot", "compute_overall_rates.R")
+# pathComputeGlobalRates = os.path.join(projectPath, "plot", "globalRatePlotter.R")
+# pathComputeTCContext = os.path.join(projectPath, "plot", "compute_context_TC_rates.R")
+# pathConversionPerReadPos = os.path.join(projectPath, "plot", "conversion_per_read_position.R")
+# pathSampleComparison = os.path.join(projectPath, "plot", "compute_sample_comparison_statistics.R")
+# pathComputeHalfLifes = os.path.join(projectPath, "plot", "compute_halflifes.R")
 
 utrNormFactor = 200
 baseNumber = 5
@@ -135,7 +133,8 @@ def statsComputeOverallRates(referenceFile, bam, minQual, outputCSV, outputPDF, 
         print(removeExtension(basename(bam)), outputCSV, sep='\t', file=f)
         f.close()
              
-        run(pathComputeOverallRates + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
+        #run(pathComputeOverallRates + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
+        callR(getPlotter("compute_overall_rates") + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
 
 # This is for TC conversions
     
@@ -332,7 +331,8 @@ def statsComputeTCContext(referenceFile, bam, minQual, outputCSV, outputPDF, log
         print(removeExtension(basename(bam)), outputCSV, sep='\t', file=f)
         f.close()
          
-        run(pathComputeTCContext + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
+        #run(pathComputeTCContext + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
+        callR(getPlotter("compute_context_TC_rates") + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
         
 # def statsComputeTCContext(referenceFile, bam, bed, minQual, outputCSV, outputPDF, log, printOnly=False, verbose=True, force=False):
 #     
@@ -489,7 +489,8 @@ def statsComputeOverallRatesPerUTR(referenceFile, bam, minQual, outputCSV, outpu
         print(removeExtension(basename(bam)), outputCSV, sep='\t', file=f)
         f.close()
               
-        run(pathComputeGlobalRates + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
+        #run(pathComputeGlobalRates + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
+        callR(getPlotter("globalRatePlotter") + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
            
     
 def readSummary(mappedFiles, filteredFiles, dedupFiles, snpsFiles, samples, outputPrefix, log, printOnly=False, verbose=True, force=False):
@@ -605,7 +606,8 @@ def tcPerReadPos(referenceFile, bam, minQual, maxReadLength, outputCSV, outputPD
     if(not checkStep([outputCSV], [outputPDF], force)):
         print("Skipped computing T->C per reads position plot for file " + bam, file=log)
     else: 
-        run(pathConversionPerReadPos + " -i " + outputCSV + " -o " + outputPDF, log, dry=printOnly, verbose=verbose)
+        #run(pathConversionPerReadPos + " -i " + outputCSV + " -o " + outputPDF, log, dry=printOnly, verbose=verbose)
+        callR(getPlotter("conversion_per_read_position") + " -i " + outputCSV + " -o " + outputPDF, log, dry=printOnly, verbose=verbose)
         
 def tcPerUtr(referenceFile, utrBed, bam, minQual, maxReadLength, outputCSV, outputPDF, snpsFile, log, printOnly=False, verbose=True, force=False):
         
@@ -732,12 +734,14 @@ def tcPerUtr(referenceFile, utrBed, bam, minQual, maxReadLength, outputCSV, outp
     if(not checkStep([outputCSV], [outputPDF], force)):
         print("Skipped computing T->C per UTR position plot for file " + bam, file=log)
     else: 
-        run(pathConversionPerReadPos + " -u -i " + outputCSV + " -o " + outputPDF, log, dry=printOnly, verbose=verbose)
+        #run(pathConversionPerReadPos + " -u -i " + outputCSV + " -o " + outputPDF, log, dry=printOnly, verbose=verbose)
+        callR(getPlotter("conversion_per_read_position") + " -u -i " + outputCSV + " -o " + outputPDF, log, dry=printOnly, verbose=verbose)
 
 
 def halflifes(bams, outputCSV, timepoints, log, printOnly=False, verbose=True, force=False):
     
-    run("Rscript " + pathComputeHalfLifes + " -f " + bams + " -t " + timepoints + " -o " + outputCSV, log, dry=printOnly, verbose=verbose) 
+    #run("Rscript " + pathComputeHalfLifes + " -f " + bams + " -t " + timepoints + " -o " + outputCSV, log, dry=printOnly, verbose=verbose)
+    callR(getPlotter("compute_halflifes") + " -f " + bams + " -t " + timepoints + " -o " + outputCSV, log, dry=printOnly, verbose=verbose)
 
 def mergeRates(bams, outputCSV, timepoints, log, printOnly=False, verbose=True, force=False):
     

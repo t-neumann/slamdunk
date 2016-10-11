@@ -7,5 +7,5 @@ try:
 except ImportError:
 	sys.exc_clear()
 
-import simulate
-simulate.run()
+from slamdunk import splash
+splash.run()

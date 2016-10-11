@@ -6,12 +6,12 @@ import pysam, random, os
 from intervaltree import IntervalTree
 
 
-from utils.BedReader import BedIterator
-from utils.misc import checkStep, run, runIndexBam, runFlagstat, removeFile
+from slamdunk.utils.BedReader import BedIterator
+from slamdunk.utils.misc import checkStep, run, runIndexBam, runFlagstat, removeFile, getBinary
 
 def Filter_old(inputBAM, outputBAM, log, MQ=2, printOnly=False, verbose=True, force=True):
     if(printOnly or checkStep([inputBAM], [outputBAM], force)):
-        run(" ".join([ "samtools", "view -q", str(MQ), "-b", inputBAM, ">", outputBAM]), log, verbose=verbose, dry=printOnly)
+        run(" ".join([ getBinary("samtools"), "view -q", str(MQ), "-b", inputBAM, ">", outputBAM]), log, verbose=verbose, dry=printOnly)
     else:
         print("Skipped filtering for " + inputBAM, file=log)
 
@@ -28,7 +28,7 @@ def bamSort(outputBAM, log, verbose):
     tmp = outputBAM + "_tmp"
     os.rename(outputBAM, tmp)                      
     #run(" ".join(["samtools", "sort", "-@", str(threads) , tmp, replaceExtension(outFile, "")]), log, verbose=verbose, dry=dry)
-    run(" ".join(["samtools", "sort", "-o", outputBAM, tmp]), log, verbose=verbose, dry=False)
+    run(" ".join([getBinary("samtools"), "sort", "-o", outputBAM, tmp]), log, verbose=verbose, dry=False)
     removeFile(tmp)
     
 def bedToIntervallTree(bed):

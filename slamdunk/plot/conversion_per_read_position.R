@@ -1,7 +1,14 @@
 #!/usr/bin/env Rscript
 
-library(getopt)
+# Load packages only from local Rslamdunk library 
+libLoc = .libPaths()[grep("Rslamdunk",.libPaths())]
 
+# Check if libraries are available, install otherwise
+source(paste(libLoc,'/../checkLibraries.R',sep=""))
+
+checkLib(libLoc)
+
+library(getopt, lib.loc = libLoc)
 
 spec = matrix(c(
 				'help'      , 'h', 0, "logical","print the usage of the command",

@@ -7,5 +7,5 @@ try:
 except ImportError:
 	sys.exc_clear()
 
-import main
-main.run()
+from slamdunk import slamdunk
+slamdunk.run()
