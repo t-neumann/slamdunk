@@ -9,7 +9,7 @@
 from __future__ import print_function
 import sys, os
 
-from argparse import ArgumentParser, RawDescriptionHelpFormatter
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
     
 from os.path import basename
 
@@ -347,7 +347,7 @@ def run():
     version = "0.1.0"
     
     # Main Parsers
-    parser = ArgumentParser(description=usage, formatter_class=RawDescriptionHelpFormatter, version=version)
+    parser = ArgumentParser(description=usage, formatter_class=ArgumentDefaultsHelpFormatter, version=version)
     
     # Initialize Subparsers
     subparsers = parser.add_subparsers(help="", dest="command")

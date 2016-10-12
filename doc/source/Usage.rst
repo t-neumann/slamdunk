@@ -48,4 +48,3 @@ statistics for your 3'UTRs.
 
 All steps create a log file that has the same name as the output file. Typically there is one log file per sample and task (makes parallel execution easier).
 Command line output is limited to a minimum at the moment. If a sample is finished a "." is printed (very basic progress bar).
-At the moment the python code is pretty slow. As soon as everything works as expected, we will try to optimise the most crucial tasks.

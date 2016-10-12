@@ -22,7 +22,7 @@ R runtime
 Both *alleyoop* and *splash* utilize `R <https://www.r-project.org/>`_ for various calculations and diagnostic plots.
 Therefore, a global installation of R is required to run those tools.
 
-* Minimum required R version: **R 3.0.1**
+* Minimum required R version: **R 3.2.2**
 
 
 * Required packages (from `CRAN <https://cran.r-project.org/>`_):

@@ -118,6 +118,32 @@ def runStatsRatesUTR(tid, bam, referenceFile, minMQ, outputDirectory, utrFile, m
     stats.statsComputeOverallRatesPerUTR(referenceFile, bam, minMQ, outputCSV, outputPDF, utrFile, maxReadLength, log)
     closeLogFile(log)
     stepFinished()
+    
+def runSNPeval(tid, bam, ref, bed, maxLength, minQual, coverageCutoff, variantFraction, strictTCs, outputDirectory, snpDirectory) :
+    
+    outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_SNPeval"))
+    outputPDF = os.path.join(outputDirectory, replaceExtension(basename(bam), ".pdf", "_SNPeval"))
+    outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_SNPeval"))
+    
+    if (not os.path.isdir(snpDirectory)) :
+        print("SNP directory does not exists. Abort.")
+        sys.exit(0)
+    
+    inputSNP = os.path.join(snpDirectory, replaceExtension(basename(bam), ".vcf", "_snp"))
+        
+    if (maxLength == None) :
+        maxLength = estimateMaxReadLength(bam)
+    if (maxLength < 0) :
+        print("Could not reliable estimate maximum read length. Please specify --max-read-length parameter.")
+        sys.exit(0)
+    
+    log = getLogFile(outputLOG)
+    
+    print("Using " + str(maxLength) + " as maximum read length.",file=log)
+    
+    stats.computeSNPMaskedRates(ref, bed, inputSNP, bam, maxLength, minQual, coverageCutoff, variantFraction, outputCSV, outputPDF, strictTCs, log)
+    stepFinished()
+    return outputCSV
 
     
 def runSTcPerReadPos(tid, bam, referenceFile, minMQ, maxReadLength, outputDirectory, snpDirectory):
@@ -245,6 +271,20 @@ def run():
     statsutrrateparser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
     statsutrrateparser.add_argument("-l", "--max-read-length", type=int, required=False, dest="maxLength", help="Max read length in BAM file")
     
+    # SNPeval command
+    snpevalparser = subparsers.add_parser('stats.SNPeval', help='Calculate and visualize Gini-coefficient for UTRs with SNPs')
+    snpevalparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
+    snpevalparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
+    snpevalparser.add_argument("-s", "--snp-directory", type=str, required=True, dest="snpDir", help="Directory containing SNP files.")
+    snpevalparser.add_argument("-r", "--reference", type=str, required=True, dest="ref", help="Reference fasta file")
+    snpevalparser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
+    snpevalparser.add_argument("-c", "--min-coverage", required=False, dest="cov", type=int, help="Minimimum coverage to call variant", default=10)
+    snpevalparser.add_argument("-a", "--var-fraction", required=False, dest="var", type=float, help="Minimimum variant fraction to call variant", default=0.8)
+    snpevalparser.add_argument("-m", "--multiTCStringency", dest="strictTCs", action='store_true', required=False, help="")
+    snpevalparser.add_argument("-l", "--max-read-length", type=int, required=False, dest="maxLength", help="Max read length in BAM file")
+    snpevalparser.add_argument("-q", "--min-base-qual", type=int, default=0, required=False, dest="minQual", help="Min base quality for T -> C conversions")
+    snpevalparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
+    
     # stats summary command
     statsSumParser = subparsers.add_parser('stats.summary', help='Display summary information and statistics on read numbers')
     statsSumParser.add_argument("-o", "--outputPrefix", type=str, required=True, dest="outputPrefix", help="Prefix for output files")
@@ -333,7 +373,17 @@ def run():
         message("Running alleyoop stats for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
         results = Parallel(n_jobs=n, verbose=verbose)(delayed(runStatsRates)(tid, args.bam[tid], referenceFile, minMQ, outputDirectory) for tid in range(0, len(args.bam)))
         dunkFinished()
-    
+        
+    elif (command == "stats.SNPeval") :
+        outputDirectory = args.outputDir
+        createDir(outputDirectory)
+        snpDirectory = args.snpDir
+        n = args.threads
+        message("Running alleyoop SNPeval for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runSNPeval)(tid, args.bam[tid], args.ref, args.bed, args.maxLength, args.minQual, args.cov, args.var, args.strictTCs, outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
+        #runCountCombine(results, args.sampleNames, args.outputPrefix, outputDirectory)
+        dunkFinished()
+        
     elif (command == "stats.TCcontext") :  
         outputDirectory = args.outputDir
         createDir(outputDirectory)

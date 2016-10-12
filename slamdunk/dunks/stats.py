@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
-import os
+import os, sys
 import tempfile
 import math
 import pysam
@@ -737,6 +737,80 @@ def tcPerUtr(referenceFile, utrBed, bam, minQual, maxReadLength, outputCSV, outp
         #run(pathConversionPerReadPos + " -u -i " + outputCSV + " -o " + outputPDF, log, dry=printOnly, verbose=verbose)
         callR(getPlotter("conversion_per_read_position") + " -u -i " + outputCSV + " -o " + outputPDF, log, dry=printOnly, verbose=verbose)
 
+def computeSNPMaskedRates (ref, bed, snpsFile, bam, maxReadLength, minQual, coverageCutoff, variantFraction, outputCSV, outputPDF, strictTCs, log, printOnly=False, verbose=True, force=False):
+    
+    if(not checkStep([bam, ref], [outputCSV], force)):
+        print("Skipped computing T->C per UTR with SNP masking for file " + bam, file=log)
+    else:
+    
+        referenceFile = pysam.FastaFile(ref)
+        
+        flagstat = getReadCount(bam)
+        readNumber = flagstat.MappedReads
+    
+        fileCSV = open(outputCSV,'w')
+        
+        snps = SNPtools.SNPDictionary(snpsFile)
+        snps.read()
+        
+        #Go through one chr after the other
+        testFile = SlamSeqBamFile(bam, ref, snps)
+                                 
+        progress = 0
+        for utr in BedIterator(bed):
+            
+            if(not utr.hasStrand()):
+                raise RuntimeError("Input BED file does not contain stranded intervals.")
+            
+            if utr.start < 0:
+                raise RuntimeError("Negativ start coordinate found. Please check the following entry in your BED file: " + utr)
+            # Retreive reference sequence
+            region = utr.chromosome + ":" + str(utr.start + 1) + "-" + str(utr.stop)
+    
+            readIterator = testFile.readInRegion(utr.chromosome, utr.start, utr.stop, utr.strand, maxReadLength)
+            
+            unmaskedTCCount = 0
+            maskedTCCount = 0
+            
+            for read in readIterator:
+                
+                # Overwrite any conversions for non-TC reads (reads with < 2 TC conversions)
+                if (not read.isTcRead and strictTCs) :
+                    read.tcCount = 0
+                    read.mismatches = []
+                    read.conversionRates = 0.0
+                    read.tcRate = 0.0
+                
+                for mismatch in read.mismatches:
+                    if(mismatch.isTCMismatch(read.direction == ReadDirection.Reverse) and mismatch.referencePosition >= 0 and mismatch.referencePosition < utr.getLength()):
+                        maskedTCCount += 1
+                    
+                    unmasked = False
+                    if (read.direction == ReadDirection.Reverse and mismatch.referenceBase == "A" and mismatch.readBase == "G"):
+                        unmasked = True
+                    elif (read.direction != ReadDirection.Reverse and mismatch.referenceBase == "T" and mismatch.readBase == "C") :
+                        unmasked = True
+                        
+                    if (unmasked and mismatch.referencePosition >= 0 and mismatch.referencePosition < utr.getLength()) :
+                        unmaskedTCCount += 1
+            
+            containsSNP = 0
+            
+            if (unmaskedTCCount != maskedTCCount) :
+                containsSNP = 1
+                
+            print(utr.name + "\t" + str(unmaskedTCCount) + "\t" + str(maskedTCCount) + "\t" + str(containsSNP), file=fileCSV)
+                   
+            progress += 1
+            
+        fileCSV.close()
+    
+    if(not checkStep([outputCSV], [outputPDF], force)):
+        print("Skipped computing T->C per UTR position plot for file " + bam, file=log)
+    else: 
+        #run(pathConversionPerReadPos + " -u -i " + outputCSV + " -o " + outputPDF, log, dry=printOnly, verbose=verbose)
+        callR(getPlotter("SNPeval") + " -i " + outputCSV + " -c " + str(coverageCutoff) + " -v " + str(variantFraction) + " -o " + outputPDF, log, dry=printOnly, verbose=verbose)    
+        
 
 def halflifes(bams, outputCSV, timepoints, log, printOnly=False, verbose=True, force=False):
     

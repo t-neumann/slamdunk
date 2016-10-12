@@ -18,11 +18,11 @@ read sequence.
 Input
 ^^^^^
 
-===================  ========================================================================================================================================
+===================  ==================================================================================================================================================================
 File                 Description
-===================  ========================================================================================================================================
-**bam**              Fastq/BAM file(s) containing the final filtered reads from *slamdunk*. Can be multiple if multiple samples are analysed simultaneously.
-===================  ========================================================================================================================================
+===================  ==================================================================================================================================================================
+**bam**              Fastq/BAM file(s) containing the final filtered reads from *slamdunk*. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
+===================  ==================================================================================================================================================================
 
 Output
 ^^^^^^
@@ -49,7 +49,7 @@ Parameter  Required  Description
 **-r**     x         The reference fasta file.
 **-mq**              Minimum base quality for T->C conversions to be counted (default: 0).
 **-t**               The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.  
-**bam**    x         Fastq/BAM file(s) containing the final filtered reads. Can be multiple if multiple samples are analysed simultaneously.
+**bam**    x         Fastq/BAM file(s) containing the final filtered reads. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
 =========  ========  =====================================================================================================================================================================
 
 ------------------------------------------------------ 
@@ -67,12 +67,12 @@ This tool computes the overall conversion rates in your reads and plots them as 
 Input
 ^^^^^
 
-===================  ========================================================================================================================================
+===================  ===================================================================================================================================================================
 File                 Description
-===================  ========================================================================================================================================
+===================  ===================================================================================================================================================================
 **Reference fasta**  The reference sequence of the genome to map against in fasta format.
-**bam**              Fastq/BAM file(s) containing the final filtered reads from *slamdunk*. Can be multiple if multiple samples are analysed simultaneously.
-===================  ========================================================================================================================================
+**bam**              Fastq/BAM file(s) containing the final filtered reads from *slamdunk*. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
+===================  ===================================================================================================================================================================
 
 Output
 ^^^^^^
@@ -100,7 +100,7 @@ Parameter  Required  Description
 **-r**     x         The reference fasta file.
 **-mq**              Minimum base quality for T->C conversions to be counted (default: 0).
 **-t**               The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.  
-**bam**    x         Fastq/BAM file(s) containing the final filtered reads. Can be multiple if multiple samples are analysed simultaneously.
+**bam**    x         Fastq/BAM file(s) containing the final filtered reads. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
 =========  ========  =====================================================================================================================================================================
 
 ------------------------------------------------------
@@ -118,12 +118,12 @@ This tool computes the genomic context of all Ts in a read and plots them as bar
 Input
 ^^^^^
 
-===================  ========================================================================================================================================
+===================  ===================================================================================================================================================================
 File                 Description
-===================  ========================================================================================================================================
+===================  ===================================================================================================================================================================
 **Reference fasta**  The reference sequence of the genome to map against in fasta format.
-**bam**              BAM file(s) containing the final filtered reads from *slamdunk*. Can be multiple if multiple samples are analysed simultaneously.
-===================  ========================================================================================================================================
+**bam**              BAM file(s) containing the final filtered reads from *slamdunk*. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
+===================  ===================================================================================================================================================================
 
 Output
 ^^^^^^
@@ -151,7 +151,7 @@ Parameter  Required  Description
 **-r**     x         The reference fasta file.
 **-mq**              Minimum base quality for T->C conversions to be counted (default: 0).
 **-t**               The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.  
-**bam**    x         BAM file(s) containing the final filtered reads. Can be multiple if multiple samples are analysed simultaneously.
+**bam**    x         BAM file(s) containing the final filtered reads. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
 =========  ========  =====================================================================================================================================================================
 
 ------------------------------------------------------
@@ -170,13 +170,13 @@ to all possible conversions from it's starting base e.g. A->G / (A->A + A->G + A
 Input
 ^^^^^
 
-===================  ========================================================================================================================================
+===================  ===================================================================================================================================================================
 File                 Description
-===================  ========================================================================================================================================
+===================  ===================================================================================================================================================================
 **Reference fasta**  The reference sequence of the genome to map against in fasta format.
 **-b**               Bed file with coordinates of 3'UTRs.
-**bam**              BAM file(s) containing the final filtered reads from *slamdunk*. Can be multiple if multiple samples are analysed simultaneously.
-===================  ========================================================================================================================================
+**bam**              BAM file(s) containing the final filtered reads from *slamdunk*. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
+===================  ===================================================================================================================================================================
 
 Output
 ^^^^^^
@@ -206,7 +206,7 @@ Parameter  Required  Description
 **-t**               The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.
 **-b**     x         Bed file with coordinates of 3'UTRs.
 **-l**               Maximum read length in all samples (will be automatically estimated if not set).
-**bam**    x         BAM file(s) containing the final filtered reads. Can be multiple if multiple samples are analysed simultaneously.
+**bam**    x         BAM file(s) containing the final filtered reads. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
 =========  ========  =====================================================================================================================================================================
 
 ------------------------------------------------------
@@ -233,13 +233,13 @@ along reads.
 Input
 ^^^^^
 
-===================  ========================================================================================================================================
+===================  ===================================================================================================================================================================
 File                 Description
-===================  ========================================================================================================================================
+===================  ===================================================================================================================================================================
 **Reference fasta**  The reference sequence of the genome to map against in fasta format.
 **-s**               (optional) The called variants from the *snp* dunk to filter false-positive T->C conversions.
-**bam**              BAM file(s) containing the final filtered reads from *slamdunk*. Can be multiple if multiple samples are analysed simultaneously.
-===================  ========================================================================================================================================
+**bam**              BAM file(s) containing the final filtered reads from *slamdunk*. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
+===================  ===================================================================================================================================================================
 
 Output
 ^^^^^^
@@ -271,7 +271,7 @@ Parameter  Required  Description
 **-t**               The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.
 **-s**               The called variants from the *snp* dunk to filter false-positive T->C conversions.
 **-l**               Maximum read length in all samples (will be automatically estimated if not set).
-**bam**    x         BAM file(s) containing the final filtered reads. Can be multiple if multiple samples are analysed simultaneously.
+**bam**    x         BAM file(s) containing the final filtered reads. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
 =========  ========  =====================================================================================================================================================================
 
 ------------------------------------------------------
@@ -293,14 +293,14 @@ along UTRs. Only most 3' 200bp of each UTR will be considered because:
 Input
 ^^^^^
 
-===================  ========================================================================================================================================
+===================  ===================================================================================================================================================================
 File                 Description
-===================  ========================================================================================================================================
+===================  ===================================================================================================================================================================
 **Reference fasta**  The reference sequence of the genome to map against in fasta format.
 **-s**               (optional) The called variants from the *snp* dunk to filter false-positive T->C conversions.
 **-b**               Bed file with coordinates of 3'UTRs.
-**bam**              BAM file(s) containing the final filtered reads from *slamdunk*. Can be multiple if multiple samples are analysed simultaneously.
-===================  ========================================================================================================================================
+**bam**              BAM file(s) containing the final filtered reads from *slamdunk*. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
+===================  ===================================================================================================================================================================
 
 Output
 ^^^^^^
@@ -331,7 +331,7 @@ Parameter  Required  Description
 **-t**               The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.
 **-s**               The called variants from the *snp* dunk to filter false-positive T->C conversions.
 **-l**               Maximum read length in all samples (will be automatically estimated if not set).
-**bam**    x         BAM file(s) containing the final filtered reads. Can be multiple if multiple samples are analysed simultaneously.
+**bam**    x         BAM file(s) containing the final filtered reads. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
 =========  ========  =====================================================================================================================================================================
 
 ------------------------------------------------------
@@ -357,13 +357,13 @@ This tool outputs all available information calculated by *slamdunk* for each re
 Input
 ^^^^^
 
-===================  ========================================================================================================================================
+===================  ===================================================================================================================================================================
 File                 Description
-===================  ========================================================================================================================================
+===================  ===================================================================================================================================================================
 **Reference fasta**  The reference sequence of the genome to map against in fasta format.
 **-s**               (optional) The called variants from the *snp* dunk to filter false-positive T->C conversions.
-**bam**              BAM file(s) containing the final filtered reads from *slamdunk*. Can be multiple if multiple samples are analysed simultaneously.
-===================  ========================================================================================================================================
+**bam**              BAM file(s) containing the final filtered reads from *slamdunk*. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
+===================  ===================================================================================================================================================================
 
 Output
 ^^^^^^
@@ -402,6 +402,6 @@ Parameter  Required  Description
 **-mq**              Minimum base quality for T->C conversions to be counted (default: 0).
 **-t**               The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.
 **-s**               The called variants from the *snp* dunk to filter false-positive T->C conversions.
-**bam**    x         BAM file(s) containing the final filtered reads. Can be multiple if multiple samples are analysed simultaneously.
+**bam**    x         BAM file(s) containing the final filtered reads. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
 =========  ========  =====================================================================================================================================================================
 

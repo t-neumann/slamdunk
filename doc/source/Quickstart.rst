@@ -18,7 +18,7 @@ Parameter  Description
 **-b**     BED-file containing coordinates for 3' UTRs.
 **-o**     The output directory where all output files of this dunk will be placed.
 **-t**     The number of threads to use for this dunk. NextGenMap runs multi-threaded, so it is recommended to use more threads than available samples (default: 1).
-**bam**    Fastq/BAM file(s) containing the raw unmapped reads. Can be multiple if multiple samples are analysed simultaneously.
+**bam**    Fastq/BAM file(s) containing the raw unmapped reads. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
 =========  ==========================================================================================================================================================
 
 This will run the entire *slamdunk* analysis with the most relevant output files being:
@@ -45,7 +45,7 @@ Parameter  Description
 **-t**     The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.
 **-b**     BED-file containing coordinates for 3' UTRs.
 **-l**     Maximum read length in all samples.
-**bam**    BAM file(s) containing the final filtered reads from the *filter* folder. Can be multiple if multiple samples are analysed simultaneously.
+**bam**    BAM file(s) containing the final filtered reads from the *filter* folder. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
 =========  =====================================================================================================================================================================
 
 This will produce a plot like the following example where you can clearly see that individual conversions for a given starting base are balanced and unbiased,
