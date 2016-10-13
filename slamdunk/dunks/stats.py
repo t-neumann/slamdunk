@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
-import os, sys
+import os
 import tempfile
 import math
 import pysam
@@ -771,6 +771,7 @@ def computeSNPMaskedRates (ref, bed, snpsFile, bam, maxReadLength, minQual, cove
             
             unmaskedTCCount = 0
             maskedTCCount = 0
+            readCount = 0
             
             for read in readIterator:
                 
@@ -780,10 +781,13 @@ def computeSNPMaskedRates (ref, bed, snpsFile, bam, maxReadLength, minQual, cove
                     read.mismatches = []
                     read.conversionRates = 0.0
                     read.tcRate = 0.0
+                    
+                isTC = False
+                isTrueTC = False
                 
                 for mismatch in read.mismatches:
                     if(mismatch.isTCMismatch(read.direction == ReadDirection.Reverse) and mismatch.referencePosition >= 0 and mismatch.referencePosition < utr.getLength()):
-                        maskedTCCount += 1
+                        isTrueTC = True
                     
                     unmasked = False
                     if (read.direction == ReadDirection.Reverse and mismatch.referenceBase == "A" and mismatch.readBase == "G"):
@@ -792,14 +796,22 @@ def computeSNPMaskedRates (ref, bed, snpsFile, bam, maxReadLength, minQual, cove
                         unmasked = True
                         
                     if (unmasked and mismatch.referencePosition >= 0 and mismatch.referencePosition < utr.getLength()) :
-                        unmaskedTCCount += 1
+                        isTC = True
+                        
+                readCount += 1
+                
+                if (isTC) :
+                    unmaskedTCCount += 1
+                    
+                if (isTrueTC) :
+                    maskedTCCount += 1
             
             containsSNP = 0
             
             if (unmaskedTCCount != maskedTCCount) :
                 containsSNP = 1
                 
-            print(utr.name + "\t" + str(unmaskedTCCount) + "\t" + str(maskedTCCount) + "\t" + str(containsSNP), file=fileCSV)
+            print(utr.name + "\t" + str(readCount) + "\t" + str(unmaskedTCCount) + "\t" + str(maskedTCCount) + "\t" + str(containsSNP), file=fileCSV)
                    
             progress += 1
             

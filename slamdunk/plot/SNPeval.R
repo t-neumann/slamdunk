@@ -88,7 +88,7 @@ GSEAplot <- function(counts, snps, ...) {
 	ylim <- c(-1, 1.5)
 	
 	plot(1:num, xlim = c(0, num), ylim = c(0, 2.1), type = "n", 
-			axes = FALSE, xlab = "# T>C reads in UTR", ylab = "", ...)
+			axes = FALSE, ylab = "", ...)
 	
 	lwd <- 50/length(snpLoc)
 	lwd <- min(1.9, lwd)
@@ -127,9 +127,11 @@ pdf(opt$outputFile)
 
 minCounts = round(opt$coverageCutoff * opt$variantFraction)
 
-table = read.delim(opt$inputFile,header=FALSE,col.names = c("name","unmasked","masked","snp"))
+table = read.delim(opt$inputFile,header=FALSE,col.names = c("name","count","unmasked","masked","snp"))
 
 table = table[table$unmasked >= minCounts,]
+
+table = table[table$count >= quantile(table$count, 0.75),]
 
 # testTab = table
 # testTab$unmasked = rank(testTab$unmasked)
@@ -138,8 +140,27 @@ table = table[table$unmasked >= minCounts,]
 
 par(mfrow=c(2,1))
 
-GSEAplot(table$unmasked, which(table$snp == 1), main="Unmasked SNP")
-GSEAplot(table$masked, which(table$snp == 1), main="SNP-masked T>C enrichment")
+blindTest = wilcox.test(table$unmasked ~ table$snp == "1", alternative = "less")
+maskedTest = wilcox.test(table$masked ~ table$snp == "1", alternative = "less")
+
+blindPvalue = blindTest$p.value
+
+if (blindPvalue < 0.01) {
+	blindPvalue = "< 0.01"
+} else {
+	blindPvalue =  paste("= ",round(blindPvalue,digits=2),sep="")
+}
+
+maskedPvalue = maskedTest$p.value
+
+if (maskedPvalue < 0.01) {
+	maskedPvalue = "< 0.01"
+} else {
+	maskedPvalue =  paste("= ",round(maskedPvalue,digits=2),sep="")
+}
+
+GSEAplot(table$unmasked, which(table$snp == 1), main="Blind", xlab = paste("Mann-Whitney-U:  p-value ",blindPvalue,sep=""))
+GSEAplot(table$masked, which(table$snp == 1), main="SNP-masked", xlab = paste("Mann-Whitney-U:  p-value ",maskedPvalue,sep=""))
 
 # wilcox.test(testTab$masked ~ testTab$snp == "1")
 # wilcox.test(testTab$unmasked ~ testTab$snp == "1")
