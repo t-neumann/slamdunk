@@ -354,7 +354,7 @@ def run():
     
     # map command
     
-    mapparser = subparsers.add_parser('map', help='Map SLAM-seq read data')
+    mapparser = subparsers.add_parser('map', help='Map SLAM-seq read data', formatter_class=ArgumentDefaultsHelpFormatter)
     mapparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     mapparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
     mapparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
@@ -367,7 +367,7 @@ def run():
     
     # filter command
     
-    filterparser = subparsers.add_parser('filter', help='Filter SLAM-seq aligned data')
+    filterparser = subparsers.add_parser('filter', help='Filter SLAM-seq aligned data', formatter_class=ArgumentDefaultsHelpFormatter)
     filterparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     filterparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
     filterparser.add_argument("-b", "--bed", type=str, required=False, dest="bed", help="BED file, overrides MQ filter to 0")
@@ -378,7 +378,7 @@ def run():
     
     # snp command
     
-    snpparser = subparsers.add_parser('snp', help='Call SNPs on SLAM-seq aligned data')
+    snpparser = subparsers.add_parser('snp', help='Call SNPs on SLAM-seq aligned data', formatter_class=ArgumentDefaultsHelpFormatter)
     snpparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     snpparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
     snpparser.add_argument("-f", "--fasta", required=True, dest="fasta", type=str, help="Reference fasta file")
@@ -388,7 +388,7 @@ def run():
     
     # count command
     
-    countparser = subparsers.add_parser('count', help='Count T/C conversions in SLAM-seq aligned data')
+    countparser = subparsers.add_parser('count', help='Count T/C conversions in SLAM-seq aligned data', formatter_class=ArgumentDefaultsHelpFormatter)
     countparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     # TODO: check
     #countparser.add_argument("-p", "--output-prefix", type=str, required=False, default="summary", dest="outputPrefix", help="Name of output file.")
@@ -405,7 +405,7 @@ def run():
     countparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
     
     
-    halflifeparser = subparsers.add_parser('half-lifes', help='Compute half lifes')
+    halflifeparser = subparsers.add_parser('half-lifes', help='Compute half lifes', formatter_class=ArgumentDefaultsHelpFormatter)
     halflifeparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
     halflifeparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     halflifeparser.add_argument("-time", "--timepoints", type=str, required=True, dest="timepoints", help="Comma seperated list of timespoints. Same order as for input files!")
@@ -501,7 +501,7 @@ def run():
     
     # all command
     
-    allparser = subparsers.add_parser('all', help='Run entire SLAMdunk analysis')
+    allparser = subparsers.add_parser('all', help='Run entire SLAMdunk analysis', formatter_class=ArgumentDefaultsHelpFormatter)
     allparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     allparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
     allparser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file with 3'UTR coordinates")

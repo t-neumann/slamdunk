@@ -38,7 +38,7 @@ def package_files(directory):
 bin_files = package_files(name + '/contrib')
 plot_files = package_files(name + '/plot')
      
-def _runExternalBuilds(dir):
+def _runExternalBuilds(dir, externalNGM, externalSamtools, skipRLibraries):
     
     from subprocess import call
     
@@ -54,32 +54,73 @@ def _runExternalBuilds(dir):
     #syscall = "(cd " + os.path.join(dir, name, "contrib") + " ; ./setup-R-environment.sh)"
     #print(syscall)    
     #call([syscall], shell=True)
-    print("Setting up R library destination.")
+    
+    print("Setting up R package destination.")
     syscall = "mkdir -p " + os.path.join(dir, name, "plot", "Rslamdunk")
     print(syscall)
     call([syscall], shell=True)
-    print("Building Samtools.")
-    syscall = "(cd " + os.path.join(dir, name, "contrib") + " ; ./build-samtools.sh)"
-    print(syscall)    
-    call([syscall], shell=True)
-    print("Building NGM.")
-    syscall = "(cd " + os.path.join(dir, name, "contrib") + " ; ./build-ngm.sh)"
-    print(syscall)
-    call([syscall], shell=True)
+    
+    if (skipRLibraries is None) :
+        print("Installing R packages.")
+        syscall = "export R_LIBS_SITE=" + os.path.join(dir, name, "plot", "Rslamdunk") + " ; "
+        syscall +=  "R --vanilla -e 'libLoc = .libPaths()[grep(\"Rslamdunk\",.libPaths())]; source(\"" + os.path.join(dir, name, "plot", "checkLibraries.R") + "\"); checkLib(libLoc)'"
+        print(syscall)
+        call([syscall], shell=True)
+    else :
+        print("Skipping R package installation.")
+        print("(Retrying upon first alleyoop / splash run).")
+    
+    if (externalSamtools is None) :
+        print("Building Samtools.")
+        syscall = "(cd " + os.path.join(dir, name, "contrib") + " ; ./build-samtools.sh)"
+        print(syscall)    
+        call([syscall], shell=True) 
+    else :
+        print("External Samtools will be manually linked. Skipping.")
+
+    if (externalNGM is None) :
+        print("Building NGM.")
+        syscall = "(cd " + os.path.join(dir, name, "contrib") + " ; ./build-ngm.sh)"
+        print(syscall)
+        call([syscall], shell=True)
+    else :
+        print("External NGM will be manually linked. Skipping.")
+        
     print("Building Varscan2.")
     syscall = "(cd " + os.path.join(dir, name, "contrib") + " ; ./build-varscan.sh)"
     print(syscall)    
     call([syscall], shell=True)
+    
     print("Building RNASeqReadSimulator.")
     syscall = "(cd " + os.path.join(dir, name, "contrib") + " ; ./build-rnaseqreadsimulator.sh)"
     call([syscall], shell=True)
      
 class install(_install):
+    
+    user_options = _install.user_options + [
+        ('externalNGM', None, None),
+        ('externalSamtools', None, None),
+        ('skipRLibraries', None, None)
+    ]
+    
+    def initialize_options(self):
+        _install.initialize_options(self)
+        self.externalNGM = None
+        self.externalSamtools = None
+        self.skipRLibraries = None
+        
+    def finalize_options(self):
+        _install.finalize_options(self)
+    
     def run(self):
+        global externalNGM, externalSamtools
+        externalNGM = self.externalNGM
+        externalSamtools = self.externalSamtools
+        skipRLibraries = self.skipRLibraries
         #from subprocess import call
         #call(["pip install -r requirements.txt --no-clean"], shell=True)
         _install.run(self)
-        self.execute(_runExternalBuilds, (self.install_lib,),msg="Installing external dependencies")
+        self.execute(_runExternalBuilds, (self.install_lib, externalNGM, externalSamtools, skipRLibraries),msg="Installing external dependencies")
 
          
 # class bdist_egg(_bdist_egg):
