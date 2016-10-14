@@ -362,19 +362,19 @@ def run():
     mapparser.add_argument("-n", "--topn", type=int, required=False, dest="topn", default=1, help="Max. number of alignments to report per read")
     mapparser.add_argument("-a", "--max-polya", type=int, required=False, dest="maxPolyA", default=4, help="Max number of As at the 3' end of a read.")
     mapparser.add_argument("-t", "--threads", type=int, required=False, dest="threads", default = 1, help="Thread number")
-    mapparser.add_argument("-q", "--quantseq", dest="quantseq", action='store_true', required=False, default=SUPPRESS, help="Run plain Quantseq alignment without SLAM-seq scoring")
-    mapparser.add_argument('-l', "--local", action='store_true', dest="local", default=SUPPRESS, help="Use a local alignment algorithm for mapping.")
+    mapparser.add_argument("-q", "--quantseq", dest="quantseq", action='store_true', required=False, help="Run plain Quantseq alignment without SLAM-seq scoring")
+    mapparser.add_argument('-l', "--local", action='store_true', dest="local", help="Use a local alignment algorithm for mapping.")
     
     # filter command
     
-    filterparser = subparsers.add_parser('filter', help='Filter SLAM-seq aligned data', formatter_class=ArgumentDefaultsHelpFormatter)
+    filterparser = subparsers.add_parser('filter', help='Filter SLAM-seq aligned data')
     filterparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
-    filterparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", default=SUPPRESS, help="Output directory for mapped BAM files.")
-    filterparser.add_argument("-b", "--bed", type=str, required=False, dest="bed", default=SUPPRESS, help="BED file, overrides MQ filter to 0")
-    filterparser.add_argument("-mq", "--min-mq", type=int, required=False, default=2, dest="mq", help="Minimum mapping quality")
-    filterparser.add_argument("-mi", "--min-identity", type=float, required=False, default=0.95, dest="identity", help="Minimum alignment identity")
-    filterparser.add_argument("-nm", "--max-nm", type=int, required=False, default=-1, dest="nm", help="Maximum NM for alignments")
-    filterparser.add_argument("-t", "--threads", type=int, required=False, dest="threads", default=1, help="Thread number")
+    filterparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
+    filterparser.add_argument("-b", "--bed", type=str, required=False, dest="bed", help="BED file, overrides MQ filter to 0")
+    filterparser.add_argument("-mq", "--min-mq", type=int, required=False, default=2, dest="mq", help="Minimum mapping quality (default: %(default)d)")
+    filterparser.add_argument("-mi", "--min-identity", type=float, required=False, default=0.95, dest="identity", help="Minimum alignment identity (default: %(default)s)")
+    filterparser.add_argument("-nm", "--max-nm", type=int, required=False, default=-1, dest="nm", help="Maximum NM for alignments (default: %(default)d)")
+    filterparser.add_argument("-t", "--threads", type=int, required=False, dest="threads", default=1, help="Thread number (default: %(default)d)")
     
     # snp command
     
@@ -388,7 +388,7 @@ def run():
     
     # count command
     
-    countparser = subparsers.add_parser('count', help='Count T/C conversions in SLAM-seq aligned data', formatter_class=ArgumentDefaultsHelpFormatter)
+    countparser = subparsers.add_parser('count', help='Count T/C conversions in SLAM-seq aligned data')
     countparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     # TODO: check
     #countparser.add_argument("-p", "--output-prefix", type=str, required=False, default="summary", dest="outputPrefix", help="Name of output file.")
@@ -398,11 +398,11 @@ def run():
     countparser.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", default=SUPPRESS, help="Directory containing SNP files.")
     countparser.add_argument("-r", "--reference", type=str, required=True, dest="ref", default=SUPPRESS, help="Reference fasta file")
     countparser.add_argument("-b", "--bed", type=str, required=True, dest="bed", default=SUPPRESS, help="BED file")
-    countparser.add_argument("-m", "--multiTCStringency", dest="strictTCs", action='store_true', required=False, default=SUPPRESS, help="Multiple T>C conversion required for T>C read")
-    countparser.add_argument("-l", "--max-read-length", type=int, required=False, dest="maxLength", default=SUPPRESS, help="Max read length in BAM file")
+    countparser.add_argument("-m", "--multiTCStringency", dest="strictTCs", action='store_true', required=False, help="Multiple T>C conversion required for T>C read")
+    countparser.add_argument("-l", "--max-read-length", type=int, required=False, dest="maxLength", help="Max read length in BAM file")
     #TODO: test
-    countparser.add_argument("-q", "--min-base-qual", type=int, default=0, required=False, dest="minQual", help="Min base quality for T -> C conversions")
-    countparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
+    countparser.add_argument("-q", "--min-base-qual", type=int, default=0, required=False, dest="minQual", help="Min base quality for T -> C conversions (default: %(default)d)")
+    countparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number (default: %(default)d)")
     
     
     halflifeparser = subparsers.add_parser('half-lifes', help='Compute half lifes', formatter_class=ArgumentDefaultsHelpFormatter)
@@ -501,27 +501,27 @@ def run():
     
     # all command
     
-    allparser = subparsers.add_parser('all', help='Run entire SLAMdunk analysis', formatter_class=ArgumentDefaultsHelpFormatter)
+    allparser = subparsers.add_parser('all', help='Run entire SLAMdunk analysis')
     allparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
-    allparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", default=SUPPRESS, help="Reference fasta file")
-    allparser.add_argument("-b", "--bed", type=str, required=True, dest="bed", default=SUPPRESS, help="BED file with 3'UTR coordinates")
-    allparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", default=SUPPRESS, help="Output directory for slamdunk run.")
-    allparser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", default=12, help="Number of bp removed from 5' end of all reads.")
-    allparser.add_argument("-a", "--max-polya", type=int, required=False, dest="maxPolyA", default=4, help="Max number of As at the 3' end of a read.")
-    allparser.add_argument("-n", "--topn", type=int, required=False, dest="topn", default=1, help="Max. number of alignments to report per read")
-    allparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
-    allparser.add_argument("-q", "--quantseq", dest="quantseq", action='store_true', required=False, default=SUPPRESS, help="Run plain Quantseq alignment without SLAM-seq scoring")
-    allparser.add_argument('-l', "--local", action='store_true', dest="local", default=SUPPRESS, help="Use a local alignment algorithm for mapping.")
-    allparser.add_argument('-m', "--multimap", action='store_true', dest="multimap", default=SUPPRESS, help="Use reference to resolve multimappers (requires -n > 1).")
-    allparser.add_argument("-mq", "--min-mq", type=int, required=False, default=2, dest="mq", help="Minimum mapping quality")
-    allparser.add_argument("-mi", "--min-identity", type=float, required=False, default=0.95, dest="identity", help="Minimum alignment identity")
-    allparser.add_argument("-nm", "--max-nm", type=int, required=False, default=-1, dest="nm", help="Maximum NM for alignments")
-    allparser.add_argument("-mc", "--min-coverage", required=False, dest="cov", type=int, help="Minimimum coverage to call variant", default=10)
-    allparser.add_argument("-mv", "--var-fraction", required=False, dest="var", type=float, help="Minimimum variant fraction to call variant", default=0.8)
+    allparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
+    allparser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file with 3'UTR coordinates")
+    allparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for slamdunk run.")
+    allparser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", default=12, help="Number of bp removed from 5' end of all reads (default: %(default)s)")
+    allparser.add_argument("-a", "--max-polya", type=int, required=False, dest="maxPolyA", default=4, help="Max number of As at the 3' end of a read (default: %(default)s)")
+    allparser.add_argument("-n", "--topn", type=int, required=False, dest="topn", default=1, help="Max. number of alignments to report per read (default: %(default)s)")
+    allparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number (default: %(default)s)")
+    allparser.add_argument("-q", "--quantseq", dest="quantseq", action='store_true', required=False, help="Run plain Quantseq alignment without SLAM-seq scoring")
+    allparser.add_argument('-l', "--local", action='store_true', dest="local", help="Use a local alignment algorithm for mapping.")
+    allparser.add_argument('-m', "--multimap", action='store_true', dest="multimap", help="Use reference to resolve multimappers (requires -n > 1).")
+    allparser.add_argument("-mq", "--min-mq", type=int, required=False, default=2, dest="mq", help="Minimum mapping quality (default: %(default)s)")
+    allparser.add_argument("-mi", "--min-identity", type=float, required=False, default=0.95, dest="identity", help="Minimum alignment identity (default: %(default)s)")
+    allparser.add_argument("-nm", "--max-nm", type=int, required=False, default=-1, dest="nm", help="Maximum NM for alignments (default: %(default)s)")
+    allparser.add_argument("-mc", "--min-coverage", required=False, dest="cov", type=int, help="Minimimum coverage to call variant (default: %(default)s)", default=10)
+    allparser.add_argument("-mv", "--var-fraction", required=False, dest="var", type=float, help="Minimimum variant fraction to call variant (default: %(default)s)", default=0.8)
     #allparser.add_argument("-nm", "--sample-names", type=str, required=False, dest="sampleNames", help="CSV file containing name for all samples.")
-    allparser.add_argument("-mts", "--multiTCStringency", dest="strictTCs", action='store_true', required=False, default=SUPPRESS, help="Multiple T>C conversion required for T>C read")
-    allparser.add_argument("-rl", "--max-read-length", type=int, required=False, dest="maxLength", default=SUPPRESS, help="Max read length in BAM file")
-    allparser.add_argument("-mbq", "--min-base-qual", type=int, default=0, required=False, dest="minQual", help="Min base quality for T -> C conversions")
+    allparser.add_argument("-mts", "--multiTCStringency", dest="strictTCs", action='store_true', required=False, help="Multiple T>C conversion required for T>C read")
+    allparser.add_argument("-rl", "--max-read-length", type=int, required=False, dest="maxLength", help="Max read length in BAM file")
+    allparser.add_argument("-mbq", "--min-base-qual", type=int, default=0, required=False, dest="minQual", help="Min base quality for T -> C conversions (default: %(default)d)")
     
     args = parser.parse_args()
     
