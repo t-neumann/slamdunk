@@ -3,8 +3,9 @@ Template taken from:
 https://packaging.python.org/en/latest/distributing.html
 https://github.com/pypa/sampleproject
 """
-
+from __future__ import print_function
 import os, sys
+
 try:
     #from slamdunk import __file__ as pip_loc
     from setuptools import setup, find_packages
@@ -40,8 +41,8 @@ plot_files = package_files(name + '/plot')
      
 def _runExternalBuilds(dir, externalNGM, externalSamtools, skipRLibraries):
     
-    from subprocess import call
-    
+    import subprocess
+   
     #print("Move plot to slamdunk.")
     #syscall = "mv " + os.path.join(dir, "plot") + " " + os.path.join(dir, name, "plot")
     #print(syscall)
@@ -58,14 +59,21 @@ def _runExternalBuilds(dir, externalNGM, externalSamtools, skipRLibraries):
     print("Setting up R package destination.")
     syscall = "mkdir -p " + os.path.join(dir, name, "plot", "Rslamdunk")
     print(syscall)
-    call([syscall], shell=True)
+    subprocess.call([syscall], shell=True)
     
     if (skipRLibraries is None) :
-        print("Installing R packages.")
-        syscall = "export R_LIBS_SITE=" + os.path.join(dir, name, "plot", "Rslamdunk") + " ; "
-        syscall +=  "R --vanilla -e 'libLoc = .libPaths()[grep(\"Rslamdunk\",.libPaths())]; source(\"" + os.path.join(dir, name, "plot", "checkLibraries.R") + "\"); checkLib(libLoc)'"
-        print(syscall)
-        call([syscall], shell=True)
+        pass
+#         print("Installing R packages.")
+#         syscall = "export R_LIBS_SITE=" + os.path.join(dir, name, "plot", "Rslamdunk") + " ; "
+#         syscall +=  "R --vanilla -e 'libLoc = .libPaths()[grep(\"Rslamdunk\",.libPaths())]; source(\"" + os.path.join(dir, name, "plot", "checkLibraries.R") + "\"); checkLib(libLoc)'"
+#         print(syscall)
+#         p = subprocess.Popen(syscall, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+#         lines_iterator = iter(p.stdout.readline, b"")
+#         for line in lines_iterator:
+#             print(line, end="")
+#         p.wait();
+#         if(p.returncode != 0):
+#             raise RuntimeError("Error while executing command: \"" + syscall + "\"")
     else :
         print("Skipping R package installation.")
         print("(Retrying upon first alleyoop / splash run).")
@@ -74,7 +82,7 @@ def _runExternalBuilds(dir, externalNGM, externalSamtools, skipRLibraries):
         print("Building Samtools.")
         syscall = "(cd " + os.path.join(dir, name, "contrib") + " ; ./build-samtools.sh)"
         print(syscall)    
-        call([syscall], shell=True) 
+        subprocess.call([syscall], shell=True) 
     else :
         print("External Samtools will be manually linked. Skipping.")
 
@@ -82,18 +90,18 @@ def _runExternalBuilds(dir, externalNGM, externalSamtools, skipRLibraries):
         print("Building NGM.")
         syscall = "(cd " + os.path.join(dir, name, "contrib") + " ; ./build-ngm.sh)"
         print(syscall)
-        call([syscall], shell=True)
+        subprocess.call([syscall], shell=True)
     else :
         print("External NGM will be manually linked. Skipping.")
         
     print("Building Varscan2.")
     syscall = "(cd " + os.path.join(dir, name, "contrib") + " ; ./build-varscan.sh)"
     print(syscall)    
-    call([syscall], shell=True)
+    subprocess.call([syscall], shell=True)
     
     print("Building RNASeqReadSimulator.")
     syscall = "(cd " + os.path.join(dir, name, "contrib") + " ; ./build-rnaseqreadsimulator.sh)"
-    call([syscall], shell=True)
+    subprocess.call([syscall], shell=True)
      
 class install(_install):
     

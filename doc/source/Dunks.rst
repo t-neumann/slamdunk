@@ -9,7 +9,7 @@ The *map* dunk is used to map reads to a given genome using `NextGenMap's <http:
 .. code:: bash
 
     slamdunk map [-h] -r <reference fasta> -o <output directory> [-5 <bp to trim from 5' end>]
-                 [-n <Output up to N alignments per multimapper>] [-t <threads>]
+                 [-n <Output up to N alignments per multimapper>] [-a <MAXPOLYA>] [-t <threads>]
                  [-q] [-l] bam [bam ...]
                 
 Input
@@ -46,6 +46,7 @@ Parameter  Required  Description
 **-r**     x         The reference fasta file.
 **-o**     x         The output directory where all output files of this dunk will be placed.
 **-5**               Number of bases that will be hard-clipped from the 5' end of each read (default: 0).
+**-5**               Maximum number of As at the 3' end of a read.
 **-n**               The maximum number of alignments that will be reported for a multi-mapping read (i.e. reads with multiple alignments of equal best scores) (default: 1).
 **-t**               The number of threads to use for this dunk. NextGenMap runs multi-threaded, so it is recommended to use more threads than available samples (default: 1).
 **-q**               Deactivates NextGenMap's SLAMSeq alignment settings. Can be used to align plain QuantSeq data instead of SLAMSeq data.
@@ -115,8 +116,8 @@ analyses to reduce the false-positive number.
 
 .. code:: bash
 
-    slamdunk snp [-h] -o <output directory> -f <reference fasta> [-c <coverage cutoff>]
-                 [-a <variant fraction cutoff>] [-t <threads>] bam [bam ...]
+    slamdunk snp [-h] -o <output directory> -r <reference fasta> [-c <coverage cutoff>]
+                 [-f <variant fraction cutoff>] [-t <threads>] bam [bam ...]
                     
 Input
 ^^^^^
@@ -146,10 +147,10 @@ Parameters
 Parameter  Required  Description
 =========  ========  ==================================================================================================================================================================
 **-h**               Prints the help.
-**-f**     x         The reference fasta file.
+**-r**     x         The reference fasta file.
 **-o**     x         The output directory where all output files of this dunk will be placed. 
 **-c**               Minimum coverage to call a variant (default: 10).
-**-a**               Minimum variant fraction to call a variant (default: 0.8).
+**-f**               Minimum variant fraction to call a variant (default: 0.8).
 **-t**               The number of threads to use for this dunk. VarScan2 runs multi-threaded, so it is recommended to use more threads than available samples (default: 1).
 **bam**              BAM file(s) containing the final filtered reads. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
 =========  ========  ==================================================================================================================================================================
@@ -221,7 +222,7 @@ provides parameters to keep full control over all dunks.
 
 .. code:: bash
 
-    slamdunk all [-h] -r <reference fasta> -b <bed file> -o <output directory> [-5 <bp to trim from 5' end>]
+    slamdunk all [-h] -r <reference fasta> -b <bed file> -o <output directory> [-5 <bp to trim from 5' end>] [-a MAXPOLYA]
                  [-n <Output up to N alignments per multimapper>] [-t <threads>] [-q] [-l] [-m] [-mq <MQ cutoff>]
                  [-mi <identity cutoff>] [-nm <NM cutoff>] [-mc <coverage cutoff>] [-mv <variant fraction cutoff>] [-mts]
                  [-rl <maximum read length>] [-mbq <minimum base quality>] bam [bam ...]
@@ -260,6 +261,7 @@ Parameter  Required  Description
 **-b**     x         BED-file containing coordinates for 3' UTRs.
 **-o**     x         The output directory where all output files of this dunk will be placed.
 **-5**               Number of bases that will be hard-clipped from the 5' end of each read (default: 0) **[map]**.
+**-a**               Maximum number of A at the 3' end of a read.
 **-n**               The maximum number of alignments that will be reported for a multi-mapping read (i.e. reads with multiple alignments of equal best scores) (default: 1) **[map]**.
 **-t**               The number of threads to use for this dunk. NextGenMap runs multi-threaded, so it is recommended to use more threads than available samples (default: 1)
 **-q**               Deactivates NextGenMap's SLAMSeq alignment settings. Can be used to align plain QuantSeq data instead of SLAMSeq data **[map]**.
@@ -275,5 +277,3 @@ Parameter  Required  Description
 **-mbq**             Minimum base quality for T->C conversions to be counted (default: 0) **[count]**.
 **bam**              Fastq/BAM file(s) containing the raw unmapped reads. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
 =========  ========  =====================================================================================================================================================
-
-                    

@@ -14,7 +14,7 @@
 from __future__ import print_function
 import sys, os, random
 
-from argparse import ArgumentParser, RawDescriptionHelpFormatter
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter, SUPPRESS
     
 from os.path import basename
 
@@ -232,109 +232,109 @@ def run():
     version = "0.1.0"
     
     # Main Parsers
-    parser = ArgumentParser(description=usage, formatter_class=RawDescriptionHelpFormatter, version=version)
+    parser = ArgumentParser(description=usage, formatter_class=ArgumentDefaultsHelpFormatter, version=version)
     
     # Initialize Subparsers
     subparsers = parser.add_subparsers(help="", dest="command")
     
     # dedup command
-    dedupparser = subparsers.add_parser('dedup', help='Deduplicate SLAM-seq aligned data')
-    dedupparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
+    dedupparser = subparsers.add_parser('dedup', help='Deduplicate SLAM-seq aligned data', formatter_class=ArgumentDefaultsHelpFormatter)
+    dedupparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", default=SUPPRESS, help="Output directory for mapped BAM files.")
     dedupparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
     dedupparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     
     # stats command
-    statsparser = subparsers.add_parser('stats.rates', help='Calculate overall conversion rates on SLAM-seq datasets')
+    statsparser = subparsers.add_parser('stats.rates', help='Calculate overall conversion rates on SLAM-seq datasets', formatter_class=ArgumentDefaultsHelpFormatter)
     statsparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
-    statsparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
-    statsparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
+    statsparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", default=SUPPRESS, help="Output directory for mapped BAM files.")
+    statsparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", default=SUPPRESS, help="Reference fasta file")
     statsparser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
     #statsparser.add_argument('-R', "--compute-rates", dest="overallRates", action='store_true', help="Compute overall conversion rates.")
     statsparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
     
     # context command
-    tccontextparser = subparsers.add_parser('stats.TCcontext', help='Calculate T->C conversion context on SLAM-seq datasets')
+    tccontextparser = subparsers.add_parser('stats.TCcontext', help='Calculate T->C conversion context on SLAM-seq datasets', formatter_class=ArgumentDefaultsHelpFormatter)
     tccontextparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     #tccontextparser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
-    tccontextparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
-    tccontextparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
+    tccontextparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", default=SUPPRESS, help="Output directory for mapped BAM files.")
+    tccontextparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", default=SUPPRESS, help="Reference fasta file")
     tccontextparser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
     tccontextparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
 
     # stats rates utr command
-    statsutrrateparser = subparsers.add_parser('stats.utrrates', help='Calculate conversion rates per UTR on SLAM-seq datasets')
+    statsutrrateparser = subparsers.add_parser('stats.utrrates', help='Calculate conversion rates per UTR on SLAM-seq datasets', formatter_class=ArgumentDefaultsHelpFormatter)
     statsutrrateparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
-    statsutrrateparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
-    statsutrrateparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
+    statsutrrateparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", default=SUPPRESS, help="Output directory for mapped BAM files.")
+    statsutrrateparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", default=SUPPRESS, help="Reference fasta file")
     statsutrrateparser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
     statsutrrateparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
-    statsutrrateparser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
-    statsutrrateparser.add_argument("-l", "--max-read-length", type=int, required=False, dest="maxLength", help="Max read length in BAM file")
+    statsutrrateparser.add_argument("-b", "--bed", type=str, required=True, dest="bed", default=SUPPRESS, help="BED file")
+    statsutrrateparser.add_argument("-l", "--max-read-length", type=int, required=False, dest="maxLength", default=SUPPRESS, help="Max read length in BAM file")
     
     # SNPeval command
-    snpevalparser = subparsers.add_parser('stats.SNPeval', help='Calculate and visualize Gini-coefficient for UTRs with SNPs')
+    snpevalparser = subparsers.add_parser('stats.SNPeval', help='Calculate and visualize Gini-coefficient for UTRs with SNPs', formatter_class=ArgumentDefaultsHelpFormatter)
     snpevalparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
-    snpevalparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
-    snpevalparser.add_argument("-s", "--snp-directory", type=str, required=True, dest="snpDir", help="Directory containing SNP files.")
-    snpevalparser.add_argument("-r", "--reference", type=str, required=True, dest="ref", help="Reference fasta file")
-    snpevalparser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
+    snpevalparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", default=SUPPRESS, help="Output directory for mapped BAM files.")
+    snpevalparser.add_argument("-s", "--snp-directory", type=str, required=True, dest="snpDir", default=SUPPRESS, help="Directory containing SNP files.")
+    snpevalparser.add_argument("-r", "--reference", type=str, required=True, dest="ref", default=SUPPRESS, help="Reference fasta file")
+    snpevalparser.add_argument("-b", "--bed", type=str, required=True, dest="bed", default=SUPPRESS, help="BED file")
     snpevalparser.add_argument("-c", "--min-coverage", required=False, dest="cov", type=int, help="Minimimum coverage to call variant", default=10)
-    snpevalparser.add_argument("-a", "--var-fraction", required=False, dest="var", type=float, help="Minimimum variant fraction to call variant", default=0.8)
-    snpevalparser.add_argument("-m", "--multiTCStringency", dest="strictTCs", action='store_true', required=False, help="")
-    snpevalparser.add_argument("-l", "--max-read-length", type=int, required=False, dest="maxLength", help="Max read length in BAM file")
+    snpevalparser.add_argument("-f", "--var-fraction", required=False, dest="var", type=float, help="Minimimum variant fraction to call variant", default=0.8)
+    snpevalparser.add_argument("-m", "--multiTCStringency", dest="strictTCs", action='store_true', default=SUPPRESS, required=False, help="")
+    snpevalparser.add_argument("-l", "--max-read-length", type=int, required=False, dest="maxLength", default=SUPPRESS, help="Max read length in BAM file")
     snpevalparser.add_argument("-q", "--min-base-qual", type=int, default=0, required=False, dest="minQual", help="Min base quality for T -> C conversions")
     snpevalparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
     
     # stats summary command
-    statsSumParser = subparsers.add_parser('stats.summary', help='Display summary information and statistics on read numbers')
-    statsSumParser.add_argument("-o", "--outputPrefix", type=str, required=True, dest="outputPrefix", help="Prefix for output files")
-    statsSumParser.add_argument("-n", "--sample-names", type=str, required=True, dest="sampleNames", help="CSV file containing name for all samples.")
-    statsSumParser.add_argument("-r", "--read-counts", type=str, required=True, dest="readCounts", help="CSV file containing read counts.")
-    statsSumParser.add_argument("-s", "--snp-files", type=str, nargs="+", required=True, dest="snpFiles", help="SNP files for all samples")
-    statsSumParser.add_argument("-m", "--mapped-files", type=str, nargs="+", required=True, dest="mappedFiles", help="BAM files for all samples")
-    statsSumParser.add_argument("-f", "--filtered-files", type=str, nargs="+", required=False, dest="filteredFiles", help="Filtered BAM files for all samples")
-    statsSumParser.add_argument("-d", "--deduplicated-files", type=str, nargs="+", required=False, dest="dedupFiles", help="Deduplicated BAM files for all samples")
+    statsSumParser = subparsers.add_parser('stats.summary', help='Display summary information and statistics on read numbers', formatter_class=ArgumentDefaultsHelpFormatter)
+    statsSumParser.add_argument("-o", "--outputPrefix", type=str, required=True, dest="outputPrefix", default=SUPPRESS, help="Prefix for output files")
+    statsSumParser.add_argument("-n", "--sample-names", type=str, required=True, dest="sampleNames", default=SUPPRESS, help="CSV file containing name for all samples.")
+    statsSumParser.add_argument("-r", "--read-counts", type=str, required=True, dest="readCounts", default=SUPPRESS, help="CSV file containing read counts.")
+    statsSumParser.add_argument("-s", "--snp-files", type=str, nargs="+", required=True, dest="snpFiles", default=SUPPRESS, help="SNP files for all samples")
+    statsSumParser.add_argument("-m", "--mapped-files", type=str, nargs="+", required=True, dest="mappedFiles", default=SUPPRESS, help="BAM files for all samples")
+    statsSumParser.add_argument("-f", "--filtered-files", type=str, nargs="+", required=False, dest="filteredFiles", default=SUPPRESS, help="Filtered BAM files for all samples")
+    statsSumParser.add_argument("-d", "--deduplicated-files", type=str, nargs="+", required=False, dest="dedupFiles", default=SUPPRESS, help="Deduplicated BAM files for all samples")
     
     # stats read info command
-    conversionRateParser = subparsers.add_parser('stats.tcperreadpos', help='Calculate conversion rates per read position on SLAM-seq datasets')
+    conversionRateParser = subparsers.add_parser('stats.tcperreadpos', help='Calculate conversion rates per read position on SLAM-seq datasets', formatter_class=ArgumentDefaultsHelpFormatter)
     conversionRateParser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
-    conversionRateParser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
-    conversionRateParser.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", help="Directory containing SNP files.")
-    conversionRateParser.add_argument("-l", "--max-read-length", type=int, required=False, dest="maxLength", help="Max read length in BAM file")
-    conversionRateParser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")#conversionRateParser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
+    conversionRateParser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", default=SUPPRESS, help="Reference fasta file")
+    conversionRateParser.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", default=SUPPRESS, help="Directory containing SNP files.")
+    conversionRateParser.add_argument("-l", "--max-read-length", type=int, required=False, dest="maxLength", default=SUPPRESS, help="Max read length in BAM file")
+    conversionRateParser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", default=SUPPRESS, help="Output directory for mapped BAM files.")#conversionRateParser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
     conversionRateParser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
-    conversionRateParser.add_argument("-t", "--threads", type=int, required=False, dest="threads", help="Thread number")
+    conversionRateParser.add_argument("-t", "--threads", type=int, required=False, dest="threads", default=1, help="Thread number")
     
     # stats utr info command
-    utrRateParser = subparsers.add_parser('stats.tcperutrpos', help='Calculate conversion rates per UTR position on SLAM-seq datasets')
+    utrRateParser = subparsers.add_parser('stats.tcperutrpos', help='Calculate conversion rates per UTR position on SLAM-seq datasets', formatter_class=ArgumentDefaultsHelpFormatter)
     utrRateParser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
-    utrRateParser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
-    utrRateParser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
-    utrRateParser.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", help="Directory containing SNP files.")
-    utrRateParser.add_argument("-l", "--max-read-length", type=int, required=False, dest="maxLength", help="Max read length in BAM file")
-    utrRateParser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")#conversionRateParser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
+    utrRateParser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", default=SUPPRESS, help="Reference fasta file")
+    utrRateParser.add_argument("-b", "--bed", type=str, required=True, dest="bed", default=SUPPRESS, help="BED file")
+    utrRateParser.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", default=SUPPRESS, help="Directory containing SNP files.")
+    utrRateParser.add_argument("-l", "--max-read-length", type=int, required=False, dest="maxLength", default=SUPPRESS, help="Max read length in BAM file")
+    utrRateParser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", default=SUPPRESS, help="Output directory for mapped BAM files.")#conversionRateParser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
     utrRateParser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
-    utrRateParser.add_argument("-t", "--threads", type=int, required=False, dest="threads", help="Thread number")
+    utrRateParser.add_argument("-t", "--threads", type=int, required=False, dest="threads", default=1, help="Thread number")
     
     # stats mean coverage for all utrs
-    utrCoverageParser = subparsers.add_parser('stats.utrcoverage', help='Calculate UTR coverage on SLAM-seq datasets')
+    utrCoverageParser = subparsers.add_parser('stats.utrcoverage', help='Calculate UTR coverage on SLAM-seq datasets', formatter_class=ArgumentDefaultsHelpFormatter)
     utrCoverageParser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     # utrCoverageParser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
-    utrCoverageParser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
+    utrCoverageParser.add_argument("-b", "--bed", type=str, required=True, dest="bed", default=SUPPRESS, help="BED file")
     # utrCoverageParser.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", help="Directory containing SNP files.")
     # utrCoverageParser.add_argument("-l", "--max-read-length", type=int, required=True, dest="maxLength", help="Max read length in BAM file")
-    utrCoverageParser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")#conversionRateParser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
+    utrCoverageParser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", default=SUPPRESS, help="Output directory for mapped BAM files.")#conversionRateParser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
     utrCoverageParser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
-    utrCoverageParser.add_argument("-t", "--threads", type=int, required=False, dest="threads", help="Thread number")
+    utrCoverageParser.add_argument("-t", "--threads", type=int, required=False, dest="threads", default=1, help="Thread number")
     
     # dump read info command
-    dumpReadInfo = subparsers.add_parser('dump.reads', help='Print all info available for slamdunk reads')
+    dumpReadInfo = subparsers.add_parser('dump.reads', help='Print all info available for slamdunk reads', formatter_class=ArgumentDefaultsHelpFormatter)
     dumpReadInfo.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
-    dumpReadInfo.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
-    dumpReadInfo.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", help="Directory containing SNP files.")
-    dumpReadInfo.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")#conversionRateParser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
+    dumpReadInfo.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", default=SUPPRESS, help="Reference fasta file")
+    dumpReadInfo.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", default=SUPPRESS, help="Directory containing SNP files.")
+    dumpReadInfo.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", default=SUPPRESS, help="Output directory for mapped BAM files.")#conversionRateParser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
     dumpReadInfo.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
-    dumpReadInfo.add_argument("-t", "--threads", type=int, required=False, dest="threads", help="Thread number")
+    dumpReadInfo.add_argument("-t", "--threads", type=int, required=False, dest="threads", default=1, help="Thread number")
     
     args = parser.parse_args()
     
