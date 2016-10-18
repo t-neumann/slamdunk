@@ -19,7 +19,7 @@ from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter, SUPPRESS
 from os.path import basename
 
 from joblib import Parallel, delayed
-from dunks import deduplicator, stats, dump
+from dunks import deduplicator, stats, dump, tcounter
 from utils.misc import replaceExtension, readSampleNames, estimateMaxReadLength
 
 ########################################################################
@@ -71,6 +71,14 @@ def runDedup(tid, bam, outputDirectory) :
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_dedup"))
     log = getLogFile(outputLOG)
     deduplicator.Dedup(bam, outputBAM, log)
+    closeLogFile(log)
+    stepFinished()
+    
+def runCollapse(tid, tcount, outputDirectory) :
+    outputTCOUNT = os.path.join(outputDirectory, replaceExtension(basename(tcount), ".csv", "_collapsed"))
+    outputLOG = os.path.join(outputDirectory, replaceExtension(basename(tcount), ".log", "_collapsed"))
+    log = getLogFile(outputLOG)
+    tcounter.collapse(tcount, outputTCOUNT, log)
     closeLogFile(log)
     stepFinished()
     
@@ -243,6 +251,12 @@ def run():
     dedupparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
     dedupparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     
+    # collapse command
+    collapseparser = subparsers.add_parser('collapse', help='Collapse UTRs', formatter_class=ArgumentDefaultsHelpFormatter)
+    collapseparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", default=SUPPRESS, help="Output directory for mapped BAM files.")
+    collapseparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
+    collapseparser.add_argument('tcount', action='store', help='Tcount file(s)' , nargs="+")
+    
     # stats command
     statsparser = subparsers.add_parser('stats.rates', help='Calculate overall conversion rates on SLAM-seq datasets', formatter_class=ArgumentDefaultsHelpFormatter)
     statsparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
@@ -350,6 +364,14 @@ def run():
         n = args.threads
         message("Running alleyoop dedup for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
         results = Parallel(n_jobs=n, verbose=verbose)(delayed(runDedup)(tid, args.bam[tid], outputDirectory) for tid in range(0, len(args.bam)))
+        dunkFinished()
+        
+    if (command == "collapse") :
+        outputDirectory = args.outputDir
+        createDir(outputDirectory)
+        n = args.threads
+        message("Running alleyoop collapse for " + str(len(args.tcount)) + " files (" + str(n) + " threads)")
+        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runCollapse)(tid, args.tcount[tid], outputDirectory) for tid in range(0, len(args.tcount)))
         dunkFinished()
         
     elif (command == "half-lifes") :

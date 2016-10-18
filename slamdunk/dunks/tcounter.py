@@ -16,70 +16,78 @@ from slamdunk.utils import SNPtools
 from slamdunk.slamseq.SlamSeqFile import SlamSeqBamFile, ReadDirection, SlamSeqInterval
 
 
-def collapse(expandedCSV, collapsedCSV, readNumber, log):
+def collapse(expandedCSV, collapsedCSV, log):
     
     tcDict = {}
     
     outCSV = open(collapsedCSV, 'w')
     
+    readNumber = 0
+    
     with open(expandedCSV, 'r') as f:
         
         # Skip header
-        next(f)
+#         next(f)
 
         for line in f:
+            
             fields = line.rstrip().split('\t')
-            if (len(fields) == 12) :
+            if (len(fields) == 14) :
             
                 gene = fields[3]
-                nontc = fields[4]
-                tc = fields[6]
-                fwdReads = fields[9]
-                revReads = fields[10]
-                snps = fields[11]
+                length = fields[4]
+                Tcontent = fields[8]
+                coverageOnTs = fields[9]
+                conversionsOnTs = fields[10]
+                readCount = fields[11]
+                tcReadCount = fields[12]
+                multimapCount = fields[13]
                 
                 if (gene in tcDict.keys()) :
-                    tcDict[gene]['nontc'] += int(nontc)
-                    tcDict[gene]['tc'] += int(tc)
-                    tcDict[gene]['fwdReads'] += int(fwdReads)
-                    tcDict[gene]['revReads'] += int(revReads)
-                    tcDict[gene]['snps'] += int(snps)
+                    tcDict[gene]['length'] += max(int(length),0)
+                    tcDict[gene]['Tcontent'] += max(int(Tcontent),0)
+                    tcDict[gene]['coverageOnTs'] += max(int(coverageOnTs),0)
+                    tcDict[gene]['conversionsOnTs'] += max(int(conversionsOnTs),0)
+                    tcDict[gene]['readCount'] += max(int(readCount),0)
+                    tcDict[gene]['tcReadCount'] += max(int(tcReadCount),0)
+                    tcDict[gene]['multimapCount'] += max(int(multimapCount),0)
                 else :
                     tcDict[gene] = {}
-                    tcDict[gene]['nontc'] = int(nontc)
-                    tcDict[gene]['tc'] = int(tc)
-                    tcDict[gene]['fwdReads'] = int(fwdReads)
-                    tcDict[gene]['revReads'] = int(revReads)
-                    tcDict[gene]['snps'] = int(snps)
+                    tcDict[gene]['length'] = max(int(length),0)
+                    tcDict[gene]['Tcontent'] = max(int(Tcontent),0)
+                    tcDict[gene]['coverageOnTs'] = max(int(coverageOnTs),0)
+                    tcDict[gene]['conversionsOnTs'] = max(int(conversionsOnTs),0)
+                    tcDict[gene]['readCount'] = max(int(readCount),0)
+                    tcDict[gene]['tcReadCount'] = max(int(tcReadCount),0)
+                    tcDict[gene]['multimapCount'] = max(int(multimapCount),0)
+                    
+                readNumber += int(readCount)
             
         else :
             print("Error in TC file format - unexpected number of fields (" + str(len(fields)) + ") in the following line:\n" + line, file=log)
             
-    print("gene_name", "non_tc_read_count", "non_tc_norm_read_count", "tc_read_count", "tc_norm_read_count", "tc_read_perc", "avg_conversion_rate", "fwd_reads", "rev_reads", "snp_In_UTR", sep='\t', file=outCSV)
+    #if (coverageOnTs > 0) :
+                #conversionRate = float(conversionsOnTs) / float(coverageOnTs)
+                
+    print("gene_name", "length", "readsCPM", "conversionRate", "Tcontent", "coverageOnTs", "conversionsOnTs", "readCount", "tcReadCount", "multimapCount", sep='\t', file=outCSV)
 
     for gene in sorted(tcDict.keys()) :
         
         print(gene,end="\t",file=outCSV)
-        print(tcDict[gene]['nontc'],end="\t",file=outCSV)
-        print(float(tcDict[gene]['nontc']) / float(readNumber) * float(1000000),end="\t",file=outCSV)
-        print(tcDict[gene]['tc'],end="\t",file=outCSV)
-        print(float(tcDict[gene]['tc']) / float(readNumber) * float(1000000),end="\t",file=outCSV)
-        
-        percent = 0
-        if (tcDict[gene]['nontc'] + tcDict[gene]['tc'] > 0) :
-            percent = float(tcDict[gene]['tc']) / float((tcDict[gene]['nontc'] + tcDict[gene]['tc']))
-        elif (tcDict[gene]['tc'] > 0) :
-            percent = 1
-        print(percent,end="\t",file=outCSV)
-        
-        print(tcDict[gene]['fwdReads'],end="\t",file=outCSV)
-        print(tcDict[gene]['revReads'],end="\t",file=outCSV)
-        print(tcDict[gene]['snps'],file=outCSV)
-        
-        #sys.stdin.readline()
-        
-    outCSV.close()    
-    
+        print(tcDict[gene]['length'],end="\t",file=outCSV)
+        print(float(tcDict[gene]['readCount']) / float(readNumber) * 1000000,end="\t",file=outCSV)
+        conversionRate = 0
+        if (tcDict[gene]['coverageOnTs'] > 0) :
+            conversionRate = float(tcDict[gene]['conversionsOnTs']) / tcDict[gene]['coverageOnTs']
+        print(conversionRate,end="\t",file=outCSV)
+        print(tcDict[gene]['Tcontent'],end="\t",file=outCSV)
+        print(tcDict[gene]['coverageOnTs'],end="\t",file=outCSV)
+        print(tcDict[gene]['conversionsOnTs'],end="\t",file=outCSV)
+        print(tcDict[gene]['readCount'],end="\t",file=outCSV)
+        print(tcDict[gene]['tcReadCount'],end="\t",file=outCSV)
+        print(tcDict[gene]['multimapCount'],file=outCSV)
+                
+    outCSV.close()
 
 def getMean(values, skipZeros=True):
     count = 0.0
