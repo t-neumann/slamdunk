@@ -4,7 +4,7 @@ https://packaging.python.org/en/latest/distributing.html
 https://github.com/pypa/sampleproject
 """
 from __future__ import print_function
-import os, sys
+import os, sys, re
 
 try:
     #from slamdunk import __file__ as pip_loc
@@ -33,11 +33,11 @@ def package_files(directory):
     paths = []
     for (path, directories, filenames) in os.walk(directory):
         for filename in filenames:
-            paths.append(os.path.join(filename))
+            paths.append(os.path.join("..", "..", path, filename))
     return paths
 
-bin_files = package_files(name + '/contrib')
-plot_files = package_files(name + '/plot')
+bin_files = package_files(name + os.sep + 'contrib')
+plot_files = package_files(name + os.sep + 'plot')
      
 def _runExternalBuilds(dir, externalNGM, externalSamtools, skipRLibraries):
     
@@ -62,18 +62,17 @@ def _runExternalBuilds(dir, externalNGM, externalSamtools, skipRLibraries):
     subprocess.call([syscall], shell=True)
     
     if (skipRLibraries is None) :
-        pass
-#         print("Installing R packages.")
-#         syscall = "export R_LIBS_SITE=" + os.path.join(dir, name, "plot", "Rslamdunk") + " ; "
-#         syscall +=  "R --vanilla -e 'libLoc = .libPaths()[grep(\"Rslamdunk\",.libPaths())]; source(\"" + os.path.join(dir, name, "plot", "checkLibraries.R") + "\"); checkLib(libLoc)'"
-#         print(syscall)
-#         p = subprocess.Popen(syscall, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
-#         lines_iterator = iter(p.stdout.readline, b"")
-#         for line in lines_iterator:
-#             print(line, end="")
-#         p.wait();
-#         if(p.returncode != 0):
-#             raise RuntimeError("Error while executing command: \"" + syscall + "\"")
+         print("Installing R packages.")
+         syscall = "export R_LIBS_SITE=" + os.path.join(dir, name, "plot", "Rslamdunk") + " ; "
+         syscall +=  "R --vanilla -e 'libLoc = .libPaths()[grep(\"Rslamdunk\",.libPaths())]; source(\"" + os.path.join(dir, name, "plot", "checkLibraries.R") + "\"); checkLib(libLoc)'"
+         print(syscall)
+         p = subprocess.Popen(syscall, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+         lines_iterator = iter(p.stdout.readline, b"")
+         for line in lines_iterator:
+             print(line, end="")
+         p.wait();
+         if(p.returncode != 0):
+             raise RuntimeError("Error while executing command: \"" + syscall + "\"")
     else :
         print("Skipping R package installation.")
         print("(Retrying upon first alleyoop / splash run).")
