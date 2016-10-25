@@ -7,8 +7,9 @@ import pysam
 import subprocess
 import collections
 import csv
+import ast
 
-FlagStat = collections.namedtuple('FlagStat' , 'TotalReads MappedReads')
+ReadStat = collections.namedtuple('ReadStat' , 'SequencedReads MappedReads FilteredReads')
 
 def estimateMaxReadLength(bam):
 
@@ -139,46 +140,64 @@ def callR(cmd, log=sys.stderr, verbose=False, dry=False):
         if(p.returncode != 0):
             raise RuntimeError("Error while executing command: \"" + cmd + "\"")
 
-def runIndexBam(inFileBam, log=sys.stderr, verbose=False, dry=False):
-    idxFile = inFileBam + ".bai"
-    if(dry or checkStep([inFileBam], [idxFile])):
-        run(" ".join([getBinary("samtools"), "index", inFileBam]), log, verbose=verbose, dry=dry)
+# def runIndexBam(inFileBam, log=sys.stderr, verbose=False, dry=False):
+#     idxFile = inFileBam + ".bai"
+#     if(dry or checkStep([inFileBam], [idxFile])):
+#         run(" ".join([getBinary("samtools"), "index", inFileBam]), log, verbose=verbose, dry=dry)
 
-def runFlagstat(bam, log=sys.stderr, verbose=False, dry=False):
-    flagstat = bam + ".flagstat"
-    if(dry or checkStep([bam], [flagstat])):
-        run(" ".join([ getBinary("samtools"), "flagstat", bam, ">", flagstat]), log, verbose=verbose, dry=dry)
-    else:
-        print("Skipped flagstat for " + bam, file=log)
+# def runFlagstat(bam, log=sys.stderr, verbose=False, dry=False):
+#     flagstat = bam + ".flagstat"
+#     if(dry or checkStep([bam], [flagstat])):
+#         run(" ".join([ getBinary("samtools"), "flagstat", bam, ">", flagstat]), log, verbose=verbose, dry=dry)
+#     else:
+#         print("Skipped flagstat for " + bam, file=log)
 
-def extractMappedReadCount(flagstat):
-    return int(flagstat.split("\n")[4].split(" ")[0])
+# def extractMappedReadCount(flagstat):
+#     return int(flagstat.split("\n")[4].split(" ")[0])
+# 
+# def extractTotalReadCount(flagstat):
+#     return int(flagstat.split("\n")[0].split(" ")[0])
+# 
+# def readFlagStat(bam):
+#     flagStat = bam + ".flagstat"
+#     if(files_exist(flagStat)):
+#         with open(flagStat, 'r') as content_file:
+#             content = content_file.read()
+#             if content.count("\n") > 10:
+#                 return ReadStat(MappedReads = extractMappedReadCount(content), TotalReads = extractTotalReadCount(content))
+#     return None
 
-def extractTotalReadCount(flagstat):
-    return int(flagstat.split("\n")[0].split(" ")[0])
-
-def readFlagStat(bam):
-    flagStat = bam + ".flagstat"
-    if(files_exist(flagStat)):
-        with open(flagStat, 'r') as content_file:
-            content = content_file.read()
-            if content.count("\n") > 10:
-                return FlagStat(MappedReads = extractMappedReadCount(content), TotalReads = extractTotalReadCount(content))
-    return None
-
+def pysamIndex(outputBam):
+    pysam.index(outputBam)  # @UndefinedVariable
 
 def countReads(bam):
-    # TODO
-    raise RuntimeError("Count reads not implemented yet! Run samtools flagstat for " + bam + " and restart.")
-    return None
+    bamFile = pysam.AlignmentFile(bam)
+    mapped = 0
+    unmapped = 0
+    for read in bamFile.fetch(until_eof=True):
+        if(not read.is_secondary and not read.is_supplementary):
+            if(read.is_unmapped):
+                unmapped += 1
+            else:
+                mapped += 1
+    bamFile.close()
+    return mapped, unmapped
 
 def getReadCount(bam):
-    
-    flagstat = readFlagStat(bam)
-    if(flagstat == None):
-        flagstat = countReads(bam)
-                
-    return flagstat
+    bamFile = pysam.AlignmentFile(bam)
+    bamFile.header
+    if('RG' in bamFile.header and len(bamFile.header['RG']) > 0):
+        counts = ast.literal_eval(bamFile.header['RG'][0]['DS'])
+        
+    else:
+        raise RuntimeError("Could not get mapped/unmapped/filtered read counts from BAM file. RG is missing. Please rerun slamdunk filter.")
+        
+    return ReadStat(SequencedReads = counts['sequenced'], MappedReads = counts['mapped'], FilteredReads = counts['filtered'])
+#     flagstat = readFlagStat(bam)
+#     if(flagstat == None):
+#         flagstat = countReads(bam)
+#                 
+#     return flagstat
 
 def readSampleNames(sampleNames, bams):
     samples = None

@@ -4,7 +4,7 @@
 from __future__ import print_function
 import os
 
-from slamdunk.utils.misc import files_exist, checkStep, run, runIndexBam, removeFile, runFlagstat, getBinary
+from slamdunk.utils.misc import files_exist, checkStep, run, pysamIndex, removeFile, getBinary
 
 projectPath = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -37,11 +37,11 @@ def runSam2bam(inFile, outFile, log, index=True, sort=True, delinFile=False, onl
                 removeFile(inFile)
         
     if(index):
-        runIndexBam(outFile, log, verbose=verbose, dry=dry)
+        pysamIndex(outFile)
 
 
-def Map(inputBAM, inputReference, outputSAM, log, quantseqMapping, localMapping, threads=1, parameter="--no-progress --slam-seq 2" , outputSuffix="_ngm_slamdunk", trim5p=0, maxPolyA=-1, topn=1, printOnly=False, verbose=True, force=False):
-    
+def Map(inputBAM, inputReference, outputSAM, log, quantseqMapping, localMapping, threads=1, parameter="--no-progress --slam-seq 2" , outputSuffix="_ngm_slamdunk", trim5p=0, maxPolyA=-1, topn=1, sampleId=None, sampleName="NA", sampleType="NA", sampleTime=0, printOnly=False, verbose=True, force=False):
+
     if(quantseqMapping is True) :
         parameter = "--no-progress"
             
@@ -55,7 +55,12 @@ def Map(inputBAM, inputReference, outputSAM, log, quantseqMapping, localMapping,
         parameter = parameter + " -l "
     else:
         parameter = parameter + " -e "
-        
+
+    if(sampleId != None):    
+        parameter = parameter + " --rg-id " + str(sampleId)
+        if(sampleName != ""):
+            parameter = parameter + " --rg-sm " + sampleName + ":" + sampleType + ":" + str(sampleTime)
+    
     if(topn > 1):
         parameter = parameter + " -n " + str(topn) + " --strata "
         
@@ -67,10 +72,10 @@ def Map(inputBAM, inputReference, outputSAM, log, quantseqMapping, localMapping,
 
 def sort(inputSAM, outputBAM, log, threads=1, keepSam=True, dry=False, verbose=True):    
 
-    if(files_exist(inputSAM) and checkStep([inputSAM], [outputBAM + ".flagstat"])):
+    if(files_exist(inputSAM) and checkStep([inputSAM], [outputBAM + ".bai"])):
         #runSam2bam(inputSAM, outputBAM, log, True, True, not keepSam, threads=threads, dry=dry, verbose=verbose)
         runSam2bam(inputSAM, outputBAM, log, False, False, not keepSam, threads=threads, dry=dry, verbose=verbose)
-        runFlagstat(outputBAM, log, dry=dry, verbose=verbose)
+        #runFlagstat(outputBAM, log, dry=dry, verbose=verbose)
     else:
         print("Skipped sorting for " + inputSAM, file=log)
 

@@ -105,8 +105,8 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
     
     referenceFile = pysam.FastaFile(ref)
     
-    flagstat = getReadCount(bam)
-    readNumber = flagstat.MappedReads
+    readstat = getReadCount(bam)
+    readNumber = readstat.MappedReads
 
     fileCSV = open(outputCSV,'w')
     

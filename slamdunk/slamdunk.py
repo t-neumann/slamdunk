@@ -63,13 +63,26 @@ def createDir(directory):
         message("Creating output directory: " + directory)
         os.makedirs(directory)
 
-def runMap(tid, inputBAM, referenceFile, threads, trim5p, maxPolyA, quantseqMapping, localMapping, topn, outputDirectory) :
+def runMap(tid, inputBAM, referenceFile, threads, trim5p, maxPolyA, quantseqMapping, localMapping, topn, sampleDescription, outputDirectory) :
     outputSAM = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".sam", "_slamdunk_mapped"))
     outputBAM = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".bam.flagstat", "_slamdunk_mapped"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".log", "_slamdunk_mapped"))
+    
+    sampleName = ""
+    sampleType = ""
+    sampleTime = ""
+    if(sampleDescription != ""):
+        sampleDescriptions = sampleDescription.split(":")
+        if(len(sampleDescriptions) >= 1):
+            sampleName = sampleDescriptions[0]
+        if(len(sampleDescriptions) >= 2):
+            sampleType = sampleDescriptions[1]
+        if(len(sampleDescriptions) >= 3):
+            sampleTime = sampleDescriptions[2]
+    
     # Don't run mapping if sort bam/bai files alread exists
     if(checkStep([inputBAM, referenceFile], [outputBAM])):
-        mapper.Map(inputBAM, referenceFile, outputSAM, getLogFile(outputLOG), quantseqMapping, localMapping, threads=threads, trim5p=trim5p, maxPolyA=maxPolyA, topn=topn, printOnly=printOnly, verbose=verbose)
+        mapper.Map(inputBAM, referenceFile, outputSAM, getLogFile(outputLOG), quantseqMapping, localMapping, threads=threads, trim5p=trim5p, maxPolyA=maxPolyA, topn=topn, sampleId=tid, sampleName=sampleName, sampleType=sampleType, sampleTime=sampleTime, printOnly=printOnly, verbose=verbose)
     stepFinished()
 
 def runSam2Bam(tid, bam, threads, outputDirectory):
@@ -254,8 +267,16 @@ def runAll(args) :
     createDir(dunkPath)
   
     message("Running slamDunk map for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-    for bam in args.bam:
-        runMap(0, bam, referenceFile, n, args.trim5, args.maxPolyA, args.quantseq, args.local, args.topn, dunkPath)
+    sampleDescriptions = args.sampleDescription.split(",")
+    if(args.sampleDescription != "" and len(sampleDescriptions) != len(args.bam)):
+        message("Warning: length of sample descriptions not equal to number of BAM files. Ignoring descriptions.")
+        
+    for i in xrange(0, len(args.bam)):
+        bam = args.bam[i]
+        sampleDescription = ""
+        if(len(args.bam) == len(sampleDescriptions)):
+            sampleDescription = sampleDescriptions[i]
+        runMap(i, bam, referenceFile, n, args.trim5, args.maxPolyA, args.quantseq, args.local, args.topn, sampleDescription, dunkPath)
         
     dunkFinished()
 
@@ -357,6 +378,7 @@ def run():
     mapparser = subparsers.add_parser('map', help='Map SLAM-seq read data', formatter_class=ArgumentDefaultsHelpFormatter)
     mapparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     mapparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", default=SUPPRESS, help="Reference fasta file")
+    mapparser.add_argument("-d", "--description", type=str, required=False, default="", dest="sampleDescription", help="List of sample file descriptions. Must be same order as BAM files. Format: sample-name[:p|c:time]. Example: mef_pulse_120min:p:120")
     mapparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", default=SUPPRESS, help="Output directory for mapped BAM files.")
     mapparser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", default=12, help="Number of bp removed from 5' end of all reads.")
     mapparser.add_argument("-n", "--topn", type=int, required=False, dest="topn", default=1, help="Max. number of alignments to report per read")
@@ -504,6 +526,7 @@ def run():
     allparser = subparsers.add_parser('all', help='Run entire SLAMdunk analysis')
     allparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     allparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
+    allparser.add_argument("-d", "--description", type=str, required=False, default="", dest="sampleDescription", help="List of sample file descriptions. Must be same order as BAM files. Format: sample-name[:p|c:time]. Example: mef_pulse_120min:p:120")
     allparser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file with 3'UTR coordinates")
     allparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for slamdunk run.")
     allparser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", default=12, help="Number of bp removed from 5' end of all reads (default: %(default)s)")
@@ -538,9 +561,20 @@ def run():
         createDir(outputDirectory)
         n = args.threads
         referenceFile = args.referenceFile
+        
+        sampleDescriptions = args.sampleDescription.split(",")
+        if(args.sampleDescription != "" and len(sampleDescriptions) != len(args.bam)):
+            message("Warning: length of sample descriptions not equal to number of BAM files. Ignoring descriptions.")
+
+        
         message("Running slamDunk map for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-        for bam in args.bam:
-            runMap(0, bam, referenceFile, n, args.trim5, args.quantseq, args.local, args.topn, args.maxPolyA, outputDirectory)
+        for i in xrange(0, len(args.bam)):
+            bam = args.bam[i]
+            sampleDescription = ""
+            if(len(args.bam) == len(sampleDescriptions)):
+                sampleDescription = sampleDescriptions[i]
+            runMap(i, bam, referenceFile, n, args.trim5, args.maxPolyA, args.quantseq, args.local, args.topn, sampleDescription, outputDirectory)
+            
         dunkFinished()
         message("Running slamDunk sort for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
         results = Parallel(n_jobs=1, verbose=verbose)(delayed(runSam2Bam)(tid, args.bam[tid], n, outputDirectory) for tid in range(0, len(args.bam)))

@@ -5,7 +5,7 @@ from __future__ import print_function
 import pysam
 #import subprocess
 
-from slamdunk.utils.misc import checkStep, runIndexBam, runFlagstat
+from slamdunk.utils.misc import checkStep, pysamIndex
 
 def Dedup(inputBAM, outputBAM, log, printOnly=False, verbose = True, force=False):
     
@@ -56,8 +56,8 @@ def Dedup(inputBAM, outputBAM, log, printOnly=False, verbose = True, force=False
         print("{0:.2f}".format(float(retainedReads) / float(processedReads)),file=log,end="")
         print(" compression rate)", file=log)
         
-        runIndexBam(outputBAM, log, verbose=verbose, dry=printOnly)
-        runFlagstat(outputBAM, log, verbose=verbose, dry=printOnly)
+        pysamIndex(outputBAM, log, verbose=verbose, dry=printOnly)
+#         runFlagstat(outputBAM, log, verbose=verbose, dry=printOnly)
         
     else:
         print("Skipped deduplication for " + inputBAM, file=log)
