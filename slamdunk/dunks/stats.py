@@ -498,7 +498,10 @@ def readSummary(filteredFiles, outputFile, log, printOnly=False, verbose=True, f
     for bam in filteredFiles:
         readStats = getReadCount(bam)
         sampleInfo = getSampleInfo(bam)
-        print(bam, sampleInfo.Name, sampleInfo.Type, sampleInfo.Time, readStats.SequencedReads, readStats.MappedReads, readStats.DedupReads, readStats.FilteredReads, sep="\t", file=tsvFile)
+        sampleType = "pulse"
+        if(sampleInfo.Type == "c"):
+            sampleType = "chase"
+        print(bam, sampleInfo.Name, sampleType, sampleInfo.Time, readStats.SequencedReads, readStats.MappedReads, readStats.DedupReads, readStats.FilteredReads, sep="\t", file=tsvFile)
     tsvFile.close()
         
 def sampleSummary(readCounts, outputPrefix, log, printOnly=False, verbose=True, force=False):
