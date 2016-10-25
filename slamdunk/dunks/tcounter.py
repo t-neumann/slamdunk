@@ -111,7 +111,10 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
     readNumber = readstat.MappedReads
 
     fileCSV = open(outputCSV,'w')
-    print("#sample info:\t" + sampleInfo.Name + "\t" + sampleInfo.Type + "\t" + sampleInfo.Time, file=fileCSV)
+    sampleType = "pulse"
+    if(sampleInfo.Type == "c"):
+        sampleType = "chase"
+    print("#sample info:\t" + sampleInfo.Name + "\t" + sampleType + "\t" + sampleInfo.Time, file=fileCSV)
     print(SlamSeqInterval.Header, file=fileCSV)
     
     snps = SNPtools.SNPDictionary(snpsFile)
