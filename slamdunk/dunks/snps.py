@@ -5,7 +5,7 @@ from __future__ import print_function
 import os
 import subprocess
 import csv
-from slamdunk.utils.misc import checkStep, getBinary
+from slamdunk.utils.misc import checkStep, getBinary  # @UnresolvedImport
 
 projectPath = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 varScanPath = os.path.join(projectPath, "bin", "VarScan.v2.4.1.jar")

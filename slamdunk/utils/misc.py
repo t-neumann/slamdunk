@@ -9,7 +9,8 @@ import collections
 import csv
 import ast
 
-ReadStat = collections.namedtuple('ReadStat' , 'SequencedReads MappedReads FilteredReads')
+ReadStat = collections.namedtuple('ReadStat' , 'SequencedReads MappedReads DedupReads FilteredReads SNPs')
+SampleInfo = collections.namedtuple('SampleInfo' , 'ID Name Type Time')
 
 def estimateMaxReadLength(bam):
 
@@ -183,21 +184,29 @@ def countReads(bam):
     bamFile.close()
     return mapped, unmapped
 
-def getReadCount(bam):
+def getFromReadStat(name, stats):
+    if(name in stats):
+        return stats[name]
+    else:
+        return "NA"
+
+def getReadGroup(bam):
     bamFile = pysam.AlignmentFile(bam)
-    bamFile.header
-    if('RG' in bamFile.header and len(bamFile.header['RG']) > 0):
-        counts = ast.literal_eval(bamFile.header['RG'][0]['DS'])
-        
+    header = bamFile.header
+    bamFile.close()
+    if('RG' in header and len(header['RG']) > 0):
+        return header['RG'][0]
     else:
         raise RuntimeError("Could not get mapped/unmapped/filtered read counts from BAM file. RG is missing. Please rerun slamdunk filter.")
-        
-    return ReadStat(SequencedReads = counts['sequenced'], MappedReads = counts['mapped'], FilteredReads = counts['filtered'])
-#     flagstat = readFlagStat(bam)
-#     if(flagstat == None):
-#         flagstat = countReads(bam)
-#                 
-#     return flagstat
+    
+def getReadCount(bam):
+    counts = ast.literal_eval(getReadGroup(bam)['DS'])
+    return ReadStat(SequencedReads = getFromReadStat("sequenced", counts), MappedReads = getFromReadStat("mapped", counts), DedupReads = getFromReadStat("dedupreads", counts), FilteredReads = getFromReadStat("filtered", counts), SNPs = getFromReadStat("snps", counts))
+
+def getSampleInfo(bam):
+    sampleInfo = getReadGroup(bam)
+    sampleInfos = sampleInfo['SM'].split(":")
+    return SampleInfo(ID = sampleInfo['ID'], Name = sampleInfos[0], Type = sampleInfos[1], Time = sampleInfos[2])
 
 def readSampleNames(sampleNames, bams):
     samples = None

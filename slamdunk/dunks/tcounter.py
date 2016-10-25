@@ -9,11 +9,11 @@ import pysam
 import itertools as IT
 
 from os.path import basename
-from slamdunk.utils.misc import getReadCount, getSampleName, complement
-from slamdunk.utils.BedReader import BedIterator
+from slamdunk.utils.misc import getReadCount, getSampleName  # @UnresolvedImport
+from slamdunk.utils.BedReader import BedIterator  # @UnresolvedImport
 
-from slamdunk.utils import SNPtools
-from slamdunk.slamseq.SlamSeqFile import SlamSeqBamFile, ReadDirection, SlamSeqInterval
+from slamdunk.utils import SNPtools  # @UnresolvedImport
+from slamdunk.slamseq.SlamSeqFile import SlamSeqBamFile, ReadDirection, SlamSeqInterval  # @UnresolvedImport
 
 
 def collapse(expandedCSV, collapsedCSV, log):

@@ -1,16 +1,15 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
-import os
 import tempfile
 import math
 import pysam
 
 from os.path import basename
-from slamdunk.utils.misc import run, removeExtension, checkStep, getReadCount, matchFile, complement , getPlotter, callR
-from slamdunk.slamseq.SlamSeqFile import SlamSeqBamFile, ReadDirection
-from slamdunk.utils import SNPtools
-from slamdunk.utils.BedReader import BedIterator
+from slamdunk.utils.misc import run, removeExtension, checkStep, getReadCount, getSampleInfo, complement , getPlotter, callR  # @UnresolvedImport
+from slamdunk.slamseq.SlamSeqFile import SlamSeqBamFile, ReadDirection  # @UnresolvedImport
+from slamdunk.utils import SNPtools  # @UnresolvedImport
+from slamdunk.utils.BedReader import BedIterator  # @UnresolvedImport
 
 # projectPath = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # pathComputeOverallRates = os.path.join(projectPath, "plot", "compute_overall_rates.R")
@@ -493,59 +492,22 @@ def statsComputeOverallRatesPerUTR(referenceFile, bam, minQual, outputCSV, outpu
         callR(getPlotter("globalRatePlotter") + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
            
     
-def readSummary(mappedFiles, filteredFiles, dedupFiles, snpsFiles, samples, outputPrefix, log, printOnly=False, verbose=True, force=False):
-    if(len(mappedFiles) == len(snpsFiles)):
-        outputFile = open(outputPrefix + "_summary.txt", "w")
-                
-#         print("Filename", "Name",  "Sequenced reads", "Mapped reads", "Filtered reads", "SNP count", "T->C SNP count", sep=";", file=outputFile)
-        header = ";".join(["Filename", "Name", "Sequenced reads", "Mapped reads"])
-        if (filteredFiles != None) :
-            header = header + ";Filtered reads"
-        if (dedupFiles != None) :
-            header = header + ";Dedup reads"
-        print(header, file=outputFile)
-        
-        for sample in samples:
-            name = samples[sample]
-            mappedFile = matchFile(sample, mappedFiles)
-            filteredFile = None
-            mappedFile == None
-            
-            if (filteredFiles != None) :
-                filteredFile = matchFile(sample, filteredFiles)
-            if (dedupFiles != None) :
-                dedupFile = matchFile(sample, dedupFiles)
-
-            snpFile = matchFile(sample, snpsFiles)
-            if((filteredFiles != None and  filteredFile == None) or (dedupFiles != None and dedupFile == None) or snpFile == None or mappedFile == None):
-                raise RuntimeError("Couldn't match all files.")
-            else:
-                mappedStats = getReadCount(mappedFile)
-                print(sample, name, mappedStats.TotalReads, mappedStats.MappedReads, file=outputFile, sep=";", end="")
-                
-                if (filteredFiles != None) :
-                    filteredStats = getReadCount(filteredFile)
-                    print(";" + str(filteredStats.MappedReads), file=outputFile, end="")
-                
-                if (dedupFiles != None) :
-                    dedupStats = getReadCount(dedupFile)
-                    print(";" + str(dedupStats.MappedReads), file=outputFile, end="")
-                    
-                print("", file=outputFile)
-                
-#                 snpCount, tcSnpCount = snps.countSNPsInFile(snpFile)
-#                 print(sample, name, mappedStats.TotalReads, mappedStats.MappedReads, filteredStats.MappedReads, snpCount, tcSnpCount, file=outputFile, sep=";")
-                # print(sample, name, mappedStats.TotalReads, mappedStats.MappedReads, filteredStats.MappedReads, dedupStats.MappedReads, file=outputFile, sep=";")
-        outputFile.close()
-    else:
-        print("Files missing", file=log)
+def readSummary(filteredFiles, outputFile, log, printOnly=False, verbose=True, force=False):
+    tsvFile = open(outputFile, "w")
+    print("FileName", "SampleName", "SampleType", "SampleTime", "Sequenced", "Mapped", "Deduplicated", "Filtered", sep="\t", file=tsvFile)
+    for bam in filteredFiles:
+        readStats = getReadCount(bam)
+        sampleInfo = getSampleInfo(bam)
+        print(bam, sampleInfo.Name, sampleInfo.Type, sampleInfo.Time, readStats.SequencedReads, readStats.MappedReads, readStats.DedupReads, readStats.FilteredReads, sep="\t", file=tsvFile)
+    tsvFile.close()
         
 def sampleSummary(readCounts, outputPrefix, log, printOnly=False, verbose=True, force=False):
-    if(not checkStep([readCounts], [], force)):
-        print("Skipped computing pairwise correlation plots for file " + readCounts, file=log)
-    else: 
-        run(pathSampleComparison + " -i " + readCounts + " -o " + outputPrefix, log, dry=printOnly, verbose=verbose)        
-    
+    raise RuntimeError("Not implemented yet!")
+#     if(not checkStep([readCounts], [], force)):
+#         print("Skipped computing pairwise correlation plots for file " + readCounts, file=log)
+#     else: 
+#         run(pathSampleComparison + " -i " + readCounts + " -o " + outputPrefix, log, dry=printOnly, verbose=verbose)        
+#     
 def tcPerReadPos(referenceFile, bam, minQual, maxReadLength, outputCSV, outputPDF, snpsFile, log, printOnly=False, verbose=True, force=False):
     
     if(not checkStep([bam, referenceFile], [outputCSV], force)):
@@ -825,10 +787,9 @@ def computeSNPMaskedRates (ref, bed, snpsFile, bam, maxReadLength, minQual, cove
         
 
 def halflifes(bams, outputCSV, timepoints, log, printOnly=False, verbose=True, force=False):
-    
     #run("Rscript " + pathComputeHalfLifes + " -f " + bams + " -t " + timepoints + " -o " + outputCSV, log, dry=printOnly, verbose=verbose)
     callR(getPlotter("compute_halflifes") + " -f " + bams + " -t " + timepoints + " -o " + outputCSV, log, dry=printOnly, verbose=verbose)
 
 def mergeRates(bams, outputCSV, timepoints, log, printOnly=False, verbose=True, force=False):
-    
-    run("Rscript " + pathMergeRates + " -f " + bams + " -t " + timepoints + " -o " + outputCSV, log, dry=printOnly, verbose=verbose) 
+    raise RuntimeError("Not implemented yet!")
+    #run("Rscript " + pathMergeRates + " -f " + bams + " -t " + timepoints + " -o " + outputCSV, log, dry=printOnly, verbose=verbose) 

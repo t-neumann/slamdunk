@@ -300,14 +300,16 @@ def run():
     snpevalparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number (default: %(default)s)")
     
     # stats summary command
-    statsSumParser = subparsers.add_parser('stats.summary', help='Display summary information and statistics on read numbers', formatter_class=ArgumentDefaultsHelpFormatter)
-    statsSumParser.add_argument("-o", "--outputPrefix", type=str, required=True, dest="outputPrefix", default=SUPPRESS, help="Prefix for output files")
-    statsSumParser.add_argument("-n", "--sample-names", type=str, required=True, dest="sampleNames", default=SUPPRESS, help="CSV file containing name for all samples.")
-    statsSumParser.add_argument("-r", "--read-counts", type=str, required=True, dest="readCounts", default=SUPPRESS, help="CSV file containing read counts.")
-    statsSumParser.add_argument("-s", "--snp-files", type=str, nargs="+", required=True, dest="snpFiles", default=SUPPRESS, help="SNP files for all samples")
-    statsSumParser.add_argument("-m", "--mapped-files", type=str, nargs="+", required=True, dest="mappedFiles", default=SUPPRESS, help="BAM files for all samples")
-    statsSumParser.add_argument("-f", "--filtered-files", type=str, nargs="+", required=False, dest="filteredFiles", default=SUPPRESS, help="Filtered BAM files for all samples")
-    statsSumParser.add_argument("-d", "--deduplicated-files", type=str, nargs="+", required=False, dest="dedupFiles", default=SUPPRESS, help="Deduplicated BAM files for all samples")
+    statsSumParser = subparsers.add_parser('summary', help='Display summary information and statistics on read numbers', formatter_class=ArgumentDefaultsHelpFormatter)
+    statsSumParser.add_argument('bam', action='store', help='Filtered BAM files (produced by slamdunk filter or all)' , nargs="+")
+    statsSumParser.add_argument("-o", "--output", type=str, required=True, dest="outputFile", default=SUPPRESS, help="Output file")
+#     statsSumParser.add_argument("-o", "--outputPrefix", type=str, required=True, dest="outputPrefix", default=SUPPRESS, help="Prefix for output files")
+#     statsSumParser.add_argument("-n", "--sample-names", type=str, required=True, dest="sampleNames", default=SUPPRESS, help="CSV file containing name for all samples.")
+#     statsSumParser.add_argument("-r", "--read-counts", type=str, required=True, dest="readCounts", default=SUPPRESS, help="CSV file containing read counts.")
+#     statsSumParser.add_argument("-s", "--snp-files", type=str, nargs="+", required=True, dest="snpFiles", default=SUPPRESS, help="SNP files for all samples")
+#     statsSumParser.add_argument("-m", "--mapped-files", type=str, nargs="+", required=True, dest="mappedFiles", default=SUPPRESS, help="BAM files for all samples")
+#     statsSumParser.add_argument("-f", "--filtered-files", type=str, nargs="+", required=False, dest="filteredFiles", default=SUPPRESS, help="Filtered BAM files for all samples")
+#     statsSumParser.add_argument("-d", "--deduplicated-files", type=str, nargs="+", required=False, dest="dedupFiles", default=SUPPRESS, help="Deduplicated BAM files for all samples")
     
     # stats read info command
     conversionRateParser = subparsers.add_parser('stats.tcperreadpos', help='Calculate conversion rates per read position on SLAM-seq datasets')
@@ -427,13 +429,12 @@ def run():
         results = Parallel(n_jobs=n, verbose=verbose)(delayed(runStatsRatesUTR)(tid, args.bam[tid], referenceFile, minMQ, outputDirectory, args.bed, args.maxLength) for tid in range(0, len(args.bam)))
         dunkFinished()
     
-    elif (command == "stats.summary") :
-        samples = readSampleNames(args.sampleNames, None)
-        n = 1
-        message("Running alleyoop stats read summary for " + str(len(args.mappedFiles)) + " files (" + str(n) + " threads)")
-        outputLog = args.outputPrefix + ".log"
-        stats.readSummary(args.mappedFiles, args.filteredFiles, args.dedupFiles, args.snpFiles, samples, args.outputPrefix, getLogFile(outputLog))
-        stats.sampleSummary(args.readCounts, args.outputPrefix, getLogFile(outputLog))
+    elif (command == "summary") :
+        message("Running alleyoop stats read summary for " + str(len(args.bam)) + " files")
+        outputLog = replaceExtension(args.outputFile, ".log")
+        #stats.readSummary(args.mappedFiles, args.filteredFiles, args.dedupFiles, args.snpFiles, samples, args.outputPrefix, getLogFile(outputLog))
+        #stats.sampleSummary(args.readCounts, args.outputPrefix, getLogFile(outputLog))
+        stats.readSummary(args.bam, args.outputFile, getLogFile(outputLog))
         dunkFinished() 
     
     elif (command == "stats.tcperreadpos") :
