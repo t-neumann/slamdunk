@@ -75,8 +75,7 @@ def Map(inputBAM, inputReference, outputSAM, log, quantseqMapping, localMapping,
         parameter = parameter + " -n " + str(topn) + " --strata "
         
     if(checkStep([inputReference, inputBAM], [replaceExtension(outputSAM, ".bam")], force)):
-        #run(getBinary("ngm") + " -r " + inputReference + " -q " + inputBAM + " -t " + str(threads) + " " + parameter + " -o " + outputSAM, log, verbose=verbose, dry=printOnly)
-        print("Run")
+        run(getBinary("ngm") + " -r " + inputReference + " -q " + inputBAM + " -t " + str(threads) + " " + parameter + " -o " + outputSAM, log, verbose=verbose, dry=printOnly)
     else:
         print("Skipped mapping for " + inputBAM, file=log)
         
