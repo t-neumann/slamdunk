@@ -9,7 +9,7 @@ import pysam
 import itertools as IT
 
 from os.path import basename
-from slamdunk.utils.misc import getReadCount, getSampleName  # @UnresolvedImport
+from slamdunk.utils.misc import getReadCount, getSampleName, getSampleInfo  # @UnresolvedImport
 from slamdunk.utils.BedReader import BedIterator  # @UnresolvedImport
 
 from slamdunk.utils import SNPtools  # @UnresolvedImport
@@ -105,10 +105,14 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
     
     referenceFile = pysam.FastaFile(ref)
     
+    sampleInfo = getSampleInfo(bam)
+    
     readstat = getReadCount(bam)
     readNumber = readstat.MappedReads
 
     fileCSV = open(outputCSV,'w')
+    print("#sample info:\t" + sampleInfo.Name + "\t" + sampleInfo.Type + "\t" + sampleInfo.Time, file=fileCSV)
+    print(SlamSeqInterval.Header, file=fileCSV)
     
     snps = SNPtools.SNPDictionary(snpsFile)
     snps.read()
