@@ -11,13 +11,13 @@ library(getopt)
 spec = matrix(c(
   'help'      , 'h', 0, "logical","print the usage of the command",
   'slamdunk', "f", 2,"character","Comma seperated list of SlamDunk results",
-  'timepoints', "t", 2,"character","Comma seperated list of time points",
-  'output', "o", 2,"character","Output tsv"
+  'output', "o", 2,"character","Output tsv",
+  'alternativecounting', "a", 2,"character","Use alternative counting not percentage of T->C reads"
 ),ncol = 5,byrow=T)
 
 opt = getopt(spec)
 
-if ( !is.null(opt$help) || length(opt)==3 ) {
+if ( !is.null(opt$help) || length(opt)==2 ) {
   #get the script name
   cmd = commandArgs(FALSE)
   self = strsplit(cmd[grep("--file",cmd)],"=")[[1]][2]
@@ -29,53 +29,70 @@ if ( !is.null(opt$help) || length(opt)==3 ) {
 
 if ( is.null(opt$slamdunk) ) stop("arg slamdunk must be specified")
 if ( is.null(opt$output) ) stop("arg output must be specified")
-if ( is.null(opt$timepoints) ) stop("arg timepoints must be specified")
+if ( is.null(opt$alternativecounting) ) { opt$alternativecounting = 0 }
 
 slamDunkFiles = opt$slamdunk
 #slamDunkFiles = "/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_1_0min_reads_slamdunk_mapped_filtered_tcount.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_2_15min_reads_slamdunk_mapped_filtered_tcount.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_3_30min_reads_slamdunk_mapped_filtered_tcount.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_4_60min_reads_slamdunk_mapped_filtered_tcount.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_5_180min_reads_slamdunk_mapped_filtered_tcount.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_6_360min_reads_slamdunk_mapped_filtered_tcount.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_7_720min_reads_slamdunk_mapped_filtered_tcount.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_8_1440min_reads_slamdunk_mapped_filtered_tcount.csv"
+#slamDunkFiles = "/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_7_720min_reads_slamdunk_mapped_filtered_tcount.tsv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_1_0min_reads_slamdunk_mapped_filtered_tcount.tsv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_6_360min_reads_slamdunk_mapped_filtered_tcount.tsv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_2_15min_reads_slamdunk_mapped_filtered_tcount.tsv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_8_1440min_reads_slamdunk_mapped_filtered_tcount.tsv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_3_30min_reads_slamdunk_mapped_filtered_tcount.tsv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_5_180min_reads_slamdunk_mapped_filtered_tcount.tsv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_4_60min_reads_slamdunk_mapped_filtered_tcount.tsv"
 filesSlamDunk = as.character(ordered(strsplit(slamDunkFiles, ",")[[1]]))
 outputFile = opt$output
 #outputFile = "/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/eval/halflife_per_gene_eval_plots.tsv"
-#timesParameter = "0,15,30,60,180,360,720,1440"
-timesParameter = opt$timepoints
-#times = as.numeric(strsplit(timesParameter, ",")[[1]])
-#times = times / 60
-times = strsplit(timesParameter, ",")[[1]]
-
-mergeRates <- function(times, files, perRead) {
-  mergedRates = data.frame()
-  for(i in 1:length(times)) {
-    time = times[i]
-    print(time)
-    simDataFile = files[i]
-    simulation = read.table(simDataFile)
-    colnames(simulation) = c("chr", "start", "stop", "name", "length", "strand", "conversionRate", "readsCPM", "tContent", "tCount", "tcCount", "readCount", "convertedReads", "multiMapCount")
-    if(nrow(mergedRates) == 0) {
-      mergedRates = simulation[, c("chr", "start", "stop", "name", "strand")]
-      mergedRates$avgReadsCPM = simulation$readsCPM
-      mergedRates$avgMultimapper = simulation$multiMapCount
-      if(perRead == TRUE) {
-        mergedRates$conversionRate = simulation$convertedReads / simulation$readCount
-      } else {
-        mergedRates$conversionRate = simulation$conversionRate
-      }
-    } else {
-      mergedRates$avgReadsCPM = mergedRates$avgReadsCPM + simulation$readsCPM
-      mergedRates$avgMultimapper = mergedRates$avgMultimapper + simulation$multiMapCount
-      if(perRead == TRUE) {
-        mergedRates = cbind(mergedRates, simulation$convertedReads / simulation$readCount)
-      } else {
-        mergedRates = cbind(mergedRates, simulation$conversionRate)
-      }
-    }
-  }
-  colnames(mergedRates) = c("chr", "start", "stop", "name", "strand", "readsCPM", "multiMapCount", times)
-  mergedRates$readsCPM = mergedRates$readsCPM / length(times)
-  mergedRates$multiMapCount = mergedRates$multiMapCount / length(times)
-  mergedRates
+perRead = T
+if(opt$alternativecounting > 0) {
+  cat("Using alternative counting\n")
+  perRead = F
 }
 
-perRead = F
-slamDunkMergedRates = mergeRates(times, filesSlamDunk, perRead)
+readMeatInfo <- function(fileName) {
+  sampleInfo = read.table(fileName, nrows = 1, comment.char = "")
+  sampleName = as.character(sampleInfo$V3)
+  sampleType = as.character(sampleInfo$V4)
+  sampleTime = as.numeric(sampleInfo$V5)
+  c(sampleName, sampleType, sampleTime)  
+}
+  
+sampleNumber = length(filesSlamDunk)
+mergedRates = data.frame()
 
-write.table(slamDunkMergedRates, outputFile, sep = "\t", quote = F, row.names = F, col.names = T)
+# Merge rates from all samples
+for(i in 1:length(filesSlamDunk)) {
+  #i = 1
+  file = filesSlamDunk[i]  
+  meta = readMeatInfo(file)
+  sampleName = meta[1]
+  data = read.table(file, header = T)
+  if(i == 1) {
+    mergedRates = data[, c(1:6)]
+    mergedRates$avgReadsCPM = data$ReadsCPM
+    mergedRates$avgMultimapper = data$multimapCount
+    mergedRates$avgTcontent = data$Tcontent
+    mergedRates$avgCoverageOnTs = data$CoverageOnTs
+  } else {
+    mergedRates$avgReadsCPM = mergedRates$avgReadsCPM + data$ReadsCPM
+    mergedRates$avgMultimapper = mergedRates$avgMultimapper + data$multimapCount
+    mergedRates$avgTcontent = mergedRates$avgTcontent + data$Tcontent
+    mergedRates$avgCoverageOnTs = mergedRates$avgCoverageOnTs + data$CoverageOnTs
+  }
+  if(perRead == T) {
+    mergedRates[,sampleName] = data$TcReadCount / data$ReadCount
+  } else {
+    mergedRates[,sampleName] = data$ConversionRate
+  }
+}
+# compute average CPM and multimapper per UTR
+mergedRates$avgReadsCPM = mergedRates$avgReadsCPM / sampleNumber
+mergedRates$avgMultimapper = mergedRates$avgMultimapper / sampleNumber
+mergedRates$avgTcontent = mergedRates$avgTcontent / sampleNumber
+mergedRates$avgCoverageOnTs = mergedRates$avgCoverageOnTs / sampleNumber
+
+# Sort columns by sample name
+colNumber = length(colnames(mergedRates))
+firstSampleColumn = (colNumber - sampleNumber + 1)
+sampleNames = colnames(mergedRates)[firstSampleColumn:colNumber]
+sampleColumnOrder = order(sampleNames)
+mergedRates = mergedRates[, c(1:(firstSampleColumn - 1), (sampleColumnOrder + firstSampleColumn - 1))]
+
+#head(mergedRates)
+
+# Write to output file
+write.table(mergedRates, outputFile, sep = "\t", quote = F, row.names = F, col.names = T)
