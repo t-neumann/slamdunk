@@ -237,7 +237,7 @@ def run():
     
     # Info
     usage = "AlleyOop utility tools and diagnostics for SLAMSeq data"
-    version = "0.1.0"
+    version = "0.1.1"
     
     # Main Parsers
     parser = ArgumentParser(description=usage, formatter_class=ArgumentDefaultsHelpFormatter, version=version)

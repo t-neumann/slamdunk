@@ -365,7 +365,7 @@ def run():
     
     # Info
     usage = "SLAMdunk software for analyzing SLAM-seq data"
-    version = "0.1.0"
+    version = "0.1.1"
     
     # Main Parsers
     parser = ArgumentParser(description=usage, formatter_class=ArgumentDefaultsHelpFormatter, version=version)
