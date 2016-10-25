@@ -122,7 +122,7 @@ def runSnp(tid, referenceFile, minCov, minVarFreq, inputBAM, outputDirectory) :
     stepFinished()
                 
 def runCount(tid, bam, ref, bed, maxLength, minQual, strictTCs, outputDirectory, snpDirectory) :
-    outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_tcount"))
+    outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".tsv", "_tcount"))
     outputBedgraphPlus = os.path.join(outputDirectory, replaceExtension(basename(bam), ".bedgraph", "_tcount_plus"))
     outputBedgraphMinus = os.path.join(outputDirectory, replaceExtension(basename(bam), ".bedgraph", "_tcount_mins"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_tcount"))
