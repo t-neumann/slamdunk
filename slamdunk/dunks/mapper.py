@@ -4,9 +4,19 @@
 from __future__ import print_function
 import os
 
-from slamdunk.utils.misc import files_exist, checkStep, run, pysamIndex, removeFile, getBinary
+from slamdunk.utils.misc import files_exist, checkStep, run, pysamIndex, removeFile, getBinary, replaceExtension  # @UnresolvedImport
 
 projectPath = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+def sort(inputSAM, outputBAM, log, threads=1, keepSam=True, dry=False, verbose=True):    
+ 
+    if(files_exist(inputSAM) and checkStep([inputSAM], [outputBAM + ".bai"])):
+        #runSam2bam(inputSAM, outputBAM, log, True, True, not keepSam, threads=threads, dry=dry, verbose=verbose)
+        runSam2bam(inputSAM, outputBAM, log, False, False, not keepSam, threads=threads, dry=dry, verbose=verbose)
+        #runFlagstat(outputBAM, log, dry=dry, verbose=verbose)
+    else:
+        print("Skipped sorting for " + inputSAM, file=log)
+
 
 def runSam2bam(inFile, outFile, log, index=True, sort=True, delinFile=False, onlyUnique=False, onlyProperPaired=False, filterMQ=0, L=None, threads=1, verbose=False, dry=False):
     if(delinFile and files_exist(outFile) and not files_exist(inFile)):
@@ -14,7 +24,7 @@ def runSam2bam(inFile, outFile, log, index=True, sort=True, delinFile=False, onl
     else:
         if(onlyUnique and filterMQ == 0):
             filterMQ = 1;
-            
+             
         success = True    
         cmd = [getBinary("samtools"), "view", "-@", str(threads), "-Sb", "-o", outFile, inFile]
         if filterMQ > 0:
@@ -24,7 +34,7 @@ def runSam2bam(inFile, outFile, log, index=True, sort=True, delinFile=False, onl
         if not L is None:
             cmd+=["-L", L]
         run(" ".join(cmd), log, verbose=verbose, dry=dry)
-        
+         
         if(sort):         
             tmp = outFile + "_tmp"
             if(not dry):
@@ -35,7 +45,7 @@ def runSam2bam(inFile, outFile, log, index=True, sort=True, delinFile=False, onl
         if(success and delinFile):
             if(not dry):
                 removeFile(inFile)
-        
+         
     if(index):
         pysamIndex(outFile)
 
@@ -64,18 +74,10 @@ def Map(inputBAM, inputReference, outputSAM, log, quantseqMapping, localMapping,
     if(topn > 1):
         parameter = parameter + " -n " + str(topn) + " --strata "
         
-    if(checkStep([inputReference, inputBAM], [outputSAM], force)):
-        run(getBinary("ngm") + " -r " + inputReference + " -q " + inputBAM + " -t " + str(threads) + " " + parameter + " -o " + outputSAM, log, verbose=verbose, dry=printOnly)
+    if(checkStep([inputReference, inputBAM], [replaceExtension(outputSAM, ".bam")], force)):
+        #run(getBinary("ngm") + " -r " + inputReference + " -q " + inputBAM + " -t " + str(threads) + " " + parameter + " -o " + outputSAM, log, verbose=verbose, dry=printOnly)
+        print("Run")
     else:
         print("Skipped mapping for " + inputBAM, file=log)
         
-
-def sort(inputSAM, outputBAM, log, threads=1, keepSam=True, dry=False, verbose=True):    
-
-    if(files_exist(inputSAM) and checkStep([inputSAM], [outputBAM + ".bai"])):
-        #runSam2bam(inputSAM, outputBAM, log, True, True, not keepSam, threads=threads, dry=dry, verbose=verbose)
-        runSam2bam(inputSAM, outputBAM, log, False, False, not keepSam, threads=threads, dry=dry, verbose=verbose)
-        #runFlagstat(outputBAM, log, dry=dry, verbose=verbose)
-    else:
-        print("Skipped sorting for " + inputSAM, file=log)
 
