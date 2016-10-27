@@ -64,6 +64,46 @@ def createDir(directory):
         message("Creating output directory: " + directory)
         os.makedirs(directory)
 
+def readSampleFile(fileName):
+    samples = []
+    infos = []
+    
+    with open(fileName, "r") as ins:
+        for line in ins:
+            line = line.strip()
+            if(fileName.endswith(".tsv")):
+                cols = line.split("\t")
+            elif(fileName.endswith(".csv")):
+                cols = line.split(",")
+            else:
+                raise RuntimeError("Unkown file extendsion found: " + fileName)
+            if(len(cols) < 4):
+                raise RuntimeError("Invalid sample file found: " + fileName)
+            samples.append(cols[0])
+            infos.append(cols[1] + ":" + cols[2] + ":" + cols[3])
+        
+    return samples, infos
+
+def getSamples(bams, runOnly=-1):
+    samples = []
+    samplesInfos = []
+    if len(bams) == 1 and (bams[0].endswith(".tsv") or bams[0].endswith(".csv")):
+        # Sample file specified
+        samples, samplesInfos = readSampleFile(bams[0])
+    else:
+        # List of BAM files specified
+        samples = bams
+        samplesInfos = [""] * len(samples)
+  
+    if(runOnly > -1):
+        if(runOnly >= len(samples)):
+            raise RuntimeError("Sample index out of range. " + str(runOnly) + " >= " + str(len(samples)) + ". Check -i/--sample-index")
+        message("Running only job " + str(runOnly))
+        samples = [ samples[runOnly] ]
+        samplesInfos = [ samplesInfos[runOnly] ]
+        
+    return samples, samplesInfos
+
 def runMap(tid, inputBAM, referenceFile, threads, trim5p, maxPolyA, quantseqMapping, localMapping, topn, sampleDescription, outputDirectory) :
     outputSAM = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".sam", "_slamdunk_mapped"))
     outputBAM = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".bam.flagstat", "_slamdunk_mapped"))
@@ -254,7 +294,6 @@ def runDumpReadInfo(tid, bam, referenceFile, minMQ, outputDirectory, snpDirector
     closeLogFile(log)
     stepFinished()
 
-
 def runAll(args) :
     message("slamdunk all")
     
@@ -270,29 +309,26 @@ def runAll(args) :
     
     dunkPath = os.path.join(outputDirectory, "map")
     createDir(dunkPath)
-  
-    message("Running slamDunk map for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-    sampleDescriptions = args.sampleDescription.split(",")
-    if(args.sampleDescription != "" and len(sampleDescriptions) != len(args.bam)):
-        message("Warning: length of sample descriptions not equal to number of BAM files. Ignoring descriptions.")
-        
-    for i in xrange(0, len(args.bam)):
-        bam = args.bam[i]
-        sampleDescription = ""
-        if(len(args.bam) == len(sampleDescriptions)):
-            sampleDescription = sampleDescriptions[i]
-        runMap(i, bam, referenceFile, n, args.trim5, args.maxPolyA, args.quantseq, args.local, args.topn, sampleDescription, dunkPath)
+    
+    samples, samplesInfos = getSamples(args.files, runOnly=args.sampleIndex)
+    
+    message("Running slamDunk map for " + str(len(samples)) + " files (" + str(n) + " threads)")
+
+    for i in xrange(0, len(samples)):
+        bam = samples[i]
+        sampleInfo = samplesInfos[i]
+        runMap(i, bam, referenceFile, n, args.trim5, args.maxPolyA, args.quantseq, args.local, args.topn, sampleInfo, dunkPath)
         
     dunkFinished()
 
-    message("Running slamDunk sam2bam for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-    results = Parallel(n_jobs=1, verbose=verbose)(delayed(runSam2Bam)(tid, args.bam[tid], n, dunkPath) for tid in range(0, len(args.bam)))
+    message("Running slamDunk sam2bam for " + str(len(samples)) + " files (" + str(n) + " threads)")
+    results = Parallel(n_jobs=1, verbose=verbose)(delayed(runSam2Bam)(tid, samples[tid], n, dunkPath) for tid in range(0, len(samples)))
      
     dunkFinished()
        
     dunkbufferIn = []
     
-    for file in args.bam :
+    for file in samples :
         dunkbufferIn.append(os.path.join(dunkPath, replaceExtension(basename(file), ".bam", "_slamdunk_mapped")))
             
     # Run filter dunk
@@ -306,8 +342,8 @@ def runAll(args) :
     dunkPath = os.path.join(outputDirectory, "filter")
     createDir(dunkPath)
        
-    message("Running slamDunk filter for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-    results = Parallel(n_jobs=n, verbose=verbose)(delayed(runFilter)(tid, dunkbufferIn[tid], bed, args.mq, args.identity, args.nm, dunkPath) for tid in range(0, len(args.bam)))
+    message("Running slamDunk filter for " + str(len(samples)) + " files (" + str(n) + " threads)")
+    results = Parallel(n_jobs=n, verbose=verbose)(delayed(runFilter)(tid, dunkbufferIn[tid], bed, args.mq, args.identity, args.nm, dunkPath) for tid in range(0, len(samples)))
     
     dunkFinished()
     
@@ -336,8 +372,8 @@ def runAll(args) :
     if(snpThread > 1):
         snpThread = snpThread / 2
     
-    message("Running slamDunk SNP for " + str(len(args.bam)) + " files (" + str(snpThread) + " threads)")
-    results = Parallel(n_jobs=snpThread, verbose=verbose)(delayed(runSnp)(tid, referenceFile, minCov, minVarFreq, dunkbufferIn[tid], dunkPath) for tid in range(0, len(args.bam)))
+    message("Running slamDunk SNP for " + str(len(samples)) + " files (" + str(snpThread) + " threads)")
+    results = Parallel(n_jobs=snpThread, verbose=verbose)(delayed(runSnp)(tid, referenceFile, minCov, minVarFreq, dunkbufferIn[tid], dunkPath) for tid in range(0, len(samples)))
     
     dunkFinished()
     
@@ -348,8 +384,8 @@ def runAll(args) :
 
     snpDirectory = os.path.join(outputDirectory, "snp")
     
-    message("Running slamDunk tcount for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-    results = Parallel(n_jobs=n, verbose=verbose)(delayed(runCount)(tid, dunkbufferIn[tid], referenceFile, args.bed, args.maxLength, args.minQual, args.strictTCs, dunkPath, snpDirectory) for tid in range(0, len(args.bam)))
+    message("Running slamDunk tcount for " + str(len(samples)) + " files (" + str(n) + " threads)")
+    results = Parallel(n_jobs=n, verbose=verbose)(delayed(runCount)(tid, dunkbufferIn[tid], referenceFile, args.bed, args.maxLength, args.minQual, args.strictTCs, dunkPath, snpDirectory) for tid in range(0, len(samples)))
     
     dunkFinished()
     
@@ -380,9 +416,8 @@ def run():
     # map command
     
     mapparser = subparsers.add_parser('map', help='Map SLAM-seq read data', formatter_class=ArgumentDefaultsHelpFormatter)
-    mapparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
+    mapparser.add_argument('files', action='store', help='Sinlge csv/tsv file (recommended) containing all sample files and sample info or a list of all sample BAM/FASTA(gz)/FASTQ(gz) files' , nargs="+")
     mapparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", default=SUPPRESS, help="Reference fasta file")
-    mapparser.add_argument("-d", "--description", type=str, required=False, default="", dest="sampleDescription", help="List of sample file descriptions. Must be same order as BAM files. Format: sample-name[:p|c:time]. Example: mef_pulse_120min:p:120")
     mapparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", default=SUPPRESS, help="Output directory for mapped BAM files.")
     mapparser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", default=12, help="Number of bp removed from 5' end of all reads.")
     mapparser.add_argument("-n", "--topn", type=int, required=False, dest="topn", default=1, help="Max. number of alignments to report per read")
@@ -390,6 +425,7 @@ def run():
     mapparser.add_argument("-t", "--threads", type=int, required=False, dest="threads", default = 1, help="Thread number")
     mapparser.add_argument("-q", "--quantseq", dest="quantseq", action='store_true', required=False, help="Run plain Quantseq alignment without SLAM-seq scoring")
     mapparser.add_argument('-l', "--local", action='store_true', dest="local", help="Use a local alignment algorithm for mapping.")
+    mapparser.add_argument("-i", "--sample-index", type=int, required=False, default=-1, dest="sampleIndex", help="Run analysis only for sample <i>. Use for distributing slamdunk analysis on a cluster (index is 0-based).")
     
     # filter command
     
@@ -528,9 +564,8 @@ def run():
     # all command
     
     allparser = subparsers.add_parser('all', help='Run entire SLAMdunk analysis')
-    allparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
+    allparser.add_argument('files', action='store', help='Sinlge csv/tsv file (recommended) containing all sample files and sample info or a list of all sample BAM/FASTA(gz)/FASTQ(gz) files' , nargs="+")
     allparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
-    allparser.add_argument("-d", "--description", type=str, required=False, default="", dest="sampleDescription", help="List of sample file descriptions. Must be same order as BAM files. Format: sample-name[:p|c:time]. Example: mef_pulse_120min:p:120")
     allparser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file with 3'UTR coordinates")
     allparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for slamdunk run.")
     allparser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", default=12, help="Number of bp removed from 5' end of all reads (default: %(default)s)")
@@ -545,10 +580,10 @@ def run():
     allparser.add_argument("-nm", "--max-nm", type=int, required=False, default=-1, dest="nm", help="Maximum NM for alignments (default: %(default)s)")
     allparser.add_argument("-mc", "--min-coverage", required=False, dest="cov", type=int, help="Minimimum coverage to call variant (default: %(default)s)", default=10)
     allparser.add_argument("-mv", "--var-fraction", required=False, dest="var", type=float, help="Minimimum variant fraction to call variant (default: %(default)s)", default=0.8)
-    #allparser.add_argument("-nm", "--sample-names", type=str, required=False, dest="sampleNames", help="CSV file containing name for all samples.")
     allparser.add_argument("-mts", "--multiTCStringency", dest="strictTCs", action='store_true', required=False, help="Multiple T>C conversion required for T>C read")
     allparser.add_argument("-rl", "--max-read-length", type=int, required=False, dest="maxLength", help="Max read length in BAM file")
     allparser.add_argument("-mbq", "--min-base-qual", type=int, default=0, required=False, dest="minQual", help="Min base quality for T -> C conversions (default: %(default)d)")
+    allparser.add_argument("-i", "--sample-index", type=int, required=False, default=-1, dest="sampleIndex", help="Run analysis only for sample <i>. Use for distributing slamdunk analysis on a cluster (index is 0-based).")
     
     args = parser.parse_args()
     
@@ -566,22 +601,17 @@ def run():
         n = args.threads
         referenceFile = args.referenceFile
         
-        sampleDescriptions = args.sampleDescription.split(",")
-        if(args.sampleDescription != "" and len(sampleDescriptions) != len(args.bam)):
-            message("Warning: length of sample descriptions not equal to number of BAM files. Ignoring descriptions.")
-
+        samples, samplesInfos = getSamples(args.files, runOnly=args.sampleIndex)
         
-        message("Running slamDunk map for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-        for i in xrange(0, len(args.bam)):
-            bam = args.bam[i]
-            sampleDescription = ""
-            if(len(args.bam) == len(sampleDescriptions)):
-                sampleDescription = sampleDescriptions[i]
-            runMap(i, bam, referenceFile, n, args.trim5, args.maxPolyA, args.quantseq, args.local, args.topn, sampleDescription, outputDirectory)
+        message("Running slamDunk map for " + str(len(samples)) + " files (" + str(n) + " threads)")
+        for i in xrange(0, len(samples)):
+            bam = samples[i]
+            sampleInfo = samplesInfos[i]
+            runMap(i, bam, referenceFile, n, args.trim5, args.maxPolyA, args.quantseq, args.local, args.topn, sampleInfo, outputDirectory)
             
         dunkFinished()
-        message("Running slamDunk sort for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-        results = Parallel(n_jobs=1, verbose=verbose)(delayed(runSam2Bam)(tid, args.bam[tid], n, outputDirectory) for tid in range(0, len(args.bam)))
+        message("Running slamDunk sort for " + str(len(samples)) + " files (" + str(n) + " threads)")
+        results = Parallel(n_jobs=1, verbose=verbose)(delayed(runSam2Bam)(tid, samples[tid], n, outputDirectory) for tid in range(0, len(samples)))
         dunkFinished()
           
     elif (command == "filter") :
