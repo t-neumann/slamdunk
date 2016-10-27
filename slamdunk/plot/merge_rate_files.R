@@ -44,10 +44,11 @@ if(opt$alternativecounting > 0) {
 }
 
 readMeatInfo <- function(fileName) {
+  #fileName = filesSlamDunk[1]
   sampleInfo = read.table(fileName, nrows = 1, comment.char = "")
-  sampleName = as.character(sampleInfo$V3)
-  sampleType = as.character(sampleInfo$V4)
-  sampleTime = as.numeric(sampleInfo$V5)
+  sampleName = as.character(sampleInfo$V6)
+  sampleType = as.character(sampleInfo$V7)
+  sampleTime = as.numeric(sampleInfo$V8)
   c(sampleName, sampleType, sampleTime)  
 }
   
