@@ -106,7 +106,7 @@ def getSamples(bams, runOnly=-1):
 
 def runMap(tid, inputBAM, referenceFile, threads, trim5p, maxPolyA, quantseqMapping, localMapping, topn, sampleDescription, outputDirectory) :
     outputSAM = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".sam", "_slamdunk_mapped"))
-    outputBAM = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".bam.flagstat", "_slamdunk_mapped"))
+    outputBAM = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".bam.bai", "_slamdunk_mapped"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".log", "_slamdunk_mapped"))
     
     sampleName = "sample_" + str(tid)
