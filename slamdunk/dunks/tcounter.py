@@ -121,7 +121,7 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
     #Go through one chr after the other
     testFile = SlamSeqBamFile(bam, ref, snps)
     if not testFile.bamVersion == __bam_version__:
-        raise RuntimeError("Wrong filtered BAM file verson detected (" + testFile.bamVersion + "). Expected version " + __bam_version__ + ". Please rerun slamdunk filter.")
+        raise RuntimeError("Wrong filtered BAM file version detected (" + testFile.bamVersion + "). Expected version " + __bam_version__ + ". Please rerun slamdunk filter.")
     conversionBedGraph = {}
                          
     progress = 0
