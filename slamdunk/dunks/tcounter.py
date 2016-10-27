@@ -15,6 +15,7 @@ from slamdunk.utils.BedReader import BedIterator  # @UnresolvedImport
 from slamdunk.utils import SNPtools  # @UnresolvedImport
 from slamdunk.slamseq.SlamSeqFile import SlamSeqBamFile, ReadDirection, SlamSeqInterval  # @UnresolvedImport
 
+from slamdunk.version import __version__, __bam_version__, __count_version__  # @UnresolvedImport
 
 def collapse(expandedCSV, collapsedCSV, log):
     
@@ -111,10 +112,7 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
     readNumber = readstat.MappedReads
 
     fileCSV = open(outputCSV,'w')
-    sampleType = "pulse"
-    if(sampleInfo.Type == "c"):
-        sampleType = "chase"
-    print("#sample info:\t" + sampleInfo.Name + "\t" + sampleType + "\t" + sampleInfo.Time, file=fileCSV)
+    print("#slamdunk v" + __version__ + "\t" + __count_version__ + "\tsample info:\t" + sampleInfo.Name + "\t" + sampleInfo.Type + "\t" + sampleInfo.Time, file=fileCSV)
     print(SlamSeqInterval.Header, file=fileCSV)
     
     snps = SNPtools.SNPDictionary(snpsFile)
@@ -122,7 +120,8 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
     
     #Go through one chr after the other
     testFile = SlamSeqBamFile(bam, ref, snps)
-    
+    if not testFile.bamVersion == __bam_version__:
+        raise RuntimeError("Wrong filtered BAM file verson detected (" + testFile.bamVersion + "). Expected version " + __bam_version__ + ". Please rerun slamdunk filter.")
     conversionBedGraph = {}
                          
     progress = 0

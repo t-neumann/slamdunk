@@ -543,6 +543,14 @@ class SlamSeqBamFile:
 
     def __init__(self, bamFile, referenceFile, snps):
         self._bamFile = pysam.AlignmentFile(bamFile, "rb")
+        
+        # Get version from BAM file
+        self.bamVersion = "None"
+        if('PG' in self._bamFile.header):
+            for pg in self._bamFile.header['PG']:
+                if pg['ID'] == "slamdunk":
+                    self.bamVersion = pg['VN']
+         
         self._referenceFile = pysam.FastaFile(referenceFile)   
         self._snps = snps
         

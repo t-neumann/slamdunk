@@ -5,6 +5,7 @@ from __future__ import print_function
 import pysam, random, os
 from intervaltree import IntervalTree
 
+from slamdunk.version import __version__, __bam_version__  # @UnresolvedImport
 
 from slamdunk.utils.BedReader import BedIterator  # @UnresolvedImport
 from slamdunk.utils.misc import checkStep, run, removeFile, getBinary, pysamIndex  # @UnresolvedImport
@@ -230,6 +231,12 @@ def Filter(inputBAM, outputBAM, log, bed, MQ=2, minIdentity=0.8, NM=-1, printOnl
         inFileBamHeader = outfile.header
         if('RG' in inFileBamHeader and len(inFileBamHeader['RG']) > 0):
             inFileBamHeader['RG'][0]['DS'] = "{'sequenced':" + str(mappedReads + unmappedReads) + "," + "'mapped':" + str(mappedReads) + "," + "'filtered':" + str(filteredReads) + "}"        
+        
+        slamDunkPG = { 'ID': 'slamdunk', 'PN': 'slamdunk filter v' + __version__, 'VN': __bam_version__ }
+        if('PG' in inFileBamHeader):
+            inFileBamHeader['PG'].append(slamDunkPG)
+        else:
+            inFileBamHeader['PG'] = [ slamDunkPG ]
         
         infile.close()
         outfile.close()
