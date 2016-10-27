@@ -20,6 +20,7 @@ from os.path import basename
 
 from dunks import simulator
 from utils.misc import replaceExtension
+from version import __version__
 
 ########################################################################
 # Global variables
@@ -55,10 +56,9 @@ def run():
     
     # Info
     usage = "SLAMdunk software for simulating SLAM-seq data"
-    version = "1.0"
     
     # Main Parsers
-    parser = ArgumentParser(description=usage, formatter_class=RawDescriptionHelpFormatter, version=version)
+    parser = ArgumentParser(description=usage, formatter_class=RawDescriptionHelpFormatter, version=__version__)
     
     # Initialize Subparsers
     subparsers = parser.add_subparsers(help="", dest="command")

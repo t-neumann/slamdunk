@@ -12,7 +12,7 @@
 #########################################################################
 
 from __future__ import print_function
-import sys, os, random
+import sys, os
 
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter, SUPPRESS
     
@@ -20,7 +20,8 @@ from os.path import basename
 
 from joblib import Parallel, delayed
 from dunks import deduplicator, stats, dump, tcounter
-from utils.misc import replaceExtension, readSampleNames, estimateMaxReadLength
+from utils.misc import replaceExtension, estimateMaxReadLength
+from version import __version__
 
 ########################################################################
 # Global variables
@@ -237,10 +238,9 @@ def run():
     
     # Info
     usage = "AlleyOop utility tools and diagnostics for SLAMSeq data"
-    version = "0.1.1"
     
     # Main Parsers
-    parser = ArgumentParser(description=usage, formatter_class=ArgumentDefaultsHelpFormatter, version=version)
+    parser = ArgumentParser(description=usage, formatter_class=ArgumentDefaultsHelpFormatter, version=__version__)
     
     # Initialize Subparsers
     subparsers = parser.add_subparsers(help="", dest="command")

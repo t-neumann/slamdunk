@@ -16,6 +16,7 @@ from os.path import basename
 from joblib import Parallel, delayed
 from dunks import tcounter, mapper, filter, deduplicator, stats, snps, dump
 from utils.misc import replaceExtension, readSampleNames, checkStep, estimateMaxReadLength
+from version import __version__
 
 ########################################################################
 # Global variables
@@ -68,9 +69,9 @@ def runMap(tid, inputBAM, referenceFile, threads, trim5p, maxPolyA, quantseqMapp
     outputBAM = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".bam.flagstat", "_slamdunk_mapped"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".log", "_slamdunk_mapped"))
     
-    sampleName = ""
-    sampleType = ""
-    sampleTime = ""
+    sampleName = "sample_" + str(tid)
+    sampleType = "NA"
+    sampleTime = "-1"
     if(sampleDescription != ""):
         sampleDescriptions = sampleDescription.split(":")
         if(len(sampleDescriptions) >= 1):
@@ -365,10 +366,9 @@ def run():
     
     # Info
     usage = "SLAMdunk software for analyzing SLAM-seq data"
-    version = "0.1.1"
     
     # Main Parsers
-    parser = ArgumentParser(description=usage, formatter_class=ArgumentDefaultsHelpFormatter, version=version)
+    parser = ArgumentParser(description=usage, formatter_class=ArgumentDefaultsHelpFormatter, version=__version__)
     
     # Initialize Subparsers
     subparsers = parser.add_subparsers(help="", dest="command")
