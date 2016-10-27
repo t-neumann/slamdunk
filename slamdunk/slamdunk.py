@@ -77,7 +77,11 @@ def runMap(tid, inputBAM, referenceFile, threads, trim5p, maxPolyA, quantseqMapp
         if(len(sampleDescriptions) >= 1):
             sampleName = sampleDescriptions[0]
         if(len(sampleDescriptions) >= 2):
-            sampleType = sampleDescriptions[1]
+            typeDict = { 'p': 'pulse', 'c':'chase', 'pulse':'pulse', 'chase':'chase', '':'NA'}
+            if sampleDescriptions[1] in typeDict:
+                sampleType = typeDict[sampleDescriptions[1]]
+            else:
+                message("Warning: unkonw value found in sample description: " + sampleDescriptions[1])
         if(len(sampleDescriptions) >= 3):
             sampleTime = sampleDescriptions[2]
     
