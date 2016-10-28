@@ -27,6 +27,9 @@ name = "slamdunk"
 with open(path.join(here, 'README'), encoding='utf-8') as f:
     long_description = f.read()
     
+# now we have a `__version__` variable
+execfile(path.join(here, name, 'version.py'))
+    
 # Copy bin recursively
 
 def package_files(directory):
@@ -166,7 +169,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.1.1',
+    version=__version__,
 
     description='SLAMdunk suite for analyzing SLAM-seq data',
     long_description=long_description,
