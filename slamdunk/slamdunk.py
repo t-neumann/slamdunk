@@ -106,7 +106,7 @@ def getSamples(bams, runOnly=-1):
 
 def runMap(tid, inputBAM, referenceFile, threads, trim5p, maxPolyA, quantseqMapping, localMapping, topn, sampleDescription, outputDirectory) :
     outputSAM = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".sam", "_slamdunk_mapped"))
-    outputBAM = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".bam.bai", "_slamdunk_mapped"))
+    #outputBAM = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".bam.bai", "_slamdunk_mapped"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".log", "_slamdunk_mapped"))
     
     sampleName = "sample_" + str(tid)
@@ -126,8 +126,8 @@ def runMap(tid, inputBAM, referenceFile, threads, trim5p, maxPolyA, quantseqMapp
             sampleTime = sampleDescriptions[2]
     
     # Don't run mapping if sort bam/bai files alread exists
-    if(checkStep([inputBAM, referenceFile], [outputBAM])):
-        mapper.Map(inputBAM, referenceFile, outputSAM, getLogFile(outputLOG), quantseqMapping, localMapping, threads=threads, trim5p=trim5p, maxPolyA=maxPolyA, topn=topn, sampleId=tid, sampleName=sampleName, sampleType=sampleType, sampleTime=sampleTime, printOnly=printOnly, verbose=verbose)
+    #if(checkStep([inputBAM, referenceFile], [outputBAM])):
+    mapper.Map(inputBAM, referenceFile, outputSAM, getLogFile(outputLOG), quantseqMapping, localMapping, threads=threads, trim5p=trim5p, maxPolyA=maxPolyA, topn=topn, sampleId=tid, sampleName=sampleName, sampleType=sampleType, sampleTime=sampleTime, printOnly=printOnly, verbose=verbose)
     stepFinished()
 
 def runSam2Bam(tid, bam, threads, outputDirectory):
@@ -322,8 +322,7 @@ def runAll(args) :
     dunkFinished()
 
     message("Running slamDunk sam2bam for " + str(len(samples)) + " files (" + str(n) + " threads)")
-    results = Parallel(n_jobs=1, verbose=verbose)(delayed(runSam2Bam)(tid, samples[tid], n, dunkPath) for tid in range(0, len(samples)))
-     
+    results = Parallel(n_jobs=1, verbose=verbose)(delayed(runSam2Bam)(tid, samples[tid], n, dunkPath) for tid in range(0, len(samples))) 
     dunkFinished()
        
     dunkbufferIn = []
@@ -610,7 +609,7 @@ def run():
             runMap(i, bam, referenceFile, n, args.trim5, args.maxPolyA, args.quantseq, args.local, args.topn, sampleInfo, outputDirectory)
             
         dunkFinished()
-        message("Running slamDunk sort for " + str(len(samples)) + " files (" + str(n) + " threads)")
+        message("Running slamDunk sam2bam for " + str(len(samples)) + " files (" + str(n) + " threads)")
         results = Parallel(n_jobs=1, verbose=verbose)(delayed(runSam2Bam)(tid, samples[tid], n, outputDirectory) for tid in range(0, len(samples)))
         dunkFinished()
           
