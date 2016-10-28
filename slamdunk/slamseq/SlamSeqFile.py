@@ -177,6 +177,12 @@ class SlamSeqRead:
         # Read is Multimapper
         self.isMultimapper = None
         
+    def getTcount(self):
+        if(self.direction == ReadDirection.Reverse):
+            return self.sequence.count("a") + self.sequence.count("A")
+        else:
+            return self.sequence.count("t") + self.sequence.count("T")
+        
     def __repr__(self):
         return "\t".join([self.name, str(self.direction), self.sequence, str(self.tcCount), str(self.tCount), str(self.tcRate), self.conversionRates.__repr__(), str(self.startRefPos), str(self.endRefPos), self.mismatches.__repr__(), str(self.isTcRead), str(self.isMultimapper)])
 

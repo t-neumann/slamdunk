@@ -8,7 +8,7 @@ from intervaltree import IntervalTree
 from slamdunk.version import __version__, __bam_version__  # @UnresolvedImport
 
 from slamdunk.utils.BedReader import BedIterator  # @UnresolvedImport
-from slamdunk.utils.misc import checkStep, run, removeFile, getBinary, pysamIndex  # @UnresolvedImport
+from slamdunk.utils.misc import checkStep, run, removeFile, getBinary, pysamIndex, SlamSeqInfo, md5  # @UnresolvedImport
 
 # def Filter_old(inputBAM, outputBAM, log, MQ=2, printOnly=False, verbose=True, force=True):
 #     if(printOnly or checkStep([inputBAM], [outputBAM], force)):
@@ -230,7 +230,14 @@ def Filter(inputBAM, outputBAM, log, bed, MQ=2, minIdentity=0.8, NM=-1, printOnl
         # Used for creating summary file
         inFileBamHeader = outfile.header
         if('RG' in inFileBamHeader and len(inFileBamHeader['RG']) > 0):
-            inFileBamHeader['RG'][0]['DS'] = "{'sequenced':" + str(mappedReads + unmappedReads) + "," + "'mapped':" + str(mappedReads) + "," + "'filtered':" + str(filteredReads) + "}"        
+            slamseqInfo = SlamSeqInfo()
+            slamseqInfo.SequencedReads = mappedReads + unmappedReads
+            slamseqInfo.MappedReads = mappedReads
+            slamseqInfo.FilteredReads = filteredReads
+            slamseqInfo.AnnotationName = os.path.basename(bed)
+            slamseqInfo.AnnotationMD5 = md5(bed)
+            inFileBamHeader['RG'][0]['DS'] = str(slamseqInfo)
+            #inFileBamHeader['RG'][0]['DS'] = "{'sequenced':" + str(mappedReads + unmappedReads) + "," + "'mapped':" + str(mappedReads) + "," + "'filtered':" + str(filteredReads) + "}"        
         
         slamDunkPG = { 'ID': 'slamdunk', 'PN': 'slamdunk filter v' + __version__, 'VN': __bam_version__ }
         if('PG' in inFileBamHeader):

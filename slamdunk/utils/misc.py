@@ -8,9 +8,56 @@ import subprocess
 import collections
 import csv
 import ast
+import hashlib
 
-ReadStat = collections.namedtuple('ReadStat' , 'SequencedReads MappedReads DedupReads FilteredReads SNPs')
+ReadStat = collections.namedtuple('ReadStat' , 'SequencedReads MappedReads DedupReads FilteredReads SNPs AnnotationName AnnotationMD5')
 SampleInfo = collections.namedtuple('SampleInfo' , 'ID Name Type Time')
+
+class SlamSeqInfo:
+
+    ID_SequencedRead = "sequenced"
+    ID_MappedReads = "mapped"
+    ID_FilteredReads = "filtered"
+    ID_DedupReads = "dedup"
+    ID_SNPs = "snps"
+    ID_AnnotationName = "annotation"
+    ID_AnnotationMD5 = "annotationmd5"
+
+    def getFromReadStat(self, name, stats):
+        if(name in stats):
+            return stats[name]
+        else:
+            return "NA"
+
+    def __init__(self, bam = None):
+        if bam is None:
+            self.SequencedReads = 0
+            self.MappedReads = 0
+            self.DedupReads = 0
+            self.FilteredReads = 0
+            self.SNPs = 0
+            self.AnnotationName = "NA"
+            self.AnnotationMD5 = "NA"            
+        else:
+            DS = ast.literal_eval(getReadGroup(bam)['DS'])
+    
+            self.SequencedReads = self.getFromReadStat(self.ID_SequencedRead, DS)
+            self.MappedReads = self.getFromReadStat(self.ID_MappedReads, DS)
+            self.DedupReads = self.getFromReadStat(self.ID_DedupReads, DS)
+            self.FilteredReads = self.getFromReadStat(self.ID_FilteredReads, DS)
+            self.SNPs = self.getFromReadStat(self.ID_SNPs, DS)
+            self.AnnotationName = self.getFromReadStat(self.ID_AnnotationName, DS)
+            self.AnnotationMD5 = self.getFromReadStat(self.ID_AnnotationMD5, DS)
+         
+    def __repr__(self):
+        return "{" + "'" + self.ID_SequencedRead + "':" + str(self.SequencedReads) + "," + "'" + self.ID_MappedReads + "':" + str(self.MappedReads) + "," + "'" + self.ID_FilteredReads + "':" + str(self.FilteredReads) + "," + "'" + self.ID_DedupReads + "':" + str(self.DedupReads) + "," + "'" + self.ID_SNPs + "':" + str(self.SNPs) + "," + "'" + self.ID_AnnotationName + "':'" + str(self.AnnotationName) + "'," + "'" + self.ID_AnnotationMD5 + "':'" + str(self.AnnotationMD5) +  "'}"
+
+def md5(fname):
+    hash_md5 = hashlib.md5()
+    with open(fname, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    return hash_md5.hexdigest()
 
 def estimateMaxReadLength(bam):
 
@@ -184,12 +231,6 @@ def countReads(bam):
     bamFile.close()
     return mapped, unmapped
 
-def getFromReadStat(name, stats):
-    if(name in stats):
-        return stats[name]
-    else:
-        return "NA"
-
 def getReadGroup(bam):
     bamFile = pysam.AlignmentFile(bam)
     header = bamFile.header
@@ -199,9 +240,9 @@ def getReadGroup(bam):
     else:
         raise RuntimeError("Could not get mapped/unmapped/filtered read counts from BAM file. RG is missing. Please rerun slamdunk filter.")
     
-def getReadCount(bam):
-    counts = ast.literal_eval(getReadGroup(bam)['DS'])
-    return ReadStat(SequencedReads = getFromReadStat("sequenced", counts), MappedReads = getFromReadStat("mapped", counts), DedupReads = getFromReadStat("dedupreads", counts), FilteredReads = getFromReadStat("filtered", counts), SNPs = getFromReadStat("snps", counts))
+# def getReadCount(bam):
+#     counts = ast.literal_eval(getReadGroup(bam)['DS'])
+#     return ReadStat(SequencedReads = getFromReadStat("sequenced", counts), MappedReads = getFromReadStat("mapped", counts), DedupReads = getFromReadStat("dedupreads", counts), FilteredReads = getFromReadStat("filtered", counts), SNPs = getFromReadStat("snps", counts))
 
 def getSampleInfo(bam):
     sampleInfo = getReadGroup(bam)

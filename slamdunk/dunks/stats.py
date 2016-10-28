@@ -6,7 +6,7 @@ import math
 import pysam
 
 from os.path import basename
-from slamdunk.utils.misc import run, removeExtension, checkStep, getReadCount, getSampleInfo, complement , getPlotter, callR  # @UnresolvedImport
+from slamdunk.utils.misc import run, removeExtension, checkStep, getSampleInfo, complement , getPlotter, callR, SlamSeqInfo  # @UnresolvedImport
 from slamdunk.slamseq.SlamSeqFile import SlamSeqBamFile, ReadDirection  # @UnresolvedImport
 from slamdunk.utils import SNPtools  # @UnresolvedImport
 from slamdunk.utils.BedReader import BedIterator  # @UnresolvedImport
@@ -494,11 +494,12 @@ def statsComputeOverallRatesPerUTR(referenceFile, bam, minQual, outputCSV, outpu
     
 def readSummary(filteredFiles, outputFile, log, printOnly=False, verbose=True, force=False):
     tsvFile = open(outputFile, "w")
-    print("FileName", "SampleName", "SampleType", "SampleTime", "Sequenced", "Mapped", "Deduplicated", "Filtered", sep="\t", file=tsvFile)
+    print("FileName", "SampleName", "SampleType", "SampleTime", "Sequenced", "Mapped", "Deduplicated", "Filtered", "Annotation", sep="\t", file=tsvFile)
     for bam in filteredFiles:
-        readStats = getReadCount(bam)
+        #readStats = getReadCount(bam)
+        slamseqInfo = SlamSeqInfo(bam)
         sampleInfo = getSampleInfo(bam)
-        print(bam, sampleInfo.Name, sampleInfo.Type, sampleInfo.Time, readStats.SequencedReads, readStats.MappedReads, readStats.DedupReads, readStats.FilteredReads, sep="\t", file=tsvFile)
+        print(bam, sampleInfo.Name, sampleInfo.Type, sampleInfo.Time, slamseqInfo.SequencedReads, slamseqInfo.MappedReads, slamseqInfo.DedupReads, slamseqInfo.FilteredReads, slamseqInfo.AnnotationName, sep="\t", file=tsvFile)
     tsvFile.close()
         
 def sampleSummary(readCounts, outputPrefix, log, printOnly=False, verbose=True, force=False):
@@ -707,8 +708,8 @@ def computeSNPMaskedRates (ref, bed, snpsFile, bam, maxReadLength, minQual, cove
     
         referenceFile = pysam.FastaFile(ref)
         
-        flagstat = getReadCount(bam)
-        readNumber = flagstat.MappedReads
+        slamseqInfo = SlamSeqInfo(bam)
+        readNumber = slamseqInfo.MappedReads
     
         fileCSV = open(outputCSV,'w')
         

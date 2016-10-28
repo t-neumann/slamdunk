@@ -46,14 +46,22 @@ if(opt$alternativecounting > 0) {
 readMeatInfo <- function(fileName) {
   #fileName = filesSlamDunk[1]
   sampleInfo = read.table(fileName, nrows = 1, comment.char = "")
-  sampleName = as.character(sampleInfo$V6)
-  sampleType = as.character(sampleInfo$V7)
-  sampleTime = as.numeric(sampleInfo$V8)
-  c(sampleName, sampleType, sampleTime)  
+  version = paste(lapply(sampleInfo[1,1:3], as.character), collapse = '\t')
+  sampleName = as.character(sampleInfo[1, ]$V6)
+  sampleType = as.character(sampleInfo[1, ]$V7)
+  sampleTime = as.numeric(sampleInfo[1, ]$V8)
+  sampleInfo = read.table(fileName, nrows = 1, skip = 1, comment.char = "")
+  annotationMD5 = as.character(sampleInfo[1, ]$V3)
+  annotationName = as.character(sampleInfo[1, ]$V2)
+  c(sampleName, sampleType, sampleTime, annotationName, annotationMD5, version)  
 }
   
 sampleNumber = length(filesSlamDunk)
 mergedRates = data.frame()
+
+annotationName = ""
+annotationMD5 = ""
+version = ""
 
 # Merge rates from all samples
 for(i in 1:length(filesSlamDunk)) {
@@ -61,6 +69,17 @@ for(i in 1:length(filesSlamDunk)) {
   file = filesSlamDunk[i]  
   meta = readMeatInfo(file)
   sampleName = meta[1]
+  
+  if(i == 1) {
+    version = meta[6]
+    annotationName = meta[4]
+    annotationMD5 = meta[5]
+  } else {
+    if(annotationMD5 != meta[5]) {
+      
+    }
+  }
+  
   data = read.table(file, header = T)
   if(i == 1) {
     mergedRates = data[, c(1:6)]
@@ -97,4 +116,8 @@ mergedRates$avgCoverageOnTs = mergedRates$avgCoverageOnTs / sampleNumber
 #head(mergedRates)
 
 # Write to output file
-write.table(mergedRates, outputFile, sep = "\t", quote = F, row.names = F, col.names = T)
+con <- file(outputFile, open="wt") 
+writeLines(version, con)
+writeLines(paste0("#Annotation:\t", annotationName, "\t", annotationMD5), con) 
+write.table(mergedRates, con, sep = "\t", quote = F, row.names = F, col.names = T)
+close(con) 
