@@ -68,13 +68,18 @@ def run():
     preparebedparse.add_argument("-l", "--read-length", type=int, required=True, dest="readLength", help="All UTRs short than the read length are removed.")
     preparebedparse.add_argument("-o", "--outputDir", type=str, required=False, dest="outputDir", default=".", help="Output directory for mapped BAM files.")
     
-    turnoverparse = subparsers.add_parser('utrs', help='Simulate utrs and turnover rate')
-    turnoverparse.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
+    turnoverparse = subparsers.add_parser('turnover', help='Simulate utrs and turnover rate')
     turnoverparse.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
     turnoverparse.add_argument("-minhl", "--min-halflife", type=int, required=False, default=30, dest="minHalfLife", help="Lower bound for the simulated half lifes in minutes")
     turnoverparse.add_argument("-maxhl", "--max-halflife", type=int, required=False, default=720, dest="maxHalfLife", help="Upper bound for the simulated half lifes in minutes")
     turnoverparse.add_argument("-o", "--outputDir", type=str, required=False, dest="outputDir", default=".", help="Output directory for mapped BAM files.")
-    turnoverparse.add_argument("-s", "--snp-rate", type=float, required=False, default=0.001, dest="snpRate", help="SNP rate in UTRs")
+    
+    utrsparse = subparsers.add_parser('utrs', help='Simulate utrs and turnover rate')
+    utrsparse.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
+    utrsparse.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
+    utrsparse.add_argument("-o", "--outputDir", type=str, required=False, dest="outputDir", default=".", help="Output directory for mapped BAM files.")
+    utrsparse.add_argument("-s", "--snp-rate", type=float, required=False, default=0.001, dest="snpRate", help="SNP rate in UTRs")
+    
     
     simulateparse = subparsers.add_parser('reads', help='Simulate SLAM-seq read data')
     simulateparse.add_argument("-o", "--outputDir", type=str, required=False, dest="outputDir", default=".", help="Output directory for mapped BAM files.")
@@ -129,18 +134,22 @@ def run():
         slamSimBed = os.path.join(outputDirectory, replaceExtension(basename(bed), ".bed", "_original"))
         simulator.prepareBED(bed, slamSimBed, readLength)
         
+    elif (command == "turnover"):
+        outputDirectory = args.outputDir
+        createDir(outputDirectory)
+        bed = args.bed
+        trunoverBed = os.path.join(outputDirectory, replaceExtension(basename(bed), ".bed", "_utrs"))
+        minHalflife = args.minHalfLife
+        maxHalfLife = args.maxHalfLife
+        
+        simulator.simulateTurnOver(bed, trunoverBed, minHalflife, maxHalfLife)
+        
     elif (command == "utrs") :
         outputDirectory = args.outputDir
         createDir(outputDirectory)
         
         bed = args.bed
-        trunoverBed = os.path.join(outputDirectory, replaceExtension(basename(bed), ".bed", "_utrs"))
-        minHalflife = args.minHalfLife
-        maxHalfLife = args.maxHalfLife
         snpRate = args.snpRate
-        
-        simulator.simulateTurnOver(bed, trunoverBed, minHalflife, maxHalfLife)
-        
         referenceFasta = args.referenceFile
         bed12 = os.path.join(outputDirectory, replaceExtension(basename(bed), ".bed12", "_utrs"))
         bed12Fasta = os.path.join(outputDirectory, replaceExtension(basename(bed), ".fa", "_utrs"))

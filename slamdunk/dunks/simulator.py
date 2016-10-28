@@ -10,14 +10,13 @@ import os
 import glob
 import sys
 
-from slamdunk.utils import SNPtools
-from slamdunk.utils.BedReader import BedIterator
-from slamdunk.utils.misc import shell, run
-from slamdunk.slamseq.SlamSeqFile import SlamSeqBamFile
+from slamdunk.utils import SNPtools  # @UnresolvedImport
+from slamdunk.utils.BedReader import BedIterator  # @UnresolvedImport
+from slamdunk.utils.misc import shell, run, getBinary  # @UnresolvedImport
+from slamdunk.slamseq.SlamSeqFile import SlamSeqBamFile  # @UnresolvedImport
 from Bio import SeqIO
 
 projectPath = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-rNASeqReadSimulatorPath = os.path.join(projectPath, "bin", "RNASeqReadSimulator-master/")
 pathEvalHalfLifes = os.path.join(projectPath, "plot", "eval_halflife_per_gene_plots.R")
 pathEvalConversionrates = os.path.join(projectPath, "plot", "eval_conversion_rate_plots.R")
 pathEvalHalfLife = os.path.join(projectPath, "plot", "eval_halflifes_error_plot.R")
@@ -137,16 +136,16 @@ def prepareUTRs(bed, bed12, bed12Fasta, referenceFasta, readLength, explv, snpRa
         
     bed12File.close()    
     
-    output = shell(rNASeqReadSimulatorPath + "src/genexplvprofile.py --geometric 0.8 " + bed12 + " > " + explv)
+    output = shell(getBinary("genexplvprofile.py") + " --geometric 0.8 " + bed12 + " > " + explv)
     print(output)
         
     return totalLength
     
-def simulateReads(bed12, bed12Fasta, explv, bedReads, faReads, readLength, readCount, seqError):
-    
-    output = shell(rNASeqReadSimulatorPath + "src/gensimreads.py -l " + str(readLength) + " -e " + explv + " -n " + str(readCount) + " -b " + rNASeqReadSimulatorPath + "demo/input/sampleposbias.txt --stranded " + bed12 + " > " + bedReads)
+def simulateReads(bed12, bed12Fasta, explv, bedReads, faReads, readLength, readCount, seqError):    
+    #output = shell(getBinary("gensimreads.py") + " -l " + str(readLength) + " -e " + explv + " -n " + str(readCount) + " -b " + rNASeqReadSimulatorPath + "demo/input/sampleposbias.txt --stranded " + bed12 + " > " + bedReads)
+    output = shell(getBinary("gensimreads.py") + " -l " + str(readLength) + " -e " + explv + " -n " + str(readCount) + " --stranded " + bed12 + " > " + bedReads)
     print(output)
-    output = shell(rNASeqReadSimulatorPath + "src/getseqfrombed.py -r " + str(seqError) + " -l " + str(readLength) + " " + bedReads + " " + bed12Fasta + " > " + faReads)
+    output = shell(getBinary("getseqfrombed.py") + " -r " + str(seqError) + " -l " + str(readLength) + " " + bedReads + " " + bed12Fasta + " > " + faReads)
     print(output)
     
 def getRndHalfLife(minHalfLife, maxHalfLife):
@@ -200,7 +199,8 @@ def addTcConversionsToReads(utr, reads, timePoint, readOutSAM, conversionRate):
     print(utr.name + " reads found: " + str(len(reads)))
     
     varLambda = getLambdaFromHalfLife(utr.score)
-    readsToConvert = int(len(reads) * (1 - math.exp(-varLambda * timePoint)))
+    readToConvertPercent = (1 - math.exp(-varLambda * timePoint))
+    readsToConvert = int(len(reads) * readToConvertPercent)
     print("Converting " + str(readsToConvert) + " reads (lambda = " + str(varLambda) + ")")
     
     totalTCount = 0
@@ -222,22 +222,22 @@ def addTcConversionsToReads(utr, reads, timePoint, readOutSAM, conversionRate):
         totalTCount += tCount
     
     #print(sampledReads, notSampledReads, len(reads), sampledReads * 1.0 / len(reads),  totalTcCount, totalTCount, totalTcCount * 1.0 / totalTCount )
-    return readsToConvert, totalTCount, totalTcCount
+    return readsToConvert, totalTCount, totalTcCount, readToConvertPercent
 
 def getUtrName(readName):
     return readName.split("_")[0]
 
-def printUtrSummary(utr, totalReadCount, readsToConvert, totalTCount, totalTcCount, utrSummary, readsCPM):
-    conversionRate = 0
-    if totalTCount > 0:
-        conversionRate = totalTcCount * 1.0 / totalTCount
+def printUtrSummary(utr, totalReadCount, readsToConvert, totalTCount, totalTcCount, utrSummary, readsCPM, readToConvertPercent):
+    #conversionRate = 0
+    #if totalTCount > 0:
+    #    conversionRate = totalTcCount * 1.0 / totalTCount
     #print(utr.chromosome, utr.start, utr.stop, utr.name, utr.score, utr.strand, totalReadCount, readsToConvert, totalTCount, totalTcCount, conversionRate, sep="\t", file=utrSummary)
     print(utr.chromosome, 
           utr.start, 
           utr.stop, 
           utr.name, #utr.score, 
           utr.strand,
-          conversionRate,
+          readToConvertPercent,
           readsCPM,
           totalTCount,
           totalTcCount,
@@ -281,13 +281,13 @@ def addTcConversions(bed, readInFile, readOutFile, timePoint, utrSummaryFile, co
             reads.append(entry)
         else:
             readsCPM = len(reads)  * 1000000.0 / librarySize;
-            readsToConvert, totalTCount, totalTcCount = addTcConversionsToReads(utrs[lastUtrName], reads, timePoint, readOutSAM, conversionRate)
-            printUtrSummary(utrs[lastUtrName], len(reads), readsToConvert, totalTCount, totalTcCount, utrSummary, readsCPM)
+            readsToConvert, totalTCount, totalTcCount, readToConvertPercent = addTcConversionsToReads(utrs[lastUtrName], reads, timePoint, readOutSAM, conversionRate)
+            printUtrSummary(utrs[lastUtrName], len(reads), readsToConvert, totalTCount, totalTcCount, utrSummary, readsCPM, readToConvertPercent)
             reads = []
         lastUtrName = utrName
     readsCPM = len(reads) * 1000000.0 / librarySize;
-    readsToConvert, totalTCount, totalTcCount = addTcConversionsToReads(utrs[lastUtrName], reads, timePoint, readOutSAM, conversionRate)
-    printUtrSummary(utrs[lastUtrName], len(reads), readsToConvert, totalTCount, totalTcCount, utrSummary, readsCPM)
+    readsToConvert, totalTCount, totalTcCount, readToConvertPercent = addTcConversionsToReads(utrs[lastUtrName], reads, timePoint, readOutSAM, conversionRate)
+    printUtrSummary(utrs[lastUtrName], len(reads), readsToConvert, totalTCount, totalTcCount, utrSummary, readsCPM, readToConvertPercent)
         
             
     readOutSAM.close()       
