@@ -76,6 +76,7 @@ for(i in 1:length(filesSlamDunk)) {
   }
   if(perRead == T) {
     mergedRates[,sampleName] = data$TcReadCount / data$ReadCount
+    mergedRates[data$ReadCount == 0,sampleName] = 0
   } else {
     mergedRates[,sampleName] = data$ConversionRate
   }
@@ -87,11 +88,11 @@ mergedRates$avgTcontent = mergedRates$avgTcontent / sampleNumber
 mergedRates$avgCoverageOnTs = mergedRates$avgCoverageOnTs / sampleNumber
 
 # Sort columns by sample name
-colNumber = length(colnames(mergedRates))
-firstSampleColumn = (colNumber - sampleNumber + 1)
-sampleNames = colnames(mergedRates)[firstSampleColumn:colNumber]
-sampleColumnOrder = order(sampleNames)
-mergedRates = mergedRates[, c(1:(firstSampleColumn - 1), (sampleColumnOrder + firstSampleColumn - 1))]
+#colNumber = length(colnames(mergedRates))
+#firstSampleColumn = (colNumber - sampleNumber + 1)
+#sampleNames = colnames(mergedRates)[firstSampleColumn:colNumber]
+#sampleColumnOrder = order(sampleNames)
+#mergedRates = mergedRates[, c(1:(firstSampleColumn - 1), (sampleColumnOrder + firstSampleColumn - 1))]
 
 #head(mergedRates)
 
