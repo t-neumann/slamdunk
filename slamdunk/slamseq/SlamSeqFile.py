@@ -359,7 +359,10 @@ class SlamSeqBamIterator:
     def computeRatesForReadNGM(self, read):
         ratesNgm = SlamSeqConversionRates()
         if(read.has_tag("RA")):
-            ratesNgm.setData(map(int, read.get_tag("RA").split(",")))
+            RA = read.get_tag("RA")
+            if(RA.endswith(",")):
+                RA = RA[:-1]
+            ratesNgm.setData(map(int, RA.split(",")))
         
         return ratesNgm
         
