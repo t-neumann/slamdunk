@@ -6,6 +6,7 @@ from __future__ import print_function
 import csv
 import sys
 import pysam
+import os
 import itertools as IT
 
 from os.path import basename
@@ -112,10 +113,11 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
     readNumber = slamseqInfo.MappedReads
     
 #     fileTest = open(replaceExtension(outputCSV, ".tsv", "_perread"),'w')
-
+    bedMD5 = md5(bed)
+    
     fileCSV = open(outputCSV,'w')
     print("#slamdunk v" + __version__, __count_version__, "sample info:", sampleInfo.Name, sampleInfo.ID, sampleInfo.Type, sampleInfo.Time, sep="\t", file=fileCSV)
-    print("#annotation:", slamseqInfo.AnnotationName, slamseqInfo.AnnotationMD5, sep="\t", file=fileCSV)
+    print("#annotation:", os.path.basename(bed), bedMD5, sep="\t", file=fileCSV)
     print(SlamSeqInterval.Header, file=fileCSV)
     
     snps = SNPtools.SNPDictionary(snpsFile)
@@ -126,9 +128,9 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
     if not testFile.bamVersion == __bam_version__:
         raise RuntimeError("Wrong filtered BAM file version detected (" + testFile.bamVersion + "). Expected version " + __bam_version__ + ". Please rerun slamdunk filter.")
     
-    bedMD5 = md5(bed)
-    if slamseqInfo.AnnotationMD5 != bedMD5:
-        raise RuntimeError("MD5 checksum of annotation (" + bedMD5 + ") does not matched MD5 in filtered BAM files (" + slamseqInfo.AnnotationMD5 + "). Most probably the annotation filed changed after the filtered BAM files were created. Please rerun slamdunk filter with your current annotation file.")
+#     bedMD5 = md5(bed)
+#     if slamseqInfo.AnnotationMD5 != bedMD5:
+#         raise RuntimeError("MD5 checksum of annotation (" + bedMD5 + ") does not matched MD5 in filtered BAM files (" + slamseqInfo.AnnotationMD5 + "). Most probably the annotation filed changed after the filtered BAM files were created. Please rerun slamdunk filter with your current annotation file.")
 
     conversionBedGraph = {}
                          
