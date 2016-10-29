@@ -104,8 +104,11 @@ def getSamples(bams, runOnly=-1):
         
     return samples, samplesInfos
 
-def runMap(tid, inputBAM, referenceFile, threads, trim5p, maxPolyA, quantseqMapping, localMapping, topn, sampleDescription, outputDirectory) :
-    outputSAM = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".sam", "_slamdunk_mapped"))
+def runMap(tid, inputBAM, referenceFile, threads, trim5p, maxPolyA, quantseqMapping, localMapping, topn, sampleDescription, outputDirectory, skipSAM) :
+    if skipSAM:
+        outputSAM = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".bam", "_slamdunk_mapped"))
+    else:
+        outputSAM = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".sam", "_slamdunk_mapped"))
     #outputBAM = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".bam.bai", "_slamdunk_mapped"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".log", "_slamdunk_mapped"))
     
@@ -320,14 +323,15 @@ def runAll(args) :
         tid = i
         if args.sampleIndex > -1:
             tid = args.sampleIndex
-        runMap(tid, bam, referenceFile, n, args.trim5, args.maxPolyA, args.quantseq, args.local, args.topn, sampleInfo, dunkPath)
+        runMap(tid, bam, referenceFile, n, args.trim5, args.maxPolyA, args.quantseq, args.local, args.topn, sampleInfo, dunkPath, args.skipSAM)
         
     dunkFinished()
 
-    message("Running slamDunk sam2bam for " + str(len(samples)) + " files (" + str(n) + " threads)")
-    results = Parallel(n_jobs=1, verbose=verbose)(delayed(runSam2Bam)(tid, samples[tid], n, dunkPath) for tid in range(0, len(samples))) 
-    dunkFinished()
-       
+    if(not args.skipSAM):
+        message("Running slamDunk sam2bam for " + str(len(samples)) + " files (" + str(n) + " threads)")
+        results = Parallel(n_jobs=1, verbose=verbose)(delayed(runSam2Bam)(tid, samples[tid], n, dunkPath) for tid in range(0, len(samples))) 
+        dunkFinished()
+           
     dunkbufferIn = []
     
     for file in samples :
@@ -428,6 +432,7 @@ def run():
     mapparser.add_argument("-q", "--quantseq", dest="quantseq", action='store_true', required=False, help="Run plain Quantseq alignment without SLAM-seq scoring")
     mapparser.add_argument('-l', "--local", action='store_true', dest="local", help="Use a local alignment algorithm for mapping.")
     mapparser.add_argument("-i", "--sample-index", type=int, required=False, default=-1, dest="sampleIndex", help="Run analysis only for sample <i>. Use for distributing slamdunk analysis on a cluster (index is 0-based).")
+    mapparser.add_argument('-ss', "--skip-sam", action='store_true', dest="skipSAM", help="Output BAM while mapping. Slower but, uses less hard disk.")
     
     # filter command
     
@@ -586,6 +591,7 @@ def run():
     allparser.add_argument("-rl", "--max-read-length", type=int, required=False, dest="maxLength", help="Max read length in BAM file")
     allparser.add_argument("-mbq", "--min-base-qual", type=int, default=0, required=False, dest="minQual", help="Min base quality for T -> C conversions (default: %(default)d)")
     allparser.add_argument("-i", "--sample-index", type=int, required=False, default=-1, dest="sampleIndex", help="Run analysis only for sample <i>. Use for distributing slamdunk analysis on a cluster (index is 0-based).")
+    allparser.add_argument("-ss", "--skip-sam", action='store_true', dest="skipSAM", help="Output BAM while mapping. Slower but, uses less hard disk.")
     
     args = parser.parse_args()
     
@@ -612,12 +618,14 @@ def run():
             tid = i
             if args.sampleIndex > -1:
                 tid = args.sampleIndex
-            runMap(tid, bam, referenceFile, n, args.trim5, args.maxPolyA, args.quantseq, args.local, args.topn, sampleInfo, outputDirectory)
+            runMap(tid, bam, referenceFile, n, args.trim5, args.maxPolyA, args.quantseq, args.local, args.topn, sampleInfo, outputDirectory, args.skipSAM)
             
         dunkFinished()
-        message("Running slamDunk sam2bam for " + str(len(samples)) + " files (" + str(n) + " threads)")
-        results = Parallel(n_jobs=1, verbose=verbose)(delayed(runSam2Bam)(tid, samples[tid], n, outputDirectory) for tid in range(0, len(samples)))
-        dunkFinished()
+        
+        if not args.skipSAM:
+            message("Running slamDunk sam2bam for " + str(len(samples)) + " files (" + str(n) + " threads)")
+            results = Parallel(n_jobs=1, verbose=verbose)(delayed(runSam2Bam)(tid, samples[tid], n, outputDirectory) for tid in range(0, len(samples)))
+            dunkFinished()
           
     elif (command == "filter") :
         outputDirectory = args.outputDir

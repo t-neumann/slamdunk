@@ -75,13 +75,15 @@ def Map(inputBAM, inputReference, outputSAM, log, quantseqMapping, localMapping,
         parameter = parameter + " -n " + str(topn) + " --strata "
         
     if(checkStep([inputReference, inputBAM], [replaceExtension(outputSAM, ".bam")], force)):
-        # Output SAM
-        run(getBinary("ngm") + " -r " + inputReference + " -q " + inputBAM + " -t " + str(threads) + " " + parameter + " -o " + outputSAM, log, verbose=verbose, dry=printOnly)
-        # Output BAM directly
-        #run(getBinary("ngm") + " -b -r " + inputReference + " -q " + inputBAM + " -t " + str(threads) + " " + parameter + " -o " + outputSAM, log, verbose=verbose, dry=printOnly)
-        # Pipe SAM to samtools and convert to BAM
-        #ngmThreads = int(threads - 1)
-        #run(getBinary("ngm") + " -r " + inputReference + " -q " + inputBAM + " -t " + str(ngmThreads) + " " + parameter + " | " + getBinary("samtools") + " view -@ " + str(threads - ngmThreads) + " -hSb - > " + outputSAM, log, verbose=verbose, dry=printOnly)
+        if outputSAM.endswith(".sam"):
+            # Output SAM
+            run(getBinary("ngm") + " -r " + inputReference + " -q " + inputBAM + " -t " + str(threads) + " " + parameter + " -o " + outputSAM, log, verbose=verbose, dry=printOnly)
+        else:
+            # Output BAM directly
+            run(getBinary("ngm") + " -b -r " + inputReference + " -q " + inputBAM + " -t " + str(threads) + " " + parameter + " -o " + outputSAM, log, verbose=verbose, dry=printOnly)
+            # Pipe SAM to samtools and convert to BAM
+            #ngmThreads = int(threads - 1)
+            #run(getBinary("ngm") + " -r " + inputReference + " -q " + inputBAM + " -t " + str(ngmThreads) + " " + parameter + " | " + getBinary("samtools") + " view -@ " + str(threads - ngmThreads) + " -hSb - > " + outputSAM, log, verbose=verbose, dry=printOnly)
     else:
         print("Skipped mapping for " + inputBAM, file=log)
         
