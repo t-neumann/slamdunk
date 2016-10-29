@@ -431,8 +431,6 @@ def run():
     elif (command == "summary") :
         message("Running alleyoop stats read summary for " + str(len(args.bam)) + " files")
         outputLog = replaceExtension(args.outputFile, ".log")
-        #stats.readSummary(args.mappedFiles, args.filteredFiles, args.dedupFiles, args.snpFiles, samples, args.outputPrefix, getLogFile(outputLog))
-        #stats.sampleSummary(args.readCounts, args.outputPrefix, getLogFile(outputLog))
         stats.readSummary(args.bam, args.outputFile, getLogFile(outputLog))
         dunkFinished() 
     

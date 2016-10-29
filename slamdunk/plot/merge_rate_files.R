@@ -32,7 +32,6 @@ if ( is.null(opt$output) ) stop("arg output must be specified")
 if ( is.null(opt$alternativecounting) ) { opt$alternativecounting = 0 }
 
 slamDunkFiles = opt$slamdunk
-#slamDunkFiles = "/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_1_0min_reads_slamdunk_mapped_filtered_tcount.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_2_15min_reads_slamdunk_mapped_filtered_tcount.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_3_30min_reads_slamdunk_mapped_filtered_tcount.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_4_60min_reads_slamdunk_mapped_filtered_tcount.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_5_180min_reads_slamdunk_mapped_filtered_tcount.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_6_360min_reads_slamdunk_mapped_filtered_tcount.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_7_720min_reads_slamdunk_mapped_filtered_tcount.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_8_1440min_reads_slamdunk_mapped_filtered_tcount.csv"
 #slamDunkFiles = "/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_7_720min_reads_slamdunk_mapped_filtered_tcount.tsv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_1_0min_reads_slamdunk_mapped_filtered_tcount.tsv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_6_360min_reads_slamdunk_mapped_filtered_tcount.tsv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_2_15min_reads_slamdunk_mapped_filtered_tcount.tsv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_8_1440min_reads_slamdunk_mapped_filtered_tcount.tsv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_3_30min_reads_slamdunk_mapped_filtered_tcount.tsv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_5_180min_reads_slamdunk_mapped_filtered_tcount.tsv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_4_60min_reads_slamdunk_mapped_filtered_tcount.tsv"
 filesSlamDunk = as.character(ordered(strsplit(slamDunkFiles, ",")[[1]]))
 outputFile = opt$output
@@ -47,13 +46,14 @@ readMeatInfo <- function(fileName) {
   #fileName = filesSlamDunk[1]
   sampleInfo = read.table(fileName, nrows = 1, comment.char = "")
   version = paste(lapply(sampleInfo[1,1:3], as.character), collapse = '\t')
+  sampleID = as.character(sampleInfo[1, ]$V7)
   sampleName = as.character(sampleInfo[1, ]$V6)
-  sampleType = as.character(sampleInfo[1, ]$V7)
-  sampleTime = as.numeric(sampleInfo[1, ]$V8)
+  sampleType = as.character(sampleInfo[1, ]$V8)
+  sampleTime = as.numeric(sampleInfo[1, ]$V9)
   sampleInfo = read.table(fileName, nrows = 1, skip = 1, comment.char = "")
   annotationMD5 = as.character(sampleInfo[1, ]$V3)
   annotationName = as.character(sampleInfo[1, ]$V2)
-  c(sampleName, sampleType, sampleTime, annotationName, annotationMD5, version)  
+  c(sampleID, sampleName, sampleType, sampleTime, annotationName, annotationMD5, version)  
 }
   
 sampleNumber = length(filesSlamDunk)
@@ -62,24 +62,26 @@ mergedRates = data.frame()
 annotationName = ""
 annotationMD5 = ""
 version = ""
+IDs = c()
 
 # Merge rates from all samples
 for(i in 1:length(filesSlamDunk)) {
   #i = 1
   file = filesSlamDunk[i]  
   meta = readMeatInfo(file)
-  sampleName = meta[1]
+  sampleName = meta[2]
   
   if(i == 1) {
-    version = meta[6]
-    annotationName = meta[4]
-    annotationMD5 = meta[5]
+    version = meta[7]
+    annotationName = meta[5]
+    annotationMD5 = meta[6]
   } else {
-    if(annotationMD5 != meta[5]) {
+    if(annotationMD5 != meta[6]) {
       
     }
   }
   
+  IDs = c(IDs, as.numeric(meta[1]))
   data = read.table(file, header = T)
   if(i == 1) {
     mergedRates = data[, c(1:6)]
@@ -107,11 +109,11 @@ mergedRates$avgTcontent = mergedRates$avgTcontent / sampleNumber
 mergedRates$avgCoverageOnTs = mergedRates$avgCoverageOnTs / sampleNumber
 
 # Sort columns by sample name
-#colNumber = length(colnames(mergedRates))
-#firstSampleColumn = (colNumber - sampleNumber + 1)
-#sampleNames = colnames(mergedRates)[firstSampleColumn:colNumber]
-#sampleColumnOrder = order(sampleNames)
-#mergedRates = mergedRates[, c(1:(firstSampleColumn - 1), (sampleColumnOrder + firstSampleColumn - 1))]
+colNumber = length(colnames(mergedRates))
+firstSampleColumn = (colNumber - sampleNumber + 1)
+sampleNames = colnames(mergedRates)[firstSampleColumn:colNumber]
+sampleColumnOrder = order(IDs)
+mergedRates = mergedRates[, c(1:(firstSampleColumn - 1), (sampleColumnOrder + firstSampleColumn - 1))]
 
 #head(mergedRates)
 

@@ -493,13 +493,22 @@ def statsComputeOverallRatesPerUTR(referenceFile, bam, minQual, outputCSV, outpu
            
     
 def readSummary(filteredFiles, outputFile, log, printOnly=False, verbose=True, force=False):
-    tsvFile = open(outputFile, "w")
-    print("FileName", "SampleName", "SampleType", "SampleTime", "Sequenced", "Mapped", "Deduplicated", "Filtered", "Annotation", sep="\t", file=tsvFile)
+    # Print sort by ID
+    contentDict = {}
     for bam in filteredFiles:
-        #readStats = getReadCount(bam)
         slamseqInfo = SlamSeqInfo(bam)
         sampleInfo = getSampleInfo(bam)
-        print(bam, sampleInfo.Name, sampleInfo.Type, sampleInfo.Time, slamseqInfo.SequencedReads, slamseqInfo.MappedReads, slamseqInfo.DedupReads, slamseqInfo.FilteredReads, slamseqInfo.AnnotationName, sep="\t", file=tsvFile)
+        if(sampleInfo.ID in contentDict):
+            ID = len(contentDict) + 1
+        else:
+            ID = sampleInfo.ID
+        contentDict[ID] = "\t".join([bam, sampleInfo.Name, sampleInfo.Type, sampleInfo.Time, str(slamseqInfo.SequencedReads), str(slamseqInfo.MappedReads), str(slamseqInfo.DedupReads), str(slamseqInfo.FilteredReads), slamseqInfo.AnnotationName])
+#         print(bam, sampleInfo.Name, sampleInfo.Type, sampleInfo.Time, slamseqInfo.SequencedReads, slamseqInfo.MappedReads, slamseqInfo.DedupReads, slamseqInfo.FilteredReads, slamseqInfo.AnnotationName, sep="\t", file=tsvFile)
+    print(contentDict)
+    tsvFile = open(outputFile, "w")
+    print("FileName", "SampleName", "SampleType", "SampleTime", "Sequenced", "Mapped", "Deduplicated", "Filtered", "Annotation", sep="\t", file=tsvFile)
+    for key in sorted(contentDict):
+        print(contentDict[key], file=tsvFile)
     tsvFile.close()
         
 def sampleSummary(readCounts, outputPrefix, log, printOnly=False, verbose=True, force=False):
@@ -784,8 +793,7 @@ def computeSNPMaskedRates (ref, bed, snpsFile, bam, maxReadLength, minQual, cove
         print("Skipped computing T->C per UTR position plot for file " + bam, file=log)
     else: 
         #run(pathConversionPerReadPos + " -u -i " + outputCSV + " -o " + outputPDF, log, dry=printOnly, verbose=verbose)
-        callR(getPlotter("SNPeval") + " -i " + outputCSV + " -c " + str(coverageCutoff) + " -v " + str(variantFraction) + " -o " + outputPDF, log, dry=printOnly, verbose=verbose)    
-        
+        callR(getPlotter("SNPeval") + " -i " + outputCSV + " -c " + str(coverageCutoff) + " -v " + str(variantFraction) + " -o " + outputPDF, log, dry=printOnly, verbose=verbose)            
 
 def halflifes(bams, outputCSV, timepoints, log, printOnly=False, verbose=True, force=False):
     #run("Rscript " + pathComputeHalfLifes + " -f " + bams + " -t " + timepoints + " -o " + outputCSV, log, dry=printOnly, verbose=verbose)

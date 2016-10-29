@@ -317,7 +317,10 @@ def runAll(args) :
     for i in xrange(0, len(samples)):
         bam = samples[i]
         sampleInfo = samplesInfos[i]
-        runMap(i, bam, referenceFile, n, args.trim5, args.maxPolyA, args.quantseq, args.local, args.topn, sampleInfo, dunkPath)
+        tid = i
+        if args.sampleIndex > -1:
+            tid = args.sampleIndex
+        runMap(tid, bam, referenceFile, n, args.trim5, args.maxPolyA, args.quantseq, args.local, args.topn, sampleInfo, dunkPath)
         
     dunkFinished()
 
@@ -606,7 +609,10 @@ def run():
         for i in xrange(0, len(samples)):
             bam = samples[i]
             sampleInfo = samplesInfos[i]
-            runMap(i, bam, referenceFile, n, args.trim5, args.maxPolyA, args.quantseq, args.local, args.topn, sampleInfo, outputDirectory)
+            tid = i
+            if args.sampleIndex > -1:
+                tid = args.sampleIndex
+            runMap(tid, bam, referenceFile, n, args.trim5, args.maxPolyA, args.quantseq, args.local, args.topn, sampleInfo, outputDirectory)
             
         dunkFinished()
         message("Running slamDunk sam2bam for " + str(len(samples)) + " files (" + str(n) + " threads)")

@@ -114,8 +114,8 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
     fileTest = open(replaceExtension(outputCSV, ".tsv", "_perread"),'w')
 
     fileCSV = open(outputCSV,'w')
-    print("#slamdunk v" + __version__ + "\t" + __count_version__ + "\tsample info:\t" + sampleInfo.Name + "\t" + sampleInfo.Type + "\t" + sampleInfo.Time, file=fileCSV)
-    print("#annotation:\t" + slamseqInfo.AnnotationName + "\t" + slamseqInfo.AnnotationMD5, file=fileCSV)
+    print("#slamdunk v" + __version__, __count_version__, "sample info:", sampleInfo.Name, sampleInfo.ID, sampleInfo.Type, sampleInfo.Time, sep="\t", file=fileCSV)
+    print("#annotation:", slamseqInfo.AnnotationName, slamseqInfo.AnnotationMD5, sep="\t", file=fileCSV)
     print(SlamSeqInterval.Header, file=fileCSV)
     
     snps = SNPtools.SNPDictionary(snpsFile)
