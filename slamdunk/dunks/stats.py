@@ -502,9 +502,8 @@ def readSummary(filteredFiles, outputFile, log, printOnly=False, verbose=True, f
             ID = len(contentDict) + 1
         else:
             ID = sampleInfo.ID
-        contentDict[ID] = "\t".join([bam, sampleInfo.Name, sampleInfo.Type, sampleInfo.Time, str(slamseqInfo.SequencedReads), str(slamseqInfo.MappedReads), str(slamseqInfo.DedupReads), str(slamseqInfo.FilteredReads), slamseqInfo.AnnotationName])
-#         print(bam, sampleInfo.Name, sampleInfo.Type, sampleInfo.Time, slamseqInfo.SequencedReads, slamseqInfo.MappedReads, slamseqInfo.DedupReads, slamseqInfo.FilteredReads, slamseqInfo.AnnotationName, sep="\t", file=tsvFile)
-    print(contentDict)
+        contentDict[int(ID)] = "\t".join([bam, sampleInfo.Name, sampleInfo.Type, sampleInfo.Time, str(slamseqInfo.SequencedReads), str(slamseqInfo.MappedReads), str(slamseqInfo.DedupReads), str(slamseqInfo.FilteredReads), slamseqInfo.AnnotationName])
+        
     tsvFile = open(outputFile, "w")
     print("FileName", "SampleName", "SampleType", "SampleTime", "Sequenced", "Mapped", "Deduplicated", "Filtered", "Annotation", sep="\t", file=tsvFile)
     for key in sorted(contentDict):
