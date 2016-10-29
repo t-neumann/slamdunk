@@ -6,7 +6,7 @@ import sys
 import pysam
 import os
 
-from slamdunk.utils.misc import getSampleInfo, SlamSeqInfo, md5  # @UnresolvedImport
+from slamdunk.utils.misc import replaceExtension, getSampleInfo, SlamSeqInfo, md5  # @UnresolvedImport
 from slamdunk.utils.BedReader import BedIterator  # @UnresolvedImport
 
 from slamdunk.utils import SNPtools  # @UnresolvedImport
@@ -105,9 +105,9 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
     slamseqInfo = SlamSeqInfo(bam)
     readNumber = slamseqInfo.MappedReads
     
-#     fileTest = open(replaceExtension(outputCSV, ".tsv", "_perread"),'w')
-    bedMD5 = md5(bed)
     
+    fileTest = open(replaceExtension(outputCSV, ".tsv", "_perread"),'w')
+    bedMD5 = md5(bed)
     fileCSV = open(outputCSV,'w')
     print("#slamdunk v" + __version__, __count_version__, "sample info:", sampleInfo.Name, sampleInfo.ID, sampleInfo.Type, sampleInfo.Time, sep="\t", file=fileCSV)
     print("#annotation:", os.path.basename(bed), bedMD5, sep="\t", file=fileCSV)
@@ -186,7 +186,18 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
             for mismatch in read.mismatches:
                 if(mismatch.isTCMismatch(read.direction == ReadDirection.Reverse) and mismatch.referencePosition >= 0 and mismatch.referencePosition < utr.getLength()):
                     tcCountUtr[mismatch.referencePosition] += 1
-                        
+            
+            testN = read.getTcount()
+            testk = 0
+            for mismatch in read.mismatches:
+                if(mismatch.referencePosition >= 0 and mismatch.referencePosition < utr.getLength()):
+                    if(mismatch.isT(read.direction == ReadDirection.Reverse)):
+                        testN += 1
+                    if(mismatch.isTCMismatch(read.direction == ReadDirection.Reverse)):
+                        testk += 1
+            #print(utr.name, read.name, read.direction, testN, testk, read.sequence, sep="\t")
+            print(utr.name, testN, testk, sep="\t", file=fileTest)
+            
             for i in xrange(read.startRefPos, read.endRefPos):
                 if(i >= 0 and i < utr.getLength()):
                     coverageUtr[i] += 1
@@ -250,6 +261,8 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
         print(slamSeqUtr, file=fileCSV)
         
     fileCSV.close()
+
+    fileTest.close()
     
     fileBedgraphPlus = open(outputBedgraphPlus,'w')
     fileBedgraphMinus = open(outputBedgraphMinus,'w')
