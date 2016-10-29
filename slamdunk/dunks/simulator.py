@@ -195,11 +195,13 @@ def convertRead(read, name, index, conversionRate, readOutSAM):
 def getLambdaFromHalfLife(halfLife):
     return math.log(2) / float(halfLife)
 
-def addTcConversionsToReads(utr, reads, timePoint, readOutSAM, conversionRate):    
+def addTcConversionsToReads(utr, reads, pulseTimePoint, chaseTimepoint, readOutSAM, conversionRate):    
     print(utr.name + " reads found: " + str(len(reads)))
     
     varLambda = getLambdaFromHalfLife(utr.score)
-    readToConvertPercent = (1 - math.exp(-varLambda * timePoint))
+    readToConvertPercent = (1 - math.exp(-varLambda * pulseTimePoint))
+    if(chaseTimepoint > 0):
+        pass
     readsToConvert = int(len(reads) * readToConvertPercent)
     print("Converting " + str(readsToConvert) + " reads (lambda = " + str(varLambda) + ")")
     
@@ -251,7 +253,7 @@ def parseUtrBedFile(bed):
         utrs[utr.name] = utr
     return utrs
 
-def addTcConversions(bed, readInFile, readOutFile, timePoint, utrSummaryFile, conversionRate, librarySize):
+def addTcConversions(bed, readInFile, readOutFile, pulseTimePoint, chaseTimePoint, utrSummaryFile, conversionRate, librarySize):
     
     # Read utrs from BED file
     utrs = parseUtrBedFile(bed)
@@ -281,12 +283,12 @@ def addTcConversions(bed, readInFile, readOutFile, timePoint, utrSummaryFile, co
             reads.append(entry)
         else:
             readsCPM = len(reads)  * 1000000.0 / librarySize;
-            readsToConvert, totalTCount, totalTcCount, readToConvertPercent = addTcConversionsToReads(utrs[lastUtrName], reads, timePoint, readOutSAM, conversionRate)
+            readsToConvert, totalTCount, totalTcCount, readToConvertPercent = addTcConversionsToReads(utrs[lastUtrName], reads, pulseTimePoint, chaseTimePoint, readOutSAM, conversionRate)
             printUtrSummary(utrs[lastUtrName], len(reads), readsToConvert, totalTCount, totalTcCount, utrSummary, readsCPM, readToConvertPercent)
             reads = []
         lastUtrName = utrName
     readsCPM = len(reads) * 1000000.0 / librarySize;
-    readsToConvert, totalTCount, totalTcCount, readToConvertPercent = addTcConversionsToReads(utrs[lastUtrName], reads, timePoint, readOutSAM, conversionRate)
+    readsToConvert, totalTCount, totalTcCount, readToConvertPercent = addTcConversionsToReads(utrs[lastUtrName], reads, pulseTimePoint, chaseTimePoint, readOutSAM, conversionRate)
     printUtrSummary(utrs[lastUtrName], len(reads), readsToConvert, totalTCount, totalTcCount, utrSummary, readsCPM, readToConvertPercent)
         
             

@@ -89,7 +89,8 @@ def run():
     simulateparse.add_argument("-n", "--read-number", type=int, required=False, default=0, dest="readNumber", help="Number of reads to simulate")
     simulateparse.add_argument("-cov", "--read-coverage", type=int, required=False, default=20, dest="readCoverage", help="Read coverage (if read number is not specified)")
     simulateparse.add_argument("-e", "--sequencing-error", type=float, required=False, default=0.05, dest="seqError", help="Sequencing error")
-    simulateparse.add_argument("-t", "--timepoint", type=int, required=True, dest="timePoint", help="Timepoint in minutes")
+    simulateparse.add_argument("-p", "--pulse", type=int, required=True, dest="pulse", help="Pulse in minutes")
+    simulateparse.add_argument("-c", "--chase", type=int, required=False, default=0, dest="pulse", help="Chase in minutes")
     simulateparse.add_argument("-tc", "--tc-rate", type=float, required=False, dest="conversionRate", default=0.03, help="T->C conversion rate")
         
     evalconversionplotparse = subparsers.add_parser('plot.conversions', help='Plots differences in simulated and found conversion rates')
@@ -172,7 +173,8 @@ def run():
         bed12FastaFile = replaceExtension(bed, ".fa")
         explvFile = replaceExtension(bed, ".eplv")
         
-        timePoint = args.timePoint
+        pulseTimePoint = args.pulse
+        chaseTimePoint = args.chase
         
         bedReads = os.path.join(outputDirectory, sampleName + "_reads_tmp.bed")
         faReads = os.path.join(outputDirectory, sampleName + "_reads_tmp.fa")
@@ -191,7 +193,7 @@ def run():
         bamReadsWithTC = os.path.join(outputDirectory, sampleName + "_reads.bam")
         utrSummary = os.path.join(outputDirectory, sampleName + "_utrsummary.csv")
         conversionRate = args.conversionRate
-        simulator.addTcConversions(bed, faReads, bamReadsWithTC, timePoint, utrSummary, conversionRate, readNumber)
+        simulator.addTcConversions(bed, faReads, bamReadsWithTC, pulseTimePoint, chaseTimePoint, utrSummary, conversionRate, readNumber)
         
         os.unlink(faReads)
         os.unlink(bedReads)    
