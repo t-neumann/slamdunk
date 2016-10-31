@@ -105,9 +105,14 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
     slamseqInfo = SlamSeqInfo(bam)
     readNumber = slamseqInfo.MappedReads
     
-    
-    fileTest = open(replaceExtension(outputCSV, ".tsv", "_perread"),'w')
     bedMD5 = md5(bed)
+    
+    fileNameTest = replaceExtension(outputCSV, ".tsv", "_perread")
+    fileTest = open(fileNameTest,'w')
+    print("#slamdunk v" + __version__, __count_version__, "sample info:", sampleInfo.Name, sampleInfo.ID, sampleInfo.Type, sampleInfo.Time, sep="\t", file=fileTest)
+    print("#annotation:", os.path.basename(bed), bedMD5, sep="\t", file=fileTest)
+    print("utr", "n", "k", file=fileTest)
+    
     fileCSV = open(outputCSV,'w')
     print("#slamdunk v" + __version__, __count_version__, "sample info:", sampleInfo.Name, sampleInfo.ID, sampleInfo.Type, sampleInfo.Time, sep="\t", file=fileCSV)
     print("#annotation:", os.path.basename(bed), bedMD5, sep="\t", file=fileCSV)
@@ -276,3 +281,7 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
             
     fileBedgraphPlus.close()
     fileBedgraphMinus.close()
+    
+    fileNameMLE = replaceExtension(outputCSV, ".tsv", "_mle")
+    callR(getPlotter("compute_conversion_rate_mle") +  " -f " + fileNameTest + " -r " + "0.024" + " -o " + fileNameMLE)
+
