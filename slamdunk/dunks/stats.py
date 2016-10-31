@@ -798,8 +798,7 @@ def halflifes(bams, outputCSV, timepoints, log, printOnly=False, verbose=True, f
     #run("Rscript " + pathComputeHalfLifes + " -f " + bams + " -t " + timepoints + " -o " + outputCSV, log, dry=printOnly, verbose=verbose)
     callR(getPlotter("compute_halflifes") + " -f " + bams + " -t " + timepoints + " -o " + outputCSV, log, dry=printOnly, verbose=verbose)
 
-def mergeRates(bams, outputCSV, altCounting, log, printOnly=False, verbose=True, force=False):
+def mergeRates(bams, outputCSV, column, log, printOnly=False, verbose=True, force=False):
     cmd = getPlotter("merge_rate_files") + " -f " + bams + " -o " + outputCSV
-    if(altCounting):
-        cmd = cmd + " -a 1" 
+    cmd = cmd + " -c \"" + column + "\"" 
     callR(cmd, log, dry=printOnly, verbose=verbose) 

@@ -6,13 +6,23 @@
 # Email: philipp.rescheneder@univie.ac.at 
 ###############################################################################
 
-library(getopt)
+# Load packages only from local Rslamdunk library 
+libLoc = .libPaths()[grep("Rslamdunk",.libPaths())]
+
+# Check if libraries are available, install otherwise
+source(paste(libLoc,'/../checkLibraries.R',sep=""))
+
+checkLib(libLoc)
+
+library(getopt, lib.loc = libLoc)
+
+#library(getopt)
 
 spec = matrix(c(
   'help'      , 'h', 0, "logical","print the usage of the command",
   'slamdunk', "f", 2,"character","Comma seperated list of SlamDunk results",
   'output', "o", 2,"character","Output tsv",
-  'alternativecounting', "a", 2,"character","Use alternative counting not percentage of T->C reads"
+  'column', "c", 2,"character","Column or Expression used to summarize files"
 ),ncol = 5,byrow=T)
 
 opt = getopt(spec)
@@ -29,7 +39,7 @@ if ( !is.null(opt$help) || length(opt)==2 ) {
 
 if ( is.null(opt$slamdunk) ) stop("arg slamdunk must be specified")
 if ( is.null(opt$output) ) stop("arg output must be specified")
-if ( is.null(opt$alternativecounting) ) { opt$alternativecounting = 0 }
+if ( is.null(opt$column) ) { opt$column = "TcReadCount / ReadCount" }
 
 slamDunkFiles = opt$slamdunk
 #slamDunkFiles = "/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_7_720min_reads_slamdunk_mapped_filtered_tcount.tsv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_1_0min_reads_slamdunk_mapped_filtered_tcount.tsv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_6_360min_reads_slamdunk_mapped_filtered_tcount.tsv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_2_15min_reads_slamdunk_mapped_filtered_tcount.tsv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_8_1440min_reads_slamdunk_mapped_filtered_tcount.tsv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_3_30min_reads_slamdunk_mapped_filtered_tcount.tsv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_5_180min_reads_slamdunk_mapped_filtered_tcount.tsv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_4_60min_reads_slamdunk_mapped_filtered_tcount.tsv"
@@ -37,11 +47,8 @@ slamDunkFiles = opt$slamdunk
 filesSlamDunk = as.character(ordered(strsplit(slamDunkFiles, ",")[[1]]))
 outputFile = opt$output
 #outputFile = "/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/eval/halflife_per_gene_eval_plots.tsv"
-perRead = T
-if(opt$alternativecounting > 0) {
-  cat("Using alternative counting\n")
-  perRead = F
-}
+evalExpression = opt$column
+#evalExpression = "TcReadCount / ReadCount"
 
 readMeatInfo <- function(fileName) {
   #fileName = filesSlamDunk[1]
@@ -96,12 +103,15 @@ for(i in 1:length(filesSlamDunk)) {
     mergedRates$avgTcontent = mergedRates$avgTcontent + data$Tcontent
     mergedRates$avgCoverageOnTs = mergedRates$avgCoverageOnTs + data$CoverageOnTs
   }
-  if(perRead == T) {
-    mergedRates[,sampleName] = data$TcReadCount / data$ReadCount
-    mergedRates[data$ReadCount == 0,sampleName] = 0
-  } else {
-    mergedRates[,sampleName] = data$ConversionRate
-  }
+  #if(perRead == T) {
+  attach(data)
+  #mergedRates[,sampleName] = data$TcReadCount / data$ReadCount
+  mergedRates[,sampleName] = eval(parse(text=evalExpression))
+  detach(data)
+  mergedRates[data$ReadCount == 0,sampleName] = 0
+  #} else {
+  #  mergedRates[,sampleName] = data$ConversionRate
+  #}
 }
 # compute average CPM and multimapper per UTR
 mergedRates$avgReadsCPM = mergedRates$avgReadsCPM / sampleNumber
@@ -122,6 +132,7 @@ mergedRates = mergedRates[, c(1:(firstSampleColumn - 1), (sampleColumnOrder + fi
 # Write to output file
 con <- file(outputFile, open="wt") 
 writeLines(version, con)
-writeLines(paste0("#Annotation:\t", annotationName, "\t", annotationMD5), con) 
+writeLines(paste0("#Annotation:\t", annotationName, "\t", annotationMD5), con)
+writeLines(paste0("#Expression:\t", evalExpression), con)
 write.table(mergedRates, con, sep = "\t", quote = F, row.names = F, col.names = T)
 close(con) 

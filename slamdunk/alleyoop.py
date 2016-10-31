@@ -308,7 +308,7 @@ def run():
     statsMergeParser = subparsers.add_parser('merge', help='Merge T->C rates from multiple sample in one TSV file', formatter_class=ArgumentDefaultsHelpFormatter)
     statsMergeParser.add_argument('countFiles', action='store', help='tCount files' , nargs="+")
     statsMergeParser.add_argument("-o", "--output", type=str, required=True, dest="outputFile", default=SUPPRESS, help="Output file")
-    statsMergeParser.add_argument('-a', "--alternative-counting", dest="altCount", action='store_true', help="Use alternative counting not percentage of T->C reads.")    
+    statsMergeParser.add_argument('-c', "--column", dest="column", type=str, required=False, default="TcReadCount / ReadCount", help="Column or expression used to summarize files.")    
     
     # stats read info command
     conversionRateParser = subparsers.add_parser('stats.tcperreadpos', help='Calculate conversion rates per read position on SLAM-seq datasets')
@@ -437,7 +437,7 @@ def run():
     elif (command == "merge") :
         message("Running alleyoop merge for " + str(len(args.countFiles)) + " files")
         outputLog = replaceExtension(args.outputFile, ".log")
-        stats.mergeRates(",".join(args.countFiles), args.outputFile, args.altCount, getLogFile(outputLog))
+        stats.mergeRates(",".join(args.countFiles), args.outputFile, args.column, getLogFile(outputLog))
         dunkFinished() 
     
     elif (command == "stats.tcperreadpos") :
