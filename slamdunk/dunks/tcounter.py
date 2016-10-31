@@ -128,9 +128,9 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
     if not testFile.bamVersion == __bam_version__:
         raise RuntimeError("Wrong filtered BAM file version detected (" + testFile.bamVersion + "). Expected version " + __bam_version__ + ". Please rerun slamdunk filter.")
     
-#     bedMD5 = md5(bed)
-#     if slamseqInfo.AnnotationMD5 != bedMD5:
-#         raise RuntimeError("MD5 checksum of annotation (" + bedMD5 + ") does not matched MD5 in filtered BAM files (" + slamseqInfo.AnnotationMD5 + "). Most probably the annotation filed changed after the filtered BAM files were created. Please rerun slamdunk filter with your current annotation file.")
+    bedMD5 = md5(bed)
+    if slamseqInfo.AnnotationMD5 != bedMD5:
+        print("Warning: MD5 checksum of annotation (" + bedMD5 + ") does not matched MD5 in filtered BAM files (" + slamseqInfo.AnnotationMD5 + "). Most probably the annotation filed changed after the filtered BAM files were created.", file=log)
 
     conversionBedGraph = {}
                          
