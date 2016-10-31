@@ -107,7 +107,7 @@ def run():
     simulateparse.add_argument("-e", "--sequencing-error", type=float, required=False, default=0.05, dest="seqError", help="Sequencing error")
     simulateparse.add_argument("-p", "--pulse", type=int, required=True, dest="pulse", help="Pulse in minutes")
     simulateparse.add_argument("-c", "--chase", type=int, required=False, default=0, dest="chase", help="Chase in minutes")
-    simulateparse.add_argument("-tc", "--tc-rate", type=float, required=False, dest="conversionRate", default=0.03, help="T->C conversion rate")
+    simulateparse.add_argument("-tc", "--tc-rate", type=float, required=False, dest="conversionRate", default=0.024, help="T->C conversion rate")
         
     evalconversionplotparse = subparsers.add_parser('plot.conversions', help='Plots differences in simulated and found conversion rates')
     evalconversionplotparse.add_argument("-sim", "--simDir", type=str, required=True, dest="simDir", help="")
