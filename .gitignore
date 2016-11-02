@@ -2,7 +2,9 @@
 /.pydevproject
 /sync.sh
 *.pyc
-/.DS_Store
+.DS_Store
 /doc/build/
 /bin/NextGenMap/
 /bin/ngm
+/slamdunk/plot/Rslamdunk
+.Rhistory
