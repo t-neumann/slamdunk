@@ -6,7 +6,7 @@ import sys
 import pysam
 import os
 
-from slamdunk.utils.misc import replaceExtension, getSampleInfo, SlamSeqInfo, md5  # @UnresolvedImport
+from slamdunk.utils.misc import replaceExtension, getSampleInfo, SlamSeqInfo, md5, callR, getPlotter  # @UnresolvedImport
 from slamdunk.utils.BedReader import BedIterator  # @UnresolvedImport
 
 from slamdunk.utils import SNPtools  # @UnresolvedImport
