@@ -155,6 +155,9 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
                 Tcontent = refSeq.count("A")
             else :
                 Tcontent = refSeq.count("T")
+                
+            
+            slamSeqUtr._Tcontent = Tcontent
 
         readIterator = testFile.readInRegion(utr.chromosome, utr.start, utr.stop, utr.strand, maxReadLength)
       
