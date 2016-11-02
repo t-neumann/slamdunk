@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-# Date located in: -
 from __future__ import print_function
 import os
 
@@ -11,9 +10,7 @@ projectPath = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 def sort(inputSAM, outputBAM, log, threads=1, keepSam=True, dry=False, verbose=True):    
  
     if(files_exist(inputSAM) and checkStep([inputSAM], [outputBAM + ".bai"])):
-        #runSam2bam(inputSAM, outputBAM, log, True, True, not keepSam, threads=threads, dry=dry, verbose=verbose)
         runSam2bam(inputSAM, outputBAM, log, False, False, not keepSam, threads=threads, dry=dry, verbose=verbose)
-        #runFlagstat(outputBAM, log, dry=dry, verbose=verbose)
     else:
         print("Skipped sorting for " + inputSAM, file=log)
 
@@ -80,10 +77,7 @@ def Map(inputBAM, inputReference, outputSAM, log, quantseqMapping, localMapping,
             run(getBinary("ngm") + " -r " + inputReference + " -q " + inputBAM + " -t " + str(threads) + " " + parameter + " -o " + outputSAM, log, verbose=verbose, dry=printOnly)
         else:
             # Output BAM directly
-            run(getBinary("ngm") + " -b -r " + inputReference + " -q " + inputBAM + " -t " + str(threads) + " " + parameter + " -o " + outputSAM, log, verbose=verbose, dry=printOnly)
-            # Pipe SAM to samtools and convert to BAM
-            #ngmThreads = int(threads - 1)
-            #run(getBinary("ngm") + " -r " + inputReference + " -q " + inputBAM + " -t " + str(ngmThreads) + " " + parameter + " | " + getBinary("samtools") + " view -@ " + str(threads - ngmThreads) + " -hSb - > " + outputSAM, log, verbose=verbose, dry=printOnly)
+            run(getBinary("ngm") + " -b -r " + inputReference + " -q " + inputBAM + " -t " + str(threads) + " " + parameter + " -o " + outputSAM, log, verbose=verbose, dry=printOnly)        
     else:
         print("Skipped mapping for " + inputBAM, file=log)
         

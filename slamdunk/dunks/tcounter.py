@@ -1,16 +1,12 @@
 #!/usr/bin/env python
 
-# Date located in: -
 from __future__ import print_function
 
-import csv
 import sys
 import pysam
 import os
-import itertools as IT
 
-from os.path import basename
-from slamdunk.utils.misc import getSampleName, getSampleInfo, replaceExtension, SlamSeqInfo, md5  # @UnresolvedImport
+from slamdunk.utils.misc import getSampleInfo, SlamSeqInfo, md5  # @UnresolvedImport
 from slamdunk.utils.BedReader import BedIterator  # @UnresolvedImport
 
 from slamdunk.utils import SNPtools  # @UnresolvedImport
@@ -67,10 +63,7 @@ def collapse(expandedCSV, collapsedCSV, log):
             
         else :
             print("Error in TC file format - unexpected number of fields (" + str(len(fields)) + ") in the following line:\n" + line, file=log)
-            
-    #if (coverageOnTs > 0) :
-                #conversionRate = float(conversionsOnTs) / float(coverageOnTs)
-                
+                        
     print("gene_name", "length", "readsCPM", "conversionRate", "Tcontent", "coverageOnTs", "conversionsOnTs", "readCount", "tcReadCount", "multimapCount", sep='\t', file=outCSV)
 
     for gene in sorted(tcDict.keys()) :
@@ -134,7 +127,6 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
 
     conversionBedGraph = {}
                          
-    progress = 0
     for utr in BedIterator(bed):
         Tcontent = 0
         slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, Tcontent, 0, -1, 0, 0, 0, 0, 0)
@@ -194,18 +186,7 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
             for mismatch in read.mismatches:
                 if(mismatch.isTCMismatch(read.direction == ReadDirection.Reverse) and mismatch.referencePosition >= 0 and mismatch.referencePosition < utr.getLength()):
                     tcCountUtr[mismatch.referencePosition] += 1
-            
-#             testN = read.getTcount()
-#             testk = 0
-#             for mismatch in read.mismatches:
-#                 if(mismatch.referencePosition >= 0 and mismatch.referencePosition < utr.getLength()):
-#                     if(mismatch.isT(read.direction == ReadDirection.Reverse)):
-#                         testN += 1
-#                     if(mismatch.isTCMismatch(read.direction == ReadDirection.Reverse)):
-#                         testk += 1
-            #print(utr.name, read.name, read.direction, testN, testk, read.sequence, sep="\t")
-#             print(utr.name, testN, testk, sep="\t", file=fileTest)
-            
+                        
             for i in xrange(read.startRefPos, read.endRefPos):
                 if(i >= 0 and i < utr.getLength()):
                     coverageUtr[i] += 1
@@ -238,21 +219,13 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
             conversionsOnTs = 0
             
             for position in xrange(0, len(coverageUtr)):
-#                 if position >= len(refSeq) :
-#                     print(utr)
-#                     print(position,file=sys.stderr)
-#                     print(len(refSeq),file=sys.stderr)
-#                     print(refSeq,file=sys.stderr)
-#                     sys.stdin.readline()
+
                 if(coverageUtr[position] > 0 and ((utr.strand == "+" and refSeq[position] == "T") or (utr.strand == "-" and refSeq[position] == "A"))):
                     coveredTcount += 1
                     avgConversationRate += tcRateUtr[position]
                     
                     coverageOnTs += coverageUtr[position]
                     conversionsOnTs += tcCountUtr[position]
-                    #print(refSeq[position] + "\t", utr.start + position - 1, refSeq[position], coverageUtr[position], tcRateUtr[position], file=sys.stderr)
-                    # print conversion rates for all covered Ts/As
-                    #print(utr.chromosome, utr.start + position - 1, utr.start + position, tcRateUtr[position], sep="\t")
                     conversionBedGraph[utr.chromosome + ":" + str(utr.start + position) + ":" + str(utr.strand)] = tcRateUtr[position] 
                 if(coverageUtr[position] > 0):
                     coveredPositions += 1
@@ -269,22 +242,14 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
             
          
             # Convert to SlamSeqInterval and print
-            #slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, readsCPM, avgConversationRate, coveredTcount, coveredPositions, readCount, tcReadCount)
             conversionRate = 0
             if (coverageOnTs > 0) :
                 conversionRate = float(conversionsOnTs) / float(coverageOnTs)
             slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, Tcontent, readsCPM, coverageOnTs, conversionsOnTs, conversionRate, readCount, tcReadCount, multiMapCount)
-        #else:
-            #slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, 0, 0, 0, 0, 0, 0)
+
         print(slamSeqUtr, file=fileCSV)
-        #print(slamSeqUtr)
-        
-        #if progress % 10 == 0:
-            #print("Progress: " + str(progress) + "\r", file=sys.stderr, end="")
-        progress += 1
         
     fileCSV.close()
-#     fileTest.close()
     
     fileBedgraphPlus = open(outputBedgraphPlus,'w')
     fileBedgraphMinus = open(outputBedgraphMinus,'w')
@@ -298,90 +263,3 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
             
     fileBedgraphPlus.close()
     fileBedgraphMinus.close()
-
-# @deprecated 
-# def count(ref, bed, snpsFile, bam, maxReadLength, minQual, outputCSV, log):
-#     flagstat = getReadCount(bam)
-#     readNumber = flagstat.MappedReads
-# 
-#     fileCSV = open(outputCSV,'w')
-#     
-#     snps = SNPtools.SNPDictionary(snpsFile)
-#     snps.read()
-# 
-#     #Go through one chr after the other
-#     testFile = SlamSeqBamFile(bam, ref, snps)
-#                       
-#     #chr    start    stop    reads with T->C    read without T->C    Percentage of read with T->C    Number of forward reads mapping to region    Average conversion rate for all reads mapping to the utr    Number of reverse reads mapping to region    T->C SNPs found in region
-#     print("chr", "start", "end", "gene_name", "non_tc_read_count", "non_tc_norm_read_count", "tc_read_count", "tc_norm_read_count", "tc_read_perc", "avg_conversion_rate", "fwd_reads", "rev_reads", "snp_In_UTR", sep='\t', file=fileCSV)
-#        
-#     for utr in BedIterator(bed):
-#         tcCount = [0] * maxReadLength
-#     
-#         readIterator = testFile.readInRegion(utr.chromosome, utr.start, utr.stop, utr.strand, maxReadLength)
-#         
-#         readCount = 0
-#         countFwd = 0
-#         countRev = 0
-#         avgConversionRate = 0.0
-#         for read in readIterator:
-#         
-#             if(read.direction == ReadDirection.Reverse):
-#                 countRev += 1
-#             else:
-#                 countFwd += 1
-#                 
-#             readCount += 1
-#             tcCount[read.tcCount] += 1
-#             avgConversionRate += read.tcRate
-#         
-#         snpInUTR = 0
-#         if(countRev > countFwd):
-#             snpInUTR = snps.getAGSNPsInUTR(utr.chromosome, utr.start, utr.stop, 2)
-#         else:
-#             snpInUTR = snps.getTCSNPsInUTR(utr.chromosome, utr.start, utr.stop, 1)
-#         
-#         percTC = 0
-#         if(readCount > 0):
-#             percTC = ((readCount - tcCount[0]) * 1.0 / readCount)
-#         #chr    start    stop    read without T->C    reads with T->C    Percentage of read with T->C    Number of forward reads mapping to region    Number of reverse reads mapping to region    T->C SNPs found in region
-#         if(readCount > 0):
-#             avgConversionRate = avgConversionRate * 1.0 / readCount
-#         else:
-#             avgConversionRate = 0.0
-#         print(utr.chromosome, utr.start, utr.stop, utr.name, tcCount[0], tcCount[0] * 1000000.0 / readNumber, (readCount - tcCount[0]), (readCount - tcCount[0]) * 1000000.0 / readNumber, percTC, avgConversionRate, countFwd, countRev, snpInUTR, sep='\t', file=fileCSV)
-#     
-#     fileCSV.close()
-
-
-def summary(bams, samples, outputFile, colNumber):
-    filenames = bams
-    handles = [open(filename, 'rb') for filename in filenames]    
-    readers = [csv.reader(f, delimiter='\t') for f in handles]
-    names = ["chr", "start", "end", "gene"] + [getSampleName(basename(f), samples) for f in filenames]
-
-    with  open(outputFile, 'wb') as h:
-        writer = csv.writer(h, delimiter=';', lineterminator='\n', )
-        writer.writerow(names)
-        header = True
-        for rows in IT.izip_longest(*readers, fillvalue=['']*2):
-            if(not header):
-                combined_row = []
-                firstRow = True
-                for row in rows:
-                    if(firstRow):
-                        combined_row.extend(row[0:4])
-                        combined_row.append(row[colNumber])
-                        
-                        firstRow = False
-                    else:
-                        combined_row.append(row[colNumber])
-            
-                writer.writerow(combined_row)
-            else:
-                header = False
-    
-    for f in handles:
-        f.close()
-
-    

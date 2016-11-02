@@ -7,18 +7,13 @@ from __future__ import print_function
 import os, sys, re
 
 try:
-    #from slamdunk import __file__ as pip_loc
     from setuptools import setup, find_packages
     from setuptools.command.install import install as _install
-    #from setuptools.command.sdist import sdist as _sdist
-    #from setuptools.command.bdist_egg import bdist_egg as _bdist_egg
     from codecs import open
     from os import path
 except ImportError:
     from distutils.core import setup
     from distutils.command.install import install as _install
-    #from distutils.command.sdist import sdist as _sdist
-    #from distutils.command.bdist_egg import bdist_egg as _bdist_egg
 
 here = path.abspath(path.dirname(__file__))
 name = "slamdunk"
@@ -31,7 +26,6 @@ with open(path.join(here, 'README'), encoding='utf-8') as f:
 execfile(path.join(here, name, 'version.py'))
     
 # Copy bin recursively
-
 def package_files(directory):
     paths = []
     for (path, directories, filenames) in os.walk(directory):
@@ -46,19 +40,6 @@ def _runExternalBuilds(dir, externalNGM, externalSamtools, skipRLibraries):
     
     import subprocess
    
-    #print("Move plot to slamdunk.")
-    #syscall = "mv " + os.path.join(dir, "plot") + " " + os.path.join(dir, name, "plot")
-    #print(syscall)
-    #call([syscall], shell=True)
-    #print("Move bin to slamdunk.")
-    #syscall = "mv " + os.path.join(dir, "bin") + " " + os.path.join(dir, name, "bin")
-    #print(syscall)
-    #call([syscall], shell=True)
-    #print("Preparing R environment.")
-    #syscall = "(cd " + os.path.join(dir, name, "contrib") + " ; ./setup-R-environment.sh)"
-    #print(syscall)    
-    #call([syscall], shell=True)
-    
     print("Setting up R package destination.")
     syscall = "mkdir -p " + os.path.join(dir, name, "plot", "Rslamdunk")
     print(syscall)
@@ -127,42 +108,9 @@ class install(_install):
         externalNGM = self.externalNGM
         externalSamtools = self.externalSamtools
         skipRLibraries = self.skipRLibraries
-        #from subprocess import call
-        #call(["pip install -r requirements.txt --no-clean"], shell=True)
         _install.run(self)
         self.execute(_runExternalBuilds, (self.install_lib, externalNGM, externalSamtools, skipRLibraries),msg="Installing external dependencies")
-
          
-# class bdist_egg(_bdist_egg):
-#     def run(self):
-#         from subprocess import call
-#         call(["pip install -r requirements.txt --no-clean"], shell=True)
-#         _bdist_egg.run(self)
-#         print("BDIST DIR")
-#         print(self.bdist_dir)
-#         print("printenv")
-#         print(sys.prefix)
-#         print(getuserbase()) 
-#         import site;
-#         print(site.getsitepackages())
-#         print(pip_loc)
-#         call(["printenv"], shell=True)
-
-# class build(build_module.build):
-#   def run(self):
-#     build_module.build.run(self)
-#     print("now let's get this shit done")
-      
-# 
-# 
-# class sdist(_sdist):
-#     def make_release_tree(self, basedir, files):
-#         print("Basedir: " + basedir)
-#         _sdist.make_release_tree(self, basedir, files)
-#         self.execute(_runExternalBuilds, (basedir,),msg="Dsitributing stuff")
-# #         self.execute(_run_build_tables, (basedir,),
-# #                      msg="Build the lexing/parsing tables")
-
 setup(
     name = name,
 

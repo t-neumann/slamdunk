@@ -1,17 +1,11 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
-import os
 
-from slamdunk.utils.misc import checkStep
-from slamdunk.slamseq.SlamSeqFile import SlamSeqBamFile, SlamSeqWriter
-from slamdunk.utils import SNPtools
+from slamdunk.utils.misc import checkStep  # @UnresolvedImport
+from slamdunk.slamseq.SlamSeqFile import SlamSeqBamFile, SlamSeqWriter  # @UnresolvedImport
+from slamdunk.utils import SNPtools  # @UnresolvedImport
 
-projectPath = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-pathComputeOverallRates = os.path.join(projectPath, "plot", "compute_overall_rates.R")
-pathConversionPerReadPos = os.path.join(projectPath, "plot", "conversion_per_read_position.R")
-
-            
 def dumpReadInfo(referenceFile, bam, minQual, outputCSV, snpsFile, log, printOnly=False, verbose=True, force=False):
     
     if(not checkStep([bam, referenceFile], [outputCSV], force)):
