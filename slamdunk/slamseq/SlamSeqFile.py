@@ -197,11 +197,16 @@ class SlamSeqWriter:
 class SlamSeqBamIterator:
     
     def getRefSeq(self):
-        return self._refSeq[self._maxReadLength + 1:-self._maxReadLength]
-        
-    def computeRatesForRead(self, read):
+        return self._refSeq[self._maxReadLength + 1:-self._maxReadLength]        
+    
+    # @deprecated: Pysam calculation of conversion rates        
+    def computeRatesForRead(self, read, mismatches):
         rates = SlamSeqConversionRates()
-                            
+    
+        for mismatch in mismatches:
+            if not mismatch.isSnpPosition and mismatch.readBaseQlty > self._minQual:
+                rates.incRate(mismatch.referenceBase, mismatch.readBase)
+    
         return rates
     
     #               Read
@@ -299,9 +304,8 @@ class SlamSeqBamIterator:
                 mismatchList.append(alnPos)
                     
         return mismatchList, tcCount
-                
-    def __init__(self, readIterator, refSeq, chromosome, startPosition, strand, maxReadLength, snps):
-    
+                    
+    def __init__(self, readIterator, refSeq, chromosome, startPosition, strand, maxReadLength, snps, minQual):
         self._readIterator = readIterator
         self._refSeq = refSeq
         self._chromosome = chromosome
@@ -309,7 +313,7 @@ class SlamSeqBamIterator:
         self._strand = strand
         self._maxReadLength = maxReadLength
         self._snps = snps
-        self._minQual = 0
+        self._minQual = minQual
         
     def __iter__(self):
         return self
@@ -363,7 +367,7 @@ class SlamSeqBamFile:
         self._referenceFile = pysam.FastaFile(referenceFile)   
         self._snps = snps
         
-    def readInRegion(self, chromosome, start, stop, strand, maxReadLength):
+    def readInRegion(self, chromosome, start, stop, strand, maxReadLength, minQual = 0):
         
         fillupLeft = 0
         leftBorder = int(start) - maxReadLength
@@ -389,13 +393,13 @@ class SlamSeqBamFile:
             rightFlank = 'N' * fillupRight
             refSeq = refSeq + rightFlank
 
-            return SlamSeqBamIterator(self._bamFile.fetch(region=region), refSeq, chromosome, start, strand, maxReadLength, self._snps)
+            return SlamSeqBamIterator(self._bamFile.fetch(region=region), refSeq, chromosome, start, strand, maxReadLength, self._snps, minQual)
         else:
             return iter([])
     
-    def readsInChromosome(self, chromosome):
+    def readsInChromosome(self, chromosome, minQual = 0):
         refSeq = self._referenceFile.fetch(region=chromosome).upper()
-        return SlamSeqBamIterator(self._bamFile.fetch(region=chromosome), refSeq, chromosome, 1, ".", 0, self._snps)
+        return SlamSeqBamIterator(self._bamFile.fetch(region=chromosome), refSeq, chromosome, 1, ".", 0, self._snps, minQual)
     
     def atoi(self, text):
         return int(text) if text.isdigit() else text

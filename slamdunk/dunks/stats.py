@@ -30,7 +30,7 @@ def printRates(ratesFwd, ratesRev, f):
             print(str(ratesFwd[i * 5 + j]) + "\t" + str(ratesRev[i * 5 + j]) + "\t", end='', file=f)
         print(file=f)
         
-def statsComputeOverallRates(referenceFile, bam, minQual, outputCSV, outputPDF, log, printOnly=False, verbose=True, force=False):
+def statsComputeOverallRates(referenceFile, bam, minBaseQual, outputCSV, outputPDF, log, printOnly=False, verbose=True, force=False):
      
     if(not checkStep([bam, referenceFile], [outputCSV], force)):
         print("Skipped computing overall rates for file " + bam, file=log)
@@ -46,7 +46,7 @@ def statsComputeOverallRates(referenceFile, bam, minQual, outputCSV, outputPDF, 
         chromosomes = testFile.getChromosomes()
          
         for chromosome in chromosomes:
-            readIterator = testFile.readsInChromosome(chromosome)
+            readIterator = testFile.readsInChromosome(chromosome, minBaseQual)
                  
             for read in readIterator:
                  
@@ -169,7 +169,7 @@ def statsComputeOverallRates(referenceFile, bam, minQual, outputCSV, outputPDF, 
  
 # This is for Ts in reads
 
-def statsComputeTCContext(referenceFile, bam, minQual, outputCSV, outputPDF, log, printOnly=False, verbose=True, force=False):
+def statsComputeTCContext(referenceFile, bam, minBaseQual, outputCSV, outputPDF, log, printOnly=False, verbose=True, force=False):
      
     if(not checkStep([bam, referenceFile], [outputCSV], force)):
         print("Skipped computing overall rates for file " + bam, file=log)
@@ -274,7 +274,7 @@ def statsComputeTCContext(referenceFile, bam, minQual, outputCSV, outputPDF, log
         callR(getPlotter("compute_context_TC_rates") + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
         
 
-def statsComputeOverallRatesPerUTR(referenceFile, bam, minQual, outputCSV, outputPDF, utrBed, maxReadLength, log, printOnly=False, verbose=True, force=False):
+def statsComputeOverallRatesPerUTR(referenceFile, bam, minBaseQual, outputCSV, outputPDF, utrBed, maxReadLength, log, printOnly=False, verbose=True, force=False):
     
     if(not checkStep([bam, referenceFile], [outputCSV], force)):
         print("Skipped computing overall rates for file " + bam, file=log)
@@ -293,7 +293,7 @@ def statsComputeOverallRatesPerUTR(referenceFile, bam, minQual, outputCSV, outpu
                         
         for utr in BedIterator(utrBed):
                                          
-            readIterator = testFile.readInRegion(utr.chromosome, utr.start, utr.stop, utr.strand, maxReadLength)
+            readIterator = testFile.readInRegion(utr.chromosome, utr.start, utr.stop, utr.strand, maxReadLength, minBaseQual)
             
             # Init
             totalRates = [0] * 25
