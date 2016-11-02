@@ -282,6 +282,6 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
     fileBedgraphPlus.close()
     fileBedgraphMinus.close()
     
-    fileNameMLE = replaceExtension(outputCSV, ".tsv", "_mle")
-    callR(getPlotter("compute_conversion_rate_mle") +  " -f " + fileNameTest + " -r " + "0.024" + " -o " + fileNameMLE)
+    #fileNameMLE = replaceExtension(outputCSV, ".tsv", "_mle")
+    #callR(getPlotter("compute_conversion_rate_mle") +  " -f " + fileNameTest + " -r " + "0.024" + " -o " + fileNameMLE)
 
