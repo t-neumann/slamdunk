@@ -123,7 +123,7 @@ def prepareUTRs(bed, bed12, bed12Fasta, referenceFasta, readLength, explv, snpRa
     totalLength = 0
     
     minFragmentLength = 150
-    maxFragmentLength = 250
+    maxFragmentLength = 450
     for utr in BedIterator(bed):
         
         fragmentLength = random.randrange(minFragmentLength, maxFragmentLength, 1)
@@ -263,6 +263,11 @@ def addTcConversions(bed, readInFile, readOutFile, pulseTimePoint, chaseTimePoin
     #readOutBAM = pysam.AlignmentFile(readOutTemp, "wb", header=bamheader, add_sq_text=False)
     readOutSAM = open(readOutTemp, "w")
     utrSummary = open(utrSummaryFile, "w")
+    
+    #print("#slamdunk v" + __version__, __count_version__, "sample info:", sampleInfo.Name, sampleInfo.ID, sampleInfo.Type, sampleInfo.Time, sep="\t", file=utrSummaryFile)
+    #print("#annotation:", os.path.basename(bed), bedMD5, sep="\t", file=utrSummaryFile)
+    #print(SlamSeqInterval.Header, file=utrSummaryFile)
+    
     
     reads = []
     lastUtrName = None
