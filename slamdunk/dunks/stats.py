@@ -6,18 +6,10 @@ import math
 import pysam
 
 from os.path import basename
-from slamdunk.utils.misc import run, removeExtension, checkStep, getSampleInfo, complement , getPlotter, callR, SlamSeqInfo  # @UnresolvedImport
+from slamdunk.utils.misc import removeExtension, checkStep, getSampleInfo, complement , getPlotter, callR, SlamSeqInfo  # @UnresolvedImport
 from slamdunk.slamseq.SlamSeqFile import SlamSeqBamFile, ReadDirection  # @UnresolvedImport
 from slamdunk.utils import SNPtools  # @UnresolvedImport
 from slamdunk.utils.BedReader import BedIterator  # @UnresolvedImport
-
-# projectPath = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-# pathComputeOverallRates = os.path.join(projectPath, "plot", "compute_overall_rates.R")
-# pathComputeGlobalRates = os.path.join(projectPath, "plot", "globalRatePlotter.R")
-# pathComputeTCContext = os.path.join(projectPath, "plot", "compute_context_TC_rates.R")
-# pathConversionPerReadPos = os.path.join(projectPath, "plot", "conversion_per_read_position.R")
-# pathSampleComparison = os.path.join(projectPath, "plot", "compute_sample_comparison_statistics.R")
-# pathComputeHalfLifes = os.path.join(projectPath, "plot", "compute_halflifes.R")
 
 utrNormFactor = 200
 baseNumber = 5
@@ -25,13 +17,6 @@ toBase = [ 'A', 'C', 'G', 'T', 'N' ]
 
 def sumLists(a, b):
     return [int(x) + int(y) for x, y in zip(a, b)]
-
-def maxLists(a, b):
-    return [max(int(x), int(y)) for x, y in zip(a, b)]
-
-def normalizePos(pos, length, factor):
-    # return int(round(float(pos) / float(length) * factor))
-    return int(math.floor(float(pos) / float(length) * factor))
 
 # Print rates in correct format for plotting
 def printRates(ratesFwd, ratesRev, f):
@@ -45,42 +30,7 @@ def printRates(ratesFwd, ratesRev, f):
             print(str(ratesFwd[i * 5 + j]) + "\t" + str(ratesRev[i * 5 + j]) + "\t", end='', file=f)
         print(file=f)
         
-# def perUtrTemplate(referenceFile, utrBed, snpsFile, bam, maxReadLength, minQual, outputCSV, log):
-# 
-#     fileCSV = open(outputCSV,'w')
-#     
-#     snps = SNPtools.SNPDictionary(snpsFile)
-# 
-#     #Go through one chr after the other
-#     testFile = SlamSeqBamFile(bam, referenceFile, snps)
-#                       
-#        
-#     for utr in BedIterator(utrBed):
-#                      
-#         readIterator = testFile.readInRegion(utr.chromosome, utr.start, utr.stop, maxReadLength)
-#         
-#         for read in readIterator:        
-#             print(read)
-#         
-#     fileCSV.close()
-  
-# def perReadTemplate(referenceFile, bam, minQual, outputCSV, log, printOnly=False, verbose=True, force=False):
-#     
-#     if(not checkStep([bam, referenceFile], [outputCSV], force)):
-#         print("Skipped computing xy for file " + bam, file=log)
-#     else:
-#         #Go through one chr after the other
-#         testFile = SlamSeqBamFile(bam, referenceFile, None)
-#         
-#         chromosomes = testFile.getChromosomes()
-#         
-#         for chromosome in chromosomes:
-#             readIterator = testFile.readsInChromosome(chromosome)
-#                 
-#             for read in readIterator:
-#                 print(read.n)            
-
-def statsComputeOverallRates(referenceFile, bam, minQual, outputCSV, outputPDF, log, printOnly=False, verbose=True, force=False):
+def statsComputeOverallRates(referenceFile, bam, minBaseQual, outputCSV, outputPDF, log, printOnly=False, verbose=True, force=False):
      
     if(not checkStep([bam, referenceFile], [outputCSV], force)):
         print("Skipped computing overall rates for file " + bam, file=log)
@@ -96,7 +46,7 @@ def statsComputeOverallRates(referenceFile, bam, minQual, outputCSV, outputPDF, 
         chromosomes = testFile.getChromosomes()
          
         for chromosome in chromosomes:
-            readIterator = testFile.readsInChromosome(chromosome)
+            readIterator = testFile.readsInChromosome(chromosome, minBaseQual)
                  
             for read in readIterator:
                  
@@ -111,15 +61,7 @@ def statsComputeOverallRates(referenceFile, bam, minQual, outputCSV, outputPDF, 
                     totalRatesRev = sumLists(totalRatesRev, rates)
                 else:
                     totalRatesFwd = sumLists(totalRatesFwd, rates)
-         
-    #     #Writing T -> C counts to file
-    #     i = 0;
-    #     foTC = open(tcFile, "w")
-    #     for x in tcCount:
-    #         print(i, x, sep='\t', file=foTC)
-    #         i += 1
-    #     foTC.close()
-         
+              
         # Print rates in correct format for plotting
         fo = open(outputCSV, "w")
         printRates(totalRatesFwd, totalRatesRev, fo)
@@ -132,7 +74,6 @@ def statsComputeOverallRates(referenceFile, bam, minQual, outputCSV, outputPDF, 
         print(removeExtension(basename(bam)), outputCSV, sep='\t', file=f)
         f.close()
              
-        #run(pathComputeOverallRates + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
         callR(getPlotter("compute_overall_rates") + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
 
 # This is for TC conversions
@@ -228,7 +169,7 @@ def statsComputeOverallRates(referenceFile, bam, minQual, outputCSV, outputPDF, 
  
 # This is for Ts in reads
 
-def statsComputeTCContext(referenceFile, bam, minQual, outputCSV, outputPDF, log, printOnly=False, verbose=True, force=False):
+def statsComputeTCContext(referenceFile, bam, minBaseQual, outputCSV, outputPDF, log, printOnly=False, verbose=True, force=False):
      
     if(not checkStep([bam, referenceFile], [outputCSV], force)):
         print("Skipped computing overall rates for file " + bam, file=log)
@@ -330,121 +271,10 @@ def statsComputeTCContext(referenceFile, bam, minQual, outputCSV, outputPDF, log
         print(removeExtension(basename(bam)), outputCSV, sep='\t', file=f)
         f.close()
          
-        #run(pathComputeTCContext + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
         callR(getPlotter("compute_context_TC_rates") + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
         
-# def statsComputeTCContext(referenceFile, bam, bed, minQual, outputCSV, outputPDF, log, printOnly=False, verbose=True, force=False):
-#     
-#     #if(not checkStep([bam, referenceFile], [outputCSV], force)):
-#     #    print("Skipped computing overall rates for file " + bam, file=log)
-#     #else:
-#         # Init
-#         # combinations = ["AT","CT","GT","TT","NT","AA","CA","GA","TA","NA"]
-#         #frontCombinations = ["AT", "CT", "GT", "TT", "NT"]
-#         #backCombinations = ["TA", "TC", "TG", "TT", "TN"]
-#         
-#         counts = {}
-#         counts['5prime'] = {}
-#         counts['3prime'] = {}
-#         
-# #         for combination in frontCombinations :
-# #             counts['5prime'][combination] = 0
-# #             
-# #         for combination in backCombinations:
-# #             counts['3prime'][combination] = 0
-#         
-#         ref = pysam.FastaFile(referenceFile)
-#         
-#         #chromosomes = list(ref.references)
-#          
-#         #for chromosome in chromosomes:
-#          
-#         for utr in BedIterator(bed):
-#             
-#             chromosome = utr.chromosome + ":" + str(utr.start) + "-" + str(utr.stop)
-#             seq = ref.fetch(region=chromosome).upper()
-#             
-#             #seq = ref.fetch(chromosome,0).upper()
-#             #print("Handling chromosome " + chromosome)
-#             
-# #             i = 0
-# #             while i < len(seq):
-# #                 if(seq[i] == "T" and i > 0 and i < (len(seq) - 1)) :
-# #                         frontContext = seq[i - 1]
-# #                         backContext  = seq[i + 1]
-# #                     
-# #                         counts['5prime'][frontContext + "T"] += 1
-# #                         counts['3prime']["T" + backContext] += 1
-# #                     
-# #                 i += 1
-#             for (front, middle, back) in zip(seq[0::1], seq[1::1], seq[2::1]):
-#                 triplet = front + middle  + back
-#                 #if (middle == "T") :
-#                 if (not counts['5prime'].has_key(triplet[0:2])) :
-#                     counts['5prime'][triplet[0:2]] = 0
-#                 counts['5prime'][triplet[0:2]] += 1
-#                 if (not counts['3prime'].has_key(triplet[1:3])) :
-#                     counts['3prime'][triplet[1:3]] = 0
-#                 counts['3prime'][triplet[1:3]] += 1
-#         
-#         # Print rates in correct format for plotting
-#         fo = open(outputCSV, "w")
-#         
-#         for baseA in toBase :
-#             headerFront = ""
-#             headerBack = ""
-#             
-#             for baseB in toBase :
-#                 headerFront += baseB + baseA + "\t"
-#                 headerBack += baseA + baseB + "\t"
-#                 
-#             valuesFront = ""
-#             valuesBack = ""
-#             
-#             for baseB in toBase :
-#                 if (counts['5prime'].has_key(baseB + baseA)) :
-#                     valuesFront += str(counts['5prime'][baseB + baseA]) + "\t"
-#                 else :
-#                     valuesFront += "0\t"
-#                 if (counts['3prime'].has_key(baseA + baseB)):
-#                     valuesBack += str(counts['3prime'][baseA + baseB]) + "\t"
-#                 else:
-#                     valuesBack += "0\t"
-#                 
-#             print(headerFront.rstrip(),file=fo)
-#             print(valuesFront.rstrip(),file=fo)
-#             print(headerBack.rstrip(),file=fo)
-#             print(valuesBack.rstrip(),file=fo)
-#             
-# #         print("\t".join(frontCombinations), file=fo)
-# #         
-# #         frontFwdLine = ""
-# #         backFwdLine = ""
-# #         
-# #         for combination in frontCombinations :
-# #             frontFwdLine += str(counts['5prime'][combination]) + "\t"
-# #         
-# #         print(frontFwdLine.rstrip(), file=fo)
-# #         
-# #         print("\t".join(backCombinations), file=fo)
-# # 
-# #         for combination in backCombinations :
-# #             backFwdLine += str(counts['3prime'][combination]) + "\t"
-# # 
-# #         print(backFwdLine.rstrip(), file=fo)
-#         
-#         fo.close()
-#     
-#     #if(not checkStep([bam, referenceFile], [outputPDF], force)):
-#     #    print("Skipped computing overall rate pdfs for file " + bam, file=log)
-#     #else:
-# #         f = tempfile.NamedTemporaryFile(delete=False)
-# #         print(removeExtension(basename(bam)), outputCSV, sep='\t', file=f)
-# #         f.close()
-# #         
-# #         run(pathComputeTCContext + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
 
-def statsComputeOverallRatesPerUTR(referenceFile, bam, minQual, outputCSV, outputPDF, utrBed, maxReadLength, log, printOnly=False, verbose=True, force=False):
+def statsComputeOverallRatesPerUTR(referenceFile, bam, minBaseQual, outputCSV, outputPDF, utrBed, maxReadLength, log, printOnly=False, verbose=True, force=False):
     
     if(not checkStep([bam, referenceFile], [outputCSV], force)):
         print("Skipped computing overall rates for file " + bam, file=log)
@@ -463,7 +293,7 @@ def statsComputeOverallRatesPerUTR(referenceFile, bam, minQual, outputCSV, outpu
                         
         for utr in BedIterator(utrBed):
                                          
-            readIterator = testFile.readInRegion(utr.chromosome, utr.start, utr.stop, utr.strand, maxReadLength)
+            readIterator = testFile.readInRegion(utr.chromosome, utr.start, utr.stop, utr.strand, maxReadLength, minBaseQual)
             
             # Init
             totalRates = [0] * 25
@@ -488,7 +318,6 @@ def statsComputeOverallRatesPerUTR(referenceFile, bam, minQual, outputCSV, outpu
         print(removeExtension(basename(bam)), outputCSV, sep='\t', file=f)
         f.close()
               
-        #run(pathComputeGlobalRates + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
         callR(getPlotter("globalRatePlotter") + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
            
     
@@ -509,14 +338,7 @@ def readSummary(filteredFiles, outputFile, log, printOnly=False, verbose=True, f
     for key in sorted(contentDict):
         print(contentDict[key], file=tsvFile)
     tsvFile.close()
-        
-def sampleSummary(readCounts, outputPrefix, log, printOnly=False, verbose=True, force=False):
-    raise RuntimeError("Not implemented yet!")
-#     if(not checkStep([readCounts], [], force)):
-#         print("Skipped computing pairwise correlation plots for file " + readCounts, file=log)
-#     else: 
-#         run(pathSampleComparison + " -i " + readCounts + " -o " + outputPrefix, log, dry=printOnly, verbose=verbose)        
-#     
+             
 def tcPerReadPos(referenceFile, bam, minQual, maxReadLength, outputCSV, outputPDF, snpsFile, log, printOnly=False, verbose=True, force=False):
     
     if(not checkStep([bam, referenceFile], [outputCSV], force)):
@@ -577,7 +399,6 @@ def tcPerReadPos(referenceFile, bam, minQual, maxReadLength, outputCSV, outputPD
     if(not checkStep([outputCSV], [outputPDF], force)):
         print("Skipped computing T->C per reads position plot for file " + bam, file=log)
     else: 
-        #run(pathConversionPerReadPos + " -i " + outputCSV + " -o " + outputPDF, log, dry=printOnly, verbose=verbose)
         callR(getPlotter("conversion_per_read_position") + " -i " + outputCSV + " -o " + outputPDF, log, dry=printOnly, verbose=verbose)
         
 def tcPerUtr(referenceFile, utrBed, bam, minQual, maxReadLength, outputCSV, outputPDF, snpsFile, log, printOnly=False, verbose=True, force=False):
@@ -636,8 +457,6 @@ def tcPerUtr(referenceFile, utrBed, bam, minQual, maxReadLength, outputCSV, outp
                                 mutCounts[mismatchPos] += 1                    
                     else :
                         
-#                         mismatchPos = read.endRefPos
-                    
                         if (mismatchPos >= 0 and mismatchPos < min(utr.getLength(), utrNormFactor)) :
                             if(mismatch.isTCMismatch(read.direction == ReadDirection.Reverse)):
                                 tcCounts[mismatchPos] += 1
@@ -682,43 +501,23 @@ def tcPerUtr(referenceFile, utrBed, bam, minQual, maxReadLength, outputCSV, outp
         foTC = open(outputCSV, "w")
         
         reverseAllPerPosRev = allPerPosRev[::-1]
-#         reverseAllPerPosRev = reverseAllPerPosRev[0:utrNormFactor - 1]
         reverseTcPerPosRev = tcPerPosRev[::-1]
-#         reverseTcPerPosRev = reverseTcPerPosRev[0:utrNormFactor - 1]
         reverseTotalUtrCountRev = totalUtrCountRev[::-1]
-#         reverseTotalUtrCountRev = reverseTotalUtrCountRev[0:utrNormFactor - 1]
-        
-        #print(allPerPosFwd)
-        #print(tcPerPosFwd)
-        #print(totalUtrCountFwd)
 
-#         allPerPosFwd = allPerPosFwd[1:utrNormFactor]
-#         tcPerPosFwd = tcPerPosFwd[1:utrNormFactor]
-#         totalUtrCountFwd = totalUtrCountFwd[1:utrNormFactor]
-        
-        #for i in range(0, utrNormFactor - 1):
         for i in range(0, utrNormFactor):
-            #print(allPerPosFwd[i], reverseAllPerPosRev[i], tcPerPosFwd[i], reverseTcPerPosRev[i], totalUtrCountFwd[i], reverseTotalUtrCountRev[i], sep='\t', file=foTC)
             print(allPerPosFwd[i], reverseAllPerPosRev[i], tcPerPosFwd[i], reverseTcPerPosRev[i], totalUtrCountFwd[i], reverseTotalUtrCountRev[i], sep='\t', file=foTC)
         foTC.close()
        
     if(not checkStep([outputCSV], [outputPDF], force)):
         print("Skipped computing T->C per UTR position plot for file " + bam, file=log)
     else: 
-        #run(pathConversionPerReadPos + " -u -i " + outputCSV + " -o " + outputPDF, log, dry=printOnly, verbose=verbose)
         callR(getPlotter("conversion_per_read_position") + " -u -i " + outputCSV + " -o " + outputPDF, log, dry=printOnly, verbose=verbose)
 
 def computeSNPMaskedRates (ref, bed, snpsFile, bam, maxReadLength, minQual, coverageCutoff, variantFraction, outputCSV, outputPDF, strictTCs, log, printOnly=False, verbose=True, force=False):
     
     if(not checkStep([bam, ref], [outputCSV], force)):
         print("Skipped computing T->C per UTR with SNP masking for file " + bam, file=log)
-    else:
-    
-        referenceFile = pysam.FastaFile(ref)
-        
-        slamseqInfo = SlamSeqInfo(bam)
-        readNumber = slamseqInfo.MappedReads
-    
+    else:    
         fileCSV = open(outputCSV,'w')
         
         snps = SNPtools.SNPDictionary(snpsFile)
@@ -735,8 +534,6 @@ def computeSNPMaskedRates (ref, bed, snpsFile, bam, maxReadLength, minQual, cove
             
             if utr.start < 0:
                 raise RuntimeError("Negativ start coordinate found. Please check the following entry in your BED file: " + utr)
-            # Retreive reference sequence
-            region = utr.chromosome + ":" + str(utr.start + 1) + "-" + str(utr.stop)
     
             readIterator = testFile.readInRegion(utr.chromosome, utr.start, utr.stop, utr.strand, maxReadLength)
             
@@ -791,11 +588,9 @@ def computeSNPMaskedRates (ref, bed, snpsFile, bam, maxReadLength, minQual, cove
     if(not checkStep([outputCSV], [outputPDF], force)):
         print("Skipped computing T->C per UTR position plot for file " + bam, file=log)
     else: 
-        #run(pathConversionPerReadPos + " -u -i " + outputCSV + " -o " + outputPDF, log, dry=printOnly, verbose=verbose)
         callR(getPlotter("SNPeval") + " -i " + outputCSV + " -c " + str(coverageCutoff) + " -v " + str(variantFraction) + " -o " + outputPDF, log, dry=printOnly, verbose=verbose)            
 
 def halflifes(bams, outputCSV, timepoints, log, printOnly=False, verbose=True, force=False):
-    #run("Rscript " + pathComputeHalfLifes + " -f " + bams + " -t " + timepoints + " -o " + outputCSV, log, dry=printOnly, verbose=verbose)
     callR(getPlotter("compute_halflifes") + " -f " + bams + " -t " + timepoints + " -o " + outputCSV, log, dry=printOnly, verbose=verbose)
 
 def mergeRates(bams, outputCSV, column, log, printOnly=False, verbose=True, force=False):

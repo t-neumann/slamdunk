@@ -131,11 +131,6 @@ def checkStep(inFiles, outFiles, force=False):
             if(force == True):
                 return True
             else:
-                #if(os.path.getmtime(os.path.realpath(__file__)) > outFileDate):
-                #    logging.info("Script was modified. Rerunning computation.")
-                #else:
-                #logging.critical("outFiles exist and are newer than inFiles. Skipping execution")
-                #sys.exit(0)
                 return False
     
     return True
@@ -188,33 +183,6 @@ def callR(cmd, log=sys.stderr, verbose=False, dry=False):
         if(p.returncode != 0):
             raise RuntimeError("Error while executing command: \"" + cmd + "\"")
 
-# def runIndexBam(inFileBam, log=sys.stderr, verbose=False, dry=False):
-#     idxFile = inFileBam + ".bai"
-#     if(dry or checkStep([inFileBam], [idxFile])):
-#         run(" ".join([getBinary("samtools"), "index", inFileBam]), log, verbose=verbose, dry=dry)
-
-# def runFlagstat(bam, log=sys.stderr, verbose=False, dry=False):
-#     flagstat = bam + ".flagstat"
-#     if(dry or checkStep([bam], [flagstat])):
-#         run(" ".join([ getBinary("samtools"), "flagstat", bam, ">", flagstat]), log, verbose=verbose, dry=dry)
-#     else:
-#         print("Skipped flagstat for " + bam, file=log)
-
-# def extractMappedReadCount(flagstat):
-#     return int(flagstat.split("\n")[4].split(" ")[0])
-# 
-# def extractTotalReadCount(flagstat):
-#     return int(flagstat.split("\n")[0].split(" ")[0])
-# 
-# def readFlagStat(bam):
-#     flagStat = bam + ".flagstat"
-#     if(files_exist(flagStat)):
-#         with open(flagStat, 'r') as content_file:
-#             content = content_file.read()
-#             if content.count("\n") > 10:
-#                 return ReadStat(MappedReads = extractMappedReadCount(content), TotalReads = extractTotalReadCount(content))
-#     return None
-
 def pysamIndex(outputBam):
     pysam.index(outputBam)  # @UndefinedVariable
 
@@ -240,10 +208,6 @@ def getReadGroup(bam):
     else:
         raise RuntimeError("Could not get mapped/unmapped/filtered read counts from BAM file. RG is missing. Please rerun slamdunk filter.")
     
-# def getReadCount(bam):
-#     counts = ast.literal_eval(getReadGroup(bam)['DS'])
-#     return ReadStat(SequencedReads = getFromReadStat("sequenced", counts), MappedReads = getFromReadStat("mapped", counts), DedupReads = getFromReadStat("dedupreads", counts), FilteredReads = getFromReadStat("filtered", counts), SNPs = getFromReadStat("snps", counts))
-
 def getSampleInfo(bam):
     sampleInfo = getReadGroup(bam)
     sampleInfos = sampleInfo['SM'].split(":")

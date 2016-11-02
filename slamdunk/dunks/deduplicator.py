@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 
-# Date located in: -
 from __future__ import print_function
 import pysam
-#import subprocess
 
-from slamdunk.utils.misc import checkStep, pysamIndex
+from slamdunk.utils.misc import checkStep, pysamIndex  # @UnresolvedImport
 
 def Dedup(inputBAM, outputBAM, log, printOnly=False, verbose = True, force=False):
     
@@ -57,7 +55,6 @@ def Dedup(inputBAM, outputBAM, log, printOnly=False, verbose = True, force=False
         print(" compression rate)", file=log)
         
         pysamIndex(outputBAM, log, verbose=verbose, dry=printOnly)
-#         runFlagstat(outputBAM, log, verbose=verbose, dry=printOnly)
         
     else:
         print("Skipped deduplication for " + inputBAM, file=log)

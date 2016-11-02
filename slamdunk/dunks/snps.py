@@ -1,14 +1,9 @@
 #!/usr/bin/env python
 
-# Date located in: -
 from __future__ import print_function
-import os
 import subprocess
 import csv
 from slamdunk.utils.misc import checkStep, getBinary  # @UnresolvedImport
-
-projectPath = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-varScanPath = os.path.join(projectPath, "bin", "VarScan.v2.4.1.jar")
 
 def SNPs(inputBAM, outputSNP, referenceFile, minVarFreq, minCov, log, printOnly=False, verbose=True, force=False):
     if(checkStep([inputBAM, referenceFile], [outputSNP], force)):

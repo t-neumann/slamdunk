@@ -155,7 +155,7 @@ def runSNPeval(tid, bam, ref, bed, maxLength, minQual, coverageCutoff, variantFr
     return outputCSV
 
     
-def runSTcPerReadPos(tid, bam, referenceFile, minMQ, maxReadLength, outputDirectory, snpDirectory):
+def runTcPerReadPos(tid, bam, referenceFile, minMQ, maxReadLength, outputDirectory, snpDirectory):
     outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_tcperreadpos"))
     outputPDF = os.path.join(outputDirectory, replaceExtension(basename(bam), ".pdf", "_tcperreadpos"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_tcperreadpos"))
@@ -179,7 +179,7 @@ def runSTcPerReadPos(tid, bam, referenceFile, minMQ, maxReadLength, outputDirect
     closeLogFile(log)
     stepFinished()
     
-def runSTcPerUtr(tid, bam, referenceFile, bed, minMQ, maxReadLength, outputDirectory, snpDirectory):
+def runTcPerUtr(tid, bam, referenceFile, bed, minMQ, maxReadLength, outputDirectory, snpDirectory):
     outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_tcperutr"))
     outputPDF = os.path.join(outputDirectory, replaceExtension(basename(bam), ".pdf", "_tcperutr"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_tcperutr"))
@@ -202,18 +202,6 @@ def runSTcPerUtr(tid, bam, referenceFile, bed, minMQ, maxReadLength, outputDirec
     
     closeLogFile(log)
     stepFinished()
-
-def runUtrCoverage(tid, bam, minMQ, outputDirectory):
-    outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_utrcoverage"))
-    outputPDF = os.path.join(outputDirectory, replaceExtension(basename(bam), ".pdf", "_utrcoverage"))
-    outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_utrcoverage"))
-    log = getLogFile(outputLOG)
-    
-    #stats.coveragePerUtr(args.bed, bam, minMQ, outputCSV, outputPDF, log, False, True, True)
-    
-    closeLogFile(log)
-    stepFinished()
-
     
 def runDumpReadInfo(tid, bam, referenceFile, minMQ, outputDirectory, snpDirectory):
     outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".sdunk", "_readinfo"))
@@ -258,7 +246,7 @@ def run():
     collapseparser.add_argument('tcount', action='store', help='Tcount file(s)' , nargs="+")
     
     # stats command
-    statsparser = subparsers.add_parser('stats.rates', help='Calculate overall conversion rates on SLAM-seq datasets', formatter_class=ArgumentDefaultsHelpFormatter)
+    statsparser = subparsers.add_parser('rates', help='Calculate overall conversion rates on SLAM-seq datasets', formatter_class=ArgumentDefaultsHelpFormatter)
     statsparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     statsparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", default=SUPPRESS, help="Output directory for mapped BAM files.")
     statsparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", default=SUPPRESS, help="Reference fasta file")
@@ -267,7 +255,7 @@ def run():
     statsparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
     
     # context command
-    tccontextparser = subparsers.add_parser('stats.TCcontext', help='Calculate T->C conversion context on SLAM-seq datasets', formatter_class=ArgumentDefaultsHelpFormatter)
+    tccontextparser = subparsers.add_parser('tccontext', help='Calculate T->C conversion context on SLAM-seq datasets', formatter_class=ArgumentDefaultsHelpFormatter)
     tccontextparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     #tccontextparser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
     tccontextparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", default=SUPPRESS, help="Output directory for mapped BAM files.")
@@ -276,7 +264,7 @@ def run():
     tccontextparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
 
     # stats rates utr command
-    statsutrrateparser = subparsers.add_parser('stats.utrrates', help='Calculate conversion rates per UTR on SLAM-seq datasets')
+    statsutrrateparser = subparsers.add_parser('utrrates', help='Calculate conversion rates per UTR on SLAM-seq datasets')
     statsutrrateparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     statsutrrateparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
     statsutrrateparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
@@ -286,7 +274,7 @@ def run():
     statsutrrateparser.add_argument("-l", "--max-read-length", type=int, required=False, dest="maxLength", help="Max read length in BAM file (default: %(default)s)")
     
     # SNPeval command
-    snpevalparser = subparsers.add_parser('stats.SNPeval', help='Calculate and visualize Gini-coefficient for UTRs with SNPs')
+    snpevalparser = subparsers.add_parser('snpeval', help='Evaluate SNP calling')
     snpevalparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     snpevalparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
     snpevalparser.add_argument("-s", "--snp-directory", type=str, required=True, dest="snpDir", help="Directory containing SNP files.")
@@ -311,7 +299,7 @@ def run():
     statsMergeParser.add_argument('-c', "--column", dest="column", type=str, required=False, default="TcReadCount / ReadCount", help="Column or expression used to summarize files.")    
     
     # stats read info command
-    conversionRateParser = subparsers.add_parser('stats.tcperreadpos', help='Calculate conversion rates per read position on SLAM-seq datasets')
+    conversionRateParser = subparsers.add_parser('tcperreadpos', help='Calculate conversion rates per read position on SLAM-seq datasets')
     conversionRateParser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     conversionRateParser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
     conversionRateParser.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", help="Directory containing SNP files.")
@@ -321,7 +309,7 @@ def run():
     conversionRateParser.add_argument("-t", "--threads", type=int, required=False, dest="threads", default=1, help="Thread number (default: %(default)s)")
     
     # stats utr info command
-    utrRateParser = subparsers.add_parser('stats.tcperutrpos', help='Calculate conversion rates per UTR position on SLAM-seq datasets')
+    utrRateParser = subparsers.add_parser('tcperutrpos', help='Calculate conversion rates per UTR position on SLAM-seq datasets')
     utrRateParser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     utrRateParser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
     utrRateParser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
@@ -331,19 +319,8 @@ def run():
     utrRateParser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs (default: %(default)s)")
     utrRateParser.add_argument("-t", "--threads", type=int, required=False, dest="threads", default=1, help="Thread number (default: %(default)s)")
     
-    # stats mean coverage for all utrs
-    utrCoverageParser = subparsers.add_parser('stats.utrcoverage', help='Calculate UTR coverage on SLAM-seq datasets', formatter_class=ArgumentDefaultsHelpFormatter)
-    utrCoverageParser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
-    # utrCoverageParser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
-    utrCoverageParser.add_argument("-b", "--bed", type=str, required=True, dest="bed", default=SUPPRESS, help="BED file")
-    # utrCoverageParser.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", help="Directory containing SNP files.")
-    # utrCoverageParser.add_argument("-l", "--max-read-length", type=int, required=True, dest="maxLength", help="Max read length in BAM file")
-    utrCoverageParser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", default=SUPPRESS, help="Output directory for mapped BAM files.")#conversionRateParser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
-    utrCoverageParser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
-    utrCoverageParser.add_argument("-t", "--threads", type=int, required=False, dest="threads", default=1, help="Thread number")
-    
     # dump read info command
-    dumpReadInfo = subparsers.add_parser('dump.reads', help='Print all info available for slamdunk reads', formatter_class=ArgumentDefaultsHelpFormatter)
+    dumpReadInfo = subparsers.add_parser('dump', help='Print all info available for slamdunk reads', formatter_class=ArgumentDefaultsHelpFormatter)
     dumpReadInfo.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     dumpReadInfo.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", default=SUPPRESS, help="Reference fasta file")
     dumpReadInfo.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", default=SUPPRESS, help="Directory containing SNP files.")
@@ -384,30 +361,28 @@ def run():
         
         message("Running alleyoop half-lifes for " + str(len(args.bam)) + " files")
         runHalfLifes(args.bam, timepoints, outputDirectory)
-        #results = Parallel(n_jobs=n, verbose=verbose)(delayed(runHalfLifes)(tid, args.bam[tid], timepoints, outputDirectory) for tid in range(0, len(args.bam)))
         dunkFinished()
         
-    elif (command == "stats.rates") :  
+    elif (command == "rates") :  
         outputDirectory = args.outputDir
         createDir(outputDirectory)
         n = args.threads
         referenceFile = args.referenceFile
         minMQ = args.mq
-        message("Running alleyoop stats for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+        message("Running alleyoop rates for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
         results = Parallel(n_jobs=n, verbose=verbose)(delayed(runStatsRates)(tid, args.bam[tid], referenceFile, minMQ, outputDirectory) for tid in range(0, len(args.bam)))
         dunkFinished()
         
-    elif (command == "stats.SNPeval") :
+    elif (command == "snpeval") :
         outputDirectory = args.outputDir
         createDir(outputDirectory)
         snpDirectory = args.snpDir
         n = args.threads
         message("Running alleyoop SNPeval for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
         results = Parallel(n_jobs=n, verbose=verbose)(delayed(runSNPeval)(tid, args.bam[tid], args.ref, args.bed, args.maxLength, args.minQual, args.cov, args.var, args.strictTCs, outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
-        #runCountCombine(results, args.sampleNames, args.outputPrefix, outputDirectory)
         dunkFinished()
         
-    elif (command == "stats.TCcontext") :  
+    elif (command == "tccontext") :  
         outputDirectory = args.outputDir
         createDir(outputDirectory)
         n = args.threads
@@ -417,19 +392,19 @@ def run():
         results = Parallel(n_jobs=n, verbose=verbose)(delayed(runStatsTCContext)(tid, args.bam[tid], referenceFile, minMQ, outputDirectory) for tid in range(0, len(args.bam)))
         dunkFinished()
     
-    elif (command == "stats.utrrates") :  
+    elif (command == "utrrates") :  
         outputDirectory = args.outputDir
         createDir(outputDirectory)
         n = args.threads
         referenceFile = args.referenceFile
         minMQ = args.mq
         
-        message("Running alleyoop stats for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+        message("Running alleyoop utrrates for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
         results = Parallel(n_jobs=n, verbose=verbose)(delayed(runStatsRatesUTR)(tid, args.bam[tid], referenceFile, minMQ, outputDirectory, args.bed, args.maxLength) for tid in range(0, len(args.bam)))
         dunkFinished()
     
     elif (command == "summary") :
-        message("Running alleyoop stats read summary for " + str(len(args.bam)) + " files")
+        message("Running alleyoop summary for " + str(len(args.bam)) + " files")
         outputLog = replaceExtension(args.outputFile, ".log")
         stats.readSummary(args.bam, args.outputFile, getLogFile(outputLog))
         dunkFinished() 
@@ -440,18 +415,18 @@ def run():
         stats.mergeRates(",".join(args.countFiles), args.outputFile, args.column, getLogFile(outputLog))
         dunkFinished() 
     
-    elif (command == "stats.tcperreadpos") :
+    elif (command == "tcperreadpos") :
         outputDirectory = args.outputDir
         createDir(outputDirectory)
         n = args.threads
         snpDirectory = args.snpDir
         referenceFile = args.referenceFile
         minMQ = args.mq
-        message("Running alleyoop stats.tcperreadpos for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runSTcPerReadPos)(tid, args.bam[tid], referenceFile, minMQ, args.maxLength, outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
+        message("Running alleyoop tcperreadpos for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runTcPerReadPos)(tid, args.bam[tid], referenceFile, minMQ, args.maxLength, outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
         dunkFinished()
         
-    elif (command == "stats.tcperutrpos") :
+    elif (command == "tcperutrpos") :
         outputDirectory = args.outputDir
         createDir(outputDirectory)
         n = args.threads
@@ -459,30 +434,18 @@ def run():
         referenceFile = args.referenceFile
         minMQ = args.mq
         snpDirectory = args.snpDir
-        message("Running alleyoop stats.tcperutrpos for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runSTcPerUtr)(tid, args.bam[tid], referenceFile, args.bed, minMQ, args.maxLength, outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
+        message("Running alleyoop tcperutrpos for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runTcPerUtr)(tid, args.bam[tid], referenceFile, args.bed, minMQ, args.maxLength, outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
         dunkFinished()
     
-    elif (command == "stats.utrcoverage"):
-        outputDirectory = args.outputDir
-        createDir(outputDirectory)
-        n = args.threads
-    #     snpDirectory = args.snpDir
-    #     referenceFile = args.referenceFile
-        minMQ = args.mq
-    #     snpDirectory = args.snpDir
-        message("Running alleyoop stats.utrcoverage for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-        #results = Parallel(n_jobs=n, verbose=verbose)(delayed(runUtrCoverage)(tid, args.bam[tid], minMQ, outputDirectory) for tid in range(0, len(args.bam)))
-        dunkFinished()
-    
-    elif (command == "dump.reads") :
+    elif (command == "dump") :
         outputDirectory = args.outputDir
         createDir(outputDirectory)
         n = args.threads
         snpDirectory = args.snpDir
         referenceFile = args.referenceFile
         minMQ = args.mq
-        message("Running alleyoop dump.reads for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+        message("Running alleyoop dump for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
         results = Parallel(n_jobs=n, verbose=verbose)(delayed(runDumpReadInfo)(tid, args.bam[tid], referenceFile, minMQ, outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
         dunkFinished()
     
