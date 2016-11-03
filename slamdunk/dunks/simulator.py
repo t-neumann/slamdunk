@@ -12,8 +12,10 @@ import sys
 
 from slamdunk.utils import SNPtools  # @UnresolvedImport
 from slamdunk.utils.BedReader import BedIterator  # @UnresolvedImport
-from slamdunk.utils.misc import shell, run, getBinary  # @UnresolvedImport
-from slamdunk.slamseq.SlamSeqFile import SlamSeqBamFile  # @UnresolvedImport
+from slamdunk.utils.misc import shell, run, getBinary, SlamSeqInfo, md5  # @UnresolvedImport
+from slamdunk.slamseq.SlamSeqFile import SlamSeqBamFile, SlamSeqInterval  # @UnresolvedImport
+from slamdunk.version import __version__, __bam_version__, __count_version__  # @UnresolvedImport
+
 from Bio import SeqIO
 
 projectPath = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -201,7 +203,9 @@ def addTcConversionsToReads(utr, reads, pulseTimePoint, chaseTimepoint, readOutS
     varLambda = getLambdaFromHalfLife(utr.score)
     readToConvertPercent = (1 - math.exp(-varLambda * pulseTimePoint))
     if(chaseTimepoint > 0):
-        pass
+        chaseStart = 1 - readToConvertPercent
+        readToConvertPercent = math.exp(-varLambda * chaseTimepoint) - chaseStart
+
     readsToConvert = int(len(reads) * readToConvertPercent)
     print("Converting " + str(readsToConvert) + " reads (lambda = " + str(varLambda) + ")")
     
@@ -236,11 +240,13 @@ def printUtrSummary(utr, totalReadCount, readsToConvert, totalTCount, totalTcCou
     #print(utr.chromosome, utr.start, utr.stop, utr.name, utr.score, utr.strand, totalReadCount, readsToConvert, totalTCount, totalTcCount, conversionRate, sep="\t", file=utrSummary)
     print(utr.chromosome, 
           utr.start, 
-          utr.stop, 
-          utr.name, #utr.score, 
+          utr.stop,
+          utr.name, #utr.score,
+          utr.stop - utr.start,  
           utr.strand,
           readToConvertPercent,
           readsCPM,
+          -1,
           totalTCount,
           totalTcCount,
           totalReadCount, 
@@ -253,7 +259,7 @@ def parseUtrBedFile(bed):
         utrs[utr.name] = utr
     return utrs
 
-def addTcConversions(bed, readInFile, readOutFile, pulseTimePoint, chaseTimePoint, utrSummaryFile, conversionRate, librarySize):
+def addTcConversions(bed, readInFile, readOutFile, pulseTimePoint, chaseTimePoint, utrSummaryFile, conversionRate, librarySize, sampleInfo):
     
     # Read utrs from BED file
     utrs = parseUtrBedFile(bed)
@@ -264,10 +270,10 @@ def addTcConversions(bed, readInFile, readOutFile, pulseTimePoint, chaseTimePoin
     readOutSAM = open(readOutTemp, "w")
     utrSummary = open(utrSummaryFile, "w")
     
-    #print("#slamdunk v" + __version__, __count_version__, "sample info:", sampleInfo.Name, sampleInfo.ID, sampleInfo.Type, sampleInfo.Time, sep="\t", file=utrSummaryFile)
-    #print("#annotation:", os.path.basename(bed), bedMD5, sep="\t", file=utrSummaryFile)
-    #print(SlamSeqInterval.Header, file=utrSummaryFile)
-    
+    bedMD5 = md5(bed)
+    print("#slamdunk v" + __version__, __count_version__, "sample info:", sampleInfo.Name, sampleInfo.ID, sampleInfo.Type, sampleInfo.Time, sep="\t", file=utrSummary)
+    print("#annotation:", os.path.basename(bed), bedMD5, sep="\t", file=utrSummary)
+    print(SlamSeqInterval.Header, file=utrSummary)
     
     reads = []
     lastUtrName = None

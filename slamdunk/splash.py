@@ -20,7 +20,7 @@ from os.path import basename
 from joblib import Parallel, delayed
 
 from dunks import simulator
-from utils.misc import replaceExtension, removeExtension
+from utils.misc import replaceExtension, removeExtension, SampleInfo
 from version import __version__
 
 ########################################################################
@@ -46,6 +46,34 @@ def createDir(directory):
         if not os.path.exists(directory):
             message("Creating output directory: " + directory)
             os.makedirs(directory)
+            
+def reads(outputDirectory, bed, sampleName, readLenght, readNumber, readCoverage, seqError, pulseTimePoint, chaseTimePoint, conversionRate, sampleInfo):
+    message("Simulating read sample: " + sampleName)
+         
+    bed12File = replaceExtension(bed, ".bed12")
+    bed12FastaFile = replaceExtension(bed, ".fa")
+    explvFile = replaceExtension(bed, ".eplv")
+     
+    bedReads = os.path.join(outputDirectory, sampleName + "_reads_tmp.bed")
+    faReads = os.path.join(outputDirectory, sampleName + "_reads_tmp.fa")
+     
+    totalUTRlength = simulator.getTotalUtrLength(bed12File)
+     
+    if(readNumber == 0):
+        readNumber = (totalUTRlength / readLenght) *  readCoverage
+        readNumber = int(readNumber * (random.uniform(-0.2, 0.2) + 1)) 
+     
+    message("Simulating " + str(readNumber) + " reads with sequencing error of " + str(seqError))
+    simulator.simulateReads(bed12File, bed12FastaFile, explvFile, bedReads, faReads, readLenght, readNumber, seqError)
+     
+    bamReadsWithTC = os.path.join(outputDirectory, sampleName + "_reads.bam")
+    utrSummary = os.path.join(outputDirectory, sampleName + "_utrsummary.tsv")
+     
+    simulator.addTcConversions(bed, faReads, bamReadsWithTC, pulseTimePoint, chaseTimePoint, utrSummary, conversionRate, readNumber, sampleInfo)
+     
+    os.unlink(faReads)
+    os.unlink(bedReads)
+ 
 
 def run():
     ########################################################################
@@ -72,11 +100,13 @@ def run():
     allparse.add_argument("-s", "--snp-rate", type=float, required=False, default=0.001, dest="snpRate", help="SNP rate in UTRs")
     allparse.add_argument("-cov", "--read-coverage", type=int, required=False, default=20, dest="readCoverage", help="Read coverage (if read number is not specified)")
     allparse.add_argument("-e", "--sequencing-error", type=float, required=False, default=0.05, dest="seqError", help="Sequencing error")
-    allparse.add_argument("-p", "--pulse", type=int, required=True, dest="pulse", help="Pulse in minutes")
-    allparse.add_argument("-c", "--chase", type=int, required=False, default=0, dest="chase", help="Chase in minutes")
+    allparse.add_argument("-p", "--pulse", type=str, required=True, dest="pulse", help="Pulse in minutes")
+    allparse.add_argument("-c", "--chase", type=str, required=False, default="", dest="chase", help="Chase in minutes")
     allparse.add_argument("-tc", "--tc-rate", type=float, required=False, dest="conversionRate", default=0.03, help="T->C conversion rate")
     allparse.add_argument("-minhl", "--min-halflife", type=int, required=False, default=30, dest="minHalfLife", help="Lower bound for the simulated half lifes in minutes")
     allparse.add_argument("-maxhl", "--max-halflife", type=int, required=False, default=720, dest="maxHalfLife", help="Upper bound for the simulated half lifes in minutes")
+    allparse.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
+    allparse.add_argument("-rep", "--replicates", type=int, required=False, default=1, dest="replicates", help="Number of replicates")
     
     preparebedparse = subparsers.add_parser('preparebed', help='Prepares a UTR BED file for SlamSim')
     preparebedparse.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
@@ -164,34 +194,6 @@ def run():
         
         totalUTRlength = simulator.prepareUTRs(bed, bed12, bed12Fasta, referenceFasta, readLength, explv, snpRate, vcfFile)
     
-    def reads(outputDirectory, bed, sampleName, readLenght, readNumber, readCoverage, seqError, pulseTimePoint, chaseTimePoint, conversionRate):
-        message("Simulating read sample: " + sampleName)
-        createDir(outputDirectory)
-        
-        bed12File = replaceExtension(bed, ".bed12")
-        bed12FastaFile = replaceExtension(bed, ".fa")
-        explvFile = replaceExtension(bed, ".eplv")
-        
-        bedReads = os.path.join(outputDirectory, sampleName + "_reads_tmp.bed")
-        faReads = os.path.join(outputDirectory, sampleName + "_reads_tmp.fa")
-        
-        totalUTRlength = simulator.getTotalUtrLength(bed12File)
-        
-        if(readNumber == 0):
-            readNumber = (totalUTRlength / readLenght) *  readCoverage
-            readNumber = int(readNumber * (random.uniform(-0.2, 0.2) + 1)) 
-        
-        message("Simulating " + str(readNumber) + " reads with sequencing error of " + str(seqError))
-        simulator.simulateReads(bed12File, bed12FastaFile, explvFile, bedReads, faReads, readLenght, readNumber, seqError)
-        
-        bamReadsWithTC = os.path.join(outputDirectory, sampleName + "_reads.bam")
-        utrSummary = os.path.join(outputDirectory, sampleName + "_utrsummary.csv")
-        
-        simulator.addTcConversions(bed, faReads, bamReadsWithTC, pulseTimePoint, chaseTimePoint, utrSummary, conversionRate, readNumber)
-        
-        os.unlink(faReads)
-        os.unlink(bedReads)
-        
     command = args.command
     if (command == "preparebed") :
         prepareBed(args.outputDir, args.bed, args.readLength)
@@ -203,6 +205,7 @@ def run():
         Utrs(args.outputDir, args.bed, args.referenceFile, args.readLength, args.snpRate)
         
     elif (command == "reads") :
+        createDir(args.outputDir)
         reads(args.outputDir, args.bed, args.sampleName, args.readLength, args.readNumber, args.readCoverage, args.seqError, args.pulse, args.chase, args.conversionRate)
             
     elif (command == "plot.conversions") :
@@ -259,34 +262,35 @@ def run():
     
     elif (command == "all") :
         
+        #args.outputDir, args.bed, args.sampleName, args.readLength, args.readNumber, args.readCoverage, args.seqError, args.pulse, args.chase, args.conversionRate
         
-        referenceFile = "/project/ngs/philipp/slamseq/ref/GRCm38.fa"
+        referenceFile = args.referenceFile
 
-        baseFolder = "simulation_4/"
-        annotationFile = "/project/ngs/philipp/slamdunk-analysis/veronika/annotations/finalANootation_sept_example_genes.bed"
+        baseFolder = args.outputDir
+        annotationFile = args.bed
         
-        readLength = 50
-        readCoverage = 200
-        sequencingError = 0.01
+        readLength = args.readLength
+        readCoverage = args.readCoverage
+        sequencingError = args.seqError
         
         timePoints = [0, 15, 30, 60, 180, 360, 720, 1440]
+        timePoints = args.pulse.split(",")
+        chaseTimePoints = args.chase.split(",")
         
-        replicates = 3
+        replicates = args.replicates
         
-        n = 12
+        n = args.threads
         
         createDir(baseFolder)
         
         annotationPrefix = removeExtension(basename(annotationFile))
         simulatedAnnotationPref = os.path.join(baseFolder, annotationPrefix)
         
-        #run("~/bin/slamdunk/bin/splash preparebed -b " + annotationFile + " -o " + baseFolder + " -l " + str(readLength), verbose=True)
         prepareBed(baseFolder, annotationFile, readLength)
         
-        #run("~/bin/slamdunk/bin/splash turnover -b " + simulatedAnnotationPref + "_original.bed" + " -o " + baseFolder, verbose=True)
+        # TODO parameter to skip this
         turnOver(baseFolder, simulatedAnnotationPref + "_original.bed", args.minHalfLife, args.maxHalfLife)
         
-        #run("~/bin/slamdunk/bin/splash utrs -b " + simulatedAnnotationPref + "_original.bed -o " + baseFolder + " -r " + referenceFile + " -l " + str(readLength), verbose=True)
         Utrs(baseFolder, simulatedAnnotationPref + "_original.bed", referenceFile, readLength, args.snpRate)
         
         sampleFile = open(os.path.join(baseFolder, "samples.tsv"), "w")
@@ -295,25 +299,35 @@ def run():
         jobs = []
         for timePoint in timePoints:
             for replicate in xrange(1, replicates + 1):
-                sampleName =  "sample_" + str(sampleNumber) + "_" + str(timePoint) + "min_rep" + str(replicate)
-#                 cmd = "~/bin/slamdunk/bin/splash reads -b " + simulatedAnnotationPref + "_original_utrs.bed -l " + 
-#                 str(readLength) + " -e " + str(sequencingError) + " -o " + baseFolder + " -cov " + 
-#                 str(readCoverage) + " -p " + str(timePoint) + " --sample-name " + sampleName + " &> /dev/null"
-#                 
-#                 reads(baseFolder, simulatedAnnotationPref + "_original_utrs.bed", sampleName, 
-#                                      readLength, 0, readCoverage, sequencingError, timePoint, 0, args.conversionRate)
-                job = delayed(reads)([baseFolder, simulatedAnnotationPref + "_original_utrs.bed", sampleName, 
-                                     readLength, 0, readCoverage, sequencingError, timePoint, 0, args.conversionRate])
-                jobs.append(job)
+                sampleName =  "sample_" + str(sampleNumber) + "_pulse_" + str(timePoint) + "min_rep" + str(replicate)                
+                sampleInfo = SampleInfo(ID = sampleNumber, Name = sampleName, Type = "pulse", Time = str(timePoint))
                 
+                jobs.append(delayed(reads)(baseFolder, 
+                            simulatedAnnotationPref + "_original_utrs.bed", 
+                            sampleName, 
+                            readLength, 0, readCoverage, sequencingError, 
+                            int(timePoint), 0, args.conversionRate, sampleInfo))
+                                
                 sampleNumber += 1
                 print(os.path.join(baseFolder, sampleName + "_reads.bam"), sampleName, "pulse", timePoint, sep="\t", file=sampleFile)
+                
+        for timePoint in chaseTimePoints:
+            for replicate in xrange(1, replicates + 1):
+                sampleName =  "sample_" + str(sampleNumber) + "_chase_" + str(timePoint) + "min_rep" + str(replicate)
+                sampleInfo = SampleInfo(ID = sampleNumber, Name = sampleName, Type = "chase", Time = str(timePoint))
+                
+                jobs.append(delayed(reads)(baseFolder, 
+                            simulatedAnnotationPref + "_original_utrs.bed", 
+                            sampleName, 
+                            readLength, 0, readCoverage, sequencingError, 
+                            int(timePoints[-1]), int(timePoint), args.conversionRate, sampleInfo))
+                                
+                sampleNumber += 1
+                print(os.path.join(baseFolder, sampleName + "_reads.bam"), sampleName, "chase", timePoint, sep="\t", file=sampleFile)
+                
         sampleFile.close()
-        
-        
+                
         results = Parallel(n_jobs=n, verbose=False)(jobs)
-        
-        
 
     
 if __name__ == '__main__':
