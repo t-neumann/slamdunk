@@ -42,8 +42,15 @@ class SlamSeqConversionRates:
     def incRate(self, refBase, readBase):
         self._data[self._baseNumber * self.encodeBase(refBase) + self.encodeBase(readBase)] += 1
 
+    def decRate(self, refBase, readBase):
+        self._data[self._baseNumber * self.encodeBase(refBase) + self.encodeBase(readBase)] -= 1
+
     def getRate(self, refBase, readBase):
-        return self._data[self._baseNumber * self._encodeBase(refBase) + self._encodeBase(readBase)]
+        return self._data[self._baseNumber * self.encodeBase(refBase) + self.encodeBase(readBase)]
+    
+    def setRate(self, refBase, readBase, count):
+        self._data[self._baseNumber * self.encodeBase(refBase) + self.encodeBase(readBase)] = count
+    
     
     def getData(self):
         return self._data
@@ -203,9 +210,20 @@ class SlamSeqBamIterator:
     def computeRatesForRead(self, read, mismatches):
         rates = SlamSeqConversionRates()
     
+        for base in SlamSeqConversionRates._toBase:
+            baseCount = read.query_alignment_sequence.count(base)
+#             print(base, baseCount)
+            rates.setRate(base, base, baseCount)
+    
         for mismatch in mismatches:
+            
             if not mismatch.isSnpPosition and mismatch.readBaseQlty > self._minQual:
                 rates.incRate(mismatch.referenceBase, mismatch.readBase)
+                rates.decRate(mismatch.readBase, mismatch.readBase)
+            else:
+                rates.incRate(mismatch.referenceBase, mismatch.referenceBase)
+                rates.decRate(mismatch.readBase, mismatch.readBase)
+                
     
         return rates
     
@@ -341,7 +359,7 @@ class SlamSeqBamIterator:
             slamSeqRead.isMultimapper = False
             
         slamSeqRead.mismatches, slamSeqRead.tcCount = self.fillMismatchesNGM(read)
-        slamSeqRead.conversionRates = self.computeRatesForRead(read)
+        slamSeqRead.conversionRates = self.computeRatesForRead(read, slamSeqRead.mismatches)
         slamSeqRead.startRefPos = read.reference_start - int(self._startPosition)
         slamSeqRead.endRefPos = read.reference_end - int(self._startPosition)
         
