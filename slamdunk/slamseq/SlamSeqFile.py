@@ -59,8 +59,8 @@ class SlamSeqConversionRates:
         self._data = data
 
 class SlamSeqInterval:
-        
-    Header = "\t".join(["Chromosome", "Start", "End", "Name", "Lenght", "Strand", "ConversionRate", "ReadsCPM", "Tcontent", "CoverageOnTs", "ConversionsOnTs", "ReadCount", "TcReadCount", "multimapCount"])
+
+    Header = "\t".join(["Chromosome", "Start", "End", "Name", "Length", "Strand", "ConversionRate", "ReadsCPM", "Tcontent", "CoverageOnTs", "ConversionsOnTs", "ReadCount", "TcReadCount", "multimapCount"])
         
     def __init__(self, chromosome, start, stop, strand, name, Tcontent, readsCPM, coverageOnTs, conversionsOnTs, conversionRate, readCount, tcReadCount, multimapCount):
         self._chromosome = chromosome

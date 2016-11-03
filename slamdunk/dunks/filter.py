@@ -2,7 +2,7 @@
 
 # Date located in: -
 from __future__ import print_function
-import pysam, random, os
+import pysam, random, os, sys
 from intervaltree import IntervalTree
 
 from slamdunk.version import __version__, __bam_version__  # @UnresolvedImport
@@ -106,7 +106,7 @@ def multimapUTRRetainment (infile, outfile, bed, minIdentity, NM):
                     filteredReads += 1
 #                     ret = dumpBufferToBam(multimapBuffer, outfile, infile)
 #                     print(ret,file = fo)
-                    multimapBuffer = {}
+                    #multimapBuffer = {}
                     #multimapBuffer["nonUTR"] = []
                        
 #                 for entry in logList:
@@ -115,6 +115,7 @@ def multimapUTRRetainment (infile, outfile, bed, minIdentity, NM):
                      
                 dumpBuffer = True
                 multimapList = ""
+                multimapBuffer = {}
                 
             # Query Intervall tree for given chromosome for UTs
             chr = infile.getrname(read.reference_id)
@@ -142,6 +143,7 @@ def multimapUTRRetainment (infile, outfile, bed, minIdentity, NM):
                             dumpBuffer = False
                         else :
                             multimapBuffer[result.data].append(read)
+
 #             else :
 #                 # If no overlap -> nonUTR
 #                 multimapBuffer["nonUTR"].append(read)
@@ -222,6 +224,8 @@ def Filter(inputBAM, outputBAM, log, bed, MQ=2, minIdentity=0.8, NM=-1, printOnl
                 outfile.write(read)
         else :
             # Multimap retention strategy filtering when bed is supplied
+            
+            random.seed(1)
             
             print("Bed-file supplied. Running multimap retention filtering strategy on " + inputBAM + ".",file=log)
             mappedReads, unmappedReads, filteredReads = multimapUTRRetainment (infile, outfile, bed, minIdentity, NM)
