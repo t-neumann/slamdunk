@@ -103,7 +103,7 @@ def run():
     allparse.add_argument("-e", "--sequencing-error", type=float, required=False, default=0.05, dest="seqError", help="Sequencing error")
     allparse.add_argument("-p", "--pulse", type=str, required=True, dest="pulse", help="Pulse in minutes")
     allparse.add_argument("-c", "--chase", type=str, required=False, default="", dest="chase", help="Chase in minutes")
-    allparse.add_argument("-tc", "--tc-rate", type=float, required=False, dest="conversionRate", default=0.03, help="T->C conversion rate")
+    allparse.add_argument("-tc", "--tc-rate", type=float, required=False, dest="conversionRate", default=0.024, help="T->C conversion rate")
     allparse.add_argument("-minhl", "--min-halflife", type=int, required=False, default=30, dest="minHalfLife", help="Lower bound for the simulated half lifes in minutes")
     allparse.add_argument("-maxhl", "--max-halflife", type=int, required=False, default=720, dest="maxHalfLife", help="Upper bound for the simulated half lifes in minutes")
     allparse.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
