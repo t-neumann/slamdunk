@@ -22,6 +22,7 @@ from joblib import Parallel, delayed
 from dunks import simulator
 from utils.misc import replaceExtension, removeExtension, SampleInfo
 from version import __version__
+from shutil import copyfile
 
 ########################################################################
 # Global variables
@@ -107,6 +108,7 @@ def run():
     allparse.add_argument("-maxhl", "--max-halflife", type=int, required=False, default=720, dest="maxHalfLife", help="Upper bound for the simulated half lifes in minutes")
     allparse.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
     allparse.add_argument("-rep", "--replicates", type=int, required=False, default=1, dest="replicates", help="Number of replicates")
+    allparse.add_argument('-st', "--skip-turnover", required=False, dest="skipTurnover", action='store_true', help="Take half-life from score filed of input BED file")
     
     preparebedparse = subparsers.add_parser('preparebed', help='Prepares a UTR BED file for SlamSim')
     preparebedparse.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
@@ -178,11 +180,14 @@ def run():
         slamSimBed = os.path.join(outputDirectory, replaceExtension(basename(bed), ".bed", "_original"))
         simulator.prepareBED(bed, slamSimBed, readLength)
         
-    def turnOver(outputDirectory, bed, minHalflife, maxHalfLife):
+    def turnOver(outputDirectory, bed, minHalflife, maxHalfLife, skipTurnover=False):
         message("Simulating turnover")
         createDir(outputDirectory)
         trunoverBed = os.path.join(outputDirectory, replaceExtension(basename(bed), ".bed", "_utrs"))
-        simulator.simulateTurnOver(bed, trunoverBed, minHalflife, maxHalfLife)
+        if not skipTurnover:
+            simulator.simulateTurnOver(bed, trunoverBed, minHalflife, maxHalfLife)
+        else:
+            copyfile(bed, trunoverBed)
         
     def Utrs(outputDirectory, bed, referenceFasta, readLength, snpRate):
         message("Simulating UTRs")
@@ -273,7 +278,7 @@ def run():
         readCoverage = args.readCoverage
         sequencingError = args.seqError
         
-        timePoints = [0, 15, 30, 60, 180, 360, 720, 1440]
+        #timePoints = [0, 15, 30, 60, 180, 360, 720, 1440]
         timePoints = args.pulse.split(",")
         chaseTimePoints = args.chase.split(",")
         
@@ -289,7 +294,7 @@ def run():
         prepareBed(baseFolder, annotationFile, readLength)
         
         # TODO parameter to skip this
-        turnOver(baseFolder, simulatedAnnotationPref + "_original.bed", args.minHalfLife, args.maxHalfLife)
+        turnOver(baseFolder, simulatedAnnotationPref + "_original.bed", args.minHalfLife, args.maxHalfLife, args.skipTurnover)
         
         Utrs(baseFolder, simulatedAnnotationPref + "_original.bed", referenceFile, readLength, args.snpRate)
         
