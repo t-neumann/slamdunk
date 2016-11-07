@@ -238,8 +238,12 @@ def Filter(inputBAM, outputBAM, log, bed, MQ=2, minIdentity=0.8, NM=-1, printOnl
             slamseqInfo.SequencedReads = mappedReads + unmappedReads
             slamseqInfo.MappedReads = mappedReads
             slamseqInfo.FilteredReads = filteredReads
-            slamseqInfo.AnnotationName = os.path.basename(bed)
-            slamseqInfo.AnnotationMD5 = md5(bed)
+            if (bed != None) :
+                slamseqInfo.AnnotationName = os.path.basename(bed)
+                slamseqInfo.AnnotationMD5 = md5(bed)
+            else :
+                slamseqInfo.AnnotationName = ""
+                slamseqInfo.AnnotationMD5 = ""
             inFileBamHeader['RG'][0]['DS'] = str(slamseqInfo)
             #inFileBamHeader['RG'][0]['DS'] = "{'sequenced':" + str(mappedReads + unmappedReads) + "," + "'mapped':" + str(mappedReads) + "," + "'filtered':" + str(filteredReads) + "}"        
         
