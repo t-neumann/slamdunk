@@ -2,9 +2,7 @@
 
 # Date located in: -
 from __future__ import print_function
-#import pysam, random, os, sys
 import random
-import pysam
 import math
 import os
 import glob
@@ -13,9 +11,9 @@ import numpy
 
 from slamdunk.utils import SNPtools  # @UnresolvedImport
 from slamdunk.utils.BedReader import BedIterator  # @UnresolvedImport
-from slamdunk.utils.misc import shell, run, getBinary, SlamSeqInfo, md5  # @UnresolvedImport
+from slamdunk.utils.misc import shell, run, getBinary, md5, getPlotter, callR  # @UnresolvedImport
 from slamdunk.slamseq.SlamSeqFile import SlamSeqBamFile, SlamSeqInterval  # @UnresolvedImport
-from slamdunk.version import __version__, __bam_version__, __count_version__  # @UnresolvedImport
+from slamdunk.version import __version__, __count_version__  # @UnresolvedImport
 
 from Bio import SeqIO
 
@@ -336,7 +334,12 @@ def getTotalUtrLength(bed12File):
     for utr in BedIterator(bed12File):
         totalUtrLength += utr.getLength()
     return totalUtrLength
-        
+    
+def evaluate(simulated, slamdunk, outputFile, log, printOnly=False, verbose=True, force=False):
+    cmd = getPlotter("splash_eval_count_files") + " -s " + simulated + " -d " + slamdunk + " -o " + outputFile
+     
+    callR(cmd, log, dry=printOnly, verbose=verbose) 
+
         
 def plotconversiondifferences(simDir, slamDir, conversionRate, outputPDF):
     
