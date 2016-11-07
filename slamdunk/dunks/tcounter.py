@@ -107,12 +107,6 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
     
     bedMD5 = md5(bed)
     
-    fileNameTest = replaceExtension(outputCSV, ".tsv", "_perread")
-    fileTest = open(fileNameTest,'w')
-    print("#slamdunk v" + __version__, __count_version__, "sample info:", sampleInfo.Name, sampleInfo.ID, sampleInfo.Type, sampleInfo.Time, sep="\t", file=fileTest)
-    print("#annotation:", os.path.basename(bed), bedMD5, sep="\t", file=fileTest)
-    print("utr", "n", "k", file=fileTest)
-    
     fileCSV = open(outputCSV,'w')
     print("#slamdunk v" + __version__, __count_version__, "sample info:", sampleInfo.Name, sampleInfo.ID, sampleInfo.Type, sampleInfo.Time, sep="\t", file=fileCSV)
     print("#annotation:", os.path.basename(bed), bedMD5, sep="\t", file=fileCSV)
@@ -194,18 +188,7 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
             for mismatch in read.mismatches:
                 if(mismatch.isTCMismatch(read.direction == ReadDirection.Reverse) and mismatch.referencePosition >= 0 and mismatch.referencePosition < utr.getLength()):
                     tcCountUtr[mismatch.referencePosition] += 1
-            
-            testN = read.getTcount()
-            testk = 0
-            for mismatch in read.mismatches:
-                if(mismatch.referencePosition >= 0 and mismatch.referencePosition < utr.getLength()):
-                    if(mismatch.isT(read.direction == ReadDirection.Reverse)):
-                        testN += 1
-                    if(mismatch.isTCMismatch(read.direction == ReadDirection.Reverse)):
-                        testk += 1
-            #print(utr.name, read.name, read.direction, testN, testk, read.sequence, sep="\t")
-            print(utr.name, testN, testk, sep="\t", file=fileTest)
-            
+                        
             for i in xrange(read.startRefPos, read.endRefPos):
                 if(i >= 0 and i < utr.getLength()):
                     coverageUtr[i] += 1
@@ -269,8 +252,6 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
         print(slamSeqUtr, file=fileCSV)
         
     fileCSV.close()
-
-    fileTest.close()
     
     fileBedgraphPlus = open(outputBedgraphPlus,'w')
     fileBedgraphMinus = open(outputBedgraphMinus,'w')
@@ -284,7 +265,4 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
             
     fileBedgraphPlus.close()
     fileBedgraphMinus.close()
-    
-    #fileNameMLE = replaceExtension(outputCSV, ".tsv", "_mle")
-    #callR(getPlotter("compute_conversion_rate_mle") +  " -f " + fileNameTest + " -r " + "0.024" + " -o " + fileNameMLE)
 
