@@ -9,6 +9,7 @@ import math
 import os
 import glob
 import sys
+import numpy
 
 from slamdunk.utils import SNPtools  # @UnresolvedImport
 from slamdunk.utils.BedReader import BedIterator  # @UnresolvedImport
@@ -75,7 +76,7 @@ def simulateUTR(utrSeq, utr, polyALenght, snpRate, vcfFile):
     for i in xrange(0, len(utrSeq)):
         if(random.uniform(0, 1) < snpRate):
             rndBase = getRndBaseWithoutDup(utrSeq[i])
-            print("Introducing SNP " + utrSeq[i] + " -> " + rndBase + " in UTR " + utr.name + " at position " + utr.chromosome + ":" + str(utr.start + i))
+            #print("Introducing SNP " + utrSeq[i] + " -> " + rndBase + " in UTR " + utr.name + " at position " + utr.chromosome + ":" + str(utr.start + i))
             snpPosition = 0
             snpCount += 1
             if(utr.strand == "+"):
@@ -91,7 +92,7 @@ def simulateUTR(utrSeq, utr, polyALenght, snpRate, vcfFile):
             utrSeq[i] = rndBase
     return "".join(utrSeq) + (polyALenght * 'A')
 
-def prepareUTRs(bed, bed12, bed12Fasta, referenceFasta, readLength, explv, snpRate, vcfFile):
+def prepareUTRs(bed, bed12, bed12Fasta, referenceFasta, readLength, polyALength, explv, snpRate, vcfFile):
     
     # Read utrs from BED file
     utrs = parseUtrBedFile(bed)
@@ -116,7 +117,7 @@ def prepareUTRs(bed, bed12, bed12Fasta, referenceFasta, readLength, explv, snpRa
             print(line, file=bed12FastaFile)
             utrName = line[1:] 
         else:
-            print(simulateUTR(line, utrs[utrName], readLength, snpRate, vcf), file=bed12FastaFile)
+            print(simulateUTR(line, utrs[utrName], polyALength, snpRate, vcf), file=bed12FastaFile)
     bed12FastaFile.close()
     vcf.close()
     
@@ -128,26 +129,28 @@ def prepareUTRs(bed, bed12, bed12Fasta, referenceFasta, readLength, explv, snpRa
     maxFragmentLength = 450
     for utr in BedIterator(bed):
         
-        fragmentLength = random.randrange(minFragmentLength, maxFragmentLength, 1)
+        fragmentLength = random.randrange(minFragmentLength, maxFragmentLength, 1) #+ readLength
+        fragmentLength = min(fragmentLength, utr.getLength())
         
         start = max(0, utr.getLength() - fragmentLength)
-        end = utr.getLength() + readLength
+        end = utr.getLength() #- readLength
 
         totalLength += (end - start)
-        print(utr.name, start, end, utr.name, utr.score, "+", start, end, "255,0,0", "1", min(utr.getLength() + readLength / 4, fragmentLength + readLength / 4), 0, sep="\t", file=bed12File)
+#         min(utr.getLength() + readLength / 4, fragmentLength + readLength / 4)
+        print(utr.name, start, end, utr.name, utr.score, "+", start, end, "255,0,0", "1", (end - start), 0, sep="\t", file=bed12File)
         
     bed12File.close()    
     
-    output = shell(getBinary("genexplvprofile.py") + " --geometric 0.8 " + bed12 + " > " + explv)
+    output = shell(getBinary("genexplvprofile.py") + " --geometric 1 " + bed12 + " 2> /dev/null > " + explv)
     print(output)
         
     return totalLength
     
 def simulateReads(bed12, bed12Fasta, explv, bedReads, faReads, readLength, readCount, seqError):    
     #output = shell(getBinary("gensimreads.py") + " -l " + str(readLength) + " -e " + explv + " -n " + str(readCount) + " -b " + rNASeqReadSimulatorPath + "demo/input/sampleposbias.txt --stranded " + bed12 + " > " + bedReads)
-    output = shell(getBinary("gensimreads.py") + " -l " + str(readLength) + " -e " + explv + " -n " + str(readCount) + " --stranded " + bed12 + " > " + bedReads)
+    output = shell(getBinary("gensimreads.py") + " -l " + str(readLength) + " -e " + explv + " -n " + str(readCount) + " --stranded " + bed12 + " 2> /dev/null > " + bedReads)
     print(output)
-    output = shell(getBinary("getseqfrombed.py") + " -r " + str(seqError) + " -l " + str(readLength) + " " + bedReads + " " + bed12Fasta + " > " + faReads)
+    output = shell(getBinary("getseqfrombed.py") + " -f -r " + str(seqError) + " -l " + str(readLength) + " " + bedReads + " " + bed12Fasta + " 2> /dev/null > " + faReads)
     print(output)
     
 def getRndHalfLife(minHalfLife, maxHalfLife):
@@ -159,7 +162,7 @@ def simulateTurnOver(bed, turnoverBed, minHalfLife, maxHalfLife):
         print(utr.chromosome, utr.start, utr.stop, utr.name, getRndHalfLife(minHalfLife, maxHalfLife), utr.strand, sep='\t', file=turnoverFile)
     turnoverFile.close()
 
-def printFastaEntry(sequence, name, index, conversions, readOutSAM):
+def printFastaEntry(sequence, name, index, conversions, readOutSAM, conversionRate):
     #a = pysam.AlignedSegment()
     print(name + "_" + str(index) + "_" + str(conversions),
           "4",
@@ -174,6 +177,7 @@ def printFastaEntry(sequence, name, index, conversions, readOutSAM):
           "<" * len(sequence),
           "TC:i:" + str(conversions),
           "ID:i:" + str(index),
+          "CR:f" + str(conversionRate),
            file=readOutSAM, sep="\t")
     
 def convertRead(read, name, index, conversionRate, readOutSAM):
@@ -186,49 +190,42 @@ def convertRead(read, name, index, conversionRate, readOutSAM):
     for i in xrange(0, len(seq)):
         if seq[i] == 'T':
             tCount += 1
-            if random.uniform(0, 1) <= conversionRate:
+            #if conversionRate > 0 and random.uniform(0, 1) <= conversionRate:
+            if conversionRate > 0 and numpy.random.binomial(1, conversionRate) == 1:
                 seq[i] = 'C'
                 TcCount += 1
     
-    printFastaEntry("".join(seq), name, index, TcCount, readOutSAM)
+    printFastaEntry("".join(seq), name, index, TcCount, readOutSAM, conversionRate)
     
     return tCount, TcCount
 
 def getLambdaFromHalfLife(halfLife):
     return math.log(2) / float(halfLife)
 
-def addTcConversionsToReads(utr, reads, pulseTimePoint, chaseTimepoint, readOutSAM, conversionRate):    
-    print(utr.name + " reads found: " + str(len(reads)))
+def addTcConversionsToReads(utr, reads, readToConvertPercent, conversionRate, readOutSAM):    
+    #print(utr.name + " reads found: " + str(len(reads)))
     
-    varLambda = getLambdaFromHalfLife(utr.score)
-    readToConvertPercent = (1 - math.exp(-varLambda * pulseTimePoint))
-    if(chaseTimepoint > 0):
-        chaseStart = 1 - readToConvertPercent
-        readToConvertPercent = math.exp(-varLambda * chaseTimepoint) - chaseStart
-
+    
     readsToConvert = int(len(reads) * readToConvertPercent)
-    print("Converting " + str(readsToConvert) + " reads (lambda = " + str(varLambda) + ")")
+    #print("Converting " + str(readsToConvert) + " reads (lambda = " + str(varLambda) + ")")
     
     totalTCount = 0
     totalTcCount = 0
     readSample = sorted(random.sample(xrange(0, len(reads)), readsToConvert))
-    #print(readSample)
-    #print("Reads selected: " + str(len(readSample)))
-    sampledReads = 0
-    notSampledReads = 0
+
+    readsWithTc = 0
     for i in xrange(0, len(reads)):
         read = reads[i]
         if(i in readSample):
             tCount, TcCount = convertRead(read, utr.name, i, conversionRate, readOutSAM)
-            sampledReads += 1
+            if TcCount > 0:
+                readsWithTc += 1
         else:
-            tCount, TcCount = convertRead(read, utr.name, i, 0, readOutSAM)
-            notSampledReads += 1
+            tCount, TcCount = convertRead(read, utr.name, i, -1, readOutSAM)
         totalTcCount += TcCount
         totalTCount += tCount
     
-    #print(sampledReads, notSampledReads, len(reads), sampledReads * 1.0 / len(reads),  totalTcCount, totalTCount, totalTcCount * 1.0 / totalTCount )
-    return readsToConvert, totalTCount, totalTcCount, readToConvertPercent
+    return readsWithTc, totalTCount, totalTcCount
 
 def getUtrName(readName):
     return readName.split("_")[0]
@@ -251,7 +248,10 @@ def printUtrSummary(utr, totalReadCount, readsToConvert, totalTCount, totalTcCou
           totalTcCount,
           totalReadCount, 
           readsToConvert,
-          "-1" , sep="\t", file=utrSummary)
+          "-1" ,
+          -1.0,
+          -1.0,
+         sep="\t", file=utrSummary)
 
 def parseUtrBedFile(bed):
     utrs = {}
@@ -259,7 +259,20 @@ def parseUtrBedFile(bed):
         utrs[utr.name] = utr
     return utrs
 
-def addTcConversions(bed, readInFile, readOutFile, pulseTimePoint, chaseTimePoint, utrSummaryFile, conversionRate, librarySize, sampleInfo):
+def computeConversionRate(halflife, pulseTimePoint, chaseTimePoint, labeledTranscripts):
+    if labeledTranscripts == -1.0:
+        # Compute number of labeld transcript from half-life and timepoint
+        varLambda = getLambdaFromHalfLife(halflife)
+        readToConvertPercent = (1 - math.exp(-varLambda * pulseTimePoint))
+        if(chaseTimePoint > 0):
+            chaseStart = 1 - readToConvertPercent
+            readToConvertPercent = math.exp(-varLambda * chaseTimePoint) - chaseStart
+    else:
+        # Nuber of labeled transcript provided directly
+        readToConvertPercent = labeledTranscripts
+    return readToConvertPercent
+
+def addTcConversions(bed, readInFile, readOutFile, pulseTimePoint, chaseTimePoint, utrSummaryFile, conversionRate, librarySize, sampleInfo, labeledTranscripts = -1.0):
     
     # Read utrs from BED file
     utrs = parseUtrBedFile(bed)
@@ -294,13 +307,17 @@ def addTcConversions(bed, readInFile, readOutFile, pulseTimePoint, chaseTimePoin
             reads.append(entry)
         else:
             readsCPM = len(reads)  * 1000000.0 / librarySize;
-            readsToConvert, totalTCount, totalTcCount, readToConvertPercent = addTcConversionsToReads(utrs[lastUtrName], reads, pulseTimePoint, chaseTimePoint, readOutSAM, conversionRate)
-            printUtrSummary(utrs[lastUtrName], len(reads), readsToConvert, totalTCount, totalTcCount, utrSummary, readsCPM, readToConvertPercent)
+            readToConvertPercent = computeConversionRate(utrs[lastUtrName].score, pulseTimePoint, chaseTimePoint, labeledTranscripts)          
+            readsWithTC, totalTCount, totalTcCount = addTcConversionsToReads(utrs[lastUtrName], reads, readToConvertPercent, conversionRate, readOutSAM)
+            printUtrSummary(utrs[lastUtrName], len(reads), readsWithTC, totalTCount, totalTcCount, utrSummary, readsCPM, readToConvertPercent)
             reads = []
         lastUtrName = utrName
+    
+    # Last UTR    
     readsCPM = len(reads) * 1000000.0 / librarySize;
-    readsToConvert, totalTCount, totalTcCount, readToConvertPercent = addTcConversionsToReads(utrs[lastUtrName], reads, pulseTimePoint, chaseTimePoint, readOutSAM, conversionRate)
-    printUtrSummary(utrs[lastUtrName], len(reads), readsToConvert, totalTCount, totalTcCount, utrSummary, readsCPM, readToConvertPercent)
+    readToConvertPercent = computeConversionRate(utrs[lastUtrName].score, pulseTimePoint, chaseTimePoint, labeledTranscripts)
+    readsWithTC, totalTCount, totalTcCount = addTcConversionsToReads(utrs[lastUtrName], reads, readToConvertPercent, conversionRate, readOutSAM)
+    printUtrSummary(utrs[lastUtrName], len(reads), readsWithTC, totalTCount, totalTcCount, utrSummary, readsCPM, readToConvertPercent)
         
             
     readOutSAM.close()       

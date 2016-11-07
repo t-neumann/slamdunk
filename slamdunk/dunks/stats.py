@@ -597,7 +597,8 @@ def computeSNPMaskedRates (ref, bed, snpsFile, bam, maxReadLength, minQual, cove
 def halflifes(bams, outputCSV, timepoints, log, printOnly=False, verbose=True, force=False):
     callR(getPlotter("compute_halflifes") + " -f " + bams + " -t " + timepoints + " -o " + outputCSV, log, dry=printOnly, verbose=verbose)
 
-def mergeRates(bams, outputCSV, column, log, printOnly=False, verbose=True, force=False):
+def mergeRates(bams, outputCSV, column, columnName, log, printOnly=False, verbose=True, force=False):
     cmd = getPlotter("merge_rate_files") + " -f " + bams + " -o " + outputCSV
     cmd = cmd + " -c \"" + column + "\"" 
+    cmd = cmd + " -n " + str(columnName) 
     callR(cmd, log, dry=printOnly, verbose=verbose) 

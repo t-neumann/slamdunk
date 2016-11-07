@@ -107,6 +107,13 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
     
     bedMD5 = md5(bed)
     
+    fileNameTest = replaceExtension(outputCSV, ".tsv", "_perread")
+    fileTest = open(fileNameTest,'w')
+    print("#slamdunk v" + __version__, __count_version__, "sample info:", sampleInfo.Name, sampleInfo.ID, sampleInfo.Type, sampleInfo.Time, sep="\t", file=fileTest)
+    print("#annotation:", os.path.basename(bed), bedMD5, sep="\t", file=fileTest)
+    #print("utr", "n", "k", file=fileTest)
+    print(SlamSeqInterval.Header, file=fileTest)
+    
     fileCSV = open(outputCSV,'w')
     print("#slamdunk v" + __version__, __count_version__, "sample info:", sampleInfo.Name, sampleInfo.ID, sampleInfo.Type, sampleInfo.Time, sep="\t", file=fileCSV)
     print("#annotation:", os.path.basename(bed), bedMD5, sep="\t", file=fileCSV)
@@ -129,6 +136,7 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
     for utr in BedIterator(bed):
         Tcontent = 0
         slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, Tcontent, 0, 0, 0, 0, 0, 0, 0)
+        slamSeqUtrMLE = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, Tcontent, 0, 0, 0, 0, 0, 0, 0)
         if(not utr.hasStrand()):
             raise RuntimeError("Input BED file does not contain stranded intervals.")
         
@@ -154,6 +162,9 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
       
         tcCountUtr = [0] * utr.getLength()
         coverageUtr = [0] * utr.getLength()
+
+        tInReads = []
+        tcInRead = []
 
         countFwd = 0
         tcCountFwd = 0
@@ -188,7 +199,20 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
             for mismatch in read.mismatches:
                 if(mismatch.isTCMismatch(read.direction == ReadDirection.Reverse) and mismatch.referencePosition >= 0 and mismatch.referencePosition < utr.getLength()):
                     tcCountUtr[mismatch.referencePosition] += 1
-                        
+
+            testN = read.getTcount()
+            testk = 0
+            for mismatch in read.mismatches:
+                if(mismatch.referencePosition >= 0 and mismatch.referencePosition < utr.getLength()):
+                    if(mismatch.isT(read.direction == ReadDirection.Reverse)):
+                        testN += 1
+                    if(mismatch.isTCMismatch(read.direction == ReadDirection.Reverse)):
+                        testk += 1
+            #print(utr.name, read.name, read.direction, testN, testk, read.sequence, sep="\t")
+            tInReads.append(testN)
+            tcInRead.append(testk)
+            #print(utr.name, testN, testk, sep="\t", file=fileTest)
+            
             for i in xrange(read.startRefPos, read.endRefPos):
                 if(i >= 0 and i < utr.getLength()):
                     coverageUtr[i] += 1
@@ -247,9 +271,11 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
             conversionRate = 0
             if (coverageOnTs > 0) :
                 conversionRate = float(conversionsOnTs) / float(coverageOnTs)
-            slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, Tcontent, readsCPM, coverageOnTs, conversionsOnTs, conversionRate, readCount, tcReadCount, multiMapCount)
+            slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, Tcontent, readsCPM, coverageOnTs, conversionsOnTs, conversionRate, readCount, tcReadCount, multiMapCount)            
+            slamSeqUtrMLE = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, Tcontent, readsCPM, coverageOnTs, conversionsOnTs, conversionRate, ",".join(str(x) for x in tInReads), ",".join(str(x) for x in tcInRead), multiMapCount)
 
         print(slamSeqUtr, file=fileCSV)
+        print(slamSeqUtrMLE, file=fileTest)
         
     fileCSV.close()
     

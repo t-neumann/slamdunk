@@ -54,8 +54,6 @@ plotList = list()
 for (i in 1:nrow(rates)) {
 	curTab = read.table(rates$file[i],stringsAsFactors=FALSE)
 	
-	#curTab = read.table(file,stringsAsFactors=FALSE)
-	
 	curTab[, c("A", "C", "G", "T")] <- curTab[, c("A", "C", "G", "T")]/rowSums(curTab[, c("A", "C", "G", "T")]) * 100
 	curTab[, c("a", "c", "g", "t")] <- curTab[, c("a", "c", "g", "t")]/rowSums(curTab[, c("a", "c", "g", "t")])  * 100
 	
@@ -83,7 +81,6 @@ for (i in 1:nrow(rates)) {
 	#total = c(rep(c(fwdATot, revATot), 3), rep(c(fwdTTot, revTTot), 3), rep(c(fwdCTot, revCTot), 3), rep(c(fwdGTot, revGTot), 3) )
 
 	#printTab$rate_percent = printTab$rate_percent / total * 100
-	#printTab$rate_percent = printTab$rate_percent / sum(printTab$rate_percent) * 100
 	
 	maxRatePercent = max(10, max(printTab$rate_percent) * 1.1)
 	
