@@ -28,7 +28,7 @@ from version import __version__
 ########################################################################
 
 printOnly = False
-verbose = True
+verbose = False
 
 mainOutput = sys.stderr
 

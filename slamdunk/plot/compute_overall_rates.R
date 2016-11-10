@@ -48,11 +48,16 @@ pdf(opt$outputFile)
 
 plotList = list()
 
+# rates = data.frame(files = as.character("/project/ngs/philipp/slamdunk-analysis/HeLa/slamdunk-20161108/rates/42067_TAGGCT_C9NM7ANXX_2_20160919B_20160919_slamdunk_mapped_filtered_overallrates.csv"), samples=as.character("42067_TAGGCT_C9NM7ANXX_2_20160919B_20160919"), stringsAsFactors = F)
+# i = 1
+
 for (i in 1:nrow(rates)) {
 	curTab = read.table(rates$file[i],stringsAsFactors=FALSE)
 	
 	#curTab = read.table(file,stringsAsFactors=FALSE)
 	
+	curTab[, c("A", "C", "G", "T")] <- curTab[, c("A", "C", "G", "T")]/rowSums(curTab[, c("A", "C", "G", "T")]) * 100
+	curTab[, c("a", "c", "g", "t")] <- curTab[, c("a", "c", "g", "t")]/rowSums(curTab[, c("a", "c", "g", "t")])  * 100
 	
 	printTab = data.frame(rates=c(rep("AT",2),rep("AC",2),rep("AG",2),
 					rep("TA",2),rep("TC",2),rep("TG",2),
@@ -65,25 +70,30 @@ for (i in 1:nrow(rates)) {
 	)
 	
 
-	fwdATot = max(1, sum(curTab["A",c("A", "C", "G", "T", "N")]))
-	fwdCTot = max(1, sum(curTab["C",c("A", "C", "G", "T", "N")]))
-	fwdGTot = max(1, sum(curTab["G",c("A", "C", "G", "T", "N")]))
-	fwdTTot = max(1, sum(curTab["T",c("A", "C", "G", "T", "N")]))
+	#fwdATot = max(1, sum(curTab["A",c("A", "C", "G", "T", "N")]))
+	#fwdCTot = max(1, sum(curTab["C",c("A", "C", "G", "T", "N")]))
+	#fwdGTot = max(1, sum(curTab["G",c("A", "C", "G", "T", "N")]))
+	#fwdTTot = max(1, sum(curTab["T",c("A", "C", "G", "T", "N")]))
 
-	revATot = max(1, sum(curTab["A",c("a", "c", "g", "t", "n")]))
-	revCTot = max(1, sum(curTab["C",c("a", "c", "g", "t", "n")]))
-	revGTot = max(1, sum(curTab["G",c("a", "c", "g", "t", "n")]))
-	revTTot = max(1, sum(curTab["T",c("a", "c", "g", "t", "n")]))
+	#revATot = max(1, sum(curTab["A",c("a", "c", "g", "t", "n")]))
+	#revCTot = max(1, sum(curTab["C",c("a", "c", "g", "t", "n")]))
+	#revGTot = max(1, sum(curTab["G",c("a", "c", "g", "t", "n")]))
+	#revTTot = max(1, sum(curTab["T",c("a", "c", "g", "t", "n")]))
 
-	total = c(rep(c(fwdATot, revATot), 3), rep(c(fwdTTot, revTTot), 3), rep(c(fwdCTot, revCTot), 3), rep(c(fwdGTot, revGTot), 3) )
+	#total = c(rep(c(fwdATot, revATot), 3), rep(c(fwdTTot, revTTot), 3), rep(c(fwdCTot, revCTot), 3), rep(c(fwdGTot, revGTot), 3) )
 
-	printTab$rate_percent = printTab$rate_percent / total * 100
+	#printTab$rate_percent = printTab$rate_percent / total * 100
 	#printTab$rate_percent = printTab$rate_percent / sum(printTab$rate_percent) * 100
 	
-	curPlot = qplot(x=rates, y=rate_percent, fill=strand,data=printTab) + geom_bar(stat="identity") + geom_text(aes(label = round(rate_percent,digits=2)), size = 1, hjust = 0.5, vjust = 1.5, position = "stack") + ylab("Rate percent %") + xlab(rates$sample[i]) +
-			theme(text = element_text(size=6),axis.text.x = element_text(size=6)) 
-	curPlot + xlim(0,35)	
-	plotList[[length(plotList)+1]] <- curPlot + ylim(0.0,3.5)
+	maxRatePercent = max(10, max(printTab$rate_percent) * 1.1)
+	
+	printTab$y = -0.3
+	printTab[printTab$strand == "-", ]$y = printTab[printTab$strand == "-", ]$rate_percent + printTab[printTab$strand == "+", ]$rate_percent
+	
+	curPlot = qplot(x=rates, y=rate_percent, fill=strand,data=printTab) + ylim(-0.5,maxRatePercent) + geom_bar(stat="identity") + geom_text(aes(y = printTab$y, label = round(rate_percent,digits=2)), size = 3, hjust = 0.5, vjust = -0.50) + ylab("Rate percent %") + xlab(rates$sample[i]) +
+			theme(text = element_text(size=12),axis.text.x = element_text(size=12))
+	#curPlot + xlim(0,35)	
+	plotList[[length(plotList)+1]] <- curPlot #+ ylim(0.0,maxRatePercent)
 }
 
 do.call(grid.arrange,  plotList)
