@@ -51,7 +51,9 @@ def bedToIntervallTree(bed):
     
 def dumpBufferToBam (buffer, multimapList, outbam, infile):
     # Randomly write hit from read
-    read = random.choice(buffer.values()).pop()
+    #read = random.choice(buffer.values()).pop()
+    read = buffer.values().pop().pop()
+    
 #     printer = read.query_name + "\t" + infile.getrname(read.reference_id) + "\t" + str(read.reference_start) + "\t" + str(read.reference_end) + "\tPRINT\tTrue"
     read.set_tag("RD", multimapList.rstrip(" "), "Z")
     outbam.write(read)
