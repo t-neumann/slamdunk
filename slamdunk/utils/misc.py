@@ -260,10 +260,10 @@ def shell(cmd):
     else:
         return p.communicate()[0]
 
-def shellerr(cmd):
+def shellerr(cmd, raiseError=True):
     p = subprocess.Popen(cmd, stderr=subprocess.PIPE, shell=True)
     p.wait()    
-    if(p.returncode != 0):
+    if(p.returncode != 0 and raiseError == True):
         raise RuntimeError("Error while executing command: " + cmd)
     else:
         return p.communicate()[1]  

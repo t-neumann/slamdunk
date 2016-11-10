@@ -374,6 +374,8 @@ def run():
     command = args.command
     
     if (command == "map") :
+        mapper.checkNextGenMapVersion()
+        
         outputDirectory = args.outputDir
         createDir(outputDirectory)
         n = args.threads

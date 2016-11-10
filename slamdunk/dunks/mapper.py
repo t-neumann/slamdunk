@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
-import os
+import os, re
 
-from slamdunk.utils.misc import files_exist, checkStep, run, pysamIndex, removeFile, getBinary, replaceExtension  # @UnresolvedImport
+from slamdunk.utils.misc import files_exist, checkStep, run, pysamIndex, removeFile, getBinary, replaceExtension, shellerr  # @UnresolvedImport
+from slamdunk.version import __ngm_version__  # @UnresolvedImport
 
 projectPath = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -14,6 +15,15 @@ def sort(inputSAM, outputBAM, log, threads=1, keepSam=True, dry=False, verbose=T
     else:
         print("Skipped sorting for " + inputSAM, file=log)
 
+def checkNextGenMapVersion():
+    ngmHelp = shellerr(getBinary("ngm"), raiseError = False)
+    matchObj = re.match( r'.*([0-9]+\.[0-9]+\.[0-9]+).*', ngmHelp, re.M|re.I)
+    if matchObj:
+        version = matchObj.group(1) 
+        if version != __ngm_version__:
+            raise RuntimeError('NextGenMap version expected: ' + __ngm_version__ + " but found " + version + ". Please reinstall slamdunk package.")
+    else:
+        raise RuntimeError('Could not get NextGenMap version. Please reinstall slamdunk package.')
 
 def runSam2bam(inFile, outFile, log, index=True, sort=True, delinFile=False, onlyUnique=False, onlyProperPaired=False, filterMQ=0, L=None, threads=1, verbose=False, dry=False):
     if(delinFile and files_exist(outFile) and not files_exist(inFile)):
