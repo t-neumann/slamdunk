@@ -274,7 +274,7 @@ def statsComputeTCContext(referenceFile, bam, minBaseQual, outputCSV, outputPDF,
         callR(getPlotter("compute_context_TC_rates") + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
         
 
-def statsComputeOverallRatesPerUTR(referenceFile, bam, minBaseQual, outputCSV, outputPDF, utrBed, maxReadLength, log, printOnly=False, verbose=True, force=False):
+def statsComputeOverallRatesPerUTR(referenceFile, bam, minBaseQual, strictTCs, outputCSV, outputPDF, utrBed, maxReadLength, log, printOnly=False, verbose=True, force=False):
     
     if(not checkStep([bam, referenceFile], [outputCSV], force)):
         print("Skipped computing overall rates for file " + bam, file=log)
@@ -301,12 +301,16 @@ def statsComputeOverallRatesPerUTR(referenceFile, bam, minBaseQual, outputCSV, o
             readCount = 0
             for read in readIterator:
                 
-                # Compute rates for current read
-                rates = read.conversionRates
+                if (not read.isTcRead and strictTCs and read.tcCount > 0) :
+                    pass
+                else :
                 
-                # Add rates from read to total rates
-                totalRates = sumLists(totalRates, rates)
-                readCount += 1
+                    # Compute rates for current read
+                    rates = read.conversionRates
+                
+                    # Add rates from read to total rates
+                    totalRates = sumLists(totalRates, rates)
+                    readCount += 1
                     
             print(utr.name, utr.chromosome, utr.start, utr.stop, utr.strand, readCount, "\t".join(str(x) for x in totalRates), sep="\t", file=fo)
         fo.close()

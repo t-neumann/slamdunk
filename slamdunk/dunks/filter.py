@@ -51,7 +51,9 @@ def bedToIntervallTree(bed):
     
 def dumpBufferToBam (buffer, multimapList, outbam, infile):
     # Randomly write hit from read
-    read = random.choice(buffer.values()).pop()
+    #read = random.choice(buffer.values()).pop()
+    read = buffer.values().pop().pop()
+    
 #     printer = read.query_name + "\t" + infile.getrname(read.reference_id) + "\t" + str(read.reference_start) + "\t" + str(read.reference_end) + "\tPRINT\tTrue"
     read.set_tag("RD", multimapList.rstrip(" "), "Z")
     outbam.write(read)
@@ -238,8 +240,12 @@ def Filter(inputBAM, outputBAM, log, bed, MQ=2, minIdentity=0.8, NM=-1, printOnl
             slamseqInfo.SequencedReads = mappedReads + unmappedReads
             slamseqInfo.MappedReads = mappedReads
             slamseqInfo.FilteredReads = filteredReads
-            slamseqInfo.AnnotationName = os.path.basename(bed)
-            slamseqInfo.AnnotationMD5 = md5(bed)
+            if (bed != None) :
+                slamseqInfo.AnnotationName = os.path.basename(bed)
+                slamseqInfo.AnnotationMD5 = md5(bed)
+            else :
+                slamseqInfo.AnnotationName = ""
+                slamseqInfo.AnnotationMD5 = ""
             inFileBamHeader['RG'][0]['DS'] = str(slamseqInfo)
             #inFileBamHeader['RG'][0]['DS'] = "{'sequenced':" + str(mappedReads + unmappedReads) + "," + "'mapped':" + str(mappedReads) + "," + "'filtered':" + str(filteredReads) + "}"        
         

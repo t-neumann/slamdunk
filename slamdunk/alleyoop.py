@@ -109,7 +109,7 @@ def runStatsTCContext(tid, bam, referenceFile, minMQ, outputDirectory) :
     closeLogFile(log)
     stepFinished()
 
-def runStatsRatesUTR(tid, bam, referenceFile, minMQ, outputDirectory, utrFile, maxReadLength) :
+def runStatsRatesUTR(tid, bam, referenceFile, minMQ, strictTCs, outputDirectory, utrFile, maxReadLength) :
     outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_mutationrates_utr"))
     outputPDF = os.path.join(outputDirectory, replaceExtension(basename(bam), ".pdf", "_mutationrates_utr"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_mutationrates_utr"))
@@ -124,7 +124,7 @@ def runStatsRatesUTR(tid, bam, referenceFile, minMQ, outputDirectory, utrFile, m
     
     print("Using " + str(maxReadLength) + " as maximum read length.",file=log)
     
-    stats.statsComputeOverallRatesPerUTR(referenceFile, bam, minMQ, outputCSV, outputPDF, utrFile, maxReadLength, log)
+    stats.statsComputeOverallRatesPerUTR(referenceFile, bam, minMQ, strictTCs, outputCSV, outputPDF, utrFile, maxReadLength, log)
     closeLogFile(log)
     stepFinished()
     
@@ -269,6 +269,7 @@ def run():
     statsutrrateparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
     statsutrrateparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
     statsutrrateparser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs (default: %(default)s)")
+    statsutrrateparser.add_argument("-m", "--multiTCStringency", dest="strictTCs", action='store_true', required=False, help="")
     statsutrrateparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number (default: %(default)s)")
     statsutrrateparser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
     statsutrrateparser.add_argument("-l", "--max-read-length", type=int, required=False, dest="maxLength", help="Max read length in BAM file (default: %(default)s)")
@@ -400,7 +401,7 @@ def run():
         minMQ = args.mq
         
         message("Running alleyoop utrrates for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runStatsRatesUTR)(tid, args.bam[tid], referenceFile, minMQ, outputDirectory, args.bed, args.maxLength) for tid in range(0, len(args.bam)))
+        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runStatsRatesUTR)(tid, args.bam[tid], referenceFile, minMQ, args.strictTCs, outputDirectory, args.bed, args.maxLength) for tid in range(0, len(args.bam)))
         dunkFinished()
     
     elif (command == "summary") :
