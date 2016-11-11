@@ -2,12 +2,11 @@
 
 # Date located in: -
 from __future__ import print_function
-import pysam, random, os, sys
-from intervaltree import IntervalTree
+import pysam, random, os
 
 from slamdunk.version import __version__, __bam_version__  # @UnresolvedImport
 
-from slamdunk.utils.BedReader import BedIterator  # @UnresolvedImport
+from slamdunk.utils.BedReader import bedToIntervallTree  # @UnresolvedImport
 from slamdunk.utils.misc import checkStep, run, removeFile, getBinary, pysamIndex, SlamSeqInfo, md5  # @UnresolvedImport
 
 # def Filter_old(inputBAM, outputBAM, log, MQ=2, printOnly=False, verbose=True, force=True):
@@ -36,19 +35,7 @@ def bamSort(outputBAM, log, newHeader, verbose):
     run(" ".join([getBinary("samtools"), "sort", "-o", outputBAM, tmp]), log, verbose=verbose, dry=False)
     #pysam.sort(tmp, outputBAM)  # @UndefinedVariable
     removeFile(tmp)
-    
-def bedToIntervallTree(bed):
-    utrs = {}
         
-    for utr in BedIterator(bed):
-
-        if (not utrs.has_key(utr.chromosome)) :
-            utrs[utr.chromosome] = IntervalTree()
-        
-        utrs[utr.chromosome][utr.start:(utr.stop + 1)] = utr.name
-        
-    return utrs
-    
 def dumpBufferToBam (buffer, multimapList, outbam, infile):
     # Randomly write hit from read
     #read = random.choice(buffer.values()).pop()

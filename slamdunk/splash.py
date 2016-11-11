@@ -142,10 +142,16 @@ def run():
     simulateparse.add_argument("-c", "--chase", type=int, required=False, default=0, dest="chase", help="Chase in minutes")
     simulateparse.add_argument("-tc", "--tc-rate", type=float, required=False, dest="conversionRate", default=0.024, help="T->C conversion rate")
         
-    evalparser = subparsers.add_parser('eval', help='Prepares a UTR BED file for SlamSim')
+    evalparser = subparsers.add_parser('eval-counts', help='Evaluate count files')
     evalparser.add_argument("-s", "--simulated", type=str, required=True, dest="simulated", help="")
     evalparser.add_argument("-d", "--slamdun", type=str, required=True, dest="slamdunk", help="")
     evalparser.add_argument("-o", "--outputFile", type=str, required=True, dest="outputFile", help="")
+    
+    evalreadsparser = subparsers.add_parser('eval-reads', help='Evaluate read files')
+    evalreadsparser.add_argument("-o", "--outputFile", type=str, required=True, dest="outputFile", help="")
+    evalreadsparser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
+    evalreadsparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
+    evalreadsparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
         
     evalconversionplotparse = subparsers.add_parser('plot.conversions', help='Plots differences in simulated and found conversion rates')
     evalconversionplotparse.add_argument("-sim", "--simDir", type=str, required=True, dest="simDir", help="")
@@ -219,10 +225,15 @@ def run():
     elif (command == "reads") :
         createDir(args.outputDir)
         reads(args.outputDir, args.bed, args.sampleName, args.readLength, args.readNumber, args.readCoverage, args.seqError, args.pulse, args.chase, args.conversionRate)
-    elif (command == "eval") :
+    elif (command == "eval-counts") :
         outputPath = os.path.dirname(args.outputFile)
         createDir(outputPath)
         simulator.evaluate(args.simulated, args.slamdunk, args.outputFile, mainOutput)
+    elif (command == "eval-reads") :
+        outputPath = os.path.dirname(args.outputFile)
+        createDir(outputPath)
+        for bam in args.bam:
+            simulator.evaluateReads(bam, args.referenceFile, args.bed, args.outputFile, mainOutput)
     elif (command == "plot.conversions") :
         
         simDir = args.simDir

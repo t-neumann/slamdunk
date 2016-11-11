@@ -10,12 +10,13 @@ import sys
 import numpy
 
 from slamdunk.utils import SNPtools  # @UnresolvedImport
-from slamdunk.utils.BedReader import BedIterator  # @UnresolvedImport
+from slamdunk.utils.BedReader import BedIterator, bedToIntervallTree  # @UnresolvedImport
 from slamdunk.utils.misc import shell, run, getBinary, md5, getPlotter, callR  # @UnresolvedImport
 from slamdunk.slamseq.SlamSeqFile import SlamSeqBamFile, SlamSeqInterval  # @UnresolvedImport
 from slamdunk.version import __version__, __count_version__  # @UnresolvedImport
 
 from Bio import SeqIO
+from pybedtools import bedtool
 
 projectPath = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 pathEvalHalfLifes = os.path.join(projectPath, "plot", "eval_halflife_per_gene_plots.R")
@@ -101,7 +102,7 @@ def prepareUTRs(bed, bed12, bed12Fasta, referenceFasta, readLength, polyALength,
     
     bed12FastaTmp = bed12Fasta + "_tmp.fa"
     utrFasta = shell("bedtools getfasta -name -s -fi " + referenceFasta + " -bed " + bed + " -fo " + bed12FastaTmp)
-    print(utrFasta)
+    #print(utrFasta)
     
     bed12FastaTmpFile = open(bed12FastaTmp, "r")
     utrFasta = bed12FastaTmpFile.read()
@@ -140,16 +141,16 @@ def prepareUTRs(bed, bed12, bed12Fasta, referenceFasta, readLength, polyALength,
     bed12File.close()    
     
     output = shell(getBinary("genexplvprofile.py") + " --geometric 1 " + bed12 + " 2> /dev/null > " + explv)
-    print(output)
+    #print(output)
         
     return totalLength
     
 def simulateReads(bed12, bed12Fasta, explv, bedReads, faReads, readLength, readCount, seqError):    
     #output = shell(getBinary("gensimreads.py") + " -l " + str(readLength) + " -e " + explv + " -n " + str(readCount) + " -b " + rNASeqReadSimulatorPath + "demo/input/sampleposbias.txt --stranded " + bed12 + " > " + bedReads)
     output = shell(getBinary("gensimreads.py") + " -l " + str(readLength) + " -e " + explv + " -n " + str(readCount) + " --stranded " + bed12 + " 2> /dev/null > " + bedReads)
-    print(output)
+    #print(output)
     output = shell(getBinary("getseqfrombed.py") + " -f -r " + str(seqError) + " -l " + str(readLength) + " " + bedReads + " " + bed12Fasta + " 2> /dev/null > " + faReads)
-    print(output)
+    #print(output)
     
 def getRndHalfLife(minHalfLife, maxHalfLife):
     return random.randrange(minHalfLife, maxHalfLife, 1)
@@ -184,7 +185,7 @@ def convertRead(read, name, index, conversionRate, readOutSAM):
     TcCount = 0
     # TODO: Uncomment to go back to pysam
     #seq = list(read.sequence)
-    seq = list(read.seq.tostring())
+    seq = list(str(read.seq))
     for i in xrange(0, len(seq)):
         if seq[i] == 'T':
             tCount += 1
@@ -340,6 +341,53 @@ def evaluate(simulated, slamdunk, outputFile, log, printOnly=False, verbose=True
      
     callR(cmd, log, dry=printOnly, verbose=verbose) 
 
+def evaluateReads(bam, referenceFile, bed, outputFile, mainOutput):
+
+    print("Run " + bam)
+
+    # Go through one chr after the other
+    testFile = SlamSeqBamFile(bam, referenceFile, None)
+     
+    chromosomes = testFile.getChromosomes()
+    
+    bedTree = bedToIntervallTree(bed)
+    #evalHist = [0] *  
+    
+    outFile = open(outputFile, "w")
+    print("read.name", "read.chromosome", "read.startRefPos", "sim.utr", "read.utr", "sim.tcCount", "read.tcCount", sep = "\t", file=outFile)
+    
+    total = 0
+    correct = 0
+    correcPosWrongTC = 0
+    wrongPos = 0
+    
+    minBaseQual = 0
+    for chromosome in chromosomes:
+        readIterator = testFile.readsInChromosome(chromosome, minBaseQual)
+        
+        for read in readIterator:
+            total += 1
+            simInfo = read.name.split("_")
+            utrSim = simInfo[0]
+            tcCountSim = int(simInfo[2])
+            
+            utrFound = None
+            if read.chromosome in bedTree:
+                overlaps = list(bedTree[read.chromosome][read.startRefPos:read.endRefPos])
+                if len(overlaps) > 0:
+                    utrFound = overlaps[0].data
+            
+            if utrFound == utrSim:
+                if tcCountSim == read.tcCount:
+                    correct += 1
+                else:
+                    correcPosWrongTC += 1
+            else:
+                wrongPos += 1 
+            
+            print(read.name, read.chromosome, read.startRefPos, utrSim, utrFound, tcCountSim, read.tcCount, sep = "\t", file=outFile)
+    
+    print(correct * 100.0 / total, correcPosWrongTC * 100.0 / total, wrongPos * 100.0 / total, total)
         
 def plotconversiondifferences(simDir, slamDir, conversionRate, outputPDF):
     

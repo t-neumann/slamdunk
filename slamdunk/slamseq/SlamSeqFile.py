@@ -154,6 +154,8 @@ class SlamSeqRead:
         self.startRefPos = None
         # End position in the reference
         self.endRefPos = None
+        # Chr
+        self.chromosome = None
         # Multiple TC-conversion flag
         self.isTcRead = None
         # Read is Multimapper
@@ -364,6 +366,7 @@ class SlamSeqBamIterator:
         slamSeqRead.conversionRates = self.computeRatesForRead(read, slamSeqRead.mismatches)
         slamSeqRead.startRefPos = read.reference_start - int(self._startPosition)
         slamSeqRead.endRefPos = read.reference_end - int(self._startPosition)
+        slamSeqRead.chromosome = read.reference_name
         
         if(slamSeqRead.tcCount > 1) :
             slamSeqRead.isTcRead = True

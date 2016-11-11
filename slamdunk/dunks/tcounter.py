@@ -278,6 +278,7 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
         print(slamSeqUtrMLE, file=fileTest)
         
     fileCSV.close()
+    fileTest.close()
     
     fileBedgraphPlus = open(outputBedgraphPlus,'w')
     fileBedgraphMinus = open(outputBedgraphMinus,'w')
@@ -293,5 +294,5 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
     fileBedgraphMinus.close()
     
     fileNameMLE = replaceExtension(outputCSV, ".tsv", "_mle")
-    callR(getPlotter("compute_conversion_rate_mle") +  " -f " + fileNameTest + " -r " + "0.024" + " -o " + fileNameMLE)
+    callR(getPlotter("compute_conversion_rate_mle") +  " -f " + fileNameTest + " -r " + "0.024" + " -o " + fileNameMLE + " &> /dev/null")
 
