@@ -16,7 +16,7 @@ from slamdunk.slamseq.SlamSeqFile import SlamSeqBamFile, SlamSeqInterval  # @Unr
 from slamdunk.version import __version__, __count_version__  # @UnresolvedImport
 
 from Bio import SeqIO
-from pybedtools import bedtool
+from pybedtools import BedTool
 
 projectPath = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 pathEvalHalfLifes = os.path.join(projectPath, "plot", "eval_halflife_per_gene_plots.R")
@@ -100,18 +100,13 @@ def prepareUTRs(bed, bed12, bed12Fasta, referenceFasta, readLength, polyALength,
     print("##fileformat=VCFv4.1", file=vcf)
     print("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO", file=vcf)
     
-    bed12FastaTmp = bed12Fasta + "_tmp.fa"
-    utrFasta = shell("bedtools getfasta -name -s -fi " + referenceFasta + " -bed " + bed + " -fo " + bed12FastaTmp)
-    #print(utrFasta)
+    bedFile = BedTool(bed)
     
-    bed12FastaTmpFile = open(bed12FastaTmp, "r")
-    utrFasta = bed12FastaTmpFile.read()
-    bed12FastaTmpFile.close()
-    os.unlink(bed12FastaTmp)
-    
+    bedFasta = bedFile.sequence(fi=referenceFasta, s=True, name=True)
+      
     bed12FastaFile = open(bed12Fasta, "w")
     utrName = None
-    for line in utrFasta.splitlines():
+    for line in bedFasta.print_sequence().splitlines():
         if(line[0] == ">"):
             print(line, file=bed12FastaFile)
             utrName = line[1:] 
@@ -141,16 +136,19 @@ def prepareUTRs(bed, bed12, bed12Fasta, referenceFasta, readLength, polyALength,
     bed12File.close()    
     
     output = shell(getBinary("genexplvprofile.py") + " --geometric 1 " + bed12 + " 2> /dev/null > " + explv)
-    #print(output)
+    if len(output.strip()) > 5:
+        print(output)
         
     return totalLength
     
 def simulateReads(bed12, bed12Fasta, explv, bedReads, faReads, readLength, readCount, seqError):    
     #output = shell(getBinary("gensimreads.py") + " -l " + str(readLength) + " -e " + explv + " -n " + str(readCount) + " -b " + rNASeqReadSimulatorPath + "demo/input/sampleposbias.txt --stranded " + bed12 + " > " + bedReads)
     output = shell(getBinary("gensimreads.py") + " -l " + str(readLength) + " -e " + explv + " -n " + str(readCount) + " --stranded " + bed12 + " 2> /dev/null > " + bedReads)
-    #print(output)
+    if len(output.strip()) > 5:
+        print(output)
     output = shell(getBinary("getseqfrombed.py") + " -f -r " + str(seqError) + " -l " + str(readLength) + " " + bedReads + " " + bed12Fasta + " 2> /dev/null > " + faReads)
-    #print(output)
+    if len(output.strip()) > 5:
+        print(output)
     
 def getRndHalfLife(minHalfLife, maxHalfLife):
     return random.randrange(minHalfLife, maxHalfLife, 1)
