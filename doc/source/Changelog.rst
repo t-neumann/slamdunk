@@ -25,7 +25,8 @@ Please rerun alle your samples with slamdunk 0.2.0!
 * NGM interspersed order of multimappers fixed. 
 * Random seed from filter module deleted. 
 * Alleyoop rates display error of bars higher than ylim fixed. 
-* Min base quality now again propagated to all modules. Auto-scaling error fixed in globalRatePlotter.  
+* Min base quality now again propagated to all modules. 
+* Auto-scaling error fixed in globalRatePlotter.  
 
 **Version 0.1.0** 
 
