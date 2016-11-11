@@ -8,6 +8,7 @@ import os
 import glob
 import sys
 import numpy
+import pysam
 
 from slamdunk.utils import SNPtools  # @UnresolvedImport
 from slamdunk.utils.BedReader import BedIterator, bedToIntervallTree  # @UnresolvedImport
@@ -278,6 +279,7 @@ def addTcConversions(bed, readInFile, readOutFile, pulseTimePoint, chaseTimePoin
     #bamheader = { 'HD': {'VN': '1.0'} }
     #readOutBAM = pysam.AlignmentFile(readOutTemp, "wb", header=bamheader, add_sq_text=False)
     readOutSAM = open(readOutTemp, "w")
+    print("@HD\tVN:1.0\tSO:unsorted", file=readOutSAM)
     utrSummary = open(utrSummaryFile, "w")
     
     bedMD5 = md5(bed)
@@ -322,8 +324,18 @@ def addTcConversions(bed, readInFile, readOutFile, pulseTimePoint, chaseTimePoin
     
     
     readOutTempBAM = readOutFile + "_tmp.bam"
+    # Convert to BAM
     run("samtools view -Sb " + readOutTemp + " > " + readOutTempBAM)
+    #samFile = pysam.AlignmentFile(readOutTemp, "r", check_header = False, check_sq = False)
+    #bamFile = pysam.AlignmentFile(readOutTempBAM, "wb", template=samFile)
+    
+    #for read in samFile:
+    #    bamFile.write(read)
+    #bamFile.close()
+    #samFile.close()
+    
     # Sort reads by query name (doesn't matter for mapping, but makes evaluation easier
+    #pysam.sort("-o", readOutFile, readOutTempBAM)  # @UndefinedVariable
     run("samtools sort -o " + readOutFile + " " + readOutTempBAM)
     os.unlink(readOutTemp)
     os.unlink(readOutTempBAM)
