@@ -27,6 +27,6 @@ Please rerun alle your samples with slamdunk 0.2.0!
 * Alleyoop rates display error of bars higher than ylim fixed. 
 * Min base quality now again propagated to all modules. Auto-scaling error fixed in globalRatePlotter.  
 
-**0.1.0:** 
+**Version 0.1.0** 
 
 * Initial pre-release.
