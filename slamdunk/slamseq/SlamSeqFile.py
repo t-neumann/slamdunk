@@ -366,7 +366,12 @@ class SlamSeqBamIterator:
         slamSeqRead.conversionRates = self.computeRatesForRead(read, slamSeqRead.mismatches)
         slamSeqRead.startRefPos = read.reference_start - int(self._startPosition)
         slamSeqRead.endRefPos = read.reference_end - int(self._startPosition)
-        slamSeqRead.chromosome = read.reference_name
+        
+        # "reference_name" not available in pysam < 0.9.0
+        if hasattr(read, 'read'):
+            slamSeqRead.chromosome = read.reference_name
+        else:
+            slamSeqRead.chromosome = None
         
         if(slamSeqRead.tcCount > 1) :
             slamSeqRead.isTcRead = True
