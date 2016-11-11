@@ -56,6 +56,23 @@ In short, the procedure is as follows, illustrated by the example below:
 
 .. image:: img/multimappers.png
    :width: 800px
+   
+.. _sample-file:
+   
+Sample file format
+------------------
+
+Sample description files are a convenient way to provide multiple sample files as well as corresponding sample information to *slamdunk*. A sample description
+file is a tab or comma separated plain text file with the following columns:
+
+================== ========  ===============================================================================================
+Column             Datatype  Description
+================== ========  ===============================================================================================
+Filepath           String    Path to raw reads in BAM/fasta(gz)/fastq(gz) format
+Sample description String    Description of the sample
+Sample type        String    Type of sample. Only relevant for timecourses (pulse/chase) otherwise use any value 
+Timepoint          Integer   Timepoint of the sample in minutes. Again only relevant for timecourses otherwise use any value
+================== ========  ===============================================================================================
 
 .. _tcount-file:
 

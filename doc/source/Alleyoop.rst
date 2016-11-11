@@ -46,23 +46,69 @@ Parameter  Required  Description
 =========  ========  =====================================================================================================================================================================
 **-h**               Prints the help.
 **-o**     x         The output directory where all output files of this tool will be placed.
-**-r**     x         The reference fasta file.
-**-mq**              Minimum base quality for T->C conversions to be counted (default: 0).
 **-t**               The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.  
-**bam**    x         Fastq/BAM file(s) containing the final filtered reads. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
+**bam**    x         Fastq/BAM file(s) containing the final filtered reads (wildcard \* accepted).
 =========  ========  =====================================================================================================================================================================
 
------------------------------------------------------- 
+------------------------------------------------------
 
-stats.rates
------------
+collapse
+--------
+
+This tool allows you to collapse all 3'UTR entries of a *tcount* file into one single entry per 3'UTR (similar to the exons->gene relationship in a gtf-file).
+All entries with identical 3'UTR IDs will be merged.
+
+.. code:: bash
+
+    alleyoop collapse [-h] -o <output directory> [-t <threads>] tcount [tcount ...]
+                
+Input
+^^^^^
+
+===================  ==================================================================================================================================================================
+File                 Description
+===================  ==================================================================================================================================================================
+**Tcount file**      A tab-separated *tcount* file per sample containing the SLAMSeq statistics (see :ref:`tcount-file`).
+===================  ==================================================================================================================================================================
+
+Output
+^^^^^^
+============================  =================================================================================================================================
+File                          Description
+============================  =================================================================================================================================
+**Tcount file**               A tab-separated *tcount* file per sample containing the SLAMSeq statistics (see :ref:`tcount-file`) with collapsed 3'UTR entries.
+============================  =================================================================================================================================
+
+Output files have the same name as the input files with the prefix "_collapsed".
+
+For example::
+   
+    34330_An312_wt-2n_mRNA-slamseq-autoquant_0h-R1.fq_slamdunk_mapped_filtered_tcount.tsv -> 
+    34330_An312_wt-2n_mRNA-slamseq-autoquant_0h-R1.fq_slamdunk_mapped_filtered_tcount_collapsed.tsv
+
+
+Parameters
+^^^^^^^^^^
+=============== ========  =====================================================================================================================================================================
+Parameter       Required  Description
+=============== ========  =====================================================================================================================================================================
+**-h**                    Prints the help.
+**-o**          x         The output directory where all output files of this tool will be placed.
+**-t**                    The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.  
+**Tcount file** x         A tab-separated *tcount* file per sample containing the SLAMSeq statistics (see :ref:`tcount-file`) with collapsed 3'UTR entries.
+=============== ========  =====================================================================================================================================================================
+
+------------------------------------------------------  
+
+rates
+-----
 
 This tool computes the overall conversion rates in your reads and plots them as a barplot.
 
 .. code:: bash
 
-    alleyoop stats.rates [-h] -o <output directory> -r <reference fasta> [-mq <MQ cutoff>]
-                         [-t <threads>] bam [bam ...]
+    alleyoop rates [-h] -o <output directory> -r <reference fasta> [-mq <MQ cutoff>]
+                   [-t <threads>] bam [bam ...]
                 
 Input
 ^^^^^
@@ -71,7 +117,7 @@ Input
 File                 Description
 ===================  ===================================================================================================================================================================
 **Reference fasta**  The reference sequence of the genome to map against in fasta format.
-**bam**              Fastq/BAM file(s) containing the final filtered reads from *slamdunk*. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
+**bam**              Fastq/BAM file(s) containing the final filtered reads from *slamdunk* (wildcard \* accepted).
 ===================  ===================================================================================================================================================================
 
 Output
@@ -80,7 +126,7 @@ Output
 File                           Description
 ============================   ===========================================================================================================
 **overallrates.csv**           Tab-separated table of the overall conversion rates. 
-**overallrates.csv**           Overall conversion rate plot file.
+**overallrates.pdf**           Overall conversion rate plot file.
 ============================   ===========================================================================================================
 
 Below is an example plot of the overall conversion rates of the reads in a sample. One can appreciate the typical excess of T->C conversion (A->G on minus strand)
@@ -105,15 +151,15 @@ Parameter  Required  Description
 
 ------------------------------------------------------
 
-stats.TCcontext
----------------
+tccontext
+---------
 
 This tool computes the genomic context of all Ts in a read and plots them as barplot to inspect any biases in that direction.
 
 .. code:: bash
 
-    alleyoop stats.TCcontext [-h] -o <output directory> -r <reference fasta> [-mq <MQ cutoff>]
-                             [-t <threads>] bam [bam ...]
+    alleyoop tccontext [-h] -o <output directory> -r <reference fasta> [-mq <MQ cutoff>]
+                       [-t <threads>] bam [bam ...]
                 
 Input
 ^^^^^
@@ -122,7 +168,7 @@ Input
 File                 Description
 ===================  ===================================================================================================================================================================
 **Reference fasta**  The reference sequence of the genome to map against in fasta format.
-**bam**              BAM file(s) containing the final filtered reads from *slamdunk*. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
+**bam**              BAM file(s) containing the final filtered reads from *slamdunk* (wildcard \* accepted).
 ===================  ===================================================================================================================================================================
 
 Output
@@ -151,21 +197,21 @@ Parameter  Required  Description
 **-r**     x         The reference fasta file.
 **-mq**              Minimum base quality for T->C conversions to be counted (default: 0).
 **-t**               The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.  
-**bam**    x         BAM file(s) containing the final filtered reads. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
+**bam**    x         BAM file(s) containing the final filtered reads (wildcard \* accepted).
 =========  ========  =====================================================================================================================================================================
 
 ------------------------------------------------------
 
-stats.utrrates
---------------
+utrrates
+--------
 
 This tool checks the individual conversion rates per 3'UTR and plots them as boxplots over the entire realm of 3'UTRs. Each conversion is normalized
 to all possible conversions from it's starting base e.g. A->G / (A->A + A->G + A->C + A->T). 
 
 .. code:: bash
 
-    alleyoop stats.utrrates [-h] -o <output directory> [-r <reference fasta>] [-mq <MQ cutoff>]
-                            [-t <threads>] -b <bed file> -l <maximum read length> bam [bam ...]
+    alleyoop utrrates [-h] -o <output directory> [-r <reference fasta>] [-mq <MQ cutoff>] [-m]
+                      [-t <threads>] -b <bed file> -l <maximum read length> bam [bam ...]
                 
 Input
 ^^^^^
@@ -175,7 +221,7 @@ File                 Description
 ===================  ===================================================================================================================================================================
 **Reference fasta**  The reference sequence of the genome to map against in fasta format.
 **-b**               Bed file with coordinates of 3'UTRs.
-**bam**              BAM file(s) containing the final filtered reads from *slamdunk*. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
+**bam**              BAM file(s) containing the final filtered reads from *slamdunk* (wildcard \* accepted).
 ===================  ===================================================================================================================================================================
 
 Output
@@ -203,32 +249,187 @@ Parameter  Required  Description
 **-o**     x         The output directory where all output files of this tool will be placed.
 **-r**     x         The reference fasta file.
 **-mq**              Minimum base quality for T->C conversions to be counted (default: 0).
+**-m**               Flag to activate the multiple T->C conversion stringency: Only T->C conversions in reads with more than 1 T->C conversion will be counted.
 **-t**               The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.
 **-b**     x         Bed file with coordinates of 3'UTRs.
 **-l**               Maximum read length in all samples (will be automatically estimated if not set).
-**bam**    x         BAM file(s) containing the final filtered reads. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
+**bam**    x         BAM file(s) containing the final filtered reads (wildcard \* accepted).
 =========  ========  =====================================================================================================================================================================
 
 ------------------------------------------------------
 
-stats.summary
--------------
+snpeval
+-------
 
-** TODO **
+This tool produces some QA about the quality of your variant calls: Ideally, your T>C SNP calls should be independently of the number
+of reads with T>C conversions found in an UTR. Otherwise, this would mean that you call more T>C SNPs the more T>C reads you have and thus
+you lose signal by falsely calling SNPs from true T>C conversions.
+
+To assess this, the UTRs are ranked by the number of containing T>C reads and marked with a bar if also a T>C SNP was called in the respective UTR.
+The list is then filtered for 3'UTRs with sufficient coverage to confidently call SNPs by using only the upper quartile of the 3'UTRs according to 
+total read coverage.
+
+The resulting plots will show once the distribution of SNPs across ranked 3'UTRs being blind to SNP information and including SNP information.
+Ideally, one would see the SNPs biased towards 3'UTRs with high T>C read content in the blind situation and uniformly distributed across all 3'UTRs
+in the informed situation.
+
+This difference is also quantified using a GSEA-like Mann-Whitney-U test. 
+
+.. code:: bash
+
+    alleyoop snpeval [-h] -o <output directory> -s <SNP directory> -r <reference fasta> -b <bed file> [-c <coverage cutoff>]
+                     [-f <variant fraction cutoff>] [-m] [-l <maximum read length>] [-q <minimum base quality>] [-t <threads>]
+                     bam [bam ...]
+
+Input
+^^^^^
+
+===================  ===================================================================================================================================================================
+File                 Description
+===================  ===================================================================================================================================================================
+**Reference fasta**  The reference sequence of the genome to map against in fasta format.
+**-s**               Directory of called SNPs from *snp* dunk.
+**-b**               Bed file with coordinates of 3'UTRs.
+**bam**              BAM file(s) containing the final filtered reads from *slamdunk* (wildcard \* accepted).
+===================  ===================================================================================================================================================================
+
+Output
+^^^^^^
+============================   ===========================================================================================================
+File                           Description
+============================   ===========================================================================================================
+**SNPeval.csv**                Tab-separated table with read counts, T>C read counts and SNP indication, one UTR per line.
+**SNPeval.pdf**                SNP evaluation plot.
+============================   ===========================================================================================================
+
+An example plot is coming soon!
+
+
+Parameters
+^^^^^^^^^^
+=========  ========  =====================================================================================================================================================================
+Parameter  Required  Description
+=========  ========  =====================================================================================================================================================================
+**-h**               Prints the help.
+**-o**     x         The output directory where all output files of this tool will be placed.
+**-s**     x         The output directory of the *snp* dunk containing the called variants.
+**-r**     x         The reference fasta file.
+**-q**               Minimum base quality for T->C conversions to be counted (default: 0).
+**-m**               Flag to activate the multiple T->C conversion stringency: Only T->C conversions in reads with more than 1 T->C conversion will be counted.
+**-c**               Minimum coverage to call a variant.
+**-f**               Minimum variant fraction to call a variant.
+**-t**               The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.
+**-b**     x         Bed file with coordinates of 3'UTRs.
+**-l**               Maximum read length in all samples (will be automatically estimated if not set).
+**bam**    x         BAM file(s) containing the final filtered reads (wildcard \* accepted).
+=========  ========  =====================================================================================================================================================================
 
 ------------------------------------------------------
 
-stats.tcperreadpos
-------------------
+summary
+-------
+
+This tool lists basic statistics of the mapping process in a text file.
+
+.. code:: bash
+
+    alleyoop summary [-h] -o <output file> bam [bam ...]
+
+Input
+^^^^^
+
+===================  =======================================================================================
+File                 Description
+===================  =======================================================================================
+**bam**              BAM file(s) containing the final filtered reads from *slamdunk* (wildcard \* accepted).
+===================  =======================================================================================
+
+Output
+^^^^^^
+============================   ===========================================================================================================
+File                           Description
+============================   ===========================================================================================================
+**outputfile**                 Tab-separated table with mapping statistics.
+============================   ===========================================================================================================
+
+The output file will be a tab-separated text file with the following columns:
+
+============================   ===========================================================================================================
+Column                         Content
+============================   ===========================================================================================================
+FileName                       Path to raw reads in BAM/fasta(gz)/fastq(gz) format.
+SampleName                     Description of the sample.
+SampleType                     Type of sample.  
+SampleTime                     Timepoint of the sample in minutes.
+Sequenced                      Number of sequenced reads.
+Mapped                         Number of mapped reads.
+Deduplicated                   Number of deduplicated reads.
+Filtered                       Number of retained reads after filtering.
+Annotation                     Annotation used for filtering.
+============================   ===========================================================================================================
+
+Parameters
+^^^^^^^^^^
+=========  ========  =====================================================================================================================================================================
+Parameter  Required  Description
+=========  ========  =====================================================================================================================================================================
+**-h**               Prints the help.
+**-o**     x         The output file name.
+**bam**    x         BAM file(s) containing the final filtered reads (wildcard \* accepted).
+=========  ========  =====================================================================================================================================================================
+
+------------------------------------------------------
+
+merge
+-----
+
+This tool merges *tcount* files of multiple samples into a single table based upon an expression of columns.
+
+.. code:: bash
+
+    alleyoop merge [-h] -o <output file> [-c <expression>] countFiles [countFiles ...]
+
+Input
+^^^^^
+
+===================  =====================================================================================================
+File                 Description
+===================  =====================================================================================================
+**countFiles**       A tab-separated *tcount* file per sample containing the SLAMSeq statistics (see :ref:`tcount-file`).
+===================  =====================================================================================================
+
+Output
+^^^^^^
+============================   ===========================================================================================================
+File                           Description
+============================   ===========================================================================================================
+**outputfile**                 Tab-separated table merged *tcount* information based upon expression.
+============================   ===========================================================================================================
+
+Parameters
+^^^^^^^^^^
+============== ========  =====================================================================================================================================================================
+Parameter      Required  Description
+============== ========  =====================================================================================================================================================================
+**-h**                   Prints the help.
+**-o**         x         The output file name.
+**-c**                   Column or expression used to summarize files (e.g. "TcReadCount / ReadCount")
+**countFiles** x         A tab-separated *tcount* file per sample containing the SLAMSeq statistics (see :ref:`tcount-file`).
+============== ========  =====================================================================================================================================================================
+
+------------------------------------------------------
+
+tcperreadpos
+------------
 
 This tool calculates the individual mutation rates per position in a read treating T->C mutations separately. This plot can be used to search for biases
 along reads. 
 
 .. code:: bash
 
-    alleyoop stats.tcperreadpos [-h] -r <reference fasta> [-s <SNP directory>]
-                                [-l <maximum read length>] -o <output directory> [-mq <MQ cutoff>]
-                                [-t <threads>] bam [bam ...]
+    alleyoop tcperreadpos [-h] -r <reference fasta> [-s <SNP directory>]
+                          [-l <maximum read length>] -o <output directory> [-mq <MQ cutoff>]
+                          [-t <threads>] bam [bam ...]
                 
 Input
 ^^^^^
@@ -238,7 +439,7 @@ File                 Description
 ===================  ===================================================================================================================================================================
 **Reference fasta**  The reference sequence of the genome to map against in fasta format.
 **-s**               (optional) The called variants from the *snp* dunk to filter false-positive T->C conversions.
-**bam**              BAM file(s) containing the final filtered reads from *slamdunk*. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
+**bam**              BAM file(s) containing the final filtered reads from *slamdunk* (wildcard \* accepted).
 ===================  ===================================================================================================================================================================
 
 Output
@@ -271,13 +472,13 @@ Parameter  Required  Description
 **-t**               The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.
 **-s**               The called variants from the *snp* dunk to filter false-positive T->C conversions.
 **-l**               Maximum read length in all samples (will be automatically estimated if not set).
-**bam**    x         BAM file(s) containing the final filtered reads. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
+**bam**    x         BAM file(s) containing the final filtered reads (wildcard \* accepted).
 =========  ========  =====================================================================================================================================================================
 
 ------------------------------------------------------
 
-stats.tcperutrpos
------------------
+tcperutrpos
+-----------
 
 This tool calculates the individual mutation rates per position in an 3'UTR treating T->C mutations separately. This plot can be used to search for biases
 along UTRs. Only most 3' 200bp of each UTR will be considered because: 
@@ -286,9 +487,9 @@ along UTRs. Only most 3' 200bp of each UTR will be considered because:
 
 .. code:: bash
 
-   alleyoop stats.tcperutrpos [-h] -r <reference fasta> -b <bed file> [-s <SNP directory>] 
-                              [-l <maximum read length>] -o <output directory> [-mq <MQ cutoff>]
-                              [-t <threads>] bam [bam ...]
+   alleyoop tcperutrpos [-h] -r <reference fasta> -b <bed file> [-s <SNP directory>] 
+                        [-l <maximum read length>] -o <output directory> [-mq <MQ cutoff>]
+                        [-t <threads>] bam [bam ...]
                 
 Input
 ^^^^^
@@ -299,7 +500,7 @@ File                 Description
 **Reference fasta**  The reference sequence of the genome to map against in fasta format.
 **-s**               (optional) The called variants from the *snp* dunk to filter false-positive T->C conversions.
 **-b**               Bed file with coordinates of 3'UTRs.
-**bam**              BAM file(s) containing the final filtered reads from *slamdunk*. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
+**bam**              BAM file(s) containing the final filtered reads from *slamdunk* (wildcard \* accepted).
 ===================  ===================================================================================================================================================================
 
 Output
@@ -331,27 +532,20 @@ Parameter  Required  Description
 **-t**               The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.
 **-s**               The called variants from the *snp* dunk to filter false-positive T->C conversions.
 **-l**               Maximum read length in all samples (will be automatically estimated if not set).
-**bam**    x         BAM file(s) containing the final filtered reads. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
+**bam**    x         BAM file(s) containing the final filtered reads (wildcard \* accepted).
 =========  ========  =====================================================================================================================================================================
 
 ------------------------------------------------------
 
-stats.utrcoverage
------------------
-
-** TODO **
-
-------------------------------------------------------
-
-dump.reads
-----------
+dump
+----
 
 This tool outputs all available information calculated by *slamdunk* for each read in a sample.
 
 .. code:: bash
 
-   alleyoop dump.reads [-h] -r <reference fasta> [-s <SNP directory>] -o <output directory>
-                       [-mq <MQ cutoff>] [-t <threads>] bam [bam ...]
+   alleyoop dump [-h] -r <reference fasta> -s <SNP directory> -o <output directory>
+                 [-mq <MQ cutoff>] [-t <threads>] bam [bam ...]
 
                 
 Input
@@ -361,8 +555,8 @@ Input
 File                 Description
 ===================  ===================================================================================================================================================================
 **Reference fasta**  The reference sequence of the genome to map against in fasta format.
-**-s**               (optional) The called variants from the *snp* dunk to filter false-positive T->C conversions.
-**bam**              BAM file(s) containing the final filtered reads from *slamdunk*. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
+**-s**               The called variants from the *snp* dunk to filter false-positive T->C conversions.
+**bam**              BAM file(s) containing the final filtered reads from *slamdunk* (wildcard \* accepted).
 ===================  ===================================================================================================================================================================
 
 Output
@@ -375,8 +569,6 @@ File                           Description
 
 The following columns are contained in the *readinfo* file:
 
-** TODO: REVISE DESCRIPTION - DOES NOT SEEM TO BE UP TO DATE **
-
 ============================   ===========================================================================================================
 Column                         Description
 ============================   ===========================================================================================================
@@ -384,9 +576,7 @@ Name                           Name of the read
 Direction                      Read was mapped on forward (1) or reverse (2) strand
 Sequence                       Sequence of the read
 Mismatches                     Number of mismatches in the read
-tCount                         Number of Ts in the read
 tcCount                        Number of T->C conversion in the read
-tcRate                         T->C conversion rate of the read
 ConversionRates                List of all possible conversion in the read
 ============================   ===========================================================================================================
 
@@ -401,7 +591,7 @@ Parameter  Required  Description
 **-r**     x         The reference fasta file.
 **-mq**              Minimum base quality for T->C conversions to be counted (default: 0).
 **-t**               The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.
-**-s**               The called variants from the *snp* dunk to filter false-positive T->C conversions.
-**bam**    x         BAM file(s) containing the final filtered reads. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
+**-s**     x         The called variants from the *snp* dunk to filter false-positive T->C conversions.
+**bam**    x         BAM file(s) containing the final filtered reads (wildcard \* accepted).
 =========  ========  =====================================================================================================================================================================
 

@@ -74,7 +74,7 @@ def readSampleFile(fileName):
             elif(fileName.endswith(".csv")):
                 cols = line.split(",")
             else:
-                raise RuntimeError("Unkown file extendsion found: " + fileName)
+                raise RuntimeError("Unknown file extension found: " + fileName)
             if(len(cols) < 4):
                 raise RuntimeError("Invalid sample file found: " + fileName)
             samples.append(cols[0])
@@ -293,7 +293,7 @@ def run():
     # map command
     
     mapparser = subparsers.add_parser('map', help='Map SLAM-seq read data', formatter_class=ArgumentDefaultsHelpFormatter)
-    mapparser.add_argument('files', action='store', help='Sinlge csv/tsv file (recommended) containing all sample files and sample info or a list of all sample BAM/FASTA(gz)/FASTQ(gz) files' , nargs="+")
+    mapparser.add_argument('files', action='store', help='Single csv/tsv file (recommended) containing all sample files and sample info or a list of all sample BAM/FASTA(gz)/FASTQ(gz) files' , nargs="+")
     mapparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", default=SUPPRESS, help="Reference fasta file")
     mapparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", default=SUPPRESS, help="Output directory for mapped BAM files.")
     mapparser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", default=12, help="Number of bp removed from 5' end of all reads.")
@@ -303,7 +303,7 @@ def run():
     mapparser.add_argument("-q", "--quantseq", dest="quantseq", action='store_true', required=False, help="Run plain Quantseq alignment without SLAM-seq scoring")
     mapparser.add_argument('-l', "--local", action='store_true', dest="local", help="Use a local alignment algorithm for mapping.")
     mapparser.add_argument("-i", "--sample-index", type=int, required=False, default=-1, dest="sampleIndex", help="Run analysis only for sample <i>. Use for distributing slamdunk analysis on a cluster (index is 0-based).")
-    mapparser.add_argument('-ss', "--skip-sam", action='store_true', dest="skipSAM", help="Output BAM while mapping. Slower but, uses less hard disk.")
+    mapparser.add_argument('-ss', "--skip-sam", action='store_true', dest="skipSAM", help="Output BAM while mapping. Slower, but uses less hard disk.")
     
     # filter command
     
@@ -343,7 +343,7 @@ def run():
     # all command
     
     allparser = subparsers.add_parser('all', help='Run entire SLAMdunk analysis')
-    allparser.add_argument('files', action='store', help='Sinlge csv/tsv file (recommended) containing all sample files and sample info or a list of all sample BAM/FASTA(gz)/FASTQ(gz) files' , nargs="+")
+    allparser.add_argument('files', action='store', help='Single csv/tsv file (recommended) containing all sample files and sample info or a list of all sample BAM/FASTA(gz)/FASTQ(gz) files' , nargs="+")
     allparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
     allparser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file with 3'UTR coordinates")
     allparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for slamdunk run.")
@@ -363,7 +363,7 @@ def run():
     allparser.add_argument("-rl", "--max-read-length", type=int, required=False, dest="maxLength", help="Max read length in BAM file")
     allparser.add_argument("-mbq", "--min-base-qual", type=int, default=0, required=False, dest="minQual", help="Min base quality for T -> C conversions (default: %(default)d)")
     allparser.add_argument("-i", "--sample-index", type=int, required=False, default=-1, dest="sampleIndex", help="Run analysis only for sample <i>. Use for distributing slamdunk analysis on a cluster (index is 0-based).")
-    allparser.add_argument("-ss", "--skip-sam", action='store_true', dest="skipSAM", help="Output BAM while mapping. Slower but, uses less hard disk.")
+    allparser.add_argument("-ss", "--skip-sam", action='store_true', dest="skipSAM", help="Output BAM while mapping. Slower, but uses less hard disk.")
     
     args = parser.parse_args()
     

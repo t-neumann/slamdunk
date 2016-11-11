@@ -7,7 +7,7 @@ call the *all* dunk using the recommended minimum set of default parameters:
 .. code:: bash
 
     slamdunk all -r <reference fasta> -b <bed file> -o <output directory> -5 12 -n 100
-                 -t <threads> -m -rl <maximum read length> bam [bam ...]
+                 -t <threads> -m -rl <maximum read length> --skip-sam files [files ...]
                  
 The input data you need and parameters you need to set yourself are the following:
                  
@@ -18,7 +18,7 @@ Parameter  Description
 **-b**     BED-file containing coordinates for 3' UTRs.
 **-o**     The output directory where all output files of this dunk will be placed.
 **-t**     The number of threads to use for this dunk. NextGenMap runs multi-threaded, so it is recommended to use more threads than available samples (default: 1).
-**bam**    Fastq/BAM file(s) containing the raw unmapped reads. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
+**files**  Samplesheet (see :ref:`sample-file`) or a list of all sample BAM/FASTA(gz)/FASTQ(gz) files (wildcard \* accepted).
 =========  ==========================================================================================================================================================
 
 This will run the entire *slamdunk* analysis with the most relevant output files being:
@@ -33,8 +33,8 @@ to plot the UTR conversion rates in your sample:
 
 .. code:: bash
 
-   alleyoop stats.utrrates -o <output directory> -r <reference fasta> [-t <threads>]
-                           -b <bed file> -l <maximum read length> bam [bam ...]
+   alleyoop utrrates -o <output directory> -r <reference fasta> [-mq MQ] [-m] [-t <threads>]
+                     -b <bed file> [-l MAXLENGTH] bam [bam ...]
                 
 
 =========  =====================================================================================================================================================================
@@ -42,10 +42,12 @@ Parameter  Description
 =========  =====================================================================================================================================================================
 **-o**     The output directory where the plots will be placed.
 **-r**     The reference fasta file.
+**-mq**    Minimal base quality for SNPs.
+**-m**     Flag to activate the multiple T->C conversion stringency: Only T->C conversions in reads with more than 1 T->C conversion will be counted.
 **-t**     The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.
 **-b**     BED-file containing coordinates for 3' UTRs.
 **-l**     Maximum read length in all samples.
-**bam**    BAM file(s) containing the final filtered reads from the *filter* folder. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
+**bam**    BAM file(s) containing the final filtered reads from the *filter* folder (wildcard \* accepted).
 =========  =====================================================================================================================================================================
 
 This will produce a plot like the following example where you can clearly see that individual conversions for a given starting base are balanced and unbiased,

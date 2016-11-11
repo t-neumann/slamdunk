@@ -20,3 +20,4 @@ Welcome to slamdunk's documentation!
    Docker
    FAQ
    Simulation
+   Changelog

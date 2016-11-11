@@ -47,7 +47,7 @@ Therefore, a global installation of R is required to run those tools.
 | *tidyr*        |
 +----------------+
 
-**Note:** All required R packages will be installed upon the first analysis run of *alleyoop* or *splash*.
+**Note:** All required R packages will be installed automatically from PyPI or upon the first analysis run of *alleyoop* or *splash* from source.
 
 .. _pip-label:
 

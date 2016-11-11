@@ -128,7 +128,7 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
                          
     for utr in BedIterator(bed):
         Tcontent = 0
-        slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, Tcontent, 0, -1, 0, 0, 0, 0, 0)
+        slamSeqUtr = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, Tcontent, 0, 0, 0, 0, 0, 0, 0)
         if(not utr.hasStrand()):
             raise RuntimeError("Input BED file does not contain stranded intervals.")
         

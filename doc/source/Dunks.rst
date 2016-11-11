@@ -9,17 +9,17 @@ The *map* dunk is used to map reads to a given genome using `NextGenMap's <http:
 .. code:: bash
 
     slamdunk map [-h] -r <reference fasta> -o <output directory> [-5 <bp to trim from 5' end>]
-                 [-n <Output up to N alignments per multimapper>] [-a <MAXPOLYA>] [-t <threads>]
-                 [-q] [-l] bam [bam ...]
+                 [-n <Output up to N alignments per multimapper>] [-a <maximum number of 3' As before trimming] [-t <threads>]
+                 [-q] [-l] [-i <sample index>] [-ss] files [files ...]
                 
 Input
 ^^^^^
-===================  ================================================================================================================
+===================  ==================================================================================================================
 File                 Description
-===================  ================================================================================================================
+===================  ==================================================================================================================
 **Reference fasta**  The reference sequence of the genome to map against in fasta format.
-**bam**              The raw unmapped reads in fastq / BAM format (multiple read files can be run at once, wildcard * is recognized).
-===================  ================================================================================================================
+**files**            Samplesheet (see :ref:`sample-file`) or a list of all sample BAM/FASTA(gz)/FASTQ(gz) files (wildcard \* accepted).
+===================  ==================================================================================================================
 
 Output
 ^^^^^^
@@ -28,7 +28,6 @@ File                          Description
 ============================  ===========================================================================================================
 **Mapped BAM file**           One BAM file per sample containing the mapped reads. 
 **Mapped bam index file**     The raw unmapped reads in fastq / BAM format (multiple read files can be run at once).
-**Mapped bam flagstat file**  One BAM flagstat file accompanying each mapped BAM file containing basic statistics on the mapped BAM file.
 ============================  ===========================================================================================================
 
 Output files have the same name as the input files with the prefix "_slamdunk_mapped.bam".
@@ -46,12 +45,14 @@ Parameter  Required  Description
 **-r**     x         The reference fasta file.
 **-o**     x         The output directory where all output files of this dunk will be placed.
 **-5**               Number of bases that will be hard-clipped from the 5' end of each read (default: 0).
-**-5**               Maximum number of As at the 3' end of a read.
+**-a**               Maximum number of As at the 3' end of a read.
 **-n**               The maximum number of alignments that will be reported for a multi-mapping read (i.e. reads with multiple alignments of equal best scores) (default: 1).
 **-t**               The number of threads to use for this dunk. NextGenMap runs multi-threaded, so it is recommended to use more threads than available samples (default: 1).
 **-q**               Deactivates NextGenMap's SLAMSeq alignment settings. Can be used to align plain QuantSeq data instead of SLAMSeq data.
-**-l**               Switches to local alignment instead of semi-global alignment. Semi-global alignments are the default for NextGenMap.  
-**bam**    x         Fastq/BAM file(s) containing the raw unmapped reads. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
+**-l**               Switches to local alignment instead of semi-global alignment. Semi-global alignments are the default for NextGenMap.
+**-i**               Run analysis only for sample <i>. Use for distributin slamdunk analysis on a cluster (index is 0-based).
+**-ss**              Output BAM while mapping. Slower, but uses less hard disk.  
+**file**   x         Samplesheet (see :ref:`sample-file`) or a list of all sample BAM/FASTA(gz)/FASTQ(gz) files (wildcard \* accepted).
 =========  ========  =====================================================================================================================================================================
 
 ------------------------------------------------------
@@ -82,7 +83,6 @@ File                            Description
 ==============================  ===============================================================================================================
 **Filtered BAM file**           One BAM file per sample containing the filtered reads.
 **Filtered bam index file**     One BAM index file accompanying each filtered BAM file.
-**Filtered bam flagstat file**  One BAM flagstat file accompanying each filtered BAM file containing basic statistics on the filtered BAM file.
 ==============================  ===============================================================================================================
 
 Output files have the same name as the input files with the prefix "_filtered".
@@ -103,7 +103,7 @@ Parameter  Required  Description
 **-mi**              Minimum alignment identity required to retain a read (default: 0.8).
 **-nm**              Maximum number of mismatches allowed in a read (default: -1).
 **-t**               The number of threads to use for this dunk. This dunk runs single-threaded so the number of threads should be equal to the number of available samples (default: 1).
-**bam**    x         BAM file(s) containing the raw mapped reads. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
+**bam**    x         BAM file(s) containing the raw mapped reads (wildcard \* accepted).
 =========  ========  =================================================================================================================================================================================
 
 -------------------------------------------------------------------------------------------------------------------------------
@@ -149,10 +149,10 @@ Parameter  Required  Description
 **-h**               Prints the help.
 **-r**     x         The reference fasta file.
 **-o**     x         The output directory where all output files of this dunk will be placed. 
-**-c**               Minimum coverage to call a variant (default: 10).
-**-f**               Minimum variant fraction to call a variant (default: 0.8).
+**-c**               Minimum coverage to call a variant.
+**-f**               Minimum variant fraction to call a variant.
 **-t**               The number of threads to use for this dunk. VarScan2 runs multi-threaded, so it is recommended to use more threads than available samples (default: 1).
-**bam**              BAM file(s) containing the final filtered reads. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
+**bam**    x         BAM file(s) containing the final filtered reads (wildcard \* accepted).
 =========  ========  ==================================================================================================================================================================
 
 ------------------------------------------------------
@@ -209,7 +209,7 @@ Parameter  Required  Description
 **-m**               Flag to activate the multiple T->C conversion stringency: Only T->C conversions in reads with more than 1 T->C conversion will be counted.
 **-q**               Minimum base quality for T->C conversions to be counted (default: 0).
 **-t**               The number of threads to use for this dunk. This dunk runs single-threaded so the number of threads should be equal to the number of available samples (default: 1)
-**bam**    x         BAM file(s) containing the final filtered reads. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
+**bam**    x         BAM file(s) containing the final filtered reads (wildcard \* accepted).
 =========  ========  ================================================================================================================================================================================
 
 ------------------------------------------------------
@@ -222,20 +222,20 @@ provides parameters to keep full control over all dunks.
 
 .. code:: bash
 
-    slamdunk all [-h] -r <reference fasta> -b <bed file> -o <output directory> [-5 <bp to trim from 5' end>] [-a MAXPOLYA]
+    slamdunk all [-h] -r <reference fasta> -b <bed file> -o <output directory> [-5 <bp to trim from 5' end>] [-a <maximum number of 3' As before trimming]
                  [-n <Output up to N alignments per multimapper>] [-t <threads>] [-q] [-l] [-m] [-mq <MQ cutoff>]
                  [-mi <identity cutoff>] [-nm <NM cutoff>] [-mc <coverage cutoff>] [-mv <variant fraction cutoff>] [-mts]
-                 [-rl <maximum read length>] [-mbq <minimum base quality>] bam [bam ...]
+                 [-rl <maximum read length>] [-mbq <minimum base quality>] [-i <sample index>] [-ss] files [files ...]
                 
 Input
 ^^^^^
-===================  ================================================================================================================
+=================== ===================================================================================================================
 File                 Description
-===================  ================================================================================================================
-**Reference fasta**  The reference sequence of the genome to map against in fasta format.
-**-b**               Bed file with coordinates of 3'UTRs.
-**bam**              The raw unmapped reads in fastq / BAM format (multiple read files can be run at once, wildcard * is recognized).
-===================  ================================================================================================================
+=================== ===================================================================================================================
+**Reference fasta** The reference sequence of the genome to map against in fasta format.
+**-b**              Bed file with coordinates of 3'UTRs.
+**file**            Samplesheet (see :ref:`sample-file`) or a list of all sample BAM/FASTA(gz)/FASTQ(gz) files (wildcard \* accepted).
+=================== ===================================================================================================================
 
 Output
 ^^^^^^
@@ -275,5 +275,5 @@ Parameter  Required  Description
 **-mts**             Flag to activate the multiple T->C conversion stringency: Only T->C conversions in reads with more than 1 T->C conversion will be counted. **[count]**.
 **-rl**              Maximum read length (will be automatically estimated if not set) **[count]**.
 **-mbq**             Minimum base quality for T->C conversions to be counted (default: 0) **[count]**.
-**bam**              Fastq/BAM file(s) containing the raw unmapped reads. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
+**files**  x         Samplesheet (see :ref:`sample-file`) or a list of all sample BAM/FASTA(gz)/FASTQ(gz) files (wildcard \* accepted).
 =========  ========  =====================================================================================================================================================
