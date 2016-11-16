@@ -63,11 +63,16 @@ def dumpBufferToBam (buffer, multimapList, outbam, infile):
 #         for read in buffer[key]:
 #             outbam.write(read)
             
-def multimapUTRRetainment (infile, outfile, bed, minIdentity, NM):
+def multimapUTRRetainment (infile, outfile, bed, minIdentity, NM, log):
     
     mappedReads = 0
     unmappedReads = 0
-    filteredReads = 0    
+    filteredReads = 0
+    multimapper = 0
+    
+    mqFiltered = 0
+    idFiltered = 0
+    nmFiltered = 0
     
     utrIntervallTreeDict = bedToIntervallTree(bed)
     
@@ -93,10 +98,13 @@ def multimapUTRRetainment (infile, outfile, bed, minIdentity, NM):
                 
         # First pass general filters
         if(read.is_unmapped):
+            mqFiltered += 1
             continue
         if(float(read.get_tag("XI")) < minIdentity):
+            idFiltered += 1
             continue
         if(NM > -1 and int(read.get_tag("NM")) > NM):
+            nmFiltered += 1
             continue
         if (read.mapping_quality == 0) :
             # Previous read was also multimapper
@@ -106,6 +114,8 @@ def multimapUTRRetainment (infile, outfile, bed, minIdentity, NM):
                 if (dumpBuffer and len(multimapBuffer) > 0) :
                     dumpBufferToBam(multimapBuffer, multimapList, outfile, infile)
                     filteredReads += 1
+                else :
+                    multimapper += 1
 #                     ret = dumpBufferToBam(multimapBuffer, outfile, infile)
 #                     print(ret,file = fo)
                     #multimapBuffer = {}
@@ -164,6 +174,8 @@ def multimapUTRRetainment (infile, outfile, bed, minIdentity, NM):
                 if (dumpBuffer) :
                     dumpBufferToBam(multimapBuffer, multimapList, outfile, infile)
                     filteredReads += 1
+                else :
+                    multimapper += 1
 #                     ret = dumpBufferToBam(multimapBuffer, outfile, infile)
 #                     print(ret,file = fo)
                 multimapBuffer = {}
@@ -184,6 +196,14 @@ def multimapUTRRetainment (infile, outfile, bed, minIdentity, NM):
     if (dumpBuffer and len(multimapBuffer) > 0) :
         dumpBufferToBam(multimapBuffer, multimapList, outfile, infile)
         filteredReads += 1
+    else :
+        multimapper += 1
+        
+    print("Criterion\tFiltered reads",file=log)
+    print("MQ < 0\t0",file=log)
+    print("ID < " + str(minIdentity) + "\t" + str(idFiltered),file=log)
+    print("NM > " + str(NM) + "\t" + str(nmFiltered),file=log)
+    print("MM\t" + str(multimapper),file=log)
         
 #     fo.close()
     return mappedReads, unmappedReads, filteredReads
@@ -202,7 +222,11 @@ def Filter(inputBAM, outputBAM, log, bed, MQ=2, minIdentity=0.8, NM=-1, printOnl
         # Default filtering without bed
         if (bed == None) :
             
-            print("No bed-file supplied. Running default filtering on " + inputBAM + ".",file=log)
+            mqFiltered = 0
+            idFiltered = 0
+            nmFiltered = 0
+            
+            print("#No bed-file supplied. Running default filtering on " + inputBAM + ".",file=log)
             
             for read in infile:
                 
@@ -215,22 +239,33 @@ def Filter(inputBAM, outputBAM, log, bed, MQ=2, minIdentity=0.8, NM=-1, printOnl
                 if(read.is_unmapped):
                     continue
                 if(read.mapping_quality < MQ):
+                    mqFiltered += 1
                     continue
                 if(float(read.get_tag("XI")) < minIdentity):
+                    idFiltered += 1
                     continue
                 if(NM > -1 and int(read.get_tag("NM")) > NM):
+                    nmFiltered += 1
                     continue
                 
                 if(not read.is_secondary and not read.is_supplementary):
                     filteredReads += 1
+                    
                 outfile.write(read)
+                
+            print("Criterion\tFiltered reads",file=log)
+            print("MQ < " + str(MQ) + "\t" + str(mqFiltered),file=log)
+            print("ID < " + str(minIdentity) + "\t" + str(idFiltered),file=log)
+            print("NM > " + str(NM) + "\t" + str(nmFiltered),file=log)
+            print("MM\t0",file=log)
         else :
             # Multimap retention strategy filtering when bed is supplied
             
             random.seed(1)
             
-            print("Bed-file supplied. Running multimap retention filtering strategy on " + inputBAM + ".",file=log)
-            mappedReads, unmappedReads, filteredReads = multimapUTRRetainment (infile, outfile, bed, minIdentity, NM)
+            print("#Bed-file supplied. Running multimap retention filtering strategy on " + inputBAM + ".",file=log)
+            
+            mappedReads, unmappedReads, filteredReads = multimapUTRRetainment (infile, outfile, bed, minIdentity, NM, log)
         
         # Add number of sequenced and number of mapped reads to the read group description
         # Used for creating summary file
