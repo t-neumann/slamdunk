@@ -68,7 +68,6 @@ def multimapUTRRetainment (infile, outfile, bed, minIdentity, NM, log):
     mappedReads = 0
     unmappedReads = 0
     filteredReads = 0
-    multimapper = 0
     
     mqFiltered = 0
     idFiltered = 0
@@ -98,7 +97,6 @@ def multimapUTRRetainment (infile, outfile, bed, minIdentity, NM, log):
                 
         # First pass general filters
         if(read.is_unmapped):
-            mqFiltered += 1
             continue
         if(float(read.get_tag("XI")) < minIdentity):
             idFiltered += 1
@@ -114,8 +112,7 @@ def multimapUTRRetainment (infile, outfile, bed, minIdentity, NM, log):
                 if (dumpBuffer and len(multimapBuffer) > 0) :
                     dumpBufferToBam(multimapBuffer, multimapList, outfile, infile)
                     filteredReads += 1
-                else :
-                    multimapper += 1
+
 #                     ret = dumpBufferToBam(multimapBuffer, outfile, infile)
 #                     print(ret,file = fo)
                     #multimapBuffer = {}
@@ -174,8 +171,6 @@ def multimapUTRRetainment (infile, outfile, bed, minIdentity, NM, log):
                 if (dumpBuffer) :
                     dumpBufferToBam(multimapBuffer, multimapList, outfile, infile)
                     filteredReads += 1
-                else :
-                    multimapper += 1
 #                     ret = dumpBufferToBam(multimapBuffer, outfile, infile)
 #                     print(ret,file = fo)
                 multimapBuffer = {}
@@ -196,8 +191,8 @@ def multimapUTRRetainment (infile, outfile, bed, minIdentity, NM, log):
     if (dumpBuffer and len(multimapBuffer) > 0) :
         dumpBufferToBam(multimapBuffer, multimapList, outfile, infile)
         filteredReads += 1
-    else :
-        multimapper += 1
+        
+    multimapper = mappedReads - filteredReads - idFiltered - nmFiltered
         
     print("Criterion\tFiltered reads",file=log)
     print("MQ < 0\t0",file=log)
