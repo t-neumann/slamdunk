@@ -96,7 +96,7 @@ def getMean(values, skipZeros=True):
     else:
         return 0.0
 
-def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputCSV, outputBedgraphPlus, outputBedgraphMinus, strictTCs, log):
+def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputCSV, outputBedgraphPlus, outputBedgraphMinus, strictTCs, log, mle = False):
     
     referenceFile = pysam.FastaFile(ref)
     
@@ -107,18 +107,20 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
     
     bedMD5 = md5(bed)
     
-    fileNameTest = replaceExtension(outputCSV, ".tsv", "_perread")
-    fileTest = open(fileNameTest,'w')
-    print("#slamdunk v" + __version__, __count_version__, "sample info:", sampleInfo.Name, sampleInfo.ID, sampleInfo.Type, sampleInfo.Time, sep="\t", file=fileTest)
-    print("#annotation:", os.path.basename(bed), bedMD5, sep="\t", file=fileTest)
-    #print("utr", "n", "k", file=fileTest)
-    print(SlamSeqInterval.Header, file=fileTest)
+    if(mle):
+        fileNameTest = replaceExtension(outputCSV, ".tsv", "_perread")
+        fileTest = open(fileNameTest,'w')
+        print("#slamdunk v" + __version__, __count_version__, "sample info:", sampleInfo.Name, sampleInfo.ID, sampleInfo.Type, sampleInfo.Time, sep="\t", file=fileTest)
+        print("#annotation:", os.path.basename(bed), bedMD5, sep="\t", file=fileTest)
+        #print("utr", "n", "k", file=fileTest)
+        print(SlamSeqInterval.Header, file=fileTest)
+    
     
     fileCSV = open(outputCSV,'w')
     print("#slamdunk v" + __version__, __count_version__, "sample info:", sampleInfo.Name, sampleInfo.ID, sampleInfo.Type, sampleInfo.Time, sep="\t", file=fileCSV)
     print("#annotation:", os.path.basename(bed), bedMD5, sep="\t", file=fileCSV)
     print(SlamSeqInterval.Header, file=fileCSV)
-    
+        
     snps = SNPtools.SNPDictionary(snpsFile)
     snps.read()
     
@@ -275,10 +277,12 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
             slamSeqUtrMLE = SlamSeqInterval(utr.chromosome, utr.start, utr.stop, utr.strand, utr.name, Tcontent, readsCPM, coverageOnTs, conversionsOnTs, conversionRate, ",".join(str(x) for x in tInReads), ",".join(str(x) for x in tcInRead), multiMapCount)
 
         print(slamSeqUtr, file=fileCSV)
-        print(slamSeqUtrMLE, file=fileTest)
+        if(mle):
+            print(slamSeqUtrMLE, file=fileTest)
         
     fileCSV.close()
-    fileTest.close()
+    if(mle):
+        fileTest.close()
     
     fileBedgraphPlus = open(outputBedgraphPlus,'w')
     fileBedgraphMinus = open(outputBedgraphMinus,'w')
@@ -293,6 +297,7 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
     fileBedgraphPlus.close()
     fileBedgraphMinus.close()
     
-    fileNameMLE = replaceExtension(outputCSV, ".tsv", "_mle")
-    callR(getPlotter("compute_conversion_rate_mle") +  " -f " + fileNameTest + " -r " + "0.024" + " -o " + fileNameMLE + " &> /dev/null")
+    if(mle):
+        fileNameMLE = replaceExtension(outputCSV, ".tsv", "_mle")
+        callR(getPlotter("compute_conversion_rate_mle") +  " -f " + fileNameTest + " -r " + "0.024" + " -o " + fileNameMLE + " &> /dev/null")
 
