@@ -5,4 +5,4 @@ __bam_version__ = "3"
 # File format version of count files from slamdunk count
 __count_version__ = "3"
 # Required NextGenMap version
-__ngm_version__ = "0.5.1"
+__ngm_version__ = "0.5.2"
