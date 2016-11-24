@@ -70,11 +70,11 @@ def statsComputeOverallRates(referenceFile, bam, minBaseQual, outputCSV, outputP
     if(not checkStep([bam, referenceFile], [outputPDF], force)):
         print("Skipped computing overall rate pdfs for file " + bam, file=log)
     else:
-        f = tempfile.NamedTemporaryFile(delete=False)
-        print(removeExtension(basename(bam)), outputCSV, sep='\t', file=f)
-        f.close()
+        #f = tempfile.NamedTemporaryFile(delete=False)
+        #print(removeExtension(basename(bam)), outputCSV, sep='\t', file=f)
+        #f.close()
              
-        callR(getPlotter("compute_overall_rates") + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
+        callR(getPlotter("compute_overall_rates") + " -f " + outputCSV + " -n " + removeExtension(basename(bam)) + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
 
 # This is for TC conversions
     

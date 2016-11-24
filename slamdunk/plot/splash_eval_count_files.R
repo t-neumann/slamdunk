@@ -53,13 +53,10 @@ rsme <- function(model, measure) {
 #cfactor = 1 - dbinom(0, round(readLength / 4), tcRatePerPosition)
 
 simulatedFileRates = opt$simulated
-#simulatedFileRates = "/project/ngs/philipp/slamdunk-analysis/simulation/simulation/rates_cov100_rl38/utrsummary_all_samples_rates_reads.tsv"
-#simulatedFileRates = "/project/ngs/philipp/slamdunk-analysis/simulation/simulation/rates_cov100_rl38/utrsummary_all_samples_rates.tsv"
+#simulatedFileRates = "/project/ngs/philipp/slamdunk-analysis/simulation/simulation/rates_cov50_rl38/utrsummary_all_samples_rates_reads.tsv"
 
 slamDunkFile = opt$slamdunk
-#slamDunkFile = "/project/ngs/philipp/slamdunk-analysis/simulation/simulation/rates_cov10_rl38/slamdunk/count/tcounts_all_samples_rates_reads.tsv"
-#slamDunkFile = "/project/ngs/philipp/slamdunk-analysis/simulation/simulation/rates_cov100_rl38/slamdunk/count/tcounts_all_samples_rates.tsv"
-#slamDunkFile = "/project/ngs/philipp/slamdunk-analysis/simulation/simulation/rates_cov100_rl38/slamdunk/count/tcounts_all_samples_rates_mle.tsv"
+#slamDunkFile = "/project/ngs/philipp/slamdunk-analysis/simulation/simulation/rates_cov50_rl38/slamdunk//count/tcounts_all_samples_rates_reads.tsv"
 
 outputFile = opt$output
 
