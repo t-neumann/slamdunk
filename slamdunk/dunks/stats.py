@@ -279,6 +279,11 @@ def statsComputeOverallRatesPerUTR(referenceFile, bam, minBaseQual, strictTCs, o
     if(not checkStep([bam, referenceFile], [outputCSV], force)):
         print("Skipped computing overall rates for file " + bam, file=log)
     else:
+        
+        sampleInfo = getSampleInfo(bam)
+    
+        slamseqInfo = SlamSeqInfo(bam)
+    
         # Go through one chr after the other
         testFile = SlamSeqBamFile(bam, referenceFile, None)
         
@@ -319,7 +324,7 @@ def statsComputeOverallRatesPerUTR(referenceFile, bam, minBaseQual, strictTCs, o
         print("Skipped computing global rate pdfs for file " + bam, file=log)
     else:
         f = tempfile.NamedTemporaryFile(delete=False)
-        print(removeExtension(basename(bam)), outputCSV, sep='\t', file=f)
+        print(sampleInfo.Name, outputCSV, sep='\t', file=f)
         f.close()
               
         callR(getPlotter("globalRatePlotter") + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
