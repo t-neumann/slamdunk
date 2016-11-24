@@ -76,8 +76,8 @@ readMeatInfo <- function(fileName) {
 
 
 file = opt$file
-#file = "/project/ngs/philipp/slamdunk-analysis/veronika/ngm-20161027/count-examples/34504_An312_wt-2n_mRNA-slamseq-autoquant_1h-R2.fq_slamdunk_mapped_filtered_tcount_perread.tsv,/project/ngs/philipp/slamdunk-analysis/veronika/ngm-20161027/count-examples/34504_An312_wt-2n_mRNA-slamseq-autoquant_1h-R2.fq_slamdunk_mapped_filtered_tcount_perread.tsv,/project/ngs/philipp/slamdunk-analysis/veronika/ngm-20161027/count-examples/34359_An312_wt-2n_mRNA-slamseq-autoquant_1h-R3.fq_slamdunk_mapped_filtered_tcount_perread.tsv"
-files = as.character(ordered(strsplit(file, ",")[[1]]))
+#file = "/project/ngs/philipp/slamdunk-analysis/simulation/simulation/halflife_cov60_rl38/slamdunk/count/sample_3_pulse_30min_rep1_reads_slamdunk_mapped_filtered_tcount_perread.tsv"
+#files = as.character(ordered(strsplit(file, ",")[[1]]))
 
 output = opt$output
 #output = "/project/ngs/philipp/slamdunk-analysis/veronika/ngm-20161027/count-examples/34504_An312_wt-2n_mRNA-slamseq-autoquant_1h-R2.fq_slamdunk_mapped_filtered_tcount_mle.tsv"
@@ -85,29 +85,67 @@ output = opt$output
 estb = as.numeric(opt$rate)
 #estb = 0.024
 
-meta = readMeatInfo(files[1])
+meta = readMeatInfo(file)
 id = meta[1]
 type = meta[3]
 time = meta[4]
 
-all = data.frame()
-for(file in files) {
-  part = read.table(file, header = T)
-  all = rbind(all, part)
-}
-#head(all)
+data = read.table(file, header = T, stringsAsFactors = F)
+#head(data)
 
-result = c()
-names = as.character(unique(all$utr))
-
-for(name in names) {
-  #name = names[2]
-  sample = all[all$utr == name, ]  
-  
+for(i in 1:nrow(data)) {
+  #i = 1
+  N = as.numeric(strsplit(data[i,]$ReadCount, ",")[[1]])
+  k = as.numeric(strsplit(data[i,]$TcReadCount, ",")[[1]])
+  sample = data.frame(n = N, k = k)
   fit = mle2(minuslogl = LL2, start = list(as = 0.29), method = "L-BFGS-B", lower = c(as = 0.000001), upper = c(as = 0.99))
-  
   confinv = confint(fit)
-  result = rbind(result, c(id, type, time, name, fit@coef[[1]], confinv[[1]], confinv[[2]]))
+  
+  #result = rbind(result, c(id, type, time, name, fit@coef[[1]], confinv[[1]], confinv[[2]]))
+  data[i,]$ConversionRate = fit@coef[[1]]
+  data[i,]$ReadCount = length(N)
+  data[i,]$TcReadCount = sum(k > 0)
+  data[i,]$ConversionRateLower = confinv[[1]]
+  data[i,]$ConversionRateUpper = confinv[[2]]
 }
 
-write.table(result, output, sep = "\t", quote = F, row.names = F, col.names = F)
+if(sum(is.na(data$ConversionRateLower) > 0)) {
+  data[is.na(data$ConversionRateLower), ]$ConversionRateLower = 0
+}
+if(sum(is.na(data$ConversionRateUpper) > 0)) {
+  data[is.na(data$ConversionRateUpper), ]$ConversionRateUpper = 1
+}
+
+#all = data.frame()
+#for(file in files) {
+#  part = read.table(file, header = T)
+#  all = rbind(all, part)
+#}
+#head(all)
+# Estimate b from all data
+#sample = all
+#fit = mle2(minuslogl = LL, start = list(a = 0.1, b = 0.01), method = "L-BFGS-B", lower = c(a = 0.000001, b = 0.000001), upper = c(a = 0.99, b = 0.1))
+
+#result = c()
+#names = as.character(unique(all$utr))
+
+#for(name in names) {
+#  #name = names[2]
+#  sample = all[all$utr == name, ]  
+#  
+#  fit = mle2(minuslogl = LL2, start = list(as = 0.29), method = "L-BFGS-B", lower = c(as = 0.000001), upper = c(as = 0.99))
+#  confinv = confint(fit)
+##  result = rbind(result, c(id, type, time, name, fit@coef[[1]], confinv[[1]], confinv[[2]]))
+#  
+#}
+#
+
+# Read header
+header = readLines(file, 2)
+con <- file(output, open="wt") 
+# Print header
+writeLines(header[1], con)
+writeLines(header[2], con)
+# Print data
+write.table(data, con, sep = "\t", quote = F, row.names = F, col.names = T)
+close(con) 

@@ -22,7 +22,8 @@ spec = matrix(c(
   'help'      , 'h', 0, "logical","print the usage of the command",
   'slamdunk', "f", 2,"character","Comma seperated list of SlamDunk results",
   'output', "o", 2,"character","Output tsv",
-  'column', "c", 2,"character","Column or Expression used to summarize files"
+  'column', "c", 2,"character","Column or Expression used to summarize files",
+  'columnname', "n", 2,"character","Index of meta data field to use as column name"
 ),ncol = 5,byrow=T)
 
 opt = getopt(spec)
@@ -40,6 +41,7 @@ if ( !is.null(opt$help) || length(opt)==2 ) {
 if ( is.null(opt$slamdunk) ) stop("arg slamdunk must be specified")
 if ( is.null(opt$output) ) stop("arg output must be specified")
 if ( is.null(opt$column) ) { opt$column = "TcReadCount / ReadCount" }
+if ( is.null(opt$column) ) { opt$columnname = 2 }
 
 slamDunkFiles = opt$slamdunk
 #slamDunkFiles = "/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_7_720min_reads_slamdunk_mapped_filtered_tcount.tsv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_1_0min_reads_slamdunk_mapped_filtered_tcount.tsv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_6_360min_reads_slamdunk_mapped_filtered_tcount.tsv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_2_15min_reads_slamdunk_mapped_filtered_tcount.tsv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_8_1440min_reads_slamdunk_mapped_filtered_tcount.tsv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_3_30min_reads_slamdunk_mapped_filtered_tcount.tsv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_5_180min_reads_slamdunk_mapped_filtered_tcount.tsv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_4_60min_reads_slamdunk_mapped_filtered_tcount.tsv"
@@ -49,6 +51,8 @@ outputFile = opt$output
 #outputFile = "/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/eval/halflife_per_gene_eval_plots.tsv"
 evalExpression = opt$column
 #evalExpression = "TcReadCount / ReadCount"
+columnName = as.integer(opt$columnname)
+#columnName = 2
 
 readMeatInfo <- function(fileName) {
   #fileName = filesSlamDunk[1]
@@ -77,7 +81,7 @@ for(i in 1:length(filesSlamDunk)) {
   #i = 1
   file = filesSlamDunk[i]  
   meta = readMeatInfo(file)
-  sampleName = meta[2]
+  sampleName = meta[columnName]
   
   if(i == 1) {
     version = meta[7]

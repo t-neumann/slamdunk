@@ -60,9 +60,9 @@ class SlamSeqConversionRates:
 
 class SlamSeqInterval:
 
-    Header = "\t".join(["Chromosome", "Start", "End", "Name", "Length", "Strand", "ConversionRate", "ReadsCPM", "Tcontent", "CoverageOnTs", "ConversionsOnTs", "ReadCount", "TcReadCount", "multimapCount"])
+    Header = "\t".join(["Chromosome", "Start", "End", "Name", "Length", "Strand", "ConversionRate", "ReadsCPM", "Tcontent", "CoverageOnTs", "ConversionsOnTs", "ReadCount", "TcReadCount", "multimapCount", "ConversionRateLower", "ConversionRateUpper"])
         
-    def __init__(self, chromosome, start, stop, strand, name, Tcontent, readsCPM, coverageOnTs, conversionsOnTs, conversionRate, readCount, tcReadCount, multimapCount):
+    def __init__(self, chromosome, start, stop, strand, name, Tcontent, readsCPM, coverageOnTs, conversionsOnTs, conversionRate, readCount, tcReadCount, multimapCount, conversionRateLower = -1.0, conversionRateUpper = -1.0):
         self._chromosome = chromosome
         self._start = start
         self._stop = stop
@@ -73,12 +73,14 @@ class SlamSeqInterval:
         self._coverageOnTs = coverageOnTs
         self._conversionsOnTs = conversionsOnTs
         self._conversionRate = conversionRate
+        self._conversionRateLower = conversionRateLower
+        self._conversionRateUpper = conversionRateUpper
         self._readCount = readCount
         self._tcReadCount = tcReadCount
         self._multimapCount = multimapCount
         
     def __repr__(self):        
-        return (self._chromosome + "\t" + str(self._start) + "\t" + str(self._stop) + "\t" + self._name + "\t" + str(self._stop - self._start) + "\t" + self._strand + "\t" + str(self._conversionRate) + "\t" + str(self._readsCPM) + "\t" + str(self._Tcontent) + "\t" + str(self._coverageOnTs) + "\t" + str(self._conversionsOnTs) + "\t" + str(self._readCount) + "\t" + str(self._tcReadCount) + "\t" + str(self._multimapCount))
+        return (self._chromosome + "\t" + str(self._start) + "\t" + str(self._stop) + "\t" + self._name + "\t" + str(self._stop - self._start) + "\t" + self._strand + "\t" + str(self._conversionRate) + "\t" + str(self._readsCPM) + "\t" + str(self._Tcontent) + "\t" + str(self._coverageOnTs) + "\t" + str(self._conversionsOnTs) + "\t" + str(self._readCount) + "\t" + str(self._tcReadCount) + "\t" + str(self._multimapCount) + "\t" + str(self._conversionRateLower) + "\t" + str(self._conversionRateUpper))
     
 class SlamSeqAlignmentPosition:
     
@@ -152,6 +154,8 @@ class SlamSeqRead:
         self.startRefPos = None
         # End position in the reference
         self.endRefPos = None
+        # Chr
+        self.chromosome = None
         # Multiple TC-conversion flag
         self.isTcRead = None
         # Read is Multimapper
@@ -362,6 +366,12 @@ class SlamSeqBamIterator:
         slamSeqRead.conversionRates = self.computeRatesForRead(read, slamSeqRead.mismatches)
         slamSeqRead.startRefPos = read.reference_start - int(self._startPosition)
         slamSeqRead.endRefPos = read.reference_end - int(self._startPosition)
+        
+        # "reference_name" not available in pysam < 0.9.0
+        if hasattr(read, 'read'):
+            slamSeqRead.chromosome = read.reference_name
+        else:
+            slamSeqRead.chromosome = None
         
         if(slamSeqRead.tcCount > 1) :
             slamSeqRead.isTcRead = True
