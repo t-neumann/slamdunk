@@ -4,9 +4,9 @@ from __future__ import print_function
 import tempfile
 import math
 import pysam
+import os
 
-from os.path import basename
-from slamdunk.utils.misc import removeExtension, checkStep, getSampleInfo, complement , getPlotter, callR, SlamSeqInfo  # @UnresolvedImport
+from slamdunk.utils.misc import removeExtension, replaceExtension, checkStep, getSampleInfo, complement , getPlotter, callR, SlamSeqInfo  # @UnresolvedImport
 from slamdunk.slamseq.SlamSeqFile import SlamSeqBamFile, ReadDirection  # @UnresolvedImport
 from slamdunk.utils import SNPtools  # @UnresolvedImport
 from slamdunk.utils.BedReader import BedIterator  # @UnresolvedImport
@@ -17,6 +17,37 @@ toBase = [ 'A', 'C', 'G', 'T', 'N' ]
 
 def sumLists(a, b):
     return [int(x) + int(y) for x, y in zip(a, b)]
+
+def sumCounts(countFile, column="TcReadCount"):
+    
+    columnId = -1
+    
+    sum = 0
+    
+    with open(countFile) as f:
+        for line in f:
+            if (not line.startswith("#")):
+                
+                columns = line.rstrip().split("\t")
+                
+                # Find column
+                if line.startswith("Chromosome") :
+                    
+                    id = 0
+                    for col in columns:
+                        if col == column:
+                            columnId = id
+                        id += 1
+                    
+                    # Column not found
+                    if (columnId < 0) :
+                        return 0
+                        
+                else :
+                     
+                    sum += int(columns[columnId])
+    
+    return sum  
 
 # Print rates in correct format for plotting
 def printRates(ratesFwd, ratesRev, f):
@@ -71,7 +102,7 @@ def statsComputeOverallRates(referenceFile, bam, minBaseQual, outputCSV, outputP
         print("Skipped computing overall rate pdfs for file " + bam, file=log)
     else:
         f = tempfile.NamedTemporaryFile(delete=False)
-        print(removeExtension(basename(bam)), outputCSV, sep='\t', file=f)
+        print(removeExtension(os.path.basename(bam)), outputCSV, sep='\t', file=f)
         f.close()
              
         callR(getPlotter("compute_overall_rates") + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
@@ -268,7 +299,7 @@ def statsComputeTCContext(referenceFile, bam, minBaseQual, outputCSV, outputPDF,
         print("Skipped computing overall rate pdfs for file " + bam, file=log)
     else:
         f = tempfile.NamedTemporaryFile(delete=False)
-        print(removeExtension(basename(bam)), outputCSV, sep='\t', file=f)
+        print(removeExtension(os.path.basename(bam)), outputCSV, sep='\t', file=f)
         f.close()
          
         callR(getPlotter("compute_context_TC_rates") + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
@@ -330,22 +361,64 @@ def statsComputeOverallRatesPerUTR(referenceFile, bam, minBaseQual, strictTCs, o
         callR(getPlotter("globalRatePlotter") + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
            
     
-def readSummary(filteredFiles, outputFile, log, printOnly=False, verbose=True, force=False):
+def readSummary(filteredFiles, countDirectory, outputFile, log, printOnly=False, verbose=True, force=False):
+    
     # Print sort by ID
     contentDict = {}
+    
+    tsvFile = open(outputFile, "w")
+
+    if (countDirectory != None) :
+        #f = tempfile.NamedTemporaryFile(delete=False)
+        f = open('table.txt', 'w')
+
     for bam in filteredFiles:
         slamseqInfo = SlamSeqInfo(bam)
         sampleInfo = getSampleInfo(bam)
-        if(sampleInfo.ID in contentDict):
-            ID = len(contentDict) + 1
-        else:
-            ID = sampleInfo.ID
-        contentDict[int(ID)] = "\t".join([bam, sampleInfo.Name, sampleInfo.Type, sampleInfo.Time, str(slamseqInfo.SequencedReads), str(slamseqInfo.MappedReads), str(slamseqInfo.DedupReads), str(slamseqInfo.FilteredReads), slamseqInfo.AnnotationName])
         
-    tsvFile = open(outputFile, "w")
-    print("FileName", "SampleName", "SampleType", "SampleTime", "Sequenced", "Mapped", "Deduplicated", "Filtered", "Annotation", sep="\t", file=tsvFile)
+        if (countDirectory != None) :
+            
+            countedReads = 0
+            
+            countFile = os.path.join(countDirectory, replaceExtension(os.path.basename(bam), ".tsv", "_tcount"))
+            if not os.path.exists(countFile):
+                print("TCount directory does not seem to contain tcount file for:\t" + countFile)
+            else :
+                print(sampleInfo.Name, countFile, sep='\t', file=f)
+                countedReads = sumCounts(countFile)
+            
+            if(sampleInfo.ID in contentDict):
+                ID = len(contentDict) + 1
+            else:
+                ID = sampleInfo.ID
+        
+            contentDict[int(ID)] = "\t".join([bam, sampleInfo.Name, sampleInfo.Type, sampleInfo.Time, str(slamseqInfo.SequencedReads), str(slamseqInfo.MappedReads), str(slamseqInfo.DedupReads), str(slamseqInfo.FilteredReads), str(countedReads), slamseqInfo.AnnotationName])
+        
+            
+        else :
+            
+            if(sampleInfo.ID in contentDict):
+                ID = len(contentDict) + 1
+            else:
+                ID = sampleInfo.ID
+        
+            contentDict[int(ID)] = "\t".join([bam, sampleInfo.Name, sampleInfo.Type, sampleInfo.Time, str(slamseqInfo.SequencedReads), str(slamseqInfo.MappedReads), str(slamseqInfo.DedupReads), str(slamseqInfo.FilteredReads), slamseqInfo.AnnotationName])
+          
+    if (countDirectory != None) :
+        
+        f.close()
+        
+        callR(getPlotter("PCAPlotter") + " -f " + f.name + " -O " + replaceExtension(outputFile, ".pdf", "_PCA") + " -P " + replaceExtension(outputFile, ".txt", "_PCA"), log, dry=printOnly, verbose=verbose)
+        
+        print("FileName", "SampleName", "SampleType", "SampleTime", "Sequenced", "Mapped", "Deduplicated", "Filtered", "Counted", "Annotation", sep="\t", file=tsvFile)
+        
+        
+    else :
+        print("FileName", "SampleName", "SampleType", "SampleTime", "Sequenced", "Mapped", "Deduplicated", "Filtered", "Annotation", sep="\t", file=tsvFile)
+            
     for key in sorted(contentDict):
         print(contentDict[key], file=tsvFile)
+        
     tsvFile.close()
              
 def tcPerReadPos(referenceFile, bam, minQual, maxReadLength, outputCSV, outputPDF, snpsFile, log, printOnly=False, verbose=True, force=False):

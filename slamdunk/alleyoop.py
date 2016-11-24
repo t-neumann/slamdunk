@@ -83,6 +83,11 @@ def runCollapse(tid, tcount, outputDirectory) :
     closeLogFile(log)
     stepFinished()
     
+def runSummary(bam, outputFile, countDirectory):
+    
+    outputLog = replaceExtension(outputFile, ".log")
+    stats.readSummary(bam, countDirectory, outputFile, getLogFile(outputLog))
+    
 def runHalfLifes(bams, timepoints, outputDirectory) :
     outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bams[0]), ".tsv", "_halflifes"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bams[0]), ".log", "_halflifes"))
@@ -289,9 +294,10 @@ def run():
     snpevalparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number (default: %(default)s)")
     
     # stats summary command
-    statsSumParser = subparsers.add_parser('summary', help='Display summary information and statistics on read numbers', formatter_class=ArgumentDefaultsHelpFormatter)
+    statsSumParser = subparsers.add_parser('summary', help='Display summary information and statistics on read numbers')
     statsSumParser.add_argument('bam', action='store', help='Filtered BAM files (produced by slamdunk filter or all)' , nargs="+")
-    statsSumParser.add_argument("-o", "--output", type=str, required=True, dest="outputFile", default=SUPPRESS, help="Output file")
+    statsSumParser.add_argument("-o", "--output", type=str, required=True, dest="outputFile", help="Output file")
+    statsSumParser.add_argument("-t", "--tcountDir", type=str, required=False, dest="countDirectory", help="Folder containing tcount files")
 
     # merge command
     statsMergeParser = subparsers.add_parser('merge', help='Merge T->C rates from multiple sample in one TSV file', formatter_class=ArgumentDefaultsHelpFormatter)
@@ -406,8 +412,7 @@ def run():
     
     elif (command == "summary") :
         message("Running alleyoop summary for " + str(len(args.bam)) + " files")
-        outputLog = replaceExtension(args.outputFile, ".log")
-        stats.readSummary(args.bam, args.outputFile, getLogFile(outputLog))
+        runSummary(args.bam, args.outputFile, args.countDirectory)
         dunkFinished() 
     
     elif (command == "merge") :
