@@ -11,6 +11,8 @@ from slamdunk.slamseq.SlamSeqFile import SlamSeqBamFile, ReadDirection  # @Unres
 from slamdunk.utils import SNPtools  # @UnresolvedImport
 from slamdunk.utils.BedReader import BedIterator  # @UnresolvedImport
 
+from slamdunk.version import __version__
+
 utrNormFactor = 200
 baseNumber = 5
 toBase = [ 'A', 'C', 'G', 'T', 'N' ]
@@ -18,7 +20,7 @@ toBase = [ 'A', 'C', 'G', 'T', 'N' ]
 def sumLists(a, b):
     return [int(x) + int(y) for x, y in zip(a, b)]
 
-def sumCounts(countFile, column="TcReadCount"):
+def sumCounts(countFile, column="ReadCount"):
     
     columnId = -1
     
@@ -95,6 +97,7 @@ def statsComputeOverallRates(referenceFile, bam, minBaseQual, outputCSV, outputP
               
         # Print rates in correct format for plotting
         fo = open(outputCSV, "w")
+        print("# slamdunk rates v" + __version__, file=fo)
         printRates(totalRatesFwd, totalRatesRev, fo)
         fo.close()
      
@@ -106,7 +109,7 @@ def statsComputeOverallRates(referenceFile, bam, minBaseQual, outputCSV, outputP
         #print(removeExtension(basename(bam)), outputCSV, sep='\t', file=f)
         #f.close()
              
-        callR(getPlotter("compute_overall_rates") + " -f " + outputCSV + " -n " + removeExtension(basename(bam)) + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
+        callR(getPlotter("compute_overall_rates") + " -f " + outputCSV + " -n " + removeExtension(os.path.basename(bam)) + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
 
 # This is for TC conversions
     
@@ -308,18 +311,20 @@ def statsComputeTCContext(referenceFile, bam, minBaseQual, outputCSV, outputPDF,
 
 def statsComputeOverallRatesPerUTR(referenceFile, bam, minBaseQual, strictTCs, outputCSV, outputPDF, utrBed, maxReadLength, log, printOnly=False, verbose=True, force=False):
     
+    sampleInfo = getSampleInfo(bam)
+    
+    slamseqInfo = SlamSeqInfo(bam)
+    
     if(not checkStep([bam, referenceFile], [outputCSV], force)):
         print("Skipped computing overall rates for file " + bam, file=log)
     else:
-        
-        sampleInfo = getSampleInfo(bam)
-    
-        slamseqInfo = SlamSeqInfo(bam)
     
         # Go through one chr after the other
         testFile = SlamSeqBamFile(bam, referenceFile, None)
         
         fo = open(outputCSV, "w")
+        
+        print("# slamdunk utrrates v" + __version__, file=fo)
         print("Name", "Chr", "Start", "End", "Strand", "ReadCount", sep="\t", end="\t", file=fo)
         for i in range(0, 5):
             for j in range(0, 5):
@@ -368,6 +373,8 @@ def readSummary(filteredFiles, countDirectory, outputFile, log, printOnly=False,
     contentDict = {}
     
     tsvFile = open(outputFile, "w")
+    
+    print("# slamdunk summary v" + __version__, file=tsvFile)
 
     if (countDirectory != None) :
         #f = tempfile.NamedTemporaryFile(delete=False)
@@ -475,6 +482,9 @@ def tcPerReadPos(referenceFile, bam, minQual, maxReadLength, outputCSV, outputPD
                         
 
         foTC = open(outputCSV, "w")
+        
+        print("# slamdunk tcperreadpos v" + __version__, file=foTC)
+        
         for i in range(0, maxReadLength):
             print(allPerPosFwd[i], allPerPosRev[i], tcPerPosFwd[i], tcPerPosRev[i], totalReadCountFwd[i], totalReadCountRev[i], sep='\t', file=foTC)
         foTC.close()
@@ -582,6 +592,8 @@ def tcPerUtr(referenceFile, utrBed, bam, minQual, maxReadLength, outputCSV, outp
                 print("Handled " + str(counter) + " UTRs.", file=log)
     
         foTC = open(outputCSV, "w")
+        
+        print("# slamdunk tcperutr v" + __version__, file=foTC)
         
         reverseAllPerPosRev = allPerPosRev[::-1]
         reverseTcPerPosRev = tcPerPosRev[::-1]

@@ -333,16 +333,17 @@ This tool lists basic statistics of the mapping process in a text file.
 
 .. code:: bash
 
-    alleyoop summary [-h] -o <output file> bam [bam ...]
+    alleyoop summary [-h] -o <output file> [-t <directory of tcount files>] bam [bam ...]
 
 Input
 ^^^^^
 
-===================  =======================================================================================
-File                 Description
-===================  =======================================================================================
-**bam**              BAM file(s) containing the final filtered reads from *slamdunk* (wildcard \* accepted).
-===================  =======================================================================================
+========================= =======================================================================================
+File                      Description
+========================= =======================================================================================
+**bam**                   BAM file(s) containing the final filtered reads from *slamdunk* (wildcard \* accepted).
+**tcount file directory** (optional) Directory containing the associated tcount file(s) to the input BAM file(s).
+========================= =======================================================================================
 
 Output
 ^^^^^^
@@ -350,6 +351,8 @@ Output
 File                           Description
 ============================   ===========================================================================================================
 **outputfile**                 Tab-separated table with mapping statistics.
+**outputfile_PCA.pdf**         PCA plot of the samples based on T>C read counts per UTR.
+**outputfile_PCA.txt**         PCA values of the samples based on T>C read counts per UTR.
 ============================   ===========================================================================================================
 
 The output file will be a tab-separated text file with the following columns:
@@ -365,8 +368,11 @@ Sequenced                      Number of sequenced reads.
 Mapped                         Number of mapped reads.
 Deduplicated                   Number of deduplicated reads.
 Filtered                       Number of retained reads after filtering.
+Counted                         Number of counted reads within UTRs **(optional: only if tcount file directory was supplied)**.
 Annotation                     Annotation used for filtering.
 ============================   ===========================================================================================================
+
+An example PCA plot is coming soon!
 
 Parameters
 ^^^^^^^^^^
@@ -375,6 +381,7 @@ Parameter  Required  Description
 =========  ========  =====================================================================================================================================================================
 **-h**               Prints the help.
 **-o**     x         The output file name.
+**-t**               The directory of associated tcount file(s) to the supplied BAM file(s).
 **bam**    x         BAM file(s) containing the final filtered reads (wildcard \* accepted).
 =========  ========  =====================================================================================================================================================================
 

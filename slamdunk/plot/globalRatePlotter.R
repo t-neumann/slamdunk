@@ -51,7 +51,7 @@ pdf(opt$outputFile)
 plotList = list()
 
 for (i in 1:nrow(rates)) {
-	curTab = read.delim(rates$file[i],stringsAsFactors=FALSE)
+	curTab = read.delim(rates$file[i],stringsAsFactors=FALSE,comment.char='#')
 	
 	plusTab = curTab %>% dplyr::filter(Strand == "+")
 	minusTab = curTab %>% dplyr::filter(Strand == "-") %>%

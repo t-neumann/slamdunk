@@ -41,7 +41,7 @@ if ( is.null(opt$inputFile) ) stop("arg input must be specified")
 if ( is.null(opt$outputFile) ) { opt$outputFile = paste(opt$inputFile, ".pdf", sep="") }
 
 
-mut = read.table(opt$inputFile, comment.char = "")
+mut = read.table(opt$inputFile, comment.char = "#")
 
 if (is.null(mut$V6)) {
 	mut$V6 = mut$V5
