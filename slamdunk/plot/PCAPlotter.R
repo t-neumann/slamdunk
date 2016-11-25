@@ -63,7 +63,7 @@ pca = prcomp(t(countMatrix[sel,]))
 
 PoV = pca$sdev ^ 2 / sum(pca$sdev ^ 2)
 
-plotTab = data.frame(sample = row.names(pca$x), PC1 = pca$x[,1], PC2 = pca$x[,1])
+plotTab = data.frame(sample = row.names(pca$x), PC1 = pca$x[,1], PC2 = pca$x[,2])
 
 pdf(opt$outputPDF)
 
