@@ -15,17 +15,19 @@ source(paste(libLoc,'/../checkLibraries.R',sep=""))
 checkLib(libLoc)
 
 library(getopt, lib.loc = libLoc)
-
+library(ggplot2, lib.loc = libLoc)
+library(gridExtra , lib.loc = libLoc)
 
 spec = matrix(c(
 				'help'      , 'h', 0, "logical","print the usage of the command",
 				'rateTab', "f", 2,"character","tsv table of rate files",
+				'name', "n", 2,"character","Sample name",
 				'outputFile', "O", 2,"character","output pdf file name"
 		),ncol = 5,byrow=T)
 
 opt = getopt(spec)
 
-if ( !is.null(opt$help) || length(opt)==1 ) {
+if ( !is.null(opt$help) || length(opt)<1 ) {
 	#get the script name
 	cmd = commandArgs(FALSE)
 	self = strsplit(cmd[grep("--file",cmd)],"=")[[1]][2]
@@ -37,24 +39,23 @@ if ( !is.null(opt$help) || length(opt)==1 ) {
 
 
 if ( is.null(opt$rateTab) ) stop("arg rateTab must be specified")
+if ( is.null(opt$name) ) { opt$outputFile = "Sample 1" }
 if ( is.null(opt$outputFile) ) { opt$outputFile = "out.pdf" }
 
-library(ggplot2, lib.loc = libLoc)
-library(gridExtra , lib.loc = libLoc)
+#rates = read.table(opt$rateTab,stringsAsFactors=FALSE,col.names = c("sample","file"), comment.char = "")
 
-rates = read.table(opt$rateTab,stringsAsFactors=FALSE,col.names = c("sample","file"), comment.char = "")
+fileName = opt$rateTab
+# file = "/project/libby/slamdunk-analysis/sra_example/rates/ERR1692138_slamdunk_mapped_filtered_overallrates.csv"
+# file = "/project/libby/slamdunk-analysis/mareike/rates/AML_41-1_48h_Mll212207_37484.fastq_slamdunk_mapped_filtered_overallrates.csv"
+sampleName = opt$name
+# sampleName = "Sample 1"
 
 pdf(opt$outputFile)
 
 plotList = list()
 
-# rates = data.frame(files = as.character("/project/ngs/philipp/slamdunk-analysis/HeLa/slamdunk-20161108/rates/42067_TAGGCT_C9NM7ANXX_2_20160919B_20160919_slamdunk_mapped_filtered_overallrates.csv"), samples=as.character("42067_TAGGCT_C9NM7ANXX_2_20160919B_20160919"), stringsAsFactors = F)
-# i = 1
-
-for (i in 1:nrow(rates)) {
-	curTab = read.table(rates$file[i],stringsAsFactors=FALSE)
-	
-	#curTab = read.table(file,stringsAsFactors=FALSE)
+#for (i in 1:nrow(rates)) {
+	curTab = read.table(fileName,stringsAsFactors=FALSE)
 	
 	curTab[, c("A", "C", "G", "T")] <- curTab[, c("A", "C", "G", "T")]/rowSums(curTab[, c("A", "C", "G", "T")]) * 100
 	curTab[, c("a", "c", "g", "t")] <- curTab[, c("a", "c", "g", "t")]/rowSums(curTab[, c("a", "c", "g", "t")])  * 100
@@ -83,18 +84,17 @@ for (i in 1:nrow(rates)) {
 	#total = c(rep(c(fwdATot, revATot), 3), rep(c(fwdTTot, revTTot), 3), rep(c(fwdCTot, revCTot), 3), rep(c(fwdGTot, revGTot), 3) )
 
 	#printTab$rate_percent = printTab$rate_percent / total * 100
-	#printTab$rate_percent = printTab$rate_percent / sum(printTab$rate_percent) * 100
 	
 	maxRatePercent = max(10, max(printTab$rate_percent) * 1.1)
 	
 	printTab$y = -0.3
 	printTab[printTab$strand == "-", ]$y = printTab[printTab$strand == "-", ]$rate_percent + printTab[printTab$strand == "+", ]$rate_percent
 	
-	curPlot = qplot(x=rates, y=rate_percent, fill=strand,data=printTab) + ylim(-0.5,maxRatePercent) + geom_bar(stat="identity") + geom_text(aes(y = printTab$y, label = round(rate_percent,digits=2)), size = 3, hjust = 0.5, vjust = -0.50) + ylab("Rate percent %") + xlab(rates$sample[i]) +
+	curPlot = qplot(x=rates, y=rate_percent, fill=strand,data=printTab) + ylim(-0.5,maxRatePercent) + geom_bar(stat="identity") + geom_text(aes(y = printTab$y, label = round(rate_percent,digits=2)), size = 3, hjust = 0.5, vjust = -0.50) + ylab("Rate percent %") + xlab(sampleName) +
 			theme(text = element_text(size=12),axis.text.x = element_text(size=12))
 	#curPlot + xlim(0,35)	
 	plotList[[length(plotList)+1]] <- curPlot #+ ylim(0.0,maxRatePercent)
-}
+#}
 
 do.call(grid.arrange,  plotList)
 

@@ -1,3 +1,18 @@
+from intervaltree import IntervalTree
+
+def bedToIntervallTree(bed):
+    utrs = {}
+        
+    for utr in BedIterator(bed):
+
+        if (not utrs.has_key(utr.chromosome)) :
+            utrs[utr.chromosome] = IntervalTree()
+        
+        utrs[utr.chromosome][utr.start:(utr.stop + 1)] = utr.name
+        
+    return utrs
+
+
 class BedEntry:
 
     def __init__(self):

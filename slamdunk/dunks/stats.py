@@ -101,11 +101,12 @@ def statsComputeOverallRates(referenceFile, bam, minBaseQual, outputCSV, outputP
     if(not checkStep([bam, referenceFile], [outputPDF], force)):
         print("Skipped computing overall rate pdfs for file " + bam, file=log)
     else:
-        f = tempfile.NamedTemporaryFile(delete=False)
-        print(removeExtension(os.path.basename(bam)), outputCSV, sep='\t', file=f)
-        f.close()
+
+        #f = tempfile.NamedTemporaryFile(delete=False)
+        #print(removeExtension(basename(bam)), outputCSV, sep='\t', file=f)
+        #f.close()
              
-        callR(getPlotter("compute_overall_rates") + " -f " + f.name + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
+        callR(getPlotter("compute_overall_rates") + " -f " + outputCSV + " -n " + removeExtension(basename(bam)) + " -O " + outputPDF, log, dry=printOnly, verbose=verbose)
 
 # This is for TC conversions
     
@@ -675,7 +676,8 @@ def computeSNPMaskedRates (ref, bed, snpsFile, bam, maxReadLength, minQual, cove
 def halflifes(bams, outputCSV, timepoints, log, printOnly=False, verbose=True, force=False):
     callR(getPlotter("compute_halflifes") + " -f " + bams + " -t " + timepoints + " -o " + outputCSV, log, dry=printOnly, verbose=verbose)
 
-def mergeRates(bams, outputCSV, column, log, printOnly=False, verbose=True, force=False):
+def mergeRates(bams, outputCSV, column, columnName, log, printOnly=False, verbose=True, force=False):
     cmd = getPlotter("merge_rate_files") + " -f " + bams + " -o " + outputCSV
     cmd = cmd + " -c \"" + column + "\"" 
+    cmd = cmd + " -n " + str(columnName) 
     callR(cmd, log, dry=printOnly, verbose=verbose) 

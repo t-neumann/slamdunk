@@ -7,8 +7,9 @@
 #########################################################################
 
 from __future__ import print_function
-import sys, os
+import sys, os, random
 
+from time import sleep
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter, SUPPRESS
     
 from os.path import basename
@@ -93,12 +94,14 @@ def getSamples(bams, runOnly=-1):
         samples = bams
         samplesInfos = [""] * len(samples)
   
-    if(runOnly > -1):
-        if(runOnly >= len(samples)):
-            raise RuntimeError("Sample index out of range. " + str(runOnly) + " >= " + str(len(samples)) + ". Check -i/--sample-index")
+    if(runOnly > 0):
+        if(runOnly > len(samples)):
+            raise RuntimeError("Sample index out of range. " + str(runOnly) + " > " + str(len(samples)) + ". Check -i/--sample-index")
         message("Running only job " + str(runOnly))
-        samples = [ samples[runOnly] ]
-        samplesInfos = [ samplesInfos[runOnly] ]
+        samples = [ samples[runOnly - 1] ]
+        samplesInfos = [ samplesInfos[runOnly - 1] ]
+    elif(runOnly == 0):
+        raise RuntimeError("Sample index (" + str(runOnly) + ") out of range. Starts with 1. Check -i/--sample-index")
         
     return samples, samplesInfos
 
@@ -182,6 +185,11 @@ def runCount(tid, bam, ref, bed, maxLength, minQual, strictTCs, outputDirectory,
 def runAll(args) :
     message("slamdunk all")
     
+    if args.sampleIndex > -1:
+        sec = random.randrange(200,2000) / 1000.0
+        message("Waiting " + str(sec) + " seconds")
+        sleep(sec)
+        
     # Setup slamdunk run folder
     
     outputDirectory = args.outputDir
@@ -302,8 +310,8 @@ def run():
     mapparser.add_argument("-t", "--threads", type=int, required=False, dest="threads", default = 1, help="Thread number")
     mapparser.add_argument("-q", "--quantseq", dest="quantseq", action='store_true', required=False, help="Run plain Quantseq alignment without SLAM-seq scoring")
     mapparser.add_argument('-l', "--local", action='store_true', dest="local", help="Use a local alignment algorithm for mapping.")
-    mapparser.add_argument("-i", "--sample-index", type=int, required=False, default=-1, dest="sampleIndex", help="Run analysis only for sample <i>. Use for distributing slamdunk analysis on a cluster (index is 0-based).")
-    mapparser.add_argument('-ss', "--skip-sam", action='store_true', dest="skipSAM", help="Output BAM while mapping. Slower, but uses less hard disk.")
+    mapparser.add_argument("-i", "--sample-index", type=int, required=False, default=-1, dest="sampleIndex", help="Run analysis only for sample <i>. Use for distributing slamdunk analysis on a cluster (index is 1-based).")
+    mapparser.add_argument('-ss', "--skip-sam", action='store_true', dest="skipSAM", help="Output BAM while mapping. Slower but, uses less hard disk.")
     
     # filter command
     
@@ -362,8 +370,8 @@ def run():
     allparser.add_argument("-mts", "--multiTCStringency", dest="strictTCs", action='store_true', required=False, help="Multiple T>C conversion required for T>C read")
     allparser.add_argument("-rl", "--max-read-length", type=int, required=False, dest="maxLength", help="Max read length in BAM file")
     allparser.add_argument("-mbq", "--min-base-qual", type=int, default=0, required=False, dest="minQual", help="Min base quality for T -> C conversions (default: %(default)d)")
-    allparser.add_argument("-i", "--sample-index", type=int, required=False, default=-1, dest="sampleIndex", help="Run analysis only for sample <i>. Use for distributing slamdunk analysis on a cluster (index is 0-based).")
-    allparser.add_argument("-ss", "--skip-sam", action='store_true', dest="skipSAM", help="Output BAM while mapping. Slower, but uses less hard disk.")
+    allparser.add_argument("-i", "--sample-index", type=int, required=False, default=-1, dest="sampleIndex", help="Run analysis only for sample <i>. Use for distributing slamdunk analysis on a cluster (index is 1-based).")
+    allparser.add_argument("-ss", "--skip-sam", action='store_true', dest="skipSAM", help="Output BAM while mapping. Slower but, uses less hard disk.")
     
     args = parser.parse_args()
     
@@ -377,6 +385,12 @@ def run():
         mapper.checkNextGenMapVersion()
         
         outputDirectory = args.outputDir
+        
+        if args.sampleIndex > -1:
+            sec = random.randrange(0,2000) / 1000
+            message("Waiting " + str(sec) + " seconds")
+            sleep(sec)
+        
         createDir(outputDirectory)
         n = args.threads
         referenceFile = args.referenceFile
