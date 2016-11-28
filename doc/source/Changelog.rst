@@ -12,6 +12,7 @@ Changelog
 * Slamdunk now checks NextGenMap version
 * Simulation module (splash) added: simulates slamdunk samples from a set of UTRs (BED file) and evalutes results computed by SlamDunk. See `splash --help` for more information 
 * `-i/--sample-index` is now 1-based instead of 0-based
+* Columns for conversion rate confidence interval added to count files (not used yet)
 
 *Bufixes:*
 
