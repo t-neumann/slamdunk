@@ -1,6 +1,14 @@
 Changelog
 =========
 
+**Version 0.2.1**
+
+*Changes:*
+
+* PCA will be added to alleyoop summary if count folder is provided 
+* Reads in UTRs will be added to alleyoop summary if count folder is provided
+* Comment tags added to summary, rates, utrrates, tcperreadpos, tcperutrpos to be recognized by `MultiQC <http://multiqc.info/>`_
+
 **Version 0.2.0** 
 
 Due to major changes v0.2.0 is not compatible with v0.1.0. 

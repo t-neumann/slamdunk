@@ -4,6 +4,10 @@ Alleyoop
 *Alleyoop* (**A**\ dditional s\ **L**\ amdunk he\ **L**\ p\ **E**\ r tools for an\ **Y** diagn\ **O**\ stics **O**\ r **P**\ lots) is a collection of tools for post-processing and running diagnostics on *slamdunk* analyses.
 Similar to *slamdunk*, the command line interface follows the "samtools/bwa" style. Meaning that all commands are available through the central executable/script *alleyoop* (located in the bin directory).
 
+**MultiQC:**
+
+We implemented a module for `MultiQC <http://multiqc.info/>`_ to support summary reports of *Alleyoop* modules. Currently MultiQC supports the *summary*, *rates*, *utrrates*, *tcperreadpos* and *tcperutrpos* commands.
+
 dedup
 -----
 
