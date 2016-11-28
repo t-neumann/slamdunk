@@ -13,10 +13,12 @@ Changelog
 * Simulation module (splash) added: simulates slamdunk samples from a set of UTRs (BED file) and evalutes results computed by SlamDunk. See `splash --help` for more information 
 * `-i/--sample-index` is now 1-based instead of 0-based
 * Columns for conversion rate confidence interval added to count files (not used yet)
+* Filter summary integrated into log
+* Added sample names now in globalRatePlotter
 
 *Bufixes:*
 
-* Number of sequenced reads fixed for BAM filse computed with `-ss/--skip-sam` option
+* Number of sequenced reads fixed for BAM files computed with `-ss/--skip-sam` option
 * NextGenMap memory leak fixed
 
 **Version 0.2.0** 
