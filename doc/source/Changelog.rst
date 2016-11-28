@@ -7,7 +7,16 @@ Changelog
 
 * PCA will be added to alleyoop summary if count folder is provided 
 * Reads in UTRs will be added to alleyoop summary if count folder is provided
-* Comment tags added to summary, rates, utrrates, tcperreadpos, tcperutrpos to be recognized by `MultiQC <http://multiqc.info/>`_
+* Comment tags added to summary, rates, utrrates, tcperreadpos, tcperutrpos to be recognized by `MultiQC <http://multiqc.info/>`
+* NextGenMap udated to version 0.5.2
+* Slamdunk now checks NextGenMap version
+* Simulation module (splash) added: simulates slamdunk samples from a set of UTRs (BED file) and evalutes results computed by SlamDunk. See `splash --help` for more information 
+* `-i/--sample-index` is now 1-based instead of 0-based
+
+*Bufixes:*
+
+* Number of sequenced reads fixed for BAM filse computed with `-ss/--skip-sam` option
+* NextGenMap memory leak fixed
 
 **Version 0.2.0** 
 
