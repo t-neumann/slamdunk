@@ -19,10 +19,14 @@ class SlamSeqInfo:
     ID_MappedReads = "mapped"
     ID_FilteredReads = "filtered"
     ID_DedupReads = "dedup"
+    ID_MQFilteredReads = "mqfiltered"
+    ID_IdFilteredReads = "idfiltered"
+    ID_NmFilteredReads = "nmfiltered"
+    ID_MultimapperReads = "multimapper"
     ID_SNPs = "snps"
     ID_AnnotationName = "annotation"
     ID_AnnotationMD5 = "annotationmd5"
-
+    
     def getFromReadStat(self, name, stats):
         if(name in stats):
             return stats[name]
@@ -35,6 +39,10 @@ class SlamSeqInfo:
             self.MappedReads = 0
             self.DedupReads = 0
             self.FilteredReads = 0
+            self.MQFilteredReads = 0
+            self.IdFilteredReads = 0
+            self.NmFilteredReads = 0
+            self.MultimapperReads = 0
             self.SNPs = 0
             self.AnnotationName = "NA"
             self.AnnotationMD5 = "NA"            
@@ -45,12 +53,16 @@ class SlamSeqInfo:
             self.MappedReads = self.getFromReadStat(self.ID_MappedReads, DS)
             self.DedupReads = self.getFromReadStat(self.ID_DedupReads, DS)
             self.FilteredReads = self.getFromReadStat(self.ID_FilteredReads, DS)
+            self.MQFilteredReads = self.getFromReadStat(self.ID_MQFilteredReads, DS)
+            self.IdFilteredReads = self.getFromReadStat(self.ID_IdFilteredReads, DS)
+            self.NmFilteredReads = self.getFromReadStat(self.ID_NmFilteredReads, DS)
+            self.MultimapperReads = self.getFromReadStat(self.ID_MultimapperReads, DS)
             self.SNPs = self.getFromReadStat(self.ID_SNPs, DS)
             self.AnnotationName = self.getFromReadStat(self.ID_AnnotationName, DS)
             self.AnnotationMD5 = self.getFromReadStat(self.ID_AnnotationMD5, DS)
          
     def __repr__(self):
-        return "{" + "'" + self.ID_SequencedRead + "':" + str(self.SequencedReads) + "," + "'" + self.ID_MappedReads + "':" + str(self.MappedReads) + "," + "'" + self.ID_FilteredReads + "':" + str(self.FilteredReads) + "," + "'" + self.ID_DedupReads + "':" + str(self.DedupReads) + "," + "'" + self.ID_SNPs + "':" + str(self.SNPs) + "," + "'" + self.ID_AnnotationName + "':'" + str(self.AnnotationName) + "'," + "'" + self.ID_AnnotationMD5 + "':'" + str(self.AnnotationMD5) +  "'}"
+        return "{" + "'" + self.ID_SequencedRead + "':" + str(self.SequencedReads) + "," + "'" + self.ID_MappedReads + "':" + str(self.MappedReads) + "," + "'" + self.ID_FilteredReads + "':" + str(self.FilteredReads) + "," + "'" + self.ID_MQFilteredReads + "':" + str(self.MQFilteredReads) + "," + "'" + self.ID_IdFilteredReads + "':" + str(self.IdFilteredReads) + "," + "'" + self.ID_NmFilteredReads + "':" + str(self.NmFilteredReads) + "," + "'" + self.ID_MultimapperReads + "':" + str(self.MultimapperReads) + "," + "'" + self.ID_DedupReads + "':" + str(self.DedupReads) + "," + "'" + self.ID_SNPs + "':" + str(self.SNPs) + "," + "'" + self.ID_AnnotationName + "':'" + str(self.AnnotationName) + "'," + "'" + self.ID_AnnotationMD5 + "':'" + str(self.AnnotationMD5) +  "'}"
 
 def md5(fname):
     hash_md5 = hashlib.md5()

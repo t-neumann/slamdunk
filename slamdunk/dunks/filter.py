@@ -188,7 +188,7 @@ def multimapUTRRetainment (infile, outfile, bed, minIdentity, NM, log):
     print("MM\t" + str(multimapper),file=log)
         
 #     fo.close()
-    return mappedReads, unmappedReads, filteredReads
+    return mappedReads, unmappedReads, filteredReads, mqFiltered, idFiltered, nmFiltered, multimapper
         
         
 def Filter(inputBAM, outputBAM, log, bed, MQ=2, minIdentity=0.8, NM=-1, printOnly=False, verbose=True, force=False):
@@ -198,15 +198,16 @@ def Filter(inputBAM, outputBAM, log, bed, MQ=2, minIdentity=0.8, NM=-1, printOnl
         unmappedReads = 0
         filteredReads = 0
         
+        mqFiltered = 0
+        idFiltered = 0
+        nmFiltered = 0
+        multimapper = 0
+        
         infile = pysam.AlignmentFile(inputBAM, "rb")    
         outfile = pysam.AlignmentFile(outputBAM, "wb", template=infile)
         
         # Default filtering without bed
         if (bed == None) :
-            
-            mqFiltered = 0
-            idFiltered = 0
-            nmFiltered = 0
             
             print("#No bed-file supplied. Running default filtering on " + inputBAM + ".",file=log)
             
@@ -247,7 +248,8 @@ def Filter(inputBAM, outputBAM, log, bed, MQ=2, minIdentity=0.8, NM=-1, printOnl
             
             print("#Bed-file supplied. Running multimap retention filtering strategy on " + inputBAM + ".",file=log)
             
-            mappedReads, unmappedReads, filteredReads = multimapUTRRetainment (infile, outfile, bed, minIdentity, NM, log)
+            mappedReads, unmappedReads, filteredReads, mqFiltered, idFiltered, nmFiltered, multimapper = multimapUTRRetainment (infile, outfile, bed, minIdentity, NM, log) 
+            #mappedReads, unmappedReads, filteredReads = multimapUTRRetainment (infile, outfile, bed, minIdentity, NM, log)
         
         # Add number of sequenced and number of mapped reads to the read group description
         # Used for creating summary file
@@ -257,6 +259,11 @@ def Filter(inputBAM, outputBAM, log, bed, MQ=2, minIdentity=0.8, NM=-1, printOnl
             slamseqInfo.SequencedReads = mappedReads + unmappedReads
             slamseqInfo.MappedReads = mappedReads
             slamseqInfo.FilteredReads = filteredReads
+            slamseqInfo.MQFilteredReads = mqFiltered
+            slamseqInfo.IdFilteredReads = idFiltered
+            slamseqInfo.NmFilteredReads = nmFiltered
+            slamseqInfo.MultimapperReads = multimapper
+
             if (bed != None) :
                 slamseqInfo.AnnotationName = os.path.basename(bed)
                 slamseqInfo.AnnotationMD5 = md5(bed)
