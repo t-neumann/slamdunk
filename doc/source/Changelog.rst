@@ -16,7 +16,7 @@ Changelog
 * Filter summary integrated into log
 * Added sample names now in globalRatePlotter
 
-*Bufixes:*
+*Bugfixes:*
 
 * Number of sequenced reads fixed for BAM files computed with `-ss/--skip-sam` option
 * NextGenMap memory leak fixed

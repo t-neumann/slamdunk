@@ -377,8 +377,7 @@ def readSummary(filteredFiles, countDirectory, outputFile, log, printOnly=False,
     print("# slamdunk summary v" + __version__, file=tsvFile)
 
     if (countDirectory != None) :
-        #f = tempfile.NamedTemporaryFile(delete=False)
-        f = open('table.txt', 'w')
+        f = tempfile.NamedTemporaryFile(delete=False)
 
     for bam in filteredFiles:
         slamseqInfo = SlamSeqInfo(bam)
