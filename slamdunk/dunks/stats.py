@@ -416,11 +416,11 @@ def readSummary(filteredFiles, countDirectory, outputFile, log, printOnly=False,
         
         callR(getPlotter("PCAPlotter") + " -f " + f.name + " -O " + replaceExtension(outputFile, ".pdf", "_PCA") + " -P " + replaceExtension(outputFile, ".txt", "_PCA"), log, dry=printOnly, verbose=verbose)
         
-        print("FileName", "SampleName", "SampleType", "SampleTime", "Sequenced", "Mapped", "Deduplicated", "Filtered", "Counted", "Annotation", sep="\t", file=tsvFile)
+        print("FileName", "SampleName", "SampleType", "SampleTime", "Sequenced", "Mapped", "Deduplicated", "MQ-Filtered", "Identity-Filtered", "NM-Filtered", "Multimap-Filtered", "Retained", "Counted", "Annotation", sep="\t", file=tsvFile)
         
         
     else :
-        print("FileName", "SampleName", "SampleType", "SampleTime", "Sequenced", "Mapped", "Deduplicated", "Filtered", "Annotation", sep="\t", file=tsvFile)
+        print("FileName", "SampleName", "SampleType", "SampleTime", "Sequenced", "Mapped", "Deduplicated", "MQ-Filtered", "Identity-Filtered", "NM-Filtered", "Multimap-Filtered", "Retained", "Annotation", sep="\t", file=tsvFile)
             
     for key in sorted(contentDict):
         print(contentDict[key], file=tsvFile)
