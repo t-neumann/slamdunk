@@ -5,6 +5,8 @@ import tempfile
 import math
 import pysam
 import os
+import glob
+import numpy as np
 
 from slamdunk.utils.misc import removeExtension, replaceExtension, checkStep, getSampleInfo, complement , getPlotter, callR, SlamSeqInfo  # @UnresolvedImport
 from slamdunk.slamseq.SlamSeqFile import SlamSeqBamFile, ReadDirection  # @UnresolvedImport
@@ -322,16 +324,19 @@ def statsComputeOverallRatesPerUTR(referenceFile, bam, minBaseQual, strictTCs, o
         # Go through one chr after the other
         testFile = SlamSeqBamFile(bam, referenceFile, None)
         
-        fo = open(outputCSV, "w")
+        # UTR stats for MultiQC
+        utrStats = dict()
         
-        print("# slamdunk utrrates v" + __version__, file=fo)
-        print("Name", "Chr", "Start", "End", "Strand", "ReadCount", sep="\t", end="\t", file=fo)
-        for i in range(0, 5):
-            for j in range(0, 5):
-                print(toBase[i].upper() + "_" + toBase[j].upper(), end="", file=fo)
-                if(i != 4 or j != 4):
-                    print("\t", end="", file=fo)
-        print(file=fo)
+        plotConversions = ['A>T', 'A>G', 'A>C',
+                           'C>A', 'C>G', 'C>T',
+                           'G>A', 'G>C', 'G>T',
+                           'T>A', 'T>G', 'T>C',
+        ]
+        
+        for conversion in plotConversions:
+            utrStats[conversion] = list()
+            
+        f = tempfile.NamedTemporaryFile(delete=False)
                         
         for utr in BedIterator(utrBed):
                                          
@@ -354,9 +359,148 @@ def statsComputeOverallRatesPerUTR(referenceFile, bam, minBaseQual, strictTCs, o
                     totalRates = sumLists(totalRates, rates)
                     readCount += 1
                     
-            print(utr.name, utr.chromosome, utr.start, utr.stop, utr.strand, readCount, "\t".join(str(x) for x in totalRates), sep="\t", file=fo)
-        fo.close()
+            print(utr.name, utr.chromosome, utr.start, utr.stop, utr.strand, readCount, "\t".join(str(x) for x in totalRates), sep="\t", file=f)
+            
+            # Process rates for MultiQC
+            # Copied directly, too lazy to do it properly now
+            
+            utrDict = {}
+            
+            conversionSum = 0
+            
+            A_A = totalRates[0]
+            conversionSum =+ A_A
+            A_C = totalRates[1]
+            conversionSum =+ A_C
+            A_G = totalRates[2]
+            conversionSum =+ A_G
+            A_T = totalRates[3]
+            conversionSum =+ A_T
+            
+            C_A = totalRates[5]
+            conversionSum =+ C_A
+            C_C = totalRates[6]
+            conversionSum =+ C_C
+            C_G = totalRates[7]
+            conversionSum =+ C_G
+            C_T = totalRates[8]
+            conversionSum =+ C_T
+            
+            G_A = totalRates[10]
+            conversionSum =+ G_A
+            G_C = totalRates[11]
+            conversionSum =+ G_C
+            G_G = totalRates[12]
+            conversionSum =+ G_G
+            G_T = totalRates[13]
+            conversionSum =+ G_T
+            
+            T_A = totalRates[15]
+            conversionSum =+ T_A
+            T_C = totalRates[16]
+            conversionSum =+ T_C
+            T_G = totalRates[17]
+            conversionSum =+ T_G
+            T_T = totalRates[18]
+            conversionSum =+ T_T
+            
+            if utr.strand == "-":
+                    
+                A_A, T_T = T_T,A_A
+                G_G, C_C = C_C,G_G
+                A_C, T_G = T_G, A_C
+                A_G, T_C = T_C, A_G
+                A_T, T_A = T_A, A_T
+                C_A, G_T = G_T, C_A
+                C_G, G_C = G_C, C_G
+                C_T, G_A = G_A, C_T
+            
+            if conversionSum > 0:
+                        
+                Asum = A_A + A_C + A_G + A_T
+                Csum = C_A + C_C + C_G + C_T
+                Gsum = G_A + G_C + G_G + G_T
+                Tsum = T_A + T_C + T_G + T_T
+                 
+                if Asum > 0 :
+                    A_T = A_T / float(Asum) * 100
+                    A_G = A_G / float(Asum) * 100
+                    A_C = A_C / float(Asum) * 100
+                else :
+                    A_T = 0
+                    A_G = 0
+                    A_C = 0
+                if Csum > 0:
+                    C_A = C_A / float(Csum) * 100
+                    C_G = C_G / float(Csum) * 100
+                    C_T = C_T / float(Csum) * 100
+                else :
+                    C_A = 0
+                    C_G = 0
+                    C_T = 0
+                if Gsum > 0:
+                    G_A = G_A / float(Gsum) * 100
+                    G_C = G_C / float(Gsum) * 100
+                    G_T = G_T / float(Gsum) * 100
+                else :
+                    G_A = 0
+                    G_C = 0
+                    G_T = 0
+                if Tsum > 0:
+                    T_A = T_A / float(Tsum) * 100
+                    T_G = T_G / float(Tsum) * 100
+                    T_C = T_C / float(Tsum) * 100
+                else :
+                    T_A = 0
+                    T_G = 0
+                    T_C = 0
+                   
+                utrStats['A>T'].append(A_T)
+                utrStats['A>G'].append(A_G)
+                utrStats['A>C'].append(A_C)
+                
+                utrStats['C>A'].append(C_A)
+                utrStats['C>G'].append(C_G)
+                utrStats['C>T'].append(C_T)
+                
+                utrStats['G>A'].append(G_A)
+                utrStats['G>T'].append(G_T)
+                utrStats['G>C'].append(G_C)
+                
+                utrStats['T>A'].append(T_A)
+                utrStats['T>G'].append(T_G)
+                utrStats['T>C'].append(T_C)        
+                
+        f.close()
         
+        fo = open(outputCSV, "w")
+        
+        print("# slamdunk utrrates v" + __version__, file=fo)
+        
+        print("# Median-Conversions=",end="",file=fo)
+        
+        first = True
+        for conversion in plotConversions:
+            if (not first) :
+                print(',',file=fo, end="")
+            else :
+                first = False
+            print(conversion + ":" + str(np.median(utrStats[conversion])),file=fo, end="")
+        print(file=fo) 
+        
+        print("Name", "Chr", "Start", "End", "Strand", "ReadCount", sep="\t", end="\t", file=fo)
+        for i in range(0, 5):
+            for j in range(0, 5):
+                print(toBase[i].upper() + "_" + toBase[j].upper(), end="", file=fo)
+                if(i != 4 or j != 4):
+                    print("\t", end="", file=fo)
+        print(file=fo)
+        
+        with open(f.name, "rb") as valueFile:
+            fo.write(valueFile.read())
+        
+        fo.close()
+                
     if(not checkStep([bam, referenceFile], [outputPDF], force)):
         print("Skipped computing global rate pdfs for file " + bam, file=log)
     else:
