@@ -103,7 +103,8 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
     sampleInfo = getSampleInfo(bam)
     
     slamseqInfo = SlamSeqInfo(bam)
-    readNumber = slamseqInfo.MappedReads
+    #readNumber = slamseqInfo.MappedReads
+    readNumber = slamseqInfo.FilteredReads
     
     bedMD5 = md5(bed)
     
