@@ -15,6 +15,19 @@
 		font-size: 100%;
 		font: inherit;
 		vertical-align: baseline;
+		font-family: Arial;
+	}
+	
+	.btn-primary,
+	.btn-primary:active,
+	.btn-primary:visited,
+	.btn-primary:focus {
+	    background-color: #0BA4A1;
+	    border-color: #0BA4A1;
+	}
+	.btn-primary:hover {
+		background-color: #09817e;
+	    border-color: #09817e;
 	}
 
 	article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
@@ -1671,7 +1684,7 @@
 		}
 
 	body, input, select, textarea {
-		font-family: Arial, Helvetica, sans-serif;
+		font-family: Aller, Arial, Helvetica, sans-serif;
 		font-weight: normal;
 		line-height: 1.5em;
 		letter-spacing: -0.015em;
@@ -3627,7 +3640,7 @@
 /* Header */
 
 	#header {
-		background-color: #4696e5;
+		background-color: #ffffff;
 		padding: 4.5em 0 2.5em 0 ;
 		-moz-align-items: center;
 		-webkit-align-items: center;
@@ -3737,31 +3750,31 @@
 		}
 
 		#header ::-webkit-input-placeholder {
-			color: #b5d5f4 !important;
+			color: #0BA4A1 !important;
 		}
 
 		#header :-moz-placeholder {
-			color: #b5d5f4 !important;
+			color: #0BA4A1 !important;
 		}
 
 		#header ::-moz-placeholder {
-			color: #b5d5f4 !important;
+			color: #0BA4A1 !important;
 		}
 
 		#header :-ms-input-placeholder {
-			color: #b5d5f4 !important;
+			color: #0BA4A1 !important;
 		}
 
 		#header .formerize-placeholder {
-			color: #b5d5f4 !important;
+			color: #0BA4A1 !important;
 		}
 
 		#header .icon {
-			color: #b5d5f4;
+			color: #0BA4A1;
 		}
 
 		#header .image {
-			box-shadow: 0 0 0 4px #4696e5, 0 0 0 5px rgba(255, 255, 255, 0.25);
+			box-shadow: 0 0 0 4px #0BA4A1, 0 0 0 5px rgba(255, 255, 255, 0.25);
 		}
 
 			#header .image.phone {
@@ -3809,7 +3822,7 @@
 		}
 
 		#header input, #header select, #header textarea {
-			color: #d0e4f8;
+			color: #0BA4A1;
 		}
 
 		#header a {
@@ -3819,11 +3832,11 @@
 		}
 
 		#header strong, #header b {
-			color: #828282;
+			color: #575756;
 		}
 
 		#header h1, #header h2, #header h3, #header h4, #header h5, #header h6 {
-			color: #828282;
+			color: #575756;
 		}
 
 		#header blockquote {
@@ -3899,7 +3912,7 @@
 		@media screen and (max-width: 1280px) {
 
 			#header {
-				background-image: url("images/overlay.png"), url("images/pattern-size2.svg");
+				background-image: url("../images/shattered_@2X.png");
 			}
 
 		}
@@ -3943,7 +3956,7 @@
 		@media screen and (max-width: 736px) {
 
 			#header {
-				background-image: url("images/overlay.png"), url("images/pattern-size3.svg");
+				background-image: url("../images/shattered_@2X.png");
 			}
 
 				#header h1 {
