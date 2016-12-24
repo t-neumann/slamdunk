@@ -97,20 +97,26 @@ video {
     font-family: Arial;
     spacing: 25;
 }
+
+.panel-primary {
+    border: 0;
+}
+
 .install-switcher {
     font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
-    border-top: 1px dashed #444;
+    #border-top: 1px dashed #444;
+    margin: 13px;
 }
 .install-switcher a,
 .install-switcher a:visited {
     border-top-right-radius: 0;
     border-top-left-radius: 0;
-    color: #777;
+    color: #ffffff;
 }
 .install-switcher a:hover,
 .install-switcher a:focus,
 .install-switcher a:active {
-    color: #999;
+    color: #ffffff;
 }
 .install-switcher a.active {
     -webkit-box-shadow: inset 0 5px 10px rgba(0, 0, 0, 0.2);
@@ -123,6 +129,15 @@ video {
     background-color: #0BA4A1;
     border-color: #0BA4A1;
 }
+
+.btn,
+.btn:active,
+.btn:visited,
+.btn:focus {
+    background-color: #0BA4A1;
+    border-color: #0BA4A1;
+}
+
 code .comment {
     font-family: "Courier New", monospace;
     color: #999;
