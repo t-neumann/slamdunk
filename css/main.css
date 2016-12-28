@@ -3219,6 +3219,12 @@ table.alt tbody tr td {
 }
 /* Header */
 
+.jumbotron {
+	background-color:transparent;
+	/* comment if light background */
+	color:#575756;
+}
+
 #header {
     background-color: #ffffff;
     padding: 4.5em 0 2.5em 0;
@@ -3234,13 +3240,15 @@ table.alt tbody tr td {
     -webkit-justify-content: center;
     -ms-justify-content: center;
     justify-content: center;
-    background-image: url("../images/shattered_@2X.png");
+    #background-image: url("../images/shattered_@2X.png");
+    background-image: url("../images/shattered_@2X_inverted.png");
     background-position: top left, center center;
     background-attachment: fixed, fixed;
     background-size: auto, cover;
     height: 100vh;
     min-height: 35em;
 }
+
 #header input[type="submit"],
 #header input[type="reset"],
 #header input[type="button"],
@@ -3382,10 +3390,16 @@ table.alt tbody tr td {
     border-bottom-color: rgba(255, 255, 255, 0.5);
     color: #ffffff;
 }
+
+/* Swap colors from dark to bright */
+
 #header strong,
 #header b {
-    color: #575756;
+	/* Swap if light background */
+	/* color: #575756; */
+    color: #999999;
 }
+
 #header h1,
 #header h2,
 #header h3,
