@@ -3749,6 +3749,7 @@ h1.section-header .header-link { margin-top: 23px; }
   }
 }
 #toc .nav li a {
+  font-size: 15px;
   font-weight: bold;
 }
 #toc .nav .nav li a {
@@ -3759,7 +3760,7 @@ h1.section-header .header-link { margin-top: 23px; }
     display: none;
 }
 #toc .nav .nav .nav {
-  font-size:12px;
+  font-size: 12px;
   margin-left: 20px;
 }
 #toc .nav .nav .nav .nav {
@@ -3772,11 +3773,16 @@ h1.section-header .header-link { margin-top: 23px; }
 #toc .nav > .active > ul {
 	display: block;
 }
+
+#toc .nav li.active > a {
+	color: black;
+}
+
 #toc .nav .nav li.active > a {
-  border-left: 3px solid #337ab7;
+  border-left: 3px solid #0BA4A1;
 }
 #toc .nav .nav .nav li.active > a {
-  border-left: 1px solid #337ab7;
+  border-left: 1px solid #0BA4A1;
   background-color: #eee;
 }
 #toc .nav .nav .nav .nav li.active > a {

@@ -15,55 +15,41 @@ from docutils.nodes import comment
 def set(d, set, value):
     keys = list(set)
     keys.append(value)
-    #latest = keys.pop()
     for k in keys:
         d = d.setdefault(k, OrderedDict())
-        
-# <span id="document-Introduction"></span><div class="section" id="introduction">
-# <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline"></a></h2>
-# <p>Slamdunk maps and analyzes SLAM-Seq data.</p>
-# </div>
-# <span id="document-Installation"></span><div class="section" id="installation">
-# <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline"></a></h2>
-# <p>This section covers the installation of <em>slamdunk</em>. Alternatively one could also run <em>slamdunk</em> from out of the box <a class="reference internal" href="index.html#docker-label"><em>Docker</em></a> containers.</p>
-# <p>There are 2 different possibilities:</p>
-# <ol class="arabic simple">
-# <li>Installation from <a class="reference external" href="https://pypi.python.org/pypi">PyPI</a> using the <a class="reference internal" href="index.html#pip-label"><em>Python Package Index</em></a> <strong>(recommended)</strong></li>
-# <li>Installation from <a class="reference internal" href="index.html#source-label"><em>Source</em></a></li>
-# </ol>
-# <div class="section" id="requirements">
-# <h3>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline"></a></h3>
-# <p>There are no major requirements for <em>slamdunk</em>. The python package will acquire all external dependencies by itself.</p>
-# <div class="section" id="r-runtime">
 
-# index.html#document-Introduction
-# index.html#document-Installation
-#            index.html#requirements
-#                index.html#r-runtime
-#            index.html#python-package-index
 
-# <div class="docs_section">
-# <h1 class="section-header" id="document-Introduction"><a href="#document-Introduction" class="header-link"><span class="glyphicon glyphicon-link"></span></a>Introduction</h1>
-# <div class="docs_block" id="Introduction.rst"><p>Slamdunk maps and analyzes SLAM-Seq data.</p>
-# </div>
-# </div>
         
         
-def doStuff(soup, section, TOCMap):
+def reformatSectionHeader(soup, section, TOCMap, TOCDesc):
     
     body = soup.find('div',class_="toctree-wrapper compound")
     
     tag = body.find(id=section)
+    
+    # FROM        
+    # <span id="document-Introduction"></span><div class="section" id="introduction">
+    # <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline"></a></h2>
+    # <p>Slamdunk maps and analyzes SLAM-Seq data.</p>
+    # </div>
+    
+    # TO
+    
+    # <div class="docs_section">
+    # <h1 class="section-header" id="document-Introduction"><a href="#document-Introduction" class="header-link"><span class="glyphicon glyphicon-link"></span></a>Introduction</h1>
+    # <div class="docs_block" id="Introduction.rst"><p>Slamdunk maps and analyzes SLAM-Seq data.</p>
+    # </div>
+    # </div>
 
     if tag.name == "span":
-         
-# <span id="document-Introduction"></span><div class="section" id="introduction">
-# <h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline"></a></h2>
-         
+              
         content = tag.next_sibling
         content['class'] = "docs_section"
         del content['id']
         sectionName = content.h2.contents[0]
+        
+        TOCDesc[section] = sectionName
+        
         header = content.h2
         header.name = "h1"
         header['class'] = "section-header"
@@ -93,31 +79,28 @@ def doStuff(soup, section, TOCMap):
         
         tag.decompose()
         
-        # FROM
+    # FROM
         
-#     <div class="section" id="requirements">
-#     <h3>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline"></a></h3>
-        # TO
-#     <h1 id="requirements"><a href="#requirements" class="header-link"><span class="glyphicon glyphicon-link"></span></a>Requirements</h1>
-#     <div class="section" id="requirements">
+    # <div class="section" id="requirements">
+    # <h3>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline"></a></h3>
+    # TO
+    # <h1 id="requirements"><a href="#requirements" class="header-link"><span class="glyphicon glyphicon-link"></span></a>Requirements</h1>
+    # <div class="section" id="requirements">
 
     elif tag.name == "div":
         
         header = tag.find(re.compile("^h"))
         header.name = "h" + str(TOCMap[section] - 1)
         header["id"] = section
-        #sectionName = header.contents[0]
-                
-        #if (section == "input") :
+
         for child in header.children:
             if isinstance(child, NavigableString):
                 sectionName = child
             if isinstance(child, Tag) and child.name == "a":
                 permalink = child
          
-        
+        TOCDesc[section] = sectionName
             
-        #permalink = header.a
         permalink['class'] = "header-link"
         permalink['href'] = "#" + section
         del permalink['title']
@@ -132,38 +115,38 @@ def doStuff(soup, section, TOCMap):
         if len(header.contents) < 3 :
         
             header.append(str(sectionName))
-        
-        
-        
-        
-        
-       
-        
 
+# TOC FORMAT
 
-        
-        
-        
-        
-            #new_ol.insert(0, data.extract())
+# <ul class="nav nav-stacked">
+# <li><a href="#document-Introduction">Introduction</a>
+# <li><a href="#installation">installation</a>
+# <ul class="nav nav-stacked">
+# <li><a href="#requirements">Requirements</a>
+# <li><a href="#python-package-index">PyPI</a>
+# <li><a href="#source">Source</a></li>
+# </ul>
 
-        #content.append(docs_block_wrapper)
-        #print(docs_block_wrapper)   
-         
-#         html += "<div class=\"docs_section\">"
-#         html += "<h1 class=\"" + section + "\" id=\"document-Introduction\">"
-#         html += "<a href=\"#" + section + "\" class=\"header-link\">"
-#         html += "<a href=\"#" + section + "\" class=\"header-link\">"
-#        html += "<span class=\"glyphicon glyphicon-link\"></span></a>" + header +"</h1>"
-#        html += "<div class=\"docs_block\">"
-    
-def walkthroughTOC(soup, toc, TOCMap, level = 0):
+def buildTOC(tocContent, toc, TOCDesc, curNode, level = 0) :
     for k, v in toc.iteritems():
-        doStuff(soup, k, TOCMap)
-        #print('\t' * level, end="")
-        #print(k)
+        
+        list = tocContent.new_tag("li")
+        link = tocContent.new_tag("a", href="#" + k)
+        link.string = TOCDesc[k]
+        curNode.append(list)
+        list.append(link)
+
         if v:
-            walkthroughTOC(soup, v, TOCMap, level + 1)
+            ul = tocContent.new_tag("ul")
+            ul['class'] = "nav nav-stacked"
+            list.append(ul)
+            buildTOC(tocContent, v, TOCDesc, ul, level + 1)
+    
+def walkthroughTOC(soup, toc, TOCMap, TOCDesc, level = 0):
+    for k, v in toc.iteritems():
+        reformatSectionHeader(soup, k, TOCMap, TOCDesc)
+        if v:
+            walkthroughTOC(soup, v, TOCMap, TOCDesc, level + 1)
 
 
  # Info
@@ -207,6 +190,7 @@ soup = BeautifulSoup(open(args.singleHtmlFile), "lxml")
 
 TOC = OrderedDict()
 TOCMap = {}
+TOCDesc = {}
 
 # This marks the beginning of the TOC <div class="sphinxsidebarwrapper">
 
@@ -247,15 +231,31 @@ for li in tocTag.find_all("li"):
     
     prevName = name
 
-########################################
-# PRINT TOC
-########################################
+####################################################
+# Replace headers in doc content and add to template
+####################################################
 
-walkthroughTOC(soup, TOC, TOCMap)
+walkthroughTOC(soup, TOC, TOCMap, TOCDesc)
 
 docContent = soup.find('div',class_="toctree-wrapper compound")
 
 contentNode.append(docContent)
 
-print(templateDocTree.prettify('utf-8'))
+####################################################
+# Build TOC and add to template
+####################################################
 
+tocContent = BeautifulSoup("", 'lxml')
+
+ul = tocContent.new_tag("ul")
+ul['class'] = "nav nav-stacked"
+tocContent.append(ul)
+list = tocContent.new_tag("li")
+curNode = ul
+curNode.append(list)
+
+buildTOC(tocContent, TOC, TOCDesc, list)
+
+tocNode.append(tocContent)
+
+print(templateDocTree.prettify('utf-8'))

@@ -1,132 +1,97 @@
-<!DOCTYPE HTML>
-<!--
-   Fractal by HTML5 UP
-   html5up.net | @ajlkn
-   Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
-   -->
+<!DOCTYPE html>
 <html>
-   <head>
-   <title>Slamdunk</title>
-   <meta charset="utf-8" />
-   <meta charset="utf-8">
-   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-   <meta name="viewport" content="width=device-width, initial-scale=1" />
-   <meta name="description" content="Slamdunk website">
-   <meta name="author" content="Tobias Neumann">
-   <link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
-   <link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-glyphicons.css" rel="stylesheet">
-   <!--[if lte IE 8]><script src="js/ie/html5shiv.js"></script><![endif]-->
-   <link rel="stylesheet" href="css/main.css" />
-   <!--[if lte IE 8]>
+<head>
+	<title>Slamdunk</title>
+	<meta charset="utf-8">
+	<meta charset="utf-8">
+	<meta content="IE=edge" http-equiv="X-UA-Compatible">
+	<meta content="width=device-width, initial-scale=1" name="viewport">
+	<meta content="Slamdunk website" name="description">
+	<meta content="Tobias Neumann" name="author">
+	<link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+	<link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-glyphicons.css" rel="stylesheet"><!--[if lte IE 8]><script src="js/ie/html5shiv.js"></script><![endif]-->
+	<link href="css/main.css" rel="stylesheet"><!--[if lte IE 8]>
    <link rel="stylesheet" href="css/ie8.css" />
    <![endif]-->
-   <!--[if lte IE 9]>
+	<!--[if lte IE 9]>
    <link rel="stylesheet" href="css/ie9.css" />
    <![endif]-->
-   <script>
-      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-      
-      ga('create', 'UA-89369264-1', 'auto');
-      ga('send', 'pageview');
-      
-   </script>
-   </head>
-   <body id="top">
-      <header id="header">
-         <div class="jumbotron" style="background-color:transparent;">
-         <img src="images/slamdunk_logo_light.png" width="400" style="margin-bottom:100px;">
-         <h3>
-            <b>Streamlining SLAMSeq analysis with ultra-high sensitivity</b>
-         </h3>
-         Slamdunk analyzes SLAMSeq data.
-         <div class="row" style="margin-top:30px;">
-            <div class="col-md-3">
-               <a class="btn btn-block btn-lg btn-primary" href="https://www.github.com/t-neumann/slamdunk">
-               <i class="fa fa-github fa-lg"></i> GitHub
-               </a>
-            </div>
-            <div class="col-md-3">
-               <a class="btn btn-block btn-lg btn-primary" href="https://pypi.python.org/pypi/slamdunk">
-               <i class="icon-python fa-lg"></i> PyPI
-               </a>
-            </div>
-            <div class="col-md-3">
-               <a class="btn btn-block btn-lg btn-primary" href="https://hub.docker.com/r/tobneu/slamdunk-full">
-               <i class="fa fa-docker"></i> Docker
-               </a>
-            </div>
-            <div class="col-md-3">
-               <a class="btn btn-block btn-lg btn-primary" href="https://slamdunk.readthedocs.io">
-               <i class="fa fa-book fa-lg"></i> Docs
-               </a>
-            </div>
-         </div>
-      </header>
-      <!-- Intro -->
-      <section id="intro" class="wrapper">
-         <div class="inner">
-            <header class="major">
-               <h2>Overview</h2>
-            </header>
-            <section>
-               <h4><b>SLAMSeq</b></h4>
-               <p>SLAMSeq is a sequencing protocol to label nascent transcripts.</p>
-               <hr />
-            </section>
-            <section>
-               <h4><b>Slamdunk</b></h4>
-               <p>Slamdunk analyzes SLAMSeq data.</p>
-               <hr />
-            </section>
-         </div>
-      </section>
-      <!-- Installation -->
-      <section id="installation" class="wrapper">
-      <div class="inner">
-         <header class="major">
-            <h2>Installation</h2>
-         </header>
-         <section>
-            <h4><b>Requirements</b></h4>
-            <p><i>slamdunk</i> has no major requirements. The python package manager will acquire all external dependencies by itself.</p>
-            <p>Both <i>alleyoop</i> and <i>splash</i> utilize R for various calculations and diagnostic plots. Therefore, a global installation of R is required to run those tools.</p>
-            <ul>
-               <li>Required R version: <b>R 3.2.2</b></li>
-               <li>Required packages (from <a href="https://cran.r-project.org">CRAN</a>):</li>
-            </ul>
-         </section>
-         <section>
-            <h4><b>Setup</b></h4>
-            <p>
-               Installing Slamdunk is easy. You can either:
-            </p>
-            <ul>
-               <li>Install <i>slamdunk</i> from PyPI using the Python Package Index <b>(recommended)</b>.</li>
-               <li>Install a development version of <i>slamdunk</i> from GitHub using the Python Package Index.</li>
-               <li>Install <i>slamdunk</i> from source.</li>
-            </ul>
-            <p>
-               For maximum convenience, you might also consider running slamdunk from our <a href="https://hub.docker.com/r/tobneu/slamdunk-full">Docker</a> container.
-            </p>
-            <hr />
-            <div class="panel panel-primary" id="quick_install">
-               <div class="btn-group btn-group-justified btn-group-xs install-switcher" role="group">
-                  <a href="#pip" class="btn active">pip</a>
-                  <a href="#dev" class="btn">development version</a>
-                  <a href="#manual" class="btn">manual</a>
-               </div>
-               <div class="panel-body">
-                  <pre id="pip"><code><span class="comment"># Root</span>
+</head>
+<body id="top">
+	<header id="header">
+		<div class="jumbotron" style="background-color:transparent;">
+			<img src="images/slamdunk_logo_light.png" style="margin-bottom:100px;" width="400">
+			<h3><b>Streamlining SLAMSeq analysis with ultra-high sensitivity</b></h3>Slamdunk analyzes SLAMSeq data.
+			<div class="row" style="margin-top:30px;">
+				<div class="col-md-3">
+					<a class="btn btn-block btn-lg btn-primary" href="https://www.github.com/t-neumann/slamdunk"><i class="fa fa-github fa-lg"></i> GitHub</a>
+				</div>
+				<div class="col-md-3">
+					<a class="btn btn-block btn-lg btn-primary" href="https://pypi.python.org/pypi/slamdunk"><i class="icon-python fa-lg"></i> PyPI</a>
+				</div>
+				<div class="col-md-3">
+					<a class="btn btn-block btn-lg btn-primary" href="https://hub.docker.com/r/tobneu/slamdunk-full"><i class="fa fa-docker"></i> Docker</a>
+				</div>
+				<div class="col-md-3">
+					<a class="btn btn-block btn-lg btn-primary" href="https://slamdunk.readthedocs.io"><i class="fa fa-book fa-lg"></i> Docs</a>
+				</div>
+			</div>
+		</div>
+	</header><!-- Intro -->
+	<section class="wrapper" id="intro">
+		<div class="inner">
+			<header class="major">
+				<h2>Overview</h2>
+			</header>
+			<section>
+				<h4><b>SLAMSeq</b></h4>
+				<p>SLAMSeq is a sequencing protocol to label nascent transcripts.</p>
+				<hr>
+			</section>
+			<section>
+				<h4><b>Slamdunk</b></h4>
+				<p>Slamdunk analyzes SLAMSeq data.</p>
+				<hr>
+			</section>
+		</div>
+	</section><!-- Installation -->
+	<section class="wrapper" id="installation">
+		<div class="inner">
+			<header class="major">
+				<h2>Installation</h2>
+			</header>
+			<section>
+				<h4><b>Requirements</b></h4>
+				<p><i>slamdunk</i> has no major requirements. The python package manager will acquire all external dependencies by itself.</p>
+				<p>Both <i>alleyoop</i> and <i>splash</i> utilize R for various calculations and diagnostic plots. Therefore, a global installation of R is required to run those tools.</p>
+				<ul>
+					<li>Required R version: <b>R 3.2.2</b></li>
+					<li>Required packages (from <a href="https://cran.r-project.org">CRAN</a>):</li>
+				</ul>
+			</section>
+			<section>
+				<h4><b>Setup</b></h4>
+				<p>Installing Slamdunk is easy. You can either:</p>
+				<ul>
+					<li>Install <i>slamdunk</i> from PyPI using the Python Package Index <b>(recommended)</b>.</li>
+					<li>Install a development version of <i>slamdunk</i> from GitHub using the Python Package Index.</li>
+					<li>Install <i>slamdunk</i> from source.</li>
+				</ul>
+				<p>For maximum convenience, you might also consider running slamdunk from our <a href="https://hub.docker.com/r/tobneu/slamdunk-full">Docker</a> container.</p>
+				<hr>
+				<div class="panel panel-primary" id="quick_install">
+					<div class="btn-group btn-group-justified btn-group-xs install-switcher" role="group">
+						<a class="btn active" href="#pip">pip</a> <a class="btn" href="#dev">development version</a> <a class="btn" href="#manual">manual</a>
+					</div>
+					<div class="panel-body">
+						<pre id="pip"><code><span class="comment"># Root</span>
 pip install --extra-index-url https://testpypi.python.org/pypi slamdunk
 
 <span class="comment"># Local user</span>
 pip install --extra-index-url https://testpypi.python.org/pypi --user slamdunk</code></pre>
-                  <pre id="dev" style="display:none;"><code><span class="comment"># Grab source and install</span>
+						<pre id="dev" style="display:none;"><code><span class="comment"># Grab source and install</span>
 pip install git+https://github.com/t-neumann/slamdunk.git</code></pre>
-                  <pre id="manual" style="display:none;"><code>git clone https://github.com/t-neumann/slamdunk.git
+						<pre id="manual" style="display:none;"><code>git clone https://github.com/t-neumann/slamdunk.git
 cd slamdunk
 
 <span class="comment"># Root</span>
@@ -152,20 +117,19 @@ cd slamdunk/bin
 export PATH=$(pwd):$PATH
 
 slamdunk --help</code></pre>
-               </div>
-            </div>
-      </div>
-      </section>
-      <!-- Two -->
-      <section id="two" class="wrapper">
-         <div class="inner alt">
-         <section class="spotlight">
-            <div class="content">
-               <h3>Authors and Contributors</h3>
-               <p>Slamdunk is developed by <a target="_blank" href="mailto:tobias.neumann.at@gmail.com">Tobias Neumann</a> and <a target="_blank" href="mailto:philipp.rescheneder@univie.ac.at">Philipp Rescheneder</a>.</p>
-            </div>
-         </section>
-         <!--<section class="special">
+					</div>
+				</div>
+			</section>
+		</div>
+	</section><!-- Two -->
+	<section class="wrapper" id="two">
+		<div class="inner alt">
+			<section class="spotlight">
+				<div class="content">
+					<h3>Authors and Contributors</h3>
+					<p>Slamdunk is developed by <a href="mailto:tobias.neumann.at@gmail.com" target="_blank">Tobias Neumann</a> and <a href="mailto:philipp.rescheneder@univie.ac.at" target="_blank">Philipp Rescheneder</a>.</p>
+				</div>
+			</section><!--<section class="special">
             <ul class="icons labeled">
                <li><span class="icon fa-camera-retro"><span class="label">Ipsum lorem accumsan</span></span></li>
                <li><span class="icon fa-refresh"><span class="label">Sed vehicula elementum</span></span></li>
@@ -175,7 +139,7 @@ slamdunk --help</code></pre>
             </ul>
             </section>
             </div>
-            <!-- One 
+            <!== One 
             <section id="one" class="wrapper style2 special">
             <header class="major">
             <h2>Sed ipsum magna lorem tempus amet<br />
@@ -188,8 +152,8 @@ slamdunk --help</code></pre>
             <li><span class="icon fa-cloud"><span class="label">Upload</span></span></li>
             </ul>
             </section>-->
-      </section>
-      <!-- Three
+		</div>
+	</section><!-- Three
          <section id="three" class="wrapper style2 special">
             <header class="major">
                <h2>Magna leo sapien gravida</h2>
@@ -202,7 +166,7 @@ slamdunk --help</code></pre>
                <li><a href="#" class="button">Learn More</a></li>
             </ul>
          </section>
-         <!-- Four
+         <!== Four
          <section id="four" class="wrapper">
             <div class="inner">
                <header class="major">
@@ -512,26 +476,42 @@ slamdunk --help</code></pre>
                </section>
             </div>
          </section>
-         <!-- Footer -->
-      <footer id="footer">
-         <div class="row">
-         <div class="col-md-6">
-            <ul class="icons">
-               <a target="_blank" href="https://github.com/t-neumann"><i class="fa fa-github"></i> t-neumann</a>   |   
-               <a target="_blank" href="https://github.com/philres"><i class="fa fa-github"></i> philres</a>
-            </ul>
-         </div>
-         <div class="col-md-6">
-            <p class="copyright">&copy; Tobias Neumann.<br/>Page template: <a href="http://html5up.net">HTML5 UP</a></p>
-         </div>
-      </footer>
-      <!-- Scripts -->
-      <script src="js/jquery.min.js"></script>
-      <script src="js/jquery.scrolly.min.js"></script>
-      <script src="js/skel.min.js"></script>
-      <script src="js/util.js"></script>
-      <!--[if lte IE 8]><script src="js/ie/respond.min.js"></script><![endif]-->
-      <script src="js/main.js"></script>
-      <script src="js/slamdunk.js"></script>
-   </body>
+         <!== Footer -->
+	<footer id="footer">
+		<div class="row">
+			<div class="col-md-6">
+				<div class="icons" style="margin-left: 2em">
+					<a href="https://github.com/t-neumann" target="_blank"><i class="fa fa-github"></i> t-neumann</a> | <a href="https://github.com/philres" target="_blank"><i class="fa fa-github"></i> philres</a>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<p class="copyright">&copy; Tobias Neumann.<br>
+				Page template: <a href="http://html5up.net">HTML5 UP</a></p>
+			</div>
+		</div>
+	</footer><!-- Scripts -->
+	<script>
+	     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	     (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	     m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	     })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	     
+	     ga('create', 'UA-89369264-1', 'auto');
+	     ga('send', 'pageview');
+	     
+	</script> 
+	<script src="js/jquery.min.js">
+	</script> 
+	<script src="js/jquery.scrolly.min.js">
+	</script> 
+	<script src="js/skel.min.js">
+	</script> 
+	<script src="js/util.js">
+	</script> <!--[if lte IE 8]><script src="js/ie/respond.min.js"></script><![endif]-->
+	 
+	<script src="js/main.js">
+	</script> 
+	<script src="js/slamdunk.js">
+	</script>
+</body>
 </html>
