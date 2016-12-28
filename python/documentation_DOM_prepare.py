@@ -47,7 +47,7 @@ def set(d, set, value):
 # </div>
         
         
-def doStuff(soup, section):
+def doStuff(soup, section, TOCMap):
     
     body = soup.find('div',class_="toctree-wrapper compound")
     
@@ -73,7 +73,8 @@ def doStuff(soup, section):
         del permalink['title']
         permalink.string = ""
         
-        glyphlink = soup.new_tag("span", class_="glyphicon glyphicon-link")
+        glyphlink = soup.new_tag("span")
+        glyphlink["class"] = "glyphicon glyphicon-link"
         permalink.append(glyphlink)
         
         header.append(str(sectionName))
@@ -90,14 +91,47 @@ def doStuff(soup, section):
         
         tag.decompose()
         
+        # FROM
+        
+#     <div class="section" id="requirements">
+#     <h3>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline"></a></h3>
+        # TO
+#     <h1 id="requirements"><a href="#requirements" class="header-link"><span class="glyphicon glyphicon-link"></span></a>Requirements</h1>
+#     <div class="section" id="requirements">
+
+    elif tag.name == "div":
+        
+        header = tag.find(re.compile("^h"))
+        header.name = "h" + str(TOCMap[section] - 1)
+        header["id"] = section
+        sectionName = header.contents[0]
+        
+        permalink = header.a
+        permalink['class'] = "header-link"
+        permalink['href'] = "#" + section
+        del permalink['title']
+        permalink.string = ""
+        
+        header.contents[0] = ""
+        
+        glyphlink = soup.new_tag("span")
+        glyphlink["class"] = "glyphicon glyphicon-link"
+        permalink.append(glyphlink)
+        
+        header.append(str(sectionName))
+        
+        print(header)
+        sys.stdin.readline()
+        
+        
         
         
             #new_ol.insert(0, data.extract())
 
         #content.append(docs_block_wrapper)
         #print(docs_block_wrapper)
-        print(str(soup)[1:3000])
-        sys.stdin.readline()     
+        #print(str(soup)[1:3000])
+        #sys.stdin.readline()     
          
 #         html += "<div class=\"docs_section\">"
 #         html += "<h1 class=\"" + section + "\" id=\"document-Introduction\">"
@@ -105,17 +139,14 @@ def doStuff(soup, section):
 #         html += "<a href=\"#" + section + "\" class=\"header-link\">"
 #        html += "<span class=\"glyphicon glyphicon-link\"></span></a>" + header +"</h1>"
 #        html += "<div class=\"docs_block\">"
-         
-    print(content)
-    sys.stdin.readline()
     
-def walkthroughTOC(soup, toc, level = 0):
+def walkthroughTOC(soup, toc, TOCMap, level = 0):
     for k, v in toc.iteritems():
-        doStuff(soup, k)
+        doStuff(soup, k, TOCMap)
         #print('\t' * level, end="")
         #print(k)
         if v:
-            walkthroughTOC(soup, v, level + 1)
+            walkthroughTOC(soup, v, TOCMap, level + 1)
 
 
  # Info
@@ -137,6 +168,7 @@ soup = BeautifulSoup(open(args.singleHtmlFile), "lxml")
 ########################################
 
 TOC = OrderedDict()
+TOCMap = {}
 
 # This marks the beginning of the TOC <div class="sphinxsidebarwrapper">
 
@@ -172,6 +204,8 @@ for li in tocTag.find_all("li"):
         
     else :
         set(TOC, tocLevels, name)
+        
+    TOCMap[name] = int(li['class'][0][-1])
     
     prevName = name
 
@@ -179,5 +213,5 @@ for li in tocTag.find_all("li"):
 # PRINT TOC
 ########################################
 
-walkthroughTOC(soup, TOC)
+walkthroughTOC(soup, TOC, TOCMap)
 
