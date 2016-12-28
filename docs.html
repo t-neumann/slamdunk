@@ -1,0 +1,6820 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <title>
+   Slamdunk Documentation
+  </title>
+  <meta charset="utf-8"/>
+  <meta content="IE=edge" http-equiv="X-UA-Compatible"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <meta content="Slamdunk documentation" name="description"/>
+  <meta content="Tobias Neumann" name="author"/>
+  <link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet"/>
+  <link href="fonts/font-mfizz.css" rel="stylesheet"/>
+  <link href="css/github-light.css" rel="stylesheet"/>
+  <link href="css/main.css" rel="stylesheet"/>
+  <!--[if lte IE 8]>
+   <script src="js/ie/html5shiv.js"></script>
+   <![endif]-->
+  <!--[if lte IE 8]>
+   <link rel="stylesheet" href="css/ie8.css" />
+   <![endif]-->
+  <!--[if lte IE 9]>
+   <link rel="stylesheet" href="css/ie9.css" />
+   <![endif]-->
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+ </head>
+ <body data-offset="100" data-spy="scroll" data-target="#toc" id="mqc_docs">
+  <div class="header">
+   <header id="header">
+    <div class="jumbotron" style="background-color:transparent;">
+     <img src="images/slamdunk_logo_light.png" style="margin-bottom:100px;" width="400"/>
+     <h3>
+      <b>
+       Streamlining SLAMSeq analysis with ultra-high sensitivity
+      </b>
+     </h3>
+     Slamdunk analyzes SLAMSeq data.
+     <div class="row" style="margin-top:30px;">
+      <div class="col-md-3">
+       <a class="btn btn-block btn-lg btn-primary" href="https://www.github.com/t-neumann/slamdunk">
+        <i class="fa fa-github fa-lg">
+        </i>
+        GitHub
+       </a>
+      </div>
+      <div class="col-md-3">
+       <a class="btn btn-block btn-lg btn-primary" href="https://pypi.python.org/pypi/slamdunk">
+        <i class="icon-python fa-lg">
+        </i>
+        PyPI
+       </a>
+      </div>
+      <div class="col-md-3">
+       <a class="btn btn-block btn-lg btn-primary" href="https://hub.docker.com/r/tobneu/slamdunk-full">
+        <i class="fa fa-docker">
+        </i>
+        Docker
+       </a>
+      </div>
+      <div class="col-md-3">
+       <a class="btn btn-block btn-lg btn-primary" href="https://slamdunk.readthedocs.io">
+        <i class="fa fa-book fa-lg">
+        </i>
+        Docs
+       </a>
+      </div>
+     </div>
+    </div>
+   </header>
+  </div>
+  <div class="container docs-container">
+   <div class="row">
+    <div class="col-sm-9">
+     <!--CONTENT-PLACEHOLDER-->
+     <div class="toctree-wrapper compound">
+      <div class="docs_section">
+       <h1 class="section-header" id="document-Introduction">
+        <a class="header-link" href="#document-Introduction">
+         <span class="glyphicon glyphicon-link">
+         </span>
+        </a>
+        Introduction
+       </h1>
+       <div class_="docs_block" id="document-Introduction">
+        <p>
+         Slamdunk maps and analyzes SLAM-Seq data.
+        </p>
+       </div>
+      </div>
+      <div class="docs_section">
+       <h1 class="section-header" id="document-Installation">
+        <a class="header-link" href="#document-Installation">
+         <span class="glyphicon glyphicon-link">
+         </span>
+        </a>
+        Installation
+       </h1>
+       <div class_="docs_block" id="document-Installation">
+        <p>
+         This section covers the installation of
+         <em>
+          slamdunk
+         </em>
+         . Alternatively one could also run
+         <em>
+          slamdunk
+         </em>
+         from out of the box
+         <a class="reference internal" href="index.html#docker-label">
+          <em>
+           Docker
+          </em>
+         </a>
+         containers.
+        </p>
+        <p>
+         There are 2 different possibilities:
+        </p>
+        <ol class="arabic simple">
+         <li>
+          Installation from
+          <a class="reference external" href="https://pypi.python.org/pypi">
+           PyPI
+          </a>
+          using the
+          <a class="reference internal" href="index.html#pip-label">
+           <em>
+            Python Package Index
+           </em>
+          </a>
+          <strong>
+           (recommended)
+          </strong>
+         </li>
+         <li>
+          Installation from
+          <a class="reference internal" href="index.html#source-label">
+           <em>
+            Source
+           </em>
+          </a>
+         </li>
+        </ol>
+        <div class="section" id="requirements">
+         <h1 id="requirements">
+          <a class="header-link" href="#requirements">
+           <span class="glyphicon glyphicon-link">
+           </span>
+          </a>
+          Requirements
+         </h1>
+         <p>
+          There are no major requirements for
+          <em>
+           slamdunk
+          </em>
+          . The python package will acquire all external dependencies by itself.
+         </p>
+         <div class="section" id="r-runtime">
+          <h4>
+           R runtime
+           <a class="headerlink" href="#r-runtime" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <p>
+           Both
+           <em>
+            alleyoop
+           </em>
+           and
+           <em>
+            splash
+           </em>
+           utilize
+           <a class="reference external" href="https://www.r-project.org/">
+            R
+           </a>
+           for various calculations and diagnostic plots.
+Therefore, a global installation of R is required to run those tools.
+          </p>
+          <ul class="simple">
+           <li>
+            Minimum required R version:
+            <strong>
+             R 3.2.2
+            </strong>
+           </li>
+           <li>
+            Required packages (from
+            <a class="reference external" href="https://cran.r-project.org/">
+             CRAN
+            </a>
+            ):
+           </li>
+          </ul>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="100%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              R packages
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <em>
+               getopt
+              </em>
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <em>
+               ggplot2
+              </em>
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <em>
+               gridExtra
+              </em>
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <em>
+               RColorBrewer
+              </em>
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <em>
+               lattice
+              </em>
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <em>
+               matrixStats
+              </em>
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <em>
+               dplyr
+              </em>
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <em>
+               tidyr
+              </em>
+             </td>
+            </tr>
+           </tbody>
+          </table>
+          <p>
+           <strong>
+            Note:
+           </strong>
+           All required R packages will be installed automatically from PyPI or upon the first analysis run of
+           <em>
+            alleyoop
+           </em>
+           or
+           <em>
+            splash
+           </em>
+           from source.
+          </p>
+         </div>
+        </div>
+        <div class="section" id="python-package-index">
+         <span id="pip-label">
+         </span>
+         <h1 id="python-package-index">
+          <a class="header-link" href="#python-package-index">
+           <span class="glyphicon glyphicon-link">
+           </span>
+          </a>
+          Python Package Index
+         </h1>
+         <p>
+          <a class="reference external" href="https://pypi.python.org/pypi/pip">
+           pip
+          </a>
+          is the recommended tool for installing Python packages. It allows a convenient and simple installation
+of
+          <em>
+           slamdunk
+          </em>
+          from  the
+          <a class="reference external" href="https://pypi.python.org/pypi">
+           Python Package Index PyPI
+          </a>
+          .
+         </p>
+         <div class="code bash highlight-python">
+          <div class="highlight">
+           <pre># Having root permissions
+
+pip install --extra-index-url https://testpypi.python.org/pypi slamdunk
+
+# Local user only
+
+pip install --extra-index-url https://testpypi.python.org/pypi --user slamdunk
+export PATH=$PATH:$HOME/.local/bin/
+</pre>
+          </div>
+         </div>
+         <p>
+          <strong>
+           Note:
+          </strong>
+          There is no official
+          <em>
+           slamdunk
+          </em>
+          release yet, so there will be a test version on
+          <a class="reference external" href="https://testpypi.python.org/pypi">
+           TestPyPI
+          </a>
+          not guaranteed to be in line with latest developments.
+If you want to be absolutely sure you’re pulling the latest version, install
+          <em>
+           slamdunk
+          </em>
+          from
+          <a class="reference internal" href="index.html#source-label">
+           <em>
+            Source
+           </em>
+          </a>
+          .
+         </p>
+        </div>
+        <div class="section" id="source">
+         <span id="source-label">
+         </span>
+         <h1 id="source">
+          <a class="header-link" href="#source">
+           <span class="glyphicon glyphicon-link">
+           </span>
+          </a>
+          Source
+         </h1>
+         <ol class="arabic simple">
+          <li>
+           Clone from
+           <a class="reference external" href="https://github.com/t-neumann/slamdunk">
+            Github
+           </a>
+           .
+          </li>
+         </ol>
+         <div class="code bash highlight-python">
+          <div class="highlight">
+           <pre>git clone https://github.com/t-neumann/slamdunk.git
+
+cd slamdunk
+</pre>
+          </div>
+         </div>
+         <ol class="arabic simple" start="2">
+          <li>
+           Install required python modules:
+          </li>
+         </ol>
+         <div class="code bash highlight-python">
+          <div class="highlight">
+           <pre># Having root permissions
+pip install -r requirements.txt
+
+# Local user only
+pip install --user -r requirements.txt
+</pre>
+          </div>
+         </div>
+         <ol class="arabic simple" start="3">
+          <li>
+           Change to
+           <cite>
+            contrib
+           </cite>
+          </li>
+         </ol>
+         <div class="code bash highlight-python">
+          <div class="highlight">
+           <pre>cd slamdunk/contrib
+</pre>
+          </div>
+         </div>
+         <ol class="arabic simple" start="4">
+          <li>
+           Install NGM by following the
+           <cite>
+            build-ngm.sh
+           </cite>
+           instructions.
+          </li>
+         </ol>
+         <div class="code bash highlight-python">
+          <div class="highlight">
+           <pre>./build-ngm.sh
+</pre>
+          </div>
+         </div>
+         <ol class="arabic simple" start="5">
+          <li>
+           Install VarScan2 following the
+           <cite>
+            build-varscan.sh
+           </cite>
+           instructions.
+          </li>
+         </ol>
+         <div class="code bash highlight-python">
+          <div class="highlight">
+           <pre>./build-varscan.sh
+</pre>
+          </div>
+         </div>
+         <ol class="arabic simple" start="6">
+          <li>
+           Install Samtools following the
+           <cite>
+            build-samtools.sh
+           </cite>
+           instructions.
+          </li>
+         </ol>
+         <div class="code bash highlight-python">
+          <div class="highlight">
+           <pre>./build-samtools.sh
+</pre>
+          </div>
+         </div>
+         <ol class="arabic simple" start="7">
+          <li>
+           Install RNASeqReadSimulator following the
+           <cite>
+            build-rnaseqreadsimulator.sh
+           </cite>
+           instructions.
+          </li>
+         </ol>
+         <div class="code bash highlight-python">
+          <div class="highlight">
+           <pre>./build-rnaseqreadsimulator.sh
+</pre>
+          </div>
+         </div>
+         <ol class="arabic simple" start="8">
+          <li>
+           Run
+           <em>
+            slamdunk
+           </em>
+           (optionally put it in your
+           <em>
+            $PATH
+           </em>
+           to run it from anywhere).
+          </li>
+         </ol>
+         <div class="code bash highlight-python">
+          <div class="highlight">
+           <pre>cd slamdunk/bin
+
+# Run it from directory
+./slamdunk --help
+
+# Put it in your $PATH to run it from anywhere
+export PATH=$(pwd):$PATH
+
+slamdunk --help
+</pre>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="docs_section">
+       <h1 class="section-header" id="document-Quickstart">
+        <a class="header-link" href="#document-Quickstart">
+         <span class="glyphicon glyphicon-link">
+         </span>
+        </a>
+        Quickstart
+       </h1>
+       <div class_="docs_block" id="document-Quickstart">
+        <p>
+         To analyze a given SLAMSeq dataset with
+         <em>
+          slamdunk
+         </em>
+         using the default parameters which worked well on datasets during development,
+call the
+         <em>
+          all
+         </em>
+         dunk using the recommended minimum set of default parameters:
+        </p>
+        <div class="code bash highlight-python">
+         <div class="highlight">
+          <pre>slamdunk all -r &lt;reference fasta&gt; -b &lt;bed file&gt; -o &lt;output directory&gt; -5 12 -n 100
+             -t &lt;threads&gt; -m -rl &lt;maximum read length&gt; --skip-sam files [files ...]
+</pre>
+         </div>
+        </div>
+        <p>
+         The input data you need and parameters you need to set yourself are the following:
+        </p>
+        <table border="1" class="docutils">
+         <colgroup>
+          <col width="6%">
+          </col>
+          <col width="94%">
+          </col>
+         </colgroup>
+         <thead valign="bottom">
+          <tr class="row-odd">
+           <th class="head">
+            Parameter
+           </th>
+           <th class="head">
+            Description
+           </th>
+          </tr>
+         </thead>
+         <tbody valign="top">
+          <tr class="row-even">
+           <td>
+            <strong>
+             -r
+            </strong>
+           </td>
+           <td>
+            The reference fasta file.
+           </td>
+          </tr>
+          <tr class="row-odd">
+           <td>
+            <strong>
+             -b
+            </strong>
+           </td>
+           <td>
+            BED-file containing coordinates for 3’ UTRs.
+           </td>
+          </tr>
+          <tr class="row-even">
+           <td>
+            <strong>
+             -o
+            </strong>
+           </td>
+           <td>
+            The output directory where all output files of this dunk will be placed.
+           </td>
+          </tr>
+          <tr class="row-odd">
+           <td>
+            <strong>
+             -t
+            </strong>
+           </td>
+           <td>
+            The number of threads to use for this dunk. NextGenMap runs multi-threaded, so it is recommended to use more threads than available samples (default: 1).
+           </td>
+          </tr>
+          <tr class="row-even">
+           <td>
+            <strong>
+             files
+            </strong>
+           </td>
+           <td>
+            Samplesheet (see
+            <a class="reference internal" href="index.html#sample-file">
+             <em>
+              Sample file format
+             </em>
+            </a>
+            ) or a list of all sample BAM/FASTA(gz)/FASTQ(gz) files (wildcard * accepted).
+           </td>
+          </tr>
+         </tbody>
+        </table>
+        <p>
+         This will run the entire
+         <em>
+          slamdunk
+         </em>
+         analysis with the most relevant output files being:
+        </p>
+        <ul class="simple">
+         <li>
+          Folder
+          <em>
+           count
+          </em>
+          : Tab-separated
+          <em>
+           tcount
+          </em>
+          files containing the SLAMSeq statistics per UTR (see
+          <a class="reference internal" href="index.html#tcount-file">
+           <em>
+            Tcount file format
+           </em>
+          </a>
+          )
+         </li>
+         <li>
+          Folder
+          <em>
+           filter
+          </em>
+          : BAM-files with the final mapped reads for visualization and further processing
+         </li>
+        </ul>
+        <hr class="docutils"/>
+        <p>
+         If you want to have a very quick sanity check whether your desired conversion rates have been achieved, use this
+         <em>
+          alleyoop
+         </em>
+         command
+to plot the UTR conversion rates in your sample:
+        </p>
+        <div class="code bash highlight-python">
+         <div class="highlight">
+          <pre>alleyoop utrrates -o &lt;output directory&gt; -r &lt;reference fasta&gt; [-mq MQ] [-m] [-t &lt;threads&gt;]
+                  -b &lt;bed file&gt; [-l MAXLENGTH] bam [bam ...]
+</pre>
+         </div>
+        </div>
+        <table border="1" class="docutils">
+         <colgroup>
+          <col width="5%">
+          </col>
+          <col width="95%">
+          </col>
+         </colgroup>
+         <thead valign="bottom">
+          <tr class="row-odd">
+           <th class="head">
+            Parameter
+           </th>
+           <th class="head">
+            Description
+           </th>
+          </tr>
+         </thead>
+         <tbody valign="top">
+          <tr class="row-even">
+           <td>
+            <strong>
+             -o
+            </strong>
+           </td>
+           <td>
+            The output directory where the plots will be placed.
+           </td>
+          </tr>
+          <tr class="row-odd">
+           <td>
+            <strong>
+             -r
+            </strong>
+           </td>
+           <td>
+            The reference fasta file.
+           </td>
+          </tr>
+          <tr class="row-even">
+           <td>
+            <strong>
+             -mq
+            </strong>
+           </td>
+           <td>
+            Minimal base quality for SNPs.
+           </td>
+          </tr>
+          <tr class="row-odd">
+           <td>
+            <strong>
+             -m
+            </strong>
+           </td>
+           <td>
+            Flag to activate the multiple T-&gt;C conversion stringency: Only T-&gt;C conversions in reads with more than 1 T-&gt;C conversion will be counted.
+           </td>
+          </tr>
+          <tr class="row-even">
+           <td>
+            <strong>
+             -t
+            </strong>
+           </td>
+           <td>
+            The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.
+           </td>
+          </tr>
+          <tr class="row-odd">
+           <td>
+            <strong>
+             -b
+            </strong>
+           </td>
+           <td>
+            BED-file containing coordinates for 3’ UTRs.
+           </td>
+          </tr>
+          <tr class="row-even">
+           <td>
+            <strong>
+             -l
+            </strong>
+           </td>
+           <td>
+            Maximum read length in all samples.
+           </td>
+          </tr>
+          <tr class="row-odd">
+           <td>
+            <strong>
+             bam
+            </strong>
+           </td>
+           <td>
+            BAM file(s) containing the final filtered reads from the
+            <em>
+             filter
+            </em>
+            folder (wildcard * accepted).
+           </td>
+          </tr>
+         </tbody>
+        </table>
+        <p>
+         This will produce a plot like the following example where you can clearly see that individual conversions for a given starting base are balanced and unbiased,
+except for the T-&gt;C conversions in this SLAMSeq sample with longer labelling times.
+        </p>
+       </div>
+      </div>
+      <div class="docs_section">
+       <h1 class="section-header" id="document-Basics">
+        <a class="header-link" href="#document-Basics">
+         <span class="glyphicon glyphicon-link">
+         </span>
+        </a>
+        Basics
+       </h1>
+       <div class_="docs_block" id="document-Basics">
+        <div class="section" id="conversion-rates">
+         <span id="conversionrates">
+         </span>
+         <h1 id="conversion-rates">
+          <a class="header-link" href="#conversion-rates">
+           <span class="glyphicon glyphicon-link">
+           </span>
+          </a>
+          Conversion rates
+         </h1>
+         <p>
+          The individual measured conversion rates within a 3’ UTR are highly dependent on the T-content of a given UTR and the number of reads that cover those Ts.
+The more reads containing Ts, the more accurate the overall estimation of the conversion rate of T&gt;Cs in this given 3’ UTR will be.
+         </p>
+         <p>
+          We have adressed this by using a 3’ UTR positions based view instead of a read based view: For each T-position in a given 3’ UTR, we record
+the number of reads covering this position and the number of reads with T&gt;C conversion at this position - the more reads, the more accurate the T&gt;C conversion rate estimation will be.
+         </p>
+         <p>
+          Both values are summed over all T-positions in the UTR - this way, less reliable T-positions with little reads will have lower impact on the overall T&gt;C conversion rate estimation than
+T-positions with many reads.
+         </p>
+         <a class="reference internal image-reference" href="_images/conversionrates.png">
+          <img alt="_images/conversionrates.png" src="_images/conversionrates.png" style="width: 800px;"/>
+         </a>
+         <p>
+          <strong>
+           Note:
+          </strong>
+          Since QuantSeq is a strand-specific assay, only sense reads will be considered for the final analysis!
+         </p>
+        </div>
+        <div class="section" id="multimapper-reconciliation">
+         <h1 id="multimapper-reconciliation">
+          <a class="header-link" href="#multimapper-reconciliation">
+           <span class="glyphicon glyphicon-link">
+           </span>
+          </a>
+          Multimapper reconciliation
+         </h1>
+         <div class="section" id="definition-and-importance">
+          <h4>
+           Definition and importance
+           <a class="headerlink" href="#definition-and-importance" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <p>
+           Multimappers are reads which align to more than one position in the genome with equal best alignment scores.
+          </p>
+          <p>
+           Such reads make up a substantial part of the alignment and are generally ignored, but can provide valuable information if they can be unequivocally
+reassigned to a given location, enhancing the overall signal and thus heavily influencing the overall accuracy.
+          </p>
+          <p>
+           However, there are also several caveats: For genes with isoforms or homologous genes, simply taking all alignments into account will heavily distort
+the signal, since the reads will likely not account equally for all regions, but rather originate mainly from a single region which cannot be unambiguously assigned.
+          </p>
+         </div>
+         <div class="section" id="reassignment-strategy">
+          <h4>
+           Reassignment strategy
+           <a class="headerlink" href="#reassignment-strategy" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <p>
+           We have settled for a very conservative multimapper reassignment strategy:
+          </p>
+          <p>
+           Since the QuantSeq technology specifically enriches for 3’ UTRs, we only consider alignments to annotated 3’ UTRs supplied to
+           <em>
+            slamdunk
+           </em>
+           as relevant.
+          </p>
+          <p>
+           Therefore, any multimappers with alignments to a single 3’ UTR and non-3’UTR regions (i.e. not annotated in the supplied reference) will be unequivocally
+assigned to the single 3’UTR. If there are multiple alignments to this single 3’UTR, one will be chosen at random.
+          </p>
+          <p>
+           For all other cases, were a read maps to several 3’ UTRs, we are unable to reassign the read uniquely to a given 3’UTR and thus discard it from the analysis.
+          </p>
+          <p>
+           In short, the procedure is as follows, illustrated by the example below:
+          </p>
+          <ol class="arabic simple">
+           <li>
+            Create an
+            <a class="reference external" href="https://pypi.python.org/pypi/intervaltree/2.0.4">
+             Interval Tree
+            </a>
+            from the supplied 3’ UTR annotation
+           </li>
+           <li>
+            Check the overlaps of all multimapping reads with 3’ UTRs using the Interval Tree
+           </li>
+           <li>
+            Remove any reads with alignments to more than one single 3’ UTR
+           </li>
+           <li>
+            Remove any additional alignments to non-UTR regions
+           </li>
+          </ol>
+          <a class="reference internal image-reference" href="_images/multimappers.png">
+           <img alt="_images/multimappers.png" src="_images/multimappers.png" style="width: 800px;"/>
+          </a>
+         </div>
+        </div>
+        <div class="section" id="sample-file-format">
+         <span id="sample-file">
+         </span>
+         <h1 id="sample-file-format">
+          <a class="header-link" href="#sample-file-format">
+           <span class="glyphicon glyphicon-link">
+           </span>
+          </a>
+          Sample file format
+         </h1>
+         <p>
+          Sample description files are a convenient way to provide multiple sample files as well as corresponding sample information to
+          <em>
+           slamdunk
+          </em>
+          . A sample description
+file is a tab or comma separated plain text file with the following columns:
+         </p>
+         <table border="1" class="docutils">
+          <colgroup>
+           <col width="15%">
+           </col>
+           <col width="7%">
+           </col>
+           <col width="79%">
+           </col>
+          </colgroup>
+          <thead valign="bottom">
+           <tr class="row-odd">
+            <th class="head">
+             Column
+            </th>
+            <th class="head">
+             Datatype
+            </th>
+            <th class="head">
+             Description
+            </th>
+           </tr>
+          </thead>
+          <tbody valign="top">
+           <tr class="row-even">
+            <td>
+             Filepath
+            </td>
+            <td>
+             String
+            </td>
+            <td>
+             Path to raw reads in BAM/fasta(gz)/fastq(gz) format
+            </td>
+           </tr>
+           <tr class="row-odd">
+            <td>
+             Sample description
+            </td>
+            <td>
+             String
+            </td>
+            <td>
+             Description of the sample
+            </td>
+           </tr>
+           <tr class="row-even">
+            <td>
+             Sample type
+            </td>
+            <td>
+             String
+            </td>
+            <td>
+             Type of sample. Only relevant for timecourses (pulse/chase) otherwise use any value
+            </td>
+           </tr>
+           <tr class="row-odd">
+            <td>
+             Timepoint
+            </td>
+            <td>
+             Integer
+            </td>
+            <td>
+             Timepoint of the sample in minutes. Again only relevant for timecourses otherwise use any value
+            </td>
+           </tr>
+          </tbody>
+         </table>
+        </div>
+        <div class="section" id="tcount-file-format">
+         <span id="tcount-file">
+         </span>
+         <h1 id="tcount-file-format">
+          <a class="header-link" href="#tcount-file-format">
+           <span class="glyphicon glyphicon-link">
+           </span>
+          </a>
+          Tcount file format
+         </h1>
+         <p>
+          The
+          <em>
+           tcount
+          </em>
+          file is the central output file of
+          <em>
+           slamdunk
+          </em>
+          . It contains all results, conversion rates and other statistics for each UTR which is the
+main starting point for any subsequent analysis that will follow e.g. transcript half-life estimates or DE analysis.
+         </p>
+         <p>
+          <em>
+           Tcount
+          </em>
+          files are essentially tab-separated text files containing one line entry per 3’ UTR supplied by the user. Each entry contains the following
+columns:
+         </p>
+         <table border="1" class="docutils">
+          <colgroup>
+           <col width="14%">
+           </col>
+           <col width="8%">
+           </col>
+           <col width="78%">
+           </col>
+          </colgroup>
+          <thead valign="bottom">
+           <tr class="row-odd">
+            <th class="head">
+             Column
+            </th>
+            <th class="head">
+             Datatype
+            </th>
+            <th class="head">
+             Description
+            </th>
+           </tr>
+          </thead>
+          <tbody valign="top">
+           <tr class="row-even">
+            <td>
+             chromosome
+            </td>
+            <td>
+             String
+            </td>
+            <td>
+             Chromosome on which the 3’ UTR resides
+            </td>
+           </tr>
+           <tr class="row-odd">
+            <td>
+             start
+            </td>
+            <td>
+             Integer
+            </td>
+            <td>
+             Start position of the 3’ UTR
+            </td>
+           </tr>
+           <tr class="row-even">
+            <td>
+             end
+            </td>
+            <td>
+             Integer
+            </td>
+            <td>
+             End position of the 3’ UTR
+            </td>
+           </tr>
+           <tr class="row-odd">
+            <td>
+             name
+            </td>
+            <td>
+             String
+            </td>
+            <td>
+             Name or ID of the 3’ UTR supplied by the user
+            </td>
+           </tr>
+           <tr class="row-even">
+            <td>
+             length
+            </td>
+            <td>
+             Integer
+            </td>
+            <td>
+             Length of the 3’ UTR
+            </td>
+           </tr>
+           <tr class="row-odd">
+            <td>
+             strand
+            </td>
+            <td>
+             String
+            </td>
+            <td>
+             Strand of the 3’ UTR
+            </td>
+           </tr>
+           <tr class="row-even">
+            <td>
+             conversionRate
+            </td>
+            <td>
+             Float
+            </td>
+            <td>
+             Average conversion rate (see
+             <a class="reference internal" href="index.html#conversionrates">
+              <em>
+               Conversion rates
+              </em>
+             </a>
+             )
+            </td>
+           </tr>
+           <tr class="row-odd">
+            <td>
+             readsCPM
+            </td>
+            <td>
+             Float
+            </td>
+            <td>
+             Normalized number of reads as counts per million
+            </td>
+           </tr>
+           <tr class="row-even">
+            <td>
+             Tcontent
+            </td>
+            <td>
+             Integer
+            </td>
+            <td>
+             Number of Ts in the 3’ UTR (As for - strand UTRs)
+            </td>
+           </tr>
+           <tr class="row-odd">
+            <td>
+             coverageOnTs
+            </td>
+            <td>
+             Integer
+            </td>
+            <td>
+             Cumulative coverage on all Ts in the 3’ UTR
+            </td>
+           </tr>
+           <tr class="row-even">
+            <td>
+             conversionsOnTs
+            </td>
+            <td>
+             Integer
+            </td>
+            <td>
+             Cumulative number of T&gt;C conversions in the 3’ UTR
+            </td>
+           </tr>
+           <tr class="row-odd">
+            <td>
+             readCount
+            </td>
+            <td>
+             Integer
+            </td>
+            <td>
+             Number of reads aligning to the 3’ UTR
+            </td>
+           </tr>
+           <tr class="row-even">
+            <td>
+             tcReadCount
+            </td>
+            <td>
+             Integer
+            </td>
+            <td>
+             Number of reads with T&gt;C conversions aligning to the 3’ UTR
+            </td>
+           </tr>
+           <tr class="row-odd">
+            <td>
+             multimapCount
+            </td>
+            <td>
+             Integer
+            </td>
+            <td>
+             Number of reads considered as multimappers aligning to the 3’ UTR
+            </td>
+           </tr>
+          </tbody>
+         </table>
+         <p>
+          Here is an example:
+         </p>
+         <div class="code bash highlight-python">
+          <div class="highlight">
+           <pre>chr13   14197734        14199362        ENSMUSG00000039219      1628    +       0.0466045272969 4.00770947448   587     751     35      59      29      0
+chr2    53217389        53219220        ENSMUSG00000026960      1831    +       0.0270802560315 28.3936027175   709     6093    165     418     138     2
+chr2    53217389        53218446        ENSMUSG00000026960      1057    +       0.0268910814471 23.9783295677   407     5169    139     353     118     0
+chr3    95495394        95495567        ENSMUSG00000015522      173     +       0.0290697674419 1.08683646766   53      172     5       16      5       0
+chr3    95495394        95497237        ENSMUSG00000015522      1843    +       0.0253636702723 11.6834920273   584     2681    68      172     55      4
+chr6    113388777       113389056       ENSMUSG00000079426      279     +       0.0168514412417 16.7780379694   71      2255    38      247     38      3
+</pre>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="docs_section">
+       <h1 class="section-header" id="document-Usage">
+        <a class="header-link" href="#document-Usage">
+         <span class="glyphicon glyphicon-link">
+         </span>
+        </a>
+        Usage
+       </h1>
+       <div class_="docs_block" id="document-Usage">
+        <p>
+         <em>
+          Slamdunk
+         </em>
+         is a modular analysis software. Modules are dubbed
+         <em>
+          dunks
+         </em>
+         and each dunk builds upon the results from the previous dunks.
+        </p>
+        <p>
+         The idea is to always process all samples with one command line call of a given dunk. Output files typically get the same name as the input files with a certain prefix (e.g. “slamdunk_mapped”).
+The command line interface follows the “samtools/bwa” style. Meaning that all commands are available through the central executable/script
+         <em>
+          slamdunk
+         </em>
+         (located in the bin directory)
+Wildcard characters to supply multiple files are recognized throughout
+         <em>
+          slamdunk
+         </em>
+         .
+        </p>
+        <p>
+         Available dunks are:
+        </p>
+        <div class="highlight-python">
+         <div class="highlight">
+          <pre><span class="s">'map'</span><span class="p">,</span> <span class="s">'filter'</span><span class="p">,</span> <span class="s">'snp'</span><span class="p">,</span> <span class="s">'count'</span><span class="p">,</span> <span class="s">'all'</span>
+</pre>
+         </div>
+        </div>
+        <p>
+         Calling a module with –help shows all possible parameters text:
+        </p>
+        <div class="code bash highlight-python">
+         <div class="highlight">
+          <pre>usage: slamdunk all [-h] -r REFERENCEFILE -b BED -o OUTPUTDIR [-5 TRIM5]
+                 [-a MAXPOLYA] [-n TOPN] [-t THREADS] [-q] [-l] [-m]
+                 [-mq MQ] [-mi IDENTITY] [-nm NM] [-mc COV] [-mv VAR]
+                 [-mts] [-rl MAXLENGTH] [-mbq MINQUAL] [-i SAMPLEINDEX]
+                 [-ss]
+                 files [files ...]
+
+positional arguments:
+   files                 Single csv/tsv file (recommended) containing all
+                         sample files and sample info or a list of all sample
+                         BAM/FASTA(gz)/FASTQ(gz) files
+
+optional arguments:
+   -h, --help            show this help message and exit
+   -r REFERENCEFILE, --reference REFERENCEFILE
+                         Reference fasta file
+   -b BED, --bed BED     BED file with 3'UTR coordinates
+   -o OUTPUTDIR, --outputDir OUTPUTDIR
+                         Output directory for slamdunk run.
+   -5 TRIM5, --trim-5p TRIM5
+                         Number of bp removed from 5' end of all reads
+                         (default: 12)
+   -a MAXPOLYA, --max-polya MAXPOLYA
+                         Max number of As at the 3' end of a read (default: 4)
+   -n TOPN, --topn TOPN  Max. number of alignments to report per read (default:
+                         1)
+   -t THREADS, --threads THREADS
+                         Thread number (default: 1)
+   -q, --quantseq        Run plain Quantseq alignment without SLAM-seq scoring
+   -l, --local           Use a local alignment algorithm for mapping.
+   -m, --multimap        Use reference to resolve multimappers (requires -n &gt;
+                         1).
+   -mq MQ, --min-mq MQ   Minimum mapping quality (default: 2)
+   -mi IDENTITY, --min-identity IDENTITY
+                         Minimum alignment identity (default: 0.95)
+   -nm NM, --max-nm NM   Maximum NM for alignments (default: -1)
+   -mc COV, --min-coverage COV
+                         Minimimum coverage to call variant (default: 10)
+   -mv VAR, --var-fraction VAR
+                         Minimimum variant fraction to call variant (default:
+                         0.8)
+   -mts, --multiTCStringency
+                         Multiple T&gt;C conversion required for T&gt;C read
+   -rl MAXLENGTH, --max-read-length MAXLENGTH
+                         Max read length in BAM file
+   -mbq MINQUAL, --min-base-qual MINQUAL
+                         Min base quality for T -&gt; C conversions (default: 0)
+   -i SAMPLEINDEX, --sample-index SAMPLEINDEX
+                         Run analysis only for sample &lt;i&gt;. Use for distributing
+                         slamdunk analysis on a cluster (index is 0-based).
+   -ss, --skip-sam       Output BAM while mapping. Slower but, uses less hard
+                         disk.
+</pre>
+         </div>
+        </div>
+        <p>
+         The flow of
+         <em>
+          slamdunk
+         </em>
+         is to first map your reads, filter your alignments, call variants on your final alignments and use these to calculate conversion rates, counts and various
+statistics for your 3’UTRs.
+        </p>
+        <a class="reference internal image-reference" href="_images/slamdunk_flow.png">
+         <img alt="_images/slamdunk_flow.png" src="_images/slamdunk_flow.png" style="width: 600px;"/>
+        </a>
+        <p>
+         All steps create a log file that has the same name as the output file. Typically there is one log file per sample and task (makes parallel execution easier).
+Command line output is limited to a minimum at the moment. If a sample is finished a ”.” is printed (very basic progress bar).
+        </p>
+       </div>
+      </div>
+      <div class="docs_section">
+       <h1 class="section-header" id="document-Dunks">
+        <a class="header-link" href="#document-Dunks">
+         <span class="glyphicon glyphicon-link">
+         </span>
+        </a>
+        Dunks
+       </h1>
+       <div class_="docs_block" id="document-Dunks">
+        <div class="section" id="map">
+         <h1 id="map">
+          <a class="header-link" href="#map">
+           <span class="glyphicon glyphicon-link">
+           </span>
+          </a>
+          map
+         </h1>
+         <p>
+          The
+          <em>
+           map
+          </em>
+          dunk is used to map reads to a given genome using
+          <a class="reference external" href="http://cibiv.github.io/NextGenMap">
+           NextGenMap’s
+          </a>
+          SLAMSeq alignment settings.
+         </p>
+         <div class="code bash highlight-python">
+          <div class="highlight">
+           <pre>slamdunk map [-h] -r &lt;reference fasta&gt; -o &lt;output directory&gt; [-5 &lt;bp to trim from 5' end&gt;]
+             [-n &lt;Output up to N alignments per multimapper&gt;] [-a &lt;maximum number of 3' As before trimming] [-t &lt;threads&gt;]
+             [-q] [-l] [-i &lt;sample index&gt;] [-ss] files [files ...]
+</pre>
+          </div>
+         </div>
+         <div class="section" id="input">
+          <h4>
+           Input
+           <a class="headerlink" href="#input" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="14%">
+            </col>
+            <col width="86%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              File
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               Reference fasta
+              </strong>
+             </td>
+             <td>
+              The reference sequence of the genome to map against in fasta format.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               files
+              </strong>
+             </td>
+             <td>
+              Samplesheet (see
+              <a class="reference internal" href="index.html#sample-file">
+               <em>
+                Sample file format
+               </em>
+              </a>
+              ) or a list of all sample BAM/FASTA(gz)/FASTQ(gz) files (wildcard * accepted).
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+         <div class="section" id="output">
+          <h4>
+           Output
+           <a class="headerlink" href="#output" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="21%">
+            </col>
+            <col width="79%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              File
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               Mapped BAM file
+              </strong>
+             </td>
+             <td>
+              One BAM file per sample containing the mapped reads.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               Mapped bam index file
+              </strong>
+             </td>
+             <td>
+              The raw unmapped reads in fastq / BAM format (multiple read files can be run at once).
+             </td>
+            </tr>
+           </tbody>
+          </table>
+          <p>
+           Output files have the same name as the input files with the prefix “_slamdunk_mapped.bam”.
+For example:
+          </p>
+          <div class="highlight-python">
+           <div class="highlight">
+            <pre>34330_An312_wt-2n_mRNA-slamseq-autoquant_0h-R1.fq.gz -&gt;
+34330_An312_wt-2n_mRNA-slamseq-autoquant_0h-R1.fq_slamdunk_mapped.bam
+</pre>
+           </div>
+          </div>
+         </div>
+         <div class="section" id="parameters">
+          <h4>
+           Parameters
+           <a class="headerlink" href="#parameters" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="5%">
+            </col>
+            <col width="4%">
+            </col>
+            <col width="91%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              Parameter
+             </th>
+             <th class="head">
+              Required
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               -h
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Prints the help.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -r
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              The reference fasta file.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -o
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              The output directory where all output files of this dunk will be placed.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -5
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Number of bases that will be hard-clipped from the 5’ end of each read (default: 0).
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -a
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Maximum number of As at the 3’ end of a read.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -n
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              The maximum number of alignments that will be reported for a multi-mapping read (i.e. reads with multiple alignments of equal best scores) (default: 1).
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -t
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              The number of threads to use for this dunk. NextGenMap runs multi-threaded, so it is recommended to use more threads than available samples (default: 1).
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -q
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Deactivates NextGenMap’s SLAMSeq alignment settings. Can be used to align plain QuantSeq data instead of SLAMSeq data.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -l
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Switches to local alignment instead of semi-global alignment. Semi-global alignments are the default for NextGenMap.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -i
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Run analysis only for sample &lt;i&gt;. Use for distributin slamdunk analysis on a cluster (index is 0-based).
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -ss
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Output BAM while mapping. Slower, but uses less hard disk.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               file
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              Samplesheet (see
+              <a class="reference internal" href="index.html#sample-file">
+               <em>
+                Sample file format
+               </em>
+              </a>
+              ) or a list of all sample BAM/FASTA(gz)/FASTQ(gz) files (wildcard * accepted).
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+        </div>
+        <hr class="docutils"/>
+        <div class="section" id="filter">
+         <h1 id="filter">
+          <a class="header-link" href="#filter">
+           <span class="glyphicon glyphicon-link">
+           </span>
+          </a>
+          filter
+         </h1>
+         <p>
+          The
+          <em>
+           filter
+          </em>
+          dunk is used to filter the raw alignments from the
+          <em>
+           map
+          </em>
+          dunk using multiple quality criteria to obtain the final alignments for all subsequent analyses.
+         </p>
+         <div class="code bash highlight-python">
+          <div class="highlight">
+           <pre>slamdunk filter [-h] -o &lt;output directory&gt; [-b &lt;bed file&gt;] [-mq &lt;MQ cutoff&gt;] [-mi &lt;identity cutoff&gt;]
+                [-nm &lt;NM cutoff&gt;] [-t &lt;threads&gt;] bam [bam ...]
+</pre>
+          </div>
+         </div>
+         <div class="section" id="id1">
+          <h4>
+           Input
+           <a class="headerlink" href="#id1" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="11%">
+            </col>
+            <col width="89%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              File
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               bam
+              </strong>
+             </td>
+             <td>
+              The raw mapped reads in BAM format from the
+              <em>
+               map
+              </em>
+              dunk.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -b
+              </strong>
+             </td>
+             <td>
+              (optional) Bed file with coordinates of 3’UTRs.
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+         <div class="section" id="id2">
+          <h4>
+           Output
+           <a class="headerlink" href="#id2" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="21%">
+            </col>
+            <col width="79%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              File
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               Filtered BAM file
+              </strong>
+             </td>
+             <td>
+              One BAM file per sample containing the filtered reads.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               Filtered bam index file
+              </strong>
+             </td>
+             <td>
+              One BAM index file accompanying each filtered BAM file.
+             </td>
+            </tr>
+           </tbody>
+          </table>
+          <p>
+           Output files have the same name as the input files with the prefix “_filtered”.
+For example:
+          </p>
+          <div class="highlight-python">
+           <div class="highlight">
+            <pre>34330_An312_wt-2n_mRNA-slamseq-autoquant_0h-R1.fq_slamdunk_mapped.bam -&gt;
+34330_An312_wt-2n_mRNA-slamseq-autoquant_0h-R1.fq_slamdunk_mapped_filtered.bam
+</pre>
+           </div>
+          </div>
+         </div>
+         <div class="section" id="id3">
+          <h4>
+           Parameters
+           <a class="headerlink" href="#id3" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="5%">
+            </col>
+            <col width="4%">
+            </col>
+            <col width="91%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              Parameter
+             </th>
+             <th class="head">
+              Required
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               -h
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Prints the help.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -o
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              The output directory where all output files of this dunk will be placed.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -b
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              BED-file containing coordinates for 3’ UTRs.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -mq
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Minimum mapping quality required to retain a read (default: 2).
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -mi
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Minimum alignment identity required to retain a read (default: 0.8).
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -nm
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Maximum number of mismatches allowed in a read (default: -1).
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -t
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              The number of threads to use for this dunk. This dunk runs single-threaded so the number of threads should be equal to the number of available samples (default: 1).
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               bam
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              BAM file(s) containing the raw mapped reads (wildcard * accepted).
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+        </div>
+        <hr class="docutils"/>
+        <div class="section" id="snp">
+         <h1 id="snp">
+          <a class="header-link" href="#snp">
+           <span class="glyphicon glyphicon-link">
+           </span>
+          </a>
+          snp
+         </h1>
+         <p>
+          The
+          <em>
+           snp
+          </em>
+          dunk is used to call variants on the final filtered alignments of the
+          <em>
+           filter
+          </em>
+          dunk using
+          <a class="reference external" href="http://dkoboldt.github.io/varscan/">
+           VarScan2
+          </a>
+          . Any called T-&gt;C SNPs from this dunk will be excluded in the subsequent
+analyses to reduce the false-positive number.
+         </p>
+         <div class="code bash highlight-python">
+          <div class="highlight">
+           <pre>slamdunk snp [-h] -o &lt;output directory&gt; -r &lt;reference fasta&gt; [-c &lt;coverage cutoff&gt;]
+             [-f &lt;variant fraction cutoff&gt;] [-t &lt;threads&gt;] bam [bam ...]
+</pre>
+          </div>
+         </div>
+         <div class="section" id="id4">
+          <h4>
+           Input
+           <a class="headerlink" href="#id4" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="10%">
+            </col>
+            <col width="90%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              File
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               bam
+              </strong>
+             </td>
+             <td>
+              The final filtered reads in BAM format from the
+              <em>
+               filter
+              </em>
+              dunk.
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+         <div class="section" id="id5">
+          <h4>
+           Output
+           <a class="headerlink" href="#id5" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="9%">
+            </col>
+            <col width="91%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              File
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               VCF file
+              </strong>
+             </td>
+             <td>
+              One
+              <a class="reference external" href="http://www.1000genomes.org/wiki/Analysis/vcf4.0/">
+               VCF file
+              </a>
+              per sample containing the called variants.
+             </td>
+            </tr>
+           </tbody>
+          </table>
+          <p>
+           Output files have the same name as the input files with the prefix “_snp”.
+For example:
+          </p>
+          <div class="highlight-python">
+           <div class="highlight">
+            <pre>34330_An312_wt-2n_mRNA-slamseq-autoquant_0h-R1.fq_slamdunk_mapped_filtered.bam -&gt;
+34330_An312_wt-2n_mRNA-slamseq-autoquant_0h-R1.fq_slamdunk_mapped_filtered_snp.vcf
+</pre>
+           </div>
+          </div>
+         </div>
+         <div class="section" id="id6">
+          <h4>
+           Parameters
+           <a class="headerlink" href="#id6" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="5%">
+            </col>
+            <col width="4%">
+            </col>
+            <col width="91%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              Parameter
+             </th>
+             <th class="head">
+              Required
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               -h
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Prints the help.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -r
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              The reference fasta file.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -o
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              The output directory where all output files of this dunk will be placed.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -c
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Minimum coverage to call a variant.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -f
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Minimum variant fraction to call a variant.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -t
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              The number of threads to use for this dunk. VarScan2 runs multi-threaded, so it is recommended to use more threads than available samples (default: 1).
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               bam
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              BAM file(s) containing the final filtered reads (wildcard * accepted).
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+        </div>
+        <hr class="docutils"/>
+        <div class="section" id="count">
+         <h1 id="count">
+          <a class="header-link" href="#count">
+           <span class="glyphicon glyphicon-link">
+           </span>
+          </a>
+          count
+         </h1>
+         <p>
+          The
+          <em>
+           count
+          </em>
+          dunk calculates all relevant numbers on statistics of SLAMSeq reads for each given 3’ UTR. Central output will be
+          <em>
+           tcount
+          </em>
+          table
+(see
+          <a class="reference internal" href="index.html#tcount-file">
+           <em>
+            Tcount file format
+           </em>
+          </a>
+          ).
+         </p>
+         <div class="code bash highlight-python">
+          <div class="highlight">
+           <pre>slamdunk count [-h] -o &lt;output directory&gt; [-s &lt;SNP directory&gt;] -r &lt;reference fasta&gt; -b &lt;bed file&gt; [-m]
+                [-l &lt;maximum read length&gt;] [-q &lt;minimum base quality&gt;] [-t &lt;threads] bam [bam ...]
+</pre>
+          </div>
+         </div>
+         <p>
+          <strong>
+           Note:
+          </strong>
+          Since QuantSeq is a strand-specific assay, only sense reads will be considered for the final analysis!
+         </p>
+         <div class="section" id="id7">
+          <h4>
+           Input
+           <a class="headerlink" href="#id7" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="7%">
+            </col>
+            <col width="93%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              File
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               bam
+              </strong>
+             </td>
+             <td>
+              The final filtered reads in BAM format from the
+              <em>
+               filter
+              </em>
+              dunk.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -s
+              </strong>
+             </td>
+             <td>
+              (optional) The called variants from the
+              <em>
+               snp
+              </em>
+              dunk to filter false-positive T-&gt;C conversions.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -b
+              </strong>
+             </td>
+             <td>
+              Bed file with coordinates of 3’UTRs.
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+         <div class="section" id="id8">
+          <h4>
+           Output
+           <a class="headerlink" href="#id8" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="15%">
+            </col>
+            <col width="85%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              File
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               Tcount file
+              </strong>
+             </td>
+             <td>
+              A tab-separated
+              <em>
+               tcount
+              </em>
+              file per sample containing the SLAMSeq statistics (see
+              <a class="reference internal" href="index.html#tcount-file">
+               <em>
+                Tcount file format
+               </em>
+              </a>
+              ).
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               Bedgraph file
+              </strong>
+             </td>
+             <td>
+              A bedgraph file per sample showing the T-&gt;C conversion rate on each covered reference T nucleotide.
+             </td>
+            </tr>
+           </tbody>
+          </table>
+          <p>
+           Output files have the same name as the input files with the prefix “_tcount”.
+For example:
+          </p>
+          <div class="highlight-python">
+           <div class="highlight">
+            <pre>34330_An312_wt-2n_mRNA-slamseq-autoquant_0h-R1.fq_slamdunk_mapped_filtered.bam -&gt;
+34330_An312_wt-2n_mRNA-slamseq-autoquant_0h-R1.fq_slamdunk_mapped_filtered_tcount.csv
+</pre>
+           </div>
+          </div>
+         </div>
+         <div class="section" id="id9">
+          <h4>
+           Parameters
+           <a class="headerlink" href="#id9" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="5%">
+            </col>
+            <col width="4%">
+            </col>
+            <col width="91%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              Parameter
+             </th>
+             <th class="head">
+              Required
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               -h
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Prints the help.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -o
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              The output directory where all output files of this dunk will be placed.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -s
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              The output directory of the
+              <em>
+               snp
+              </em>
+              dunk containing the called variants.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -r
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              The reference fasta file.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -b
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              BED-file containing coordinates for 3’ UTRs.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -l
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Maximum read length (will be automatically estimated if not set).
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -m
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Flag to activate the multiple T-&gt;C conversion stringency: Only T-&gt;C conversions in reads with more than 1 T-&gt;C conversion will be counted.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -q
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Minimum base quality for T-&gt;C conversions to be counted (default: 0).
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -t
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              The number of threads to use for this dunk. This dunk runs single-threaded so the number of threads should be equal to the number of available samples (default: 1)
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               bam
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              BAM file(s) containing the final filtered reads (wildcard * accepted).
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+        </div>
+        <hr class="docutils"/>
+        <div class="section" id="all">
+         <h1 id="all">
+          <a class="header-link" href="#all">
+           <span class="glyphicon glyphicon-link">
+           </span>
+          </a>
+          all
+         </h1>
+         <p>
+          The
+          <em>
+           all
+          </em>
+          dunk is used to run an entire
+          <em>
+           slamdunk
+          </em>
+          run at once. It sequentially calls the
+          <em>
+           map
+          </em>
+          ,
+          <em>
+           filter
+          </em>
+          ,
+          <em>
+           snp
+          </em>
+          and
+          <em>
+           count
+          </em>
+          dunks and
+provides parameters to keep full control over all dunks.
+         </p>
+         <div class="code bash highlight-python">
+          <div class="highlight">
+           <pre>slamdunk all [-h] -r &lt;reference fasta&gt; -b &lt;bed file&gt; -o &lt;output directory&gt; [-5 &lt;bp to trim from 5' end&gt;] [-a &lt;maximum number of 3' As before trimming]
+             [-n &lt;Output up to N alignments per multimapper&gt;] [-t &lt;threads&gt;] [-q] [-l] [-m] [-mq &lt;MQ cutoff&gt;]
+             [-mi &lt;identity cutoff&gt;] [-nm &lt;NM cutoff&gt;] [-mc &lt;coverage cutoff&gt;] [-mv &lt;variant fraction cutoff&gt;] [-mts]
+             [-rl &lt;maximum read length&gt;] [-mbq &lt;minimum base quality&gt;] [-i &lt;sample index&gt;] [-ss] files [files ...]
+</pre>
+          </div>
+         </div>
+         <div class="section" id="id10">
+          <h4>
+           Input
+           <a class="headerlink" href="#id10" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="14%">
+            </col>
+            <col width="86%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              File
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               Reference fasta
+              </strong>
+             </td>
+             <td>
+              The reference sequence of the genome to map against in fasta format.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -b
+              </strong>
+             </td>
+             <td>
+              Bed file with coordinates of 3’UTRs.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               file
+              </strong>
+             </td>
+             <td>
+              Samplesheet (see
+              <a class="reference internal" href="index.html#sample-file">
+               <em>
+                Sample file format
+               </em>
+              </a>
+              ) or a list of all sample BAM/FASTA(gz)/FASTQ(gz) files (wildcard * accepted).
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+         <div class="section" id="id11">
+          <h4>
+           Output
+           <a class="headerlink" href="#id11" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <p>
+           One separate directory will be created for each dunk output:
+          </p>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="43%">
+            </col>
+            <col width="57%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              Folder
+             </th>
+             <th class="head">
+              Dunk
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               map
+              </strong>
+             </td>
+             <td>
+              <em>
+               map
+              </em>
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               filter
+              </strong>
+             </td>
+             <td>
+              <em>
+               filter
+              </em>
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               snp
+              </strong>
+             </td>
+             <td>
+              <em>
+               snp
+              </em>
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               count
+              </strong>
+             </td>
+             <td>
+              <em>
+               count
+              </em>
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+         <div class="section" id="id12">
+          <h4>
+           Parameters
+           <a class="headerlink" href="#id12" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="5%">
+            </col>
+            <col width="4%">
+            </col>
+            <col width="91%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              Parameter
+             </th>
+             <th class="head">
+              Required
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               -h
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              Prints the help.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -r
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              The reference fasta file.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -b
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              BED-file containing coordinates for 3’ UTRs.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -o
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              The output directory where all output files of this dunk will be placed.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -5
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Number of bases that will be hard-clipped from the 5’ end of each read (default: 0)
+              <strong>
+               [map]
+              </strong>
+              .
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -a
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Maximum number of A at the 3’ end of a read.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -n
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              The maximum number of alignments that will be reported for a multi-mapping read (i.e. reads with multiple alignments of equal best scores) (default: 1)
+              <strong>
+               [map]
+              </strong>
+              .
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -t
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              The number of threads to use for this dunk. NextGenMap runs multi-threaded, so it is recommended to use more threads than available samples (default: 1)
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -q
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Deactivates NextGenMap’s SLAMSeq alignment settings. Can be used to align plain QuantSeq data instead of SLAMSeq data
+              <strong>
+               [map]
+              </strong>
+              .
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -l
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Switches to local alignment instead of semi-global alignment. Semi-global alignments are the default for NextGenMap
+              <strong>
+               [map]
+              </strong>
+              .
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -m
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Use 3’UTR annotation to filter multimappers
+              <strong>
+               [filter]
+              </strong>
+              .
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -mq
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Minimum mapping quality required to retain a read (default: 2)
+              <strong>
+               [filter]
+              </strong>
+              .
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -mi
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Minimum alignment identity required to retain a read (default: 0.8)
+              <strong>
+               [filter]
+              </strong>
+              .
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -nm
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Maximum number of mismatches allowed in a read (default: -1)
+              <strong>
+               [filter]
+              </strong>
+              .
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -mc
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Minimum coverage to call a variant (default: 10)
+              <strong>
+               [snp]
+              </strong>
+              .
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -mv
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Minimum variant fraction to call a variant (default: 0.8)
+              <strong>
+               [snp]
+              </strong>
+              .
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -mts
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Flag to activate the multiple T-&gt;C conversion stringency: Only T-&gt;C conversions in reads with more than 1 T-&gt;C conversion will be counted.
+              <strong>
+               [count]
+              </strong>
+              .
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -rl
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Maximum read length (will be automatically estimated if not set)
+              <strong>
+               [count]
+              </strong>
+              .
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -mbq
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Minimum base quality for T-&gt;C conversions to be counted (default: 0)
+              <strong>
+               [count]
+              </strong>
+              .
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               files
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              Samplesheet (see
+              <a class="reference internal" href="index.html#sample-file">
+               <em>
+                Sample file format
+               </em>
+              </a>
+              ) or a list of all sample BAM/FASTA(gz)/FASTQ(gz) files (wildcard * accepted).
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="docs_section">
+       <h1 class="section-header" id="document-Alleyoop">
+        <a class="header-link" href="#document-Alleyoop">
+         <span class="glyphicon glyphicon-link">
+         </span>
+        </a>
+        Alleyoop
+       </h1>
+       <div class_="docs_block" id="document-Alleyoop">
+        <p>
+         <em>
+          Alleyoop
+         </em>
+         (
+         <strong>
+          A
+         </strong>
+         dditional s
+         <strong>
+          L
+         </strong>
+         amdunk he
+         <strong>
+          L
+         </strong>
+         p
+         <strong>
+          E
+         </strong>
+         r tools for an
+         <strong>
+          Y
+         </strong>
+         diagn
+         <strong>
+          O
+         </strong>
+         stics
+         <strong>
+          O
+         </strong>
+         r
+         <strong>
+          P
+         </strong>
+         lots) is a collection of tools for post-processing and running diagnostics on
+         <em>
+          slamdunk
+         </em>
+         analyses.
+Similar to
+         <em>
+          slamdunk
+         </em>
+         , the command line interface follows the “samtools/bwa” style. Meaning that all commands are available through the central executable/script
+         <em>
+          alleyoop
+         </em>
+         (located in the bin directory).
+        </p>
+        <p>
+         <strong>
+          MultiQC:
+         </strong>
+        </p>
+        <p>
+         We implemented a module for
+         <a class="reference external" href="http://multiqc.info/">
+          MultiQC
+         </a>
+         to support summary reports of
+         <em>
+          Alleyoop
+         </em>
+         modules. Currently MultiQC supports the
+         <em>
+          summary
+         </em>
+         ,
+         <em>
+          rates
+         </em>
+         ,
+         <em>
+          utrrates
+         </em>
+         ,
+         <em>
+          tcperreadpos
+         </em>
+         and
+         <em>
+          tcperutrpos
+         </em>
+         commands.
+        </p>
+        <div class="section" id="dedup">
+         <h1 id="dedup">
+          <a class="header-link" href="#dedup">
+           <span class="glyphicon glyphicon-link">
+           </span>
+          </a>
+          dedup
+         </h1>
+         <p>
+          This tool allows you to deduplicate a given bam-file. While many tools like
+          <a class="reference external" href="https://broadinstitute.github.io/picard/">
+           Picard tools
+          </a>
+          already collapses
+reads with same start and end position on the chromosome,
+          <em>
+           alleyoop
+          </em>
+          only collapses reads with same start and end position, mapping to the same strand and identical
+read sequence.
+         </p>
+         <div class="code bash highlight-python">
+          <div class="highlight">
+           <pre>alleyoop dedup [-h] -o &lt;output directory&gt; [-t &lt;threads&gt;] bam [bam ...]
+</pre>
+          </div>
+         </div>
+         <div class="section" id="input">
+          <h4>
+           Input
+           <a class="headerlink" href="#input" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="10%">
+            </col>
+            <col width="90%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              File
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               bam
+              </strong>
+             </td>
+             <td>
+              Fastq/BAM file(s) containing the final filtered reads from
+              <em>
+               slamdunk
+              </em>
+              . Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+         <div class="section" id="output">
+          <h4>
+           Output
+           <a class="headerlink" href="#output" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="21%">
+            </col>
+            <col width="79%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              File
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               Deduplicated BAM file
+              </strong>
+             </td>
+             <td>
+              One BAM file per sample containing the deduplicated reads.
+             </td>
+            </tr>
+           </tbody>
+          </table>
+          <p>
+           Output files have the same name as the input files with the prefix “_dedup”.
+For example:
+          </p>
+          <div class="highlight-python">
+           <div class="highlight">
+            <pre>34330_An312_wt-2n_mRNA-slamseq-autoquant_0h-R1.fq_slamdunk_mapped_filtered.bam -&gt;
+34330_An312_wt-2n_mRNA-slamseq-autoquant_0h-R1.fq_slamdunk_mapped_filtered_dedup.bam
+</pre>
+           </div>
+          </div>
+         </div>
+         <div class="section" id="parameters">
+          <h4>
+           Parameters
+           <a class="headerlink" href="#parameters" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="5%">
+            </col>
+            <col width="4%">
+            </col>
+            <col width="91%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              Parameter
+             </th>
+             <th class="head">
+              Required
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               -h
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Prints the help.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -o
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              The output directory where all output files of this tool will be placed.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -t
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               bam
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              Fastq/BAM file(s) containing the final filtered reads (wildcard * accepted).
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+        </div>
+        <hr class="docutils"/>
+        <div class="section" id="collapse">
+         <h1 id="collapse">
+          <a class="header-link" href="#collapse">
+           <span class="glyphicon glyphicon-link">
+           </span>
+          </a>
+          collapse
+         </h1>
+         <p>
+          This tool allows you to collapse all 3’UTR entries of a
+          <em>
+           tcount
+          </em>
+          file into one single entry per 3’UTR (similar to the exons-&gt;gene relationship in a gtf-file).
+All entries with identical 3’UTR IDs will be merged.
+         </p>
+         <div class="code bash highlight-python">
+          <div class="highlight">
+           <pre>alleyoop collapse [-h] -o &lt;output directory&gt; [-t &lt;threads&gt;] tcount [tcount ...]
+</pre>
+          </div>
+         </div>
+         <div class="section" id="id1">
+          <h4>
+           Input
+           <a class="headerlink" href="#id1" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="10%">
+            </col>
+            <col width="90%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              File
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               Tcount file
+              </strong>
+             </td>
+             <td>
+              A tab-separated
+              <em>
+               tcount
+              </em>
+              file per sample containing the SLAMSeq statistics (see
+              <a class="reference internal" href="index.html#tcount-file">
+               <em>
+                Tcount file format
+               </em>
+              </a>
+              ).
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+         <div class="section" id="id2">
+          <h4>
+           Output
+           <a class="headerlink" href="#id2" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="18%">
+            </col>
+            <col width="82%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              File
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               Tcount file
+              </strong>
+             </td>
+             <td>
+              A tab-separated
+              <em>
+               tcount
+              </em>
+              file per sample containing the SLAMSeq statistics (see
+              <a class="reference internal" href="index.html#tcount-file">
+               <em>
+                Tcount file format
+               </em>
+              </a>
+              ) with collapsed 3’UTR entries.
+             </td>
+            </tr>
+           </tbody>
+          </table>
+          <p>
+           Output files have the same name as the input files with the prefix “_collapsed”.
+          </p>
+          <p>
+           For example:
+          </p>
+          <div class="highlight-python">
+           <div class="highlight">
+            <pre>34330_An312_wt-2n_mRNA-slamseq-autoquant_0h-R1.fq_slamdunk_mapped_filtered_tcount.tsv -&gt;
+34330_An312_wt-2n_mRNA-slamseq-autoquant_0h-R1.fq_slamdunk_mapped_filtered_tcount_collapsed.tsv
+</pre>
+           </div>
+          </div>
+         </div>
+         <div class="section" id="id3">
+          <h4>
+           Parameters
+           <a class="headerlink" href="#id3" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="8%">
+            </col>
+            <col width="4%">
+            </col>
+            <col width="88%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              Parameter
+             </th>
+             <th class="head">
+              Required
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               -h
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Prints the help.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -o
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              The output directory where all output files of this tool will be placed.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -t
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               Tcount file
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              A tab-separated
+              <em>
+               tcount
+              </em>
+              file per sample containing the SLAMSeq statistics (see
+              <a class="reference internal" href="index.html#tcount-file">
+               <em>
+                Tcount file format
+               </em>
+              </a>
+              ) with collapsed 3’UTR entries.
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+        </div>
+        <hr class="docutils"/>
+        <div class="section" id="rates">
+         <h1 id="rates">
+          <a class="header-link" href="#rates">
+           <span class="glyphicon glyphicon-link">
+           </span>
+          </a>
+          rates
+         </h1>
+         <p>
+          This tool computes the overall conversion rates in your reads and plots them as a barplot.
+         </p>
+         <div class="code bash highlight-python">
+          <div class="highlight">
+           <pre>alleyoop rates [-h] -o &lt;output directory&gt; -r &lt;reference fasta&gt; [-mq &lt;MQ cutoff&gt;]
+               [-t &lt;threads&gt;] bam [bam ...]
+</pre>
+          </div>
+         </div>
+         <div class="section" id="id4">
+          <h4>
+           Input
+           <a class="headerlink" href="#id4" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="10%">
+            </col>
+            <col width="90%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              File
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               Reference fasta
+              </strong>
+             </td>
+             <td>
+              The reference sequence of the genome to map against in fasta format.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               bam
+              </strong>
+             </td>
+             <td>
+              Fastq/BAM file(s) containing the final filtered reads from
+              <em>
+               slamdunk
+              </em>
+              (wildcard * accepted).
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+         <div class="section" id="id5">
+          <h4>
+           Output
+           <a class="headerlink" href="#id5" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="21%">
+            </col>
+            <col width="79%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              File
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               overallrates.csv
+              </strong>
+             </td>
+             <td>
+              Tab-separated table of the overall conversion rates.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               overallrates.pdf
+              </strong>
+             </td>
+             <td>
+              Overall conversion rate plot file.
+             </td>
+            </tr>
+           </tbody>
+          </table>
+          <p>
+           Below is an example plot of the overall conversion rates of the reads in a sample. One can appreciate the typical excess of T-&gt;C conversion (A-&gt;G on minus strand)
+of the SLAMSeq technology for later labelling timepoints.
+          </p>
+         </div>
+         <div class="section" id="id6">
+          <h4>
+           Parameters
+           <a class="headerlink" href="#id6" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="5%">
+            </col>
+            <col width="4%">
+            </col>
+            <col width="91%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              Parameter
+             </th>
+             <th class="head">
+              Required
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               -h
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Prints the help.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -o
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              The output directory where all output files of this tool will be placed.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -r
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              The reference fasta file.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -mq
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Minimum base quality for T-&gt;C conversions to be counted (default: 0).
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -t
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               bam
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              Fastq/BAM file(s) containing the final filtered reads. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+        </div>
+        <hr class="docutils"/>
+        <div class="section" id="tccontext">
+         <h1 id="tccontext">
+          <a class="header-link" href="#tccontext">
+           <span class="glyphicon glyphicon-link">
+           </span>
+          </a>
+          tccontext
+         </h1>
+         <p>
+          This tool computes the genomic context of all Ts in a read and plots them as barplot to inspect any biases in that direction.
+         </p>
+         <div class="code bash highlight-python">
+          <div class="highlight">
+           <pre>alleyoop tccontext [-h] -o &lt;output directory&gt; -r &lt;reference fasta&gt; [-mq &lt;MQ cutoff&gt;]
+                   [-t &lt;threads&gt;] bam [bam ...]
+</pre>
+          </div>
+         </div>
+         <div class="section" id="id7">
+          <h4>
+           Input
+           <a class="headerlink" href="#id7" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="10%">
+            </col>
+            <col width="90%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              File
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               Reference fasta
+              </strong>
+             </td>
+             <td>
+              The reference sequence of the genome to map against in fasta format.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               bam
+              </strong>
+             </td>
+             <td>
+              BAM file(s) containing the final filtered reads from
+              <em>
+               slamdunk
+              </em>
+              (wildcard * accepted).
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+         <div class="section" id="id8">
+          <h4>
+           Output
+           <a class="headerlink" href="#id8" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="21%">
+            </col>
+            <col width="79%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              File
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               tccontext.csv
+              </strong>
+             </td>
+             <td>
+              Tab-separated table of the 5’ and 3’ T-contexts, separated by strand.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               tccontext.pdf
+              </strong>
+             </td>
+             <td>
+              T-context plot file.
+             </td>
+            </tr>
+           </tbody>
+          </table>
+          <p>
+           Below is an example plot of the T-context of all reads in a sample. On top you will find the 5’ context of individual Ts, at the bottom the respective 3’ context of the individual Ts.
+Note, that these will not be reciprocal (see e.g.
+           <a class="reference external" href="http://www.sciencedirect.com/science/article/pii/S0888754305002600">
+            this publication
+           </a>
+           ).
+          </p>
+         </div>
+         <div class="section" id="id9">
+          <h4>
+           Parameters
+           <a class="headerlink" href="#id9" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="5%">
+            </col>
+            <col width="4%">
+            </col>
+            <col width="91%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              Parameter
+             </th>
+             <th class="head">
+              Required
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               -h
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Prints the help.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -o
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              The output directory where all output files of this tool will be placed.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -r
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              The reference fasta file.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -mq
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Minimum base quality for T-&gt;C conversions to be counted (default: 0).
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -t
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               bam
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              BAM file(s) containing the final filtered reads (wildcard * accepted).
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+        </div>
+        <hr class="docutils"/>
+        <div class="section" id="utrrates">
+         <h1 id="utrrates">
+          <a class="header-link" href="#utrrates">
+           <span class="glyphicon glyphicon-link">
+           </span>
+          </a>
+          utrrates
+         </h1>
+         <p>
+          This tool checks the individual conversion rates per 3’UTR and plots them as boxplots over the entire realm of 3’UTRs. Each conversion is normalized
+to all possible conversions from it’s starting base e.g. A-&gt;G / (A-&gt;A + A-&gt;G + A-&gt;C + A-&gt;T).
+         </p>
+         <div class="code bash highlight-python">
+          <div class="highlight">
+           <pre>alleyoop utrrates [-h] -o &lt;output directory&gt; [-r &lt;reference fasta&gt;] [-mq &lt;MQ cutoff&gt;] [-m]
+                  [-t &lt;threads&gt;] -b &lt;bed file&gt; -l &lt;maximum read length&gt; bam [bam ...]
+</pre>
+          </div>
+         </div>
+         <div class="section" id="id10">
+          <h4>
+           Input
+           <a class="headerlink" href="#id10" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="10%">
+            </col>
+            <col width="90%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              File
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               Reference fasta
+              </strong>
+             </td>
+             <td>
+              The reference sequence of the genome to map against in fasta format.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -b
+              </strong>
+             </td>
+             <td>
+              Bed file with coordinates of 3’UTRs.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               bam
+              </strong>
+             </td>
+             <td>
+              BAM file(s) containing the final filtered reads from
+              <em>
+               slamdunk
+              </em>
+              (wildcard * accepted).
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+         <div class="section" id="id11">
+          <h4>
+           Output
+           <a class="headerlink" href="#id11" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="21%">
+            </col>
+            <col width="79%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              File
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               mutationrates_utr.csv
+              </strong>
+             </td>
+             <td>
+              Tab-separated table with conversion reads, one UTR per line.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               mutationrates_utr.pdf
+              </strong>
+             </td>
+             <td>
+              UTR conversion rate plot file.
+             </td>
+            </tr>
+           </tbody>
+          </table>
+          <p>
+           Below is an example plot of conversion rates for all UTRs for a given sample. Typically, the individual conversions for a given starting
+base are balanced and unbiased, except for T-&gt;C conversions in SLAMSeq samples with longer labelling times.
+          </p>
+         </div>
+         <div class="section" id="id12">
+          <h4>
+           Parameters
+           <a class="headerlink" href="#id12" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="5%">
+            </col>
+            <col width="4%">
+            </col>
+            <col width="91%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              Parameter
+             </th>
+             <th class="head">
+              Required
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               -h
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Prints the help.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -o
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              The output directory where all output files of this tool will be placed.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -r
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              The reference fasta file.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -mq
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Minimum base quality for T-&gt;C conversions to be counted (default: 0).
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -m
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Flag to activate the multiple T-&gt;C conversion stringency: Only T-&gt;C conversions in reads with more than 1 T-&gt;C conversion will be counted.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -t
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -b
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              Bed file with coordinates of 3’UTRs.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -l
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Maximum read length in all samples (will be automatically estimated if not set).
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               bam
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              BAM file(s) containing the final filtered reads (wildcard * accepted).
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+        </div>
+        <hr class="docutils"/>
+        <div class="section" id="snpeval">
+         <h1 id="snpeval">
+          <a class="header-link" href="#snpeval">
+           <span class="glyphicon glyphicon-link">
+           </span>
+          </a>
+          snpeval
+         </h1>
+         <p>
+          This tool produces some QA about the quality of your variant calls: Ideally, your T&gt;C SNP calls should be independently of the number
+of reads with T&gt;C conversions found in an UTR. Otherwise, this would mean that you call more T&gt;C SNPs the more T&gt;C reads you have and thus
+you lose signal by falsely calling SNPs from true T&gt;C conversions.
+         </p>
+         <p>
+          To assess this, the UTRs are ranked by the number of containing T&gt;C reads and marked with a bar if also a T&gt;C SNP was called in the respective UTR.
+The list is then filtered for 3’UTRs with sufficient coverage to confidently call SNPs by using only the upper quartile of the 3’UTRs according to
+total read coverage.
+         </p>
+         <p>
+          The resulting plots will show once the distribution of SNPs across ranked 3’UTRs being blind to SNP information and including SNP information.
+Ideally, one would see the SNPs biased towards 3’UTRs with high T&gt;C read content in the blind situation and uniformly distributed across all 3’UTRs
+in the informed situation.
+         </p>
+         <p>
+          This difference is also quantified using a GSEA-like Mann-Whitney-U test.
+         </p>
+         <div class="code bash highlight-python">
+          <div class="highlight">
+           <pre>alleyoop snpeval [-h] -o &lt;output directory&gt; -s &lt;SNP directory&gt; -r &lt;reference fasta&gt; -b &lt;bed file&gt; [-c &lt;coverage cutoff&gt;]
+                 [-f &lt;variant fraction cutoff&gt;] [-m] [-l &lt;maximum read length&gt;] [-q &lt;minimum base quality&gt;] [-t &lt;threads&gt;]
+                 bam [bam ...]
+</pre>
+          </div>
+         </div>
+         <div class="section" id="id13">
+          <h4>
+           Input
+           <a class="headerlink" href="#id13" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="10%">
+            </col>
+            <col width="90%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              File
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               Reference fasta
+              </strong>
+             </td>
+             <td>
+              The reference sequence of the genome to map against in fasta format.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -s
+              </strong>
+             </td>
+             <td>
+              Directory of called SNPs from
+              <em>
+               snp
+              </em>
+              dunk.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -b
+              </strong>
+             </td>
+             <td>
+              Bed file with coordinates of 3’UTRs.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               bam
+              </strong>
+             </td>
+             <td>
+              BAM file(s) containing the final filtered reads from
+              <em>
+               slamdunk
+              </em>
+              (wildcard * accepted).
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+         <div class="section" id="id14">
+          <h4>
+           Output
+           <a class="headerlink" href="#id14" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="21%">
+            </col>
+            <col width="79%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              File
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               SNPeval.csv
+              </strong>
+             </td>
+             <td>
+              Tab-separated table with read counts, T&gt;C read counts and SNP indication, one UTR per line.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               SNPeval.pdf
+              </strong>
+             </td>
+             <td>
+              SNP evaluation plot.
+             </td>
+            </tr>
+           </tbody>
+          </table>
+          <p>
+           An example plot is coming soon!
+          </p>
+         </div>
+         <div class="section" id="id15">
+          <h4>
+           Parameters
+           <a class="headerlink" href="#id15" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="5%">
+            </col>
+            <col width="4%">
+            </col>
+            <col width="91%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              Parameter
+             </th>
+             <th class="head">
+              Required
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               -h
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Prints the help.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -o
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              The output directory where all output files of this tool will be placed.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -s
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              The output directory of the
+              <em>
+               snp
+              </em>
+              dunk containing the called variants.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -r
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              The reference fasta file.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -q
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Minimum base quality for T-&gt;C conversions to be counted (default: 0).
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -m
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Flag to activate the multiple T-&gt;C conversion stringency: Only T-&gt;C conversions in reads with more than 1 T-&gt;C conversion will be counted.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -c
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Minimum coverage to call a variant.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -f
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Minimum variant fraction to call a variant.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -t
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -b
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              Bed file with coordinates of 3’UTRs.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -l
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Maximum read length in all samples (will be automatically estimated if not set).
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               bam
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              BAM file(s) containing the final filtered reads (wildcard * accepted).
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+        </div>
+        <hr class="docutils"/>
+        <div class="section" id="summary">
+         <h1 id="summary">
+          <a class="header-link" href="#summary">
+           <span class="glyphicon glyphicon-link">
+           </span>
+          </a>
+          summary
+         </h1>
+         <p>
+          This tool lists basic statistics of the mapping process in a text file.
+         </p>
+         <div class="code bash highlight-python">
+          <div class="highlight">
+           <pre>alleyoop summary [-h] -o &lt;output file&gt; [-t &lt;directory of tcount files&gt;] bam [bam ...]
+</pre>
+          </div>
+         </div>
+         <div class="section" id="id16">
+          <h4>
+           Input
+           <a class="headerlink" href="#id16" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="22%">
+            </col>
+            <col width="78%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              File
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               bam
+              </strong>
+             </td>
+             <td>
+              BAM file(s) containing the final filtered reads from
+              <em>
+               slamdunk
+              </em>
+              (wildcard * accepted).
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               tcount file directory
+              </strong>
+             </td>
+             <td>
+              (optional) Directory containing the associated tcount file(s) to the input BAM file(s).
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+         <div class="section" id="id17">
+          <h4>
+           Output
+           <a class="headerlink" href="#id17" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="21%">
+            </col>
+            <col width="79%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              File
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               outputfile
+              </strong>
+             </td>
+             <td>
+              Tab-separated table with mapping statistics.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               outputfile_PCA.pdf
+              </strong>
+             </td>
+             <td>
+              PCA plot of the samples based on T&gt;C read counts per UTR.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               outputfile_PCA.txt
+              </strong>
+             </td>
+             <td>
+              PCA values of the samples based on T&gt;C read counts per UTR.
+             </td>
+            </tr>
+           </tbody>
+          </table>
+          <p>
+           The output file will be a tab-separated text file with the following columns:
+          </p>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="21%">
+            </col>
+            <col width="79%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              Column
+             </th>
+             <th class="head">
+              Content
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              FileName
+             </td>
+             <td>
+              Path to raw reads in BAM/fasta(gz)/fastq(gz) format.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              SampleName
+             </td>
+             <td>
+              Description of the sample.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              SampleType
+             </td>
+             <td>
+              Type of sample.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              SampleTime
+             </td>
+             <td>
+              Timepoint of the sample in minutes.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              Sequenced
+             </td>
+             <td>
+              Number of sequenced reads.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              Mapped
+             </td>
+             <td>
+              Number of mapped reads.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              Deduplicated
+             </td>
+             <td>
+              Number of deduplicated reads.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              Filtered
+             </td>
+             <td>
+              Number of retained reads after filtering.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              Counted
+             </td>
+             <td>
+              Number of counted reads within UTRs
+              <strong>
+               (optional: only if tcount file directory was supplied)
+              </strong>
+              .
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              Annotation
+             </td>
+             <td>
+              Annotation used for filtering.
+             </td>
+            </tr>
+           </tbody>
+          </table>
+          <p>
+           An example PCA plot is coming soon!
+          </p>
+         </div>
+         <div class="section" id="id18">
+          <h4>
+           Parameters
+           <a class="headerlink" href="#id18" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="5%">
+            </col>
+            <col width="4%">
+            </col>
+            <col width="91%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              Parameter
+             </th>
+             <th class="head">
+              Required
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               -h
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Prints the help.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -o
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              The output file name.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -t
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              The directory of associated tcount file(s) to the supplied BAM file(s).
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               bam
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              BAM file(s) containing the final filtered reads (wildcard * accepted).
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+        </div>
+        <hr class="docutils"/>
+        <div class="section" id="merge">
+         <h1 id="merge">
+          <a class="header-link" href="#merge">
+           <span class="glyphicon glyphicon-link">
+           </span>
+          </a>
+          merge
+         </h1>
+         <p>
+          This tool merges
+          <em>
+           tcount
+          </em>
+          files of multiple samples into a single table based upon an expression of columns.
+         </p>
+         <div class="code bash highlight-python">
+          <div class="highlight">
+           <pre>alleyoop merge [-h] -o &lt;output file&gt; [-c &lt;expression&gt;] countFiles [countFiles ...]
+</pre>
+          </div>
+         </div>
+         <div class="section" id="id19">
+          <h4>
+           Input
+           <a class="headerlink" href="#id19" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="16%">
+            </col>
+            <col width="84%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              File
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               countFiles
+              </strong>
+             </td>
+             <td>
+              A tab-separated
+              <em>
+               tcount
+              </em>
+              file per sample containing the SLAMSeq statistics (see
+              <a class="reference internal" href="index.html#tcount-file">
+               <em>
+                Tcount file format
+               </em>
+              </a>
+              ).
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+         <div class="section" id="id20">
+          <h4>
+           Output
+           <a class="headerlink" href="#id20" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="21%">
+            </col>
+            <col width="79%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              File
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               outputfile
+              </strong>
+             </td>
+             <td>
+              Tab-separated table merged
+              <em>
+               tcount
+              </em>
+              information based upon expression.
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+         <div class="section" id="id21">
+          <h4>
+           Parameters
+           <a class="headerlink" href="#id21" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="7%">
+            </col>
+            <col width="4%">
+            </col>
+            <col width="88%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              Parameter
+             </th>
+             <th class="head">
+              Required
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               -h
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Prints the help.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -o
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              The output file name.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -c
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Column or expression used to summarize files (e.g. “TcReadCount / ReadCount”)
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               countFiles
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              A tab-separated
+              <em>
+               tcount
+              </em>
+              file per sample containing the SLAMSeq statistics (see
+              <a class="reference internal" href="index.html#tcount-file">
+               <em>
+                Tcount file format
+               </em>
+              </a>
+              ).
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+        </div>
+        <hr class="docutils"/>
+        <div class="section" id="tcperreadpos">
+         <h1 id="tcperreadpos">
+          <a class="header-link" href="#tcperreadpos">
+           <span class="glyphicon glyphicon-link">
+           </span>
+          </a>
+          tcperreadpos
+         </h1>
+         <p>
+          This tool calculates the individual mutation rates per position in a read treating T-&gt;C mutations separately. This plot can be used to search for biases
+along reads.
+         </p>
+         <div class="code bash highlight-python">
+          <div class="highlight">
+           <pre>alleyoop tcperreadpos [-h] -r &lt;reference fasta&gt; [-s &lt;SNP directory&gt;]
+                      [-l &lt;maximum read length&gt;] -o &lt;output directory&gt; [-mq &lt;MQ cutoff&gt;]
+                      [-t &lt;threads&gt;] bam [bam ...]
+</pre>
+          </div>
+         </div>
+         <div class="section" id="id22">
+          <h4>
+           Input
+           <a class="headerlink" href="#id22" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="10%">
+            </col>
+            <col width="90%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              File
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               Reference fasta
+              </strong>
+             </td>
+             <td>
+              The reference sequence of the genome to map against in fasta format.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -s
+              </strong>
+             </td>
+             <td>
+              (optional) The called variants from the
+              <em>
+               snp
+              </em>
+              dunk to filter false-positive T-&gt;C conversions.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               bam
+              </strong>
+             </td>
+             <td>
+              BAM file(s) containing the final filtered reads from
+              <em>
+               slamdunk
+              </em>
+              (wildcard * accepted).
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+         <div class="section" id="id23">
+          <h4>
+           Output
+           <a class="headerlink" href="#id23" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="21%">
+            </col>
+            <col width="79%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              File
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               tcperreadpos.csv
+              </strong>
+             </td>
+             <td>
+              Tab-separated table with mutation rates, one line per read position.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               tcperreadpos.pdf
+              </strong>
+             </td>
+             <td>
+              Plot of the mutation rates along the reads.
+             </td>
+            </tr>
+           </tbody>
+          </table>
+          <p>
+           Below is an example plot of mutation rates along all reads in a sample. Typically, one will see increasing error rates towards the end of a reads,
+as for all Illumina reads. In addition, depending on how many bases were clipped from the 5’ end of the reads, one will also observe higher error
+rates in the beginning of the read as illustrated in the example plot. Finally, for SLAMSeq samples with longer labelling times, the overall T-&gt;C
+conversions in the bottom plot will begin to increase compared to the overall background in the top plot.
+          </p>
+         </div>
+         <div class="section" id="id24">
+          <h4>
+           Parameters
+           <a class="headerlink" href="#id24" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="5%">
+            </col>
+            <col width="4%">
+            </col>
+            <col width="91%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              Parameter
+             </th>
+             <th class="head">
+              Required
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               -h
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Prints the help.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -o
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              The output directory where all output files of this tool will be placed.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -r
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              The reference fasta file.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -mq
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Minimum base quality for T-&gt;C conversions to be counted (default: 0).
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -t
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -s
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              The called variants from the
+              <em>
+               snp
+              </em>
+              dunk to filter false-positive T-&gt;C conversions.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -l
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Maximum read length in all samples (will be automatically estimated if not set).
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               bam
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              BAM file(s) containing the final filtered reads (wildcard * accepted).
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+        </div>
+        <hr class="docutils"/>
+        <div class="section" id="tcperutrpos">
+         <h1 id="tcperutrpos">
+          <a class="header-link" href="#tcperutrpos">
+           <span class="glyphicon glyphicon-link">
+           </span>
+          </a>
+          tcperutrpos
+         </h1>
+         <p>
+          This tool calculates the individual mutation rates per position in an 3’UTR treating T-&gt;C mutations separately. This plot can be used to search for biases
+along UTRs. Only most 3’ 200bp of each UTR will be considered because:
+* Quantseq fragments are estimated have an average size of ~200bp
+* This way, any dynamic binning biases can be avoided
+         </p>
+         <div class="code bash highlight-python">
+          <div class="highlight">
+           <pre>alleyoop tcperutrpos [-h] -r &lt;reference fasta&gt; -b &lt;bed file&gt; [-s &lt;SNP directory&gt;]
+                     [-l &lt;maximum read length&gt;] -o &lt;output directory&gt; [-mq &lt;MQ cutoff&gt;]
+                     [-t &lt;threads&gt;] bam [bam ...]
+</pre>
+          </div>
+         </div>
+         <div class="section" id="id25">
+          <h4>
+           Input
+           <a class="headerlink" href="#id25" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="10%">
+            </col>
+            <col width="90%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              File
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               Reference fasta
+              </strong>
+             </td>
+             <td>
+              The reference sequence of the genome to map against in fasta format.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -s
+              </strong>
+             </td>
+             <td>
+              (optional) The called variants from the
+              <em>
+               snp
+              </em>
+              dunk to filter false-positive T-&gt;C conversions.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -b
+              </strong>
+             </td>
+             <td>
+              Bed file with coordinates of 3’UTRs.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               bam
+              </strong>
+             </td>
+             <td>
+              BAM file(s) containing the final filtered reads from
+              <em>
+               slamdunk
+              </em>
+              (wildcard * accepted).
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+         <div class="section" id="id26">
+          <h4>
+           Output
+           <a class="headerlink" href="#id26" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="21%">
+            </col>
+            <col width="79%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              File
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               tcperutr.csv
+              </strong>
+             </td>
+             <td>
+              Tab-separated table with mutation rates, one line per UTR position.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               tcperutr.pdf
+              </strong>
+             </td>
+             <td>
+              Plot of the mutation rates along the UTRs.
+             </td>
+            </tr>
+           </tbody>
+          </table>
+          <p>
+           Below is an example plot of mutation rates along all UTRs in a sample. Typically, one will see increasing error rates towards the end of a UTRs.
+For SLAMSeq samples with longer labelling times, the overall T-&gt;C conversions in the bottom plot will begin to increase compared to the overall background in the top plot.
+          </p>
+         </div>
+         <div class="section" id="id27">
+          <h4>
+           Parameters
+           <a class="headerlink" href="#id27" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="5%">
+            </col>
+            <col width="4%">
+            </col>
+            <col width="91%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              Parameter
+             </th>
+             <th class="head">
+              Required
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               -h
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Prints the help.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -o
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              The output directory where all output files of this tool will be placed.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -r
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              The reference fasta file.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -b
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              Bed file with coordinates of 3’UTRs.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -mq
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Minimum base quality for T-&gt;C conversions to be counted (default: 0).
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -t
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -s
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              The called variants from the
+              <em>
+               snp
+              </em>
+              dunk to filter false-positive T-&gt;C conversions.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -l
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Maximum read length in all samples (will be automatically estimated if not set).
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               bam
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              BAM file(s) containing the final filtered reads (wildcard * accepted).
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+        </div>
+        <hr class="docutils"/>
+        <div class="section" id="dump">
+         <h1 id="dump">
+          <a class="header-link" href="#dump">
+           <span class="glyphicon glyphicon-link">
+           </span>
+          </a>
+          dump
+         </h1>
+         <p>
+          This tool outputs all available information calculated by
+          <em>
+           slamdunk
+          </em>
+          for each read in a sample.
+         </p>
+         <div class="code bash highlight-python">
+          <div class="highlight">
+           <pre>alleyoop dump [-h] -r &lt;reference fasta&gt; -s &lt;SNP directory&gt; -o &lt;output directory&gt;
+              [-mq &lt;MQ cutoff&gt;] [-t &lt;threads&gt;] bam [bam ...]
+</pre>
+          </div>
+         </div>
+         <div class="section" id="id28">
+          <h4>
+           Input
+           <a class="headerlink" href="#id28" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="10%">
+            </col>
+            <col width="90%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              File
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               Reference fasta
+              </strong>
+             </td>
+             <td>
+              The reference sequence of the genome to map against in fasta format.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -s
+              </strong>
+             </td>
+             <td>
+              The called variants from the
+              <em>
+               snp
+              </em>
+              dunk to filter false-positive T-&gt;C conversions.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               bam
+              </strong>
+             </td>
+             <td>
+              BAM file(s) containing the final filtered reads from
+              <em>
+               slamdunk
+              </em>
+              (wildcard * accepted).
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+         <div class="section" id="id29">
+          <h4>
+           Output
+           <a class="headerlink" href="#id29" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="21%">
+            </col>
+            <col width="79%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              File
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               readinfo.sdunk
+              </strong>
+             </td>
+             <td>
+              Tab-separated table with read info, one line per read
+             </td>
+            </tr>
+           </tbody>
+          </table>
+          <p>
+           The following columns are contained in the
+           <em>
+            readinfo
+           </em>
+           file:
+          </p>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="21%">
+            </col>
+            <col width="79%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              Column
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              Name
+             </td>
+             <td>
+              Name of the read
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              Direction
+             </td>
+             <td>
+              Read was mapped on forward (1) or reverse (2) strand
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              Sequence
+             </td>
+             <td>
+              Sequence of the read
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              Mismatches
+             </td>
+             <td>
+              Number of mismatches in the read
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              tcCount
+             </td>
+             <td>
+              Number of T-&gt;C conversion in the read
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              ConversionRates
+             </td>
+             <td>
+              List of all possible conversion in the read
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+         <div class="section" id="id30">
+          <h4>
+           Parameters
+           <a class="headerlink" href="#id30" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
+          <table border="1" class="docutils">
+           <colgroup>
+            <col width="5%">
+            </col>
+            <col width="4%">
+            </col>
+            <col width="91%">
+            </col>
+           </colgroup>
+           <thead valign="bottom">
+            <tr class="row-odd">
+             <th class="head">
+              Parameter
+             </th>
+             <th class="head">
+              Required
+             </th>
+             <th class="head">
+              Description
+             </th>
+            </tr>
+           </thead>
+           <tbody valign="top">
+            <tr class="row-even">
+             <td>
+              <strong>
+               -h
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Prints the help.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -o
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              The output directory where all output files of this tool will be placed.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -r
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              The reference fasta file.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -mq
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Minimum base quality for T-&gt;C conversions to be counted (default: 0).
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               -t
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
+               -s
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              The called variants from the
+              <em>
+               snp
+              </em>
+              dunk to filter false-positive T-&gt;C conversions.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
+               bam
+              </strong>
+             </td>
+             <td>
+              x
+             </td>
+             <td>
+              BAM file(s) containing the final filtered reads (wildcard * accepted).
+             </td>
+            </tr>
+           </tbody>
+          </table>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="docs_section">
+       <span id="docker-label">
+       </span>
+       <h1 class="section-header" id="document-Docker">
+        <a class="header-link" href="#document-Docker">
+         <span class="glyphicon glyphicon-link">
+         </span>
+        </a>
+        Docker
+       </h1>
+       <div class_="docs_block" id="document-Docker">
+        <p>
+         <a class="reference external" href="https://github.com/t-neumann/slamdunk">
+          Docker
+         </a>
+         enables you to run
+         <em>
+          slamdunk
+         </em>
+         out-of-the box wihtout caring about prerequisites and installation procedures.
+All you need is to install the Docker engine and run the
+         <em>
+          slamdunk
+         </em>
+         Docker image.
+        </p>
+        <div class="section" id="docker-images">
+         <h1 id="docker-images">
+          <a class="header-link" href="#docker-images">
+           <span class="glyphicon glyphicon-link">
+           </span>
+          </a>
+          Docker images
+         </h1>
+         <p>
+          You can directly use the
+          <em>
+           slamdunk
+          </em>
+          Docker images from
+          <a class="reference external" href="https://hub.docker.com/">
+           Docker hub
+          </a>
+          . Two images are available:
+         </p>
+         <ul class="simple">
+          <li>
+           <a class="reference external" href="https://hub.docker.com/r/tobneu/slamdunk-full/">
+            slamdunk-full
+           </a>
+           : Build from scratch from a clean Ubuntu image
+          </li>
+         </ul>
+         <p>
+          You can also build them from scratch using any of the two
+          <em>
+           Dockerfiles
+          </em>
+          in
+          <cite>
+           slamdunk/docker
+          </cite>
+          :
+         </p>
+         <div class="code bash highlight-python">
+          <div class="highlight">
+           <pre># Build Ubuntu-based image
+cd slamdunk/docker/ubuntu
+docker build -t &lt;user&gt;/&lt;imagename&gt; .
+
+# View images
+docker images
+</pre>
+          </div>
+         </div>
+        </div>
+        <div class="section" id="running-the-docker-container-locally">
+         <h1 id="running-the-docker-container-locally">
+          <a class="header-link" href="#running-the-docker-container-locally">
+           <span class="glyphicon glyphicon-link">
+           </span>
+          </a>
+          Running the Docker container locally
+         </h1>
+         <p>
+          Once the container images is pulled/created,
+          <em>
+           slamdunk
+          </em>
+          can be run out of the box. The only difference is that the data containing directory has to be mounted on the container and
+all files are relative to that mounting point.
+         </p>
+         <div class="code bash highlight-python">
+          <div class="highlight">
+           <pre># All data is contained in current working directory and available under /data in the container
+
+ docker run -m 8g -v $(pwd):/data tobneu/slamdunk slamdunk map -o /data/map -r /data/GRCm38.fa -5 5 -n 1 /data/testset.fq.gz
+</pre>
+          </div>
+         </div>
+        </div>
+        <div class="section" id="running-a-docker-container-on-aws">
+         <h1 id="running-a-docker-container-on-aws">
+          <a class="header-link" href="#running-a-docker-container-on-aws">
+           <span class="glyphicon glyphicon-link">
+           </span>
+          </a>
+          Running a Docker container on AWS
+         </h1>
+         <p>
+          Many cloud providers provide Docker support these days. The most prominent cloud provider are the
+          <a class="reference external" href="https://aws.amazon.com/">
+           Amazon Web Services
+          </a>
+          (AWS) have a nice integration
+into
+          <cite>
+           Docker machine
+          </cite>
+          which easily let’s you install Docker engine on AWS machines.
+AWS provides free
+          <em>
+           t2.micro
+          </em>
+          instances for free-tier accounts. These only come with 1 GiB of memory which is not enough for mammalian genomes (~ 8 GiB needed) where one would need
+to go for at least
+          <em>
+           t2.large
+          </em>
+          instances.
+         </p>
+         <div class="code bash highlight-python">
+          <div class="highlight">
+           <pre># Start a free t2.micro instance (small genomes only e.g. bacteria) on e.g. the us-west-1 region
+docker-machine create --driver amazonec2 --amazonec2-region us-west-1 aws-slamdunk
+</pre>
+          </div>
+         </div>
+         <p>
+          or
+         </p>
+         <div class="code bash highlight-python">
+          <div class="highlight">
+           <pre># Start a paid t2.large instance (large genomes) on e.g. the us-west-1 region
+docker-machine create --driver amazonec2 --amazonec2-region us-west-1 --amazonec2-instance-type t2.large aws-slamdunk
+</pre>
+          </div>
+         </div>
+         <p>
+          Once the instance has started, one needs to connect to it before running any Docker images.
+         </p>
+         <div class="code bash highlight-python">
+          <div class="highlight">
+           <pre>eval $(docker-machine env aws-slamdunk)
+</pre>
+          </div>
+         </div>
+         <p>
+          Now everything is set up and one can run slamdunk on an AWS instance.
+         </p>
+         <div class="code bash highlight-python">
+          <div class="highlight">
+           <pre>docker run -m 8g -v $(pwd):/data tobneu/slamdunk slamdunk map -o /data/map -r /data/GRCm38.fa -5 5 -n 1 /data/testset.fq.gz
+</pre>
+          </div>
+         </div>
+         <p>
+          After the work is done, remember to shut down your AWS instances unless you do not care about paying for an idle instance.
+         </p>
+         <div class="code bash highlight-python">
+          <div class="highlight">
+           <pre># Shut down
+docker-machine stop aws-slamdunk
+
+# Remove
+docker-machine rm -y aws-slamdunk
+</pre>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="docs_section">
+       <h1 class="section-header" id="document-FAQ">
+        <a class="header-link" href="#document-FAQ">
+         <span class="glyphicon glyphicon-link">
+         </span>
+        </a>
+        FAQ
+       </h1>
+       <div class_="docs_block" id="document-FAQ">
+        <div class="section" id="authors">
+         <h1 id="authors">
+          <a class="header-link" href="#authors">
+           <span class="glyphicon glyphicon-link">
+           </span>
+          </a>
+          Authors
+         </h1>
+         <ul class="simple">
+          <li>
+           Tobias Neumann
+          </li>
+          <li>
+           Philipp Rescheneder
+          </li>
+         </ul>
+        </div>
+        <div class="section" id="license">
+         <h1 id="license">
+          <a class="header-link" href="#license">
+           <span class="glyphicon glyphicon-link">
+           </span>
+          </a>
+          License
+         </h1>
+         <p>
+          <em>
+           slamdunk
+          </em>
+          is provided under the
+          <a class="reference external" href="http://www.gnu.org/licenses/gpl-3.0.en.html">
+           GNU General Public License v3
+          </a>
+          .
+         </p>
+        </div>
+       </div>
+      </div>
+      <div class="docs_section">
+       <h1 class="section-header" id="document-Simulation">
+        <a class="header-link" href="#document-Simulation">
+         <span class="glyphicon glyphicon-link">
+         </span>
+        </a>
+        Simulating SlamSeq data
+       </h1>
+       <div class_="docs_block" id="document-Simulation">
+        <div class="section" id="example">
+         <h1 id="example">
+          <a class="header-link" href="#example">
+           <span class="glyphicon glyphicon-link">
+           </span>
+          </a>
+          Example
+         </h1>
+         <div class="code bash highlight-python">
+          <div class="highlight">
+           <pre>#!bash
+set -x
+F=simulation_2/
+B=finalAnnotation_test_cut_chrM_correct_100
+RL=50
+COV=100
+SN=pooja_UTR_annotation_examples_sample
+
+rm -rf $F
+~/bin/slamdunk/bin/slamsim preparebed -b ${B}.bed -o ${F} -l ${RL}
+~/bin/slamdunk/bin/slamsim utrs -b ${F}/${B}_original.bed -o $F -r /project/ngs/philipp/slamseq/ref/GRCm38.fa
+
+~/bin/slamdunk/bin/slamsim reads -b ${F}/${B}_original_utrs.bed -l ${RL} -o $F -cov ${COV} -t 0 --sample-name ${SN}_1_0min
+~/bin/slamdunk/bin/slamsim reads -b ${F}/${B}_original_utrs.bed -l ${RL} -o $F -cov ${COV} -t 15 --sample-name ${SN}_2_15min
+~/bin/slamdunk/bin/slamsim reads -b ${F}/${B}_original_utrs.bed -l ${RL} -o $F -cov ${COV} -t 30 --sample-name ${SN}_3_30min
+~/bin/slamdunk/bin/slamsim reads -b ${F}/${B}_original_utrs.bed -l ${RL} -o $F -cov ${COV} -t 60 --sample-name ${SN}_4_60min
+~/bin/slamdunk/bin/slamsim reads -b ${F}/${B}_original_utrs.bed -l ${RL} -o $F -cov ${COV} -t 180 --sample-name ${SN}_5_180min
+~/bin/slamdunk/bin/slamsim reads -b ${F}/${B}_original_utrs.bed -l ${RL} -o $F -cov ${COV} -t 360 --sample-name ${SN}_6_360min
+~/bin/slamdunk/bin/slamsim reads -b ${F}/${B}_original_utrs.bed -l ${RL} -o $F -cov ${COV} -t 720 --sample-name ${SN}_7_720min
+~/bin/slamdunk/bin/slamsim reads -b ${F}/${B}_original_utrs.bed -l ${RL} -o $F -cov ${COV} -t 1440 --sample-name ${SN}_8_1440min
+
+~/bin/slamdunk/bin/slamdunk all -r /project/ngs/philipp/slamseq/ref/GRCm38.fa -b ${F}/${B}_original_utrs.bed -rl 55 -o ${F}/slamdunk ${F}/*.bam
+
+~/bin/slamdunk/bin/slamsim plot.conversions -sim ${F} -slam ${F}/slamdunk/count/ -o ${F}/eval/conversion_rate_eval_plots.pdf
+
+~/bin/slamdunk/bin/slamsim plot.halflifes -sim ${F} -slam ${F}/slamdunk/count/ -t 0,15,30,60,180,360,720,1440 -o ${F}/eval/halflife_per_gene_eval_plots.pdf -b ${F}/${B}_original_utrs.bed
+</pre>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="docs_section">
+       <h1 class="section-header" id="document-Changelog">
+        <a class="header-link" href="#document-Changelog">
+         <span class="glyphicon glyphicon-link">
+         </span>
+        </a>
+        Changelog
+       </h1>
+       <div class_="docs_block" id="document-Changelog">
+        <p>
+         <strong>
+          Version 0.2.1
+         </strong>
+        </p>
+        <p>
+         <em>
+          Changes:
+         </em>
+        </p>
+        <ul class="simple">
+         <li>
+          PCA will be added to alleyoop summary if count folder is provided
+         </li>
+         <li>
+          Reads in UTRs will be added to alleyoop summary if count folder is provided
+         </li>
+         <li>
+          Comment tags added to summary, rates, utrrates, tcperreadpos, tcperutrpos to be recognized by
+          <cite>
+           MultiQC &lt;http://multiqc.info/&gt;
+          </cite>
+         </li>
+         <li>
+          NextGenMap udated to version 0.5.2
+         </li>
+         <li>
+          Slamdunk now checks NextGenMap version
+         </li>
+         <li>
+          Simulation module (splash) added: simulates slamdunk samples from a set of UTRs (BED file) and evalutes results computed by SlamDunk. See
+          <cite>
+           splash –help
+          </cite>
+          for more information
+         </li>
+         <li>
+          <cite>
+           -i/–sample-index
+          </cite>
+          is now 1-based instead of 0-based
+         </li>
+         <li>
+          Columns for conversion rate confidence interval added to count files (not used yet)
+         </li>
+         <li>
+          Filter summary integrated into log
+         </li>
+         <li>
+          Added sample names now in globalRatePlotter
+         </li>
+        </ul>
+        <p>
+         <em>
+          Bugfixes:
+         </em>
+        </p>
+        <ul class="simple">
+         <li>
+          Number of sequenced reads fixed for BAM files computed with
+          <cite>
+           -ss/–skip-sam
+          </cite>
+          option
+         </li>
+         <li>
+          NextGenMap memory leak fixed
+         </li>
+        </ul>
+        <p>
+         <strong>
+          Version 0.2.0
+         </strong>
+        </p>
+        <p>
+         Due to major changes v0.2.0 is not compatible with v0.1.0.
+Please rerun alle your samples with slamdunk 0.2.0!
+        </p>
+        <p>
+         <em>
+          Changes:
+         </em>
+        </p>
+        <ul class="simple">
+         <li>
+          Option to supply sample info via samplesheet instead of plain raw reads added.
+         </li>
+         <li>
+          Added @RG tag to bam files containing sample info for best-practice and easier summary calculation.
+         </li>
+         <li>
+          Flagstat files removed.
+         </li>
+         <li>
+          –skip-sam flag added to only output bam.
+         </li>
+         <li>
+          –sample-index flag implemented for cluster distribution.
+         </li>
+         <li>
+          Multi-TC stringency now also available for utr rate plots.
+         </li>
+         <li>
+          *stats prefixes removed from alleyoop modules.
+         </li>
+         <li>
+          Alleyoop summary module implemented. Summary contains sample infos (if specified via samplesheet) and number of sequenced, mapped and filtered reads.
+         </li>
+         <li>
+          Alleyoop merge module allows now merging upon column names.
+         </li>
+         <li>
+          Sample info and reference + checksum now documented in tcount files.
+         </li>
+         <li>
+          Version.py added.
+         </li>
+        </ul>
+        <p>
+         <em>
+          Bugfixes
+         </em>
+         :
+        </p>
+        <ul class="simple">
+         <li>
+          NGM interspersed order of multimappers fixed.
+         </li>
+         <li>
+          Random seed from filter module deleted.
+         </li>
+         <li>
+          Alleyoop rates display error of bars higher than ylim fixed.
+         </li>
+         <li>
+          Min base quality now again propagated to all modules.
+         </li>
+         <li>
+          Auto-scaling error fixed in globalRatePlotter.
+         </li>
+        </ul>
+        <p>
+         <strong>
+          Version 0.1.0
+         </strong>
+        </p>
+        <ul class="simple">
+         <li>
+          Initial pre-release.
+         </li>
+        </ul>
+       </div>
+      </div>
+     </div>
+    </div>
+    <div class="col-sm-3" id="toc_column">
+     <div data-offset-top="750" data-spy="affix" id="toc">
+      <!--TOC-PLACEHOLDER-->
+<ul class="nav nav-stacked">
+ <li>
+  <li>
+   <a href="#document-Introduction">
+    Introduction
+   </a>
+  </li>
+  <li>
+   <a href="#document-Installation">
+    Installation
+   </a>
+   <ul class="nav nav-stacked">
+    <li>
+     <a href="#requirements">
+      Requirements
+     </a>
+    </li>
+    <li>
+     <a href="#python-package-index">
+      Python Package Index
+     </a>
+    </li>
+    <li>
+     <a href="#source">
+      Source
+     </a>
+    </li>
+   </ul>
+  </li>
+  <li>
+   <a href="#document-Quickstart">
+    Quickstart
+   </a>
+  </li>
+  <li>
+   <a href="#document-Basics">
+    Basics
+   </a>
+   <ul class="nav nav-stacked">
+    <li>
+     <a href="#conversion-rates">
+      Conversion rates
+     </a>
+    </li>
+    <li>
+     <a href="#multimapper-reconciliation">
+      Multimapper reconciliation
+     </a>
+    </li>
+    <li>
+     <a href="#sample-file-format">
+      Sample file format
+     </a>
+    </li>
+    <li>
+     <a href="#tcount-file-format">
+      Tcount file format
+     </a>
+    </li>
+   </ul>
+  </li>
+  <li>
+   <a href="#document-Usage">
+    Usage
+   </a>
+  </li>
+  <li>
+   <a href="#document-Dunks">
+    Dunks
+   </a>
+   <ul class="nav nav-stacked">
+    <li>
+     <a href="#map">
+      map
+     </a>
+    </li>
+    <li>
+     <a href="#filter">
+      filter
+     </a>
+    </li>
+    <li>
+     <a href="#snp">
+      snp
+     </a>
+    </li>
+    <li>
+     <a href="#count">
+      count
+     </a>
+    </li>
+    <li>
+     <a href="#all">
+      all
+     </a>
+    </li>
+   </ul>
+  </li>
+  <li>
+   <a href="#document-Alleyoop">
+    Alleyoop
+   </a>
+   <ul class="nav nav-stacked">
+    <li>
+     <a href="#dedup">
+      dedup
+     </a>
+    </li>
+    <li>
+     <a href="#collapse">
+      collapse
+     </a>
+    </li>
+    <li>
+     <a href="#rates">
+      rates
+     </a>
+    </li>
+    <li>
+     <a href="#tccontext">
+      tccontext
+     </a>
+    </li>
+    <li>
+     <a href="#utrrates">
+      utrrates
+     </a>
+    </li>
+    <li>
+     <a href="#snpeval">
+      snpeval
+     </a>
+    </li>
+    <li>
+     <a href="#summary">
+      summary
+     </a>
+    </li>
+    <li>
+     <a href="#merge">
+      merge
+     </a>
+    </li>
+    <li>
+     <a href="#tcperreadpos">
+      tcperreadpos
+     </a>
+    </li>
+    <li>
+     <a href="#tcperutrpos">
+      tcperutrpos
+     </a>
+    </li>
+    <li>
+     <a href="#dump">
+      dump
+     </a>
+    </li>
+   </ul>
+  </li>
+  <li>
+   <a href="#document-Docker">
+    Docker
+   </a>
+   <ul class="nav nav-stacked">
+    <li>
+     <a href="#docker-images">
+      Docker images
+     </a>
+    </li>
+    <li>
+     <a href="#running-the-docker-container-locally">
+      Running the Docker container locally
+     </a>
+    </li>
+    <li>
+     <a href="#running-a-docker-container-on-aws">
+      Running a Docker container on AWS
+     </a>
+    </li>
+   </ul>
+  </li>
+  <li>
+   <a href="#document-FAQ">
+    FAQ
+   </a>
+   <ul class="nav nav-stacked">
+    <li>
+     <a href="#authors">
+      Authors
+     </a>
+    </li>
+    <li>
+     <a href="#license">
+      License
+     </a>
+    </li>
+   </ul>
+  </li>
+  <li>
+   <a href="#document-Simulation">
+    Simulating SlamSeq data
+   </a>
+   <ul class="nav nav-stacked">
+    <li>
+     <a href="#example">
+      Example
+     </a>
+    </li>
+   </ul>
+  </li>
+  <li>
+   <a href="#document-Changelog">
+    Changelog
+   </a>
+  </li>
+ </li>
+</ul>
+     </div>
+    </div>
+   </div>
+  </div>
+  <!-- /container -->
+  <footer id="footer">
+   <div class="container docs-container">
+    <div class="row">
+     <div class="col-md-6">
+      <div class="icons" style="margin-left: 2em">
+       <a href="https://github.com/t-neumann" target="_blank">
+        <i class="fa fa-github">
+        </i>
+        t-neumann
+       </a>
+       |
+       <a href="https://github.com/philres" target="_blank">
+        <i class="fa fa-github">
+        </i>
+        philres
+       </a>
+      </div>
+     </div>
+     <div class="col-md-6">
+      <p class="copyright">
+       © Tobias Neumann.
+       <br/>
+       Page template:
+       <a href="http://html5up.net">
+        HTML5 UP
+       </a>
+      </p>
+     </div>
+    </div>
+   </div>
+  </footer>
+  <!-- Google Analytics Script-->
+  <script>
+   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	           (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	           m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	           })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	           
+	           ga('create', 'UA-89369264-1', 'auto');
+	           ga('send', 'pageview');
+  </script>
+  <script src="js/jquery.min.js">
+  </script>
+  <script src="js/bootstrap.min.js">
+  </script>
+  <script src="js/highlight.pack.js">
+  </script>
+  <script>
+   hljs.initHighlightingOnLoad();
+  </script>
+  <script src="js/docs.js">
+  </script>
+ </body>
+</html>

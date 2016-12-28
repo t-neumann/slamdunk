@@ -1,6 +1,0 @@
-{
-  "name": "Slamdunk",
-  "tagline": "Slamdunk analysis tool",
-  "body": "### Welcome to Slamdunk.\r\n\r\nSlamdunk is a tool to maps and analyzes SLAM-Seq data. More info to come.\r\n\r\n### Documentation\r\n\r\nDetailled documentation on how to use Slamdunk is hosted on [Read The Docs](https://http://slamdunk.readthedocs.io/).\r\n\r\n### Authors and Contributors\r\n\r\nSlamdunk is developed by [Tobias Neumann](mailto:tobias.neumann.at@gmail.com) (@t-neumann) and [Philipp Rescheneder](mailto:philipp.rescheneder@univie.ac.at) (@philres).\r\n\r\nPhilipp also develops and maintains [NextGenMap](http://cibiv.github.io/NextGenMap/), a flexible and fast read mapping program Slamdunk leverages on for its analysis.\r\n",
-  "note": "Don't delete this file! It's used internally to help with page regeneration."
-}
