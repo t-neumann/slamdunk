@@ -9,6 +9,8 @@ from collections import OrderedDict
 import regex as re
 
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
+from bs4.element import NavigableString, Tag, Comment
+from docutils.nodes import comment
 
 def set(d, set, value):
     keys = list(set)
@@ -104,24 +106,41 @@ def doStuff(soup, section, TOCMap):
         header = tag.find(re.compile("^h"))
         header.name = "h" + str(TOCMap[section] - 1)
         header["id"] = section
-        sectionName = header.contents[0]
+        #sectionName = header.contents[0]
+                
+        #if (section == "input") :
+        for child in header.children:
+            if isinstance(child, NavigableString):
+                sectionName = child
+            if isinstance(child, Tag) and child.name == "a":
+                permalink = child
+         
         
-        permalink = header.a
+            
+        #permalink = header.a
         permalink['class'] = "header-link"
         permalink['href'] = "#" + section
         del permalink['title']
         permalink.string = ""
         
-        header.contents[0] = ""
-        
         glyphlink = soup.new_tag("span")
         glyphlink["class"] = "glyphicon glyphicon-link"
         permalink.append(glyphlink)
         
-        header.append(str(sectionName))
+        header.contents[0] = ""
         
-        print(header)
-        sys.stdin.readline()
+        if len(header.contents) < 3 :
+        
+            header.append(str(sectionName))
+        
+        
+        
+        
+        
+       
+        
+
+
         
         
         
@@ -129,9 +148,7 @@ def doStuff(soup, section, TOCMap):
             #new_ol.insert(0, data.extract())
 
         #content.append(docs_block_wrapper)
-        #print(docs_block_wrapper)
-        #print(str(soup)[1:3000])
-        #sys.stdin.readline()     
+        #print(docs_block_wrapper)   
          
 #         html += "<div class=\"docs_section\">"
 #         html += "<h1 class=\"" + section + "\" id=\"document-Introduction\">"
@@ -160,6 +177,27 @@ parser.add_argument("-s", "--singleHtml", type=str, required=True, dest="singleH
 parser.add_argument("-t", "--templateHtml", type=str, required=True, dest="templateHtmlFile", help="Template html file to insert docs into")
 
 args = parser.parse_args()
+
+########################################
+# Read template
+########################################
+
+templateDocTree = BeautifulSoup(open(args.templateHtmlFile), "lxml")
+
+tocNode = None
+contentNode = None
+
+# Find hooks for content and toc
+
+for comment in templateDocTree.findAll(text=lambda text:isinstance(text, Comment)):
+    if comment.string == "CONTENT-PLACEHOLDER":
+        contentNode = comment.parent
+    if comment.string == "TOC-PLACEHOLDER":
+        tocNode = comment.parent
+
+########################################
+# Read docs
+########################################
 
 soup = BeautifulSoup(open(args.singleHtmlFile), "lxml")
 
@@ -214,4 +252,10 @@ for li in tocTag.find_all("li"):
 ########################################
 
 walkthroughTOC(soup, TOC, TOCMap)
+
+docContent = soup.find('div',class_="toctree-wrapper compound")
+
+contentNode.append(docContent)
+
+print(templateDocTree.prettify('utf-8'))
 
