@@ -136,6 +136,46 @@ slamdunk --help</code></pre>
 				</div>
 			</section>
 		</div>
+	</section><!-- Intro -->
+	<section class="wrapper" id="multiqc">
+		<div class="inner">
+			<header class="major">
+				<h2>MultiQC</h2>
+			</header>
+			<section>
+				<div id="multiqc-description">
+					<p><b><a href="http://multiqc.info">MultiQC</a></b> is a popular tool to aggregate results from bioinformatics analyses across many samples into a single report.</p>
+					<p></p>
+					<p>We implemented a MultiQC module which was released with <b>MultiQC v0.9</b> to support integration of Slamdunk QC plots and statistics into your MultiQC reports.</p>
+					<p>Currently we support integration of the <em>summary</em>, <em>rates</em>, <em>utrrates</em>, <em>tcperreadpos</em> and <em>tcperutrpos</em> modules.</p>
+					<div class="row">
+						<div class="col-md-8">
+							<p>You can download this report and / or the logs used to generate it, to try running MultiQC yourself.</p>
+						</div>
+						<div class="col-md-4">
+							<div class="btn-group pull-right" role="group">
+								<a class="btn btn-default download-btn" href="multiqc_example/slamdunk_report.zip"><span aria-hidden="true" class="fa fa-file-text-o"></span> Download report</a> <a class="btn btn-default download-btn" href="multiqc_example/slamdunk_logs.zip"><span aria-hidden="true" class="fa fa-files-o"></span> Download logs</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+			<section>
+				<div class="hidden-xs hidden-sm" id="iframe_browser">
+					<div id="iframe_browser_header">
+						<div id="iframe_browser_buttons">
+							<span></span><span></span><span></span>
+						</div><span id="iframe_browser_title">MultiQC Example Reports</span>
+						<ul id="iframe_browser_tabs">
+							<li class="active">
+								<a href="multiqc_example/multiqc_report.html">Slamdunk</a>
+							</li>
+						</ul>
+					</div><iframe src="multiqc_example/multiqc_report.html"></iframe>
+				</div>
+				<p>Many thanks to <a href="https://github.com/ewels">Phil Ewels</a> for his support!</p>
+			</section>
+		</div>
 	</section><!-- Two -->
 	<section class="wrapper" id="two">
 		<div class="inner alt">
@@ -506,14 +546,14 @@ slamdunk --help</code></pre>
 		</div>
 	</footer><!-- Scripts -->
 	<script>
-	        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-	        
-	        ga('create', 'UA-89369264-1', 'auto');
-	        ga('send', 'pageview');
-	        
+	           (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	           (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	           m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	           })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	           
+	           ga('create', 'UA-89369264-1', 'auto');
+	           ga('send', 'pageview');
+	           
 	</script> 
 	<script src="js/jquery.min.js">
 	</script> 

@@ -8,7 +8,6 @@ Welcome to slamdunk's documentation!
 ====================================
 
 .. toctree::
-   :maxdepth: 2
    
    Introduction
    Installation
