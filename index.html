@@ -8,8 +8,7 @@
 	<meta content="width=device-width, initial-scale=1" name="viewport">
 	<meta content="Slamdunk website" name="description">
 	<meta content="Tobias Neumann" name="author">
-	<link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
-	<link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-glyphicons.css" rel="stylesheet"><!--[if lte IE 8]><script src="js/ie/html5shiv.js"></script><![endif]-->
+	<link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet"><!--[if lte IE 8]><script src="js/ie/html5shiv.js"></script><![endif]-->
 	<link href="css/main.css" rel="stylesheet"><!--[if lte IE 8]>
    <link rel="stylesheet" href="css/ie8.css" />
    <![endif]-->
@@ -19,8 +18,21 @@
 </head>
 <body id="top">
 	<header id="header">
-		<div class="header">
-			<div class="jumbotron">
+		<div class="header" style="position: relative; top: -100px;">
+			<div class="navbar-static-top">
+				<ul class="nav navbar-nav navbar-right">
+					<li class="active">
+						<a href="#">Home</a>
+					</li>
+					<li>
+						<a href="docs.html">Docs</a>
+					</li>
+					<li>
+						<a href="https://github.com/t-neumann/slamdunk">GitHub</a>
+					</li>
+				</ul>
+			</div>
+			<div class="jumbotron" style="position: relative; top: 100px;">
 				<img src="images/slamdunk_logo_dark.png" style="margin-bottom:100px;" width="400">
 				<h3><b>Streamlining SLAMSeq analysis with ultra-high sensitivity</b></h3>Slamdunk analyzes SLAMSeq data.
 				<div class="row" style="margin-top:30px;">
@@ -34,13 +46,12 @@
 						<a class="btn btn-block btn-lg btn-primary" href="https://hub.docker.com/r/tobneu/slamdunk-full"><i class="fa fa-docker"></i> Docker</a>
 					</div>
 					<div class="col-md-3">
-						<a class="btn btn-block btn-lg btn-primary" href="https://slamdunk.readthedocs.io"><i class="fa fa-book fa-lg"></i> Docs</a>
+						<a class="btn btn-block btn-lg btn-primary" href="docs.html"><i class="fa fa-book fa-lg"></i> Docs</a>
 					</div>
 				</div>
 			</div>
 		</div>
-	</header>
-	<!-- Intro -->
+	</header><!-- Intro -->
 	<section class="wrapper" id="intro">
 		<div class="inner">
 			<header class="major">
@@ -69,7 +80,8 @@
 				<p>Both <i>alleyoop</i> and <i>splash</i> utilize R for various calculations and diagnostic plots. Therefore, a global installation of R is required to run those tools.</p>
 				<ul>
 					<li>Required R version: <b>R 3.2.2</b></li>
-					<li>Required packages (from <a href="https://cran.r-project.org">CRAN</a>):</li>
+					<li>Required packages (from <a href="https://cran.r-project.org">CRAN</a>):
+					</li>
 				</ul>
 			</section>
 			<section>
@@ -494,14 +506,14 @@ slamdunk --help</code></pre>
 		</div>
 	</footer><!-- Scripts -->
 	<script>
-	     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	     (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	     m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	     })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-	     
-	     ga('create', 'UA-89369264-1', 'auto');
-	     ga('send', 'pageview');
-	     
+	        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	        
+	        ga('create', 'UA-89369264-1', 'auto');
+	        ga('send', 'pageview');
+	        
 	</script> 
 	<script src="js/jquery.min.js">
 	</script> 
