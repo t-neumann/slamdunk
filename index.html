@@ -55,17 +55,206 @@
 	<section class="wrapper" id="intro">
 		<div class="inner">
 			<header class="major">
-				<h2>Overview</h2>
+				<h2>SLAMSeq</h2>
 			</header>
 			<section>
 				<h4><b>SLAMSeq</b></h4>
 				<p>SLAMSeq is a sequencing protocol to label nascent transcripts.</p>
 				<hr>
 			</section>
+		</div>
+	</section><!-- Quickstart -->
+	<section class="wrapper" id="quickstart">
+		<div class="inner">
+			<header class="major">
+				<h2>Quickstart</h2>
+			</header>
 			<section>
-				<h4><b>Slamdunk</b></h4>
-				<p>Slamdunk analyzes SLAMSeq data.</p>
-				<hr>
+				<h4><b>Install</b></h4>
+				<div class="code bash highlight-python">
+					<div class="highlight">
+						<pre>pip install --extra-index-url https://testpypi.python.org/pypi slamdunk</pre>
+					</div>
+				</div>
+				<hr class="docutils">
+			</section>
+			<section>
+				<h4><b>Run Slamdunk</b></h4>
+				<div class="code bash highlight-python">
+					<div class="highlight">
+						<pre>slamdunk all -r &lt;reference fasta&gt; -b &lt;bed file&gt; -o &lt;output directory&gt; -5 12 -n 100
+             -t &lt;threads&gt; -m -rl &lt;maximum read length&gt; --skip-sam files [files ...]
+</pre>
+					</div>
+				</div>
+				<p>This runs <i>slamdunk</i> with its default parameters.</p>
+				<table border="1" class="docutils">
+					<colgroup>
+						<col width="6%">
+						<col width="94%">
+					</colgroup>
+					<thead valign="bottom">
+						<tr class="row-odd">
+							<th class="head">Parameter</th>
+							<th class="head">Description</th>
+						</tr>
+					</thead>
+					<tbody valign="top">
+						<tr class="row-even">
+							<td><strong>-r</strong></td>
+							<td>The reference fasta file.</td>
+						</tr>
+						<tr class="row-odd">
+							<td><strong>-b</strong></td>
+							<td>BED-file containing coordinates for 3’ UTRs.</td>
+						</tr>
+						<tr class="row-even">
+							<td><strong>-o</strong></td>
+							<td>The output directory where all output files of this dunk will be placed.</td>
+						</tr>
+						<tr class="row-odd">
+							<td><strong>-t</strong></td>
+							<td>The number of threads to use for this dunk. NextGenMap runs multi-threaded, so it is recommended to use more threads than available samples (default: 1).</td>
+						</tr>
+						<tr class="row-even">
+							<td><strong>files</strong></td>
+							<td>
+								Samplesheet (see <a class="reference internal" href="docs.html#sample-file"><em>Sample file format</em></a> ) or a list of all sample BAM/FASTA(gz)/FASTQ(gz) files (wildcard * accepted).
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<h4><b>Relevant results:</b></h4>
+				<ul class="simple">
+					<li>Folder <em>count</em> : Tab-separated <em>tcount</em> files containing the SLAMSeq statistics per UTR (see <a class="reference internal" href="docs.html#tcount-file"><em>Tcount file format</em></a> )
+					</li>
+					<li>Folder <em>filter</em> : BAM-files with the final mapped reads for visualization and further processing</li>
+				</ul>
+				<p></p>
+				<hr class="docutils">
+			</section>
+			<section>
+				<h4><b>Check results</b></h4>If you want to have a very quick sanity check whether your desired conversion rates have been achieved, use this <em>alleyoop</em> command to plot the UTR conversion rates in your sample:
+				<p></p>
+				<div class="code bash highlight-python">
+					<div class="highlight">
+						<pre>alleyoop utrrates -o &lt;output directory&gt; -r &lt;reference fasta&gt; [-mq MQ] [-m] [-t &lt;threads&gt;]
+                  -b &lt;bed file&gt; [-l MAXLENGTH] bam [bam ...]
+</pre>
+					</div>
+				</div>
+				<table border="1" class="docutils">
+					<colgroup>
+						<col width="5%">
+						<col width="95%">
+					</colgroup>
+					<thead valign="bottom">
+						<tr class="row-odd">
+							<th class="head">Parameter</th>
+							<th class="head">Description</th>
+						</tr>
+					</thead>
+					<tbody valign="top">
+						<tr class="row-even">
+							<td><strong>-o</strong></td>
+							<td>The output directory where the plots will be placed.</td>
+						</tr>
+						<tr class="row-odd">
+							<td><strong>-r</strong></td>
+							<td>The reference fasta file.</td>
+						</tr>
+						<tr class="row-even">
+							<td><strong>-mq</strong></td>
+							<td>Minimal base quality for SNPs.</td>
+						</tr>
+						<tr class="row-odd">
+							<td><strong>-m</strong></td>
+							<td>Flag to activate the multiple T-&gt;C conversion stringency: Only T-&gt;C conversions in reads with more than 1 T-&gt;C conversion will be counted.</td>
+						</tr>
+						<tr class="row-even">
+							<td><strong>-t</strong></td>
+							<td>The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.</td>
+						</tr>
+						<tr class="row-odd">
+							<td><strong>-b</strong></td>
+							<td>BED-file containing coordinates for 3’ UTRs.</td>
+						</tr>
+						<tr class="row-even">
+							<td><strong>-l</strong></td>
+							<td>Maximum read length in all samples.</td>
+						</tr>
+						<tr class="row-odd">
+							<td><strong>bam</strong></td>
+							<td>BAM file(s) containing the final filtered reads from the <em>filter</em> folder (wildcard * accepted).</td>
+						</tr>
+					</tbody>
+				</table>
+			</section>
+		</div>
+	</section><!-- Slamdunk description -->
+	<section class="wrapper" id="slamdunk">
+		<div class="inner alt">
+			<header class="major">
+				<h2>Slamdunk</h2>
+				<div class="row" id="docstart">
+					<div class="col-sm-6">
+						<p align="left">Slamdunk consists of 4 core modules to process SLAMSeq data:</p>
+						<ul>
+							<li><b>map</b></li>
+							<li style="list-style: none; display: inline">
+								<ul>
+									<li>Map reads to genome</li>
+								</ul>
+							</li>
+							<li><b>filter</b></li>
+							<li style="list-style: none; display: inline">
+								<ul>
+									<li>Filter alignments for low quality</li>
+								</ul>
+							</li>
+							<li><b>snp</b></li>
+							<li style="list-style: none; display: inline">
+								<ul>
+									<li>Call variants on data to filter false-positives</li>
+								</ul><b>count</b>
+							</li>
+							<li style="list-style: none; display: inline">
+								<ul>
+									<li>Quantify conversion rate per 3'UTR</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+					<div class="col-sm-6" id="toc_column"><img src="images/slamdunk_flow.png" style="margin-bottom:100px;" width="400"></div>
+				</div>
+			</header>
+			<section class="spotlight">
+				<div class="image"><img alt="" src="images/ngm.png"></div>
+				<div class="content">
+					<h3>T&gt;C aware alignment</h3>
+					<p>Using adapted scoring schemes for <a href="http://cibiv.github.io/NextGenMap/">NextGenMap</a> - a highly sensitive and fast read mapping program - we are able confidently map reads with any reasonable number of T&gt;C conversions to the genome.</p>
+				</div>
+			</section>
+			<section class="spotlight">
+				<div class="image"><img alt="" src="images/multimappers.png"></div>
+				<div class="content">
+					<h3>Multimapper reconciliation</h3>
+					<p>We devised a reference guided approach to utilize multimapper information in 3'UTR regions of low complexity using efficient data structures.</p>
+				</div>
+			</section>
+			<section class="spotlight">
+				<div class="image"><img alt="" src="images/variant.png"></div>
+				<div class="content">
+					<h3>Variant exclusion</h3>
+					<p>Using <a href="http://dkoboldt.github.io/varscan/">Varscan2</a> we can separate true T&gt;C conversions from false-positives caused by variants.</p>
+				</div>
+			</section>
+			<section class="spotlight">
+				<div class="image"><img alt="" src="images/conversionrates.png"></div>
+				<div class="content">
+					<h3>Conversion rate quantification</h3>
+					<p>We devised a conversion counting method normalizing for T-content and coverage in individual 3'UTRs for unbiased comparison of transcripts.</p>
+				</div>
 			</section>
 		</div>
 	</section><!-- Installation -->
@@ -190,7 +379,7 @@ slamdunk --help</code></pre>
 				<p>Many thanks to <a href="https://github.com/ewels">Phil Ewels</a> for his support!</p>
 			</section>
 		</div>
-	</section><!-- Two -->
+	</section><!-- Authors -->
 	<section class="wrapper" id="two">
 		<div class="inner alt">
 			<section class="spotlight">
@@ -198,354 +387,9 @@ slamdunk --help</code></pre>
 					<h3>Authors and Contributors</h3>
 					<p>Slamdunk is developed by <a href="mailto:tobias.neumann.at@gmail.com" target="_blank">Tobias Neumann</a> and <a href="mailto:philipp.rescheneder@univie.ac.at" target="_blank">Philipp Rescheneder</a>.</p>
 				</div>
-			</section><!--<section class="special">
-            <ul class="icons labeled">
-               <li><span class="icon fa-camera-retro"><span class="label">Ipsum lorem accumsan</span></span></li>
-               <li><span class="icon fa-refresh"><span class="label">Sed vehicula elementum</span></span></li>
-               <li><span class="icon fa-cloud"><span class="label">Elit fusce consequat</span></span></li>
-               <li><span class="icon fa-code"><span class="label">Lorem nullam tempus</span></span></li>
-               <li><span class="icon fa-desktop"><span class="label">Adipiscing amet sapien</span></span></li>
-            </ul>
-            </section>
-            </div>
-            <!== One 
-            <section id="one" class="wrapper style2 special">
-            <header class="major">
-            <h2>Sed ipsum magna lorem tempus amet<br />
-               vehicula et gravida elementum
-            </h2>
-            </header>
-            <ul class="icons major">
-            <li><span class="icon fa-camera-retro"><span class="label">Shoot</span></span></li>
-            <li><span class="icon fa-refresh"><span class="label">Process</span></span></li>
-            <li><span class="icon fa-cloud"><span class="label">Upload</span></span></li>
-            </ul>
-            </section>-->
+			</section>
 		</div>
-	</section><!-- Three
-         <section id="three" class="wrapper style2 special">
-            <header class="major">
-               <h2>Magna leo sapien gravida</h2>
-               <p>Gravida at leo elementum elit fusce accumsan dui libero, quis vehicula<br />
-                  lectus ultricies eu. In convallis amet leo sapien iaculis efficitur.
-               </p>
-            </header>
-            <ul class="actions">
-               <li><a href="#" class="button special icon fa-download">Download</a></li>
-               <li><a href="#" class="button">Learn More</a></li>
-            </ul>
-         </section>
-         <!== Four
-         <section id="four" class="wrapper">
-            <div class="inner">
-               <header class="major">
-                  <h2>Elements</h2>
-               </header>
-               <section>
-                  <h4>Text</h4>
-                  <p>This is <b>bold</b> and this is <strong>strong</strong>. This is <i>italic</i> and this is <em>emphasized</em>.
-                     This is <sup>superscript</sup> text and this is <sub>subscript</sub> text.
-                     This is <u>underlined</u> and this is code: <code>for (;;) { ... }</code>. Finally, <a href="#">this is a link</a>.
-                  </p>
-                  <hr />
-                  <header>
-                     <h4>Heading with a Subtitle</h4>
-                     <p>Lorem ipsum dolor sit amet nullam id egestas urna aliquam</p>
-                  </header>
-                  <p>Nunc lacinia ante nunc ac lobortis. Interdum adipiscing gravida odio porttitor sem non mi integer non faucibus ornare mi ut ante amet placerat aliquet. Volutpat eu sed ante lacinia sapien lorem accumsan varius montes viverra nibh in adipiscing blandit tempus accumsan.</p>
-                  <header>
-                     <h5>Heading with a Subtitle</h5>
-                     <p>Lorem ipsum dolor sit amet nullam id egestas urna aliquam</p>
-                  </header>
-                  <p>Nunc lacinia ante nunc ac lobortis. Interdum adipiscing gravida odio porttitor sem non mi integer non faucibus ornare mi ut ante amet placerat aliquet. Volutpat eu sed ante lacinia sapien lorem accumsan varius montes viverra nibh in adipiscing blandit tempus accumsan.</p>
-                  <hr />
-                  <h2>Heading Level 2</h2>
-                  <h3>Heading Level 3</h3>
-                  <h4>Heading Level 4</h4>
-                  <h5>Heading Level 5</h5>
-                  <h6>Heading Level 6</h6>
-                  <hr />
-                  <h5>Blockquote</h5>
-                  <blockquote>Fringilla nisl. Donec accumsan interdum nisi, quis tincidunt felis sagittis eget tempus euismod. Vestibulum ante ipsum primis in faucibus vestibulum. Blandit adipiscing eu felis iaculis volutpat ac adipiscing accumsan faucibus. Vestibulum ante ipsum primis in faucibus lorem ipsum dolor sit amet nullam adipiscing eu felis.</blockquote>
-                  <h5>Preformatted</h5>
-                  <pre><code>i = 0;
-            
-            while (!deck.isInOrder()) {
-            print 'Iteration ' + i;
-            deck.shuffle();
-            i++;
-            }
-            
-            print 'It took ' + i + ' iterations to sort the deck.';</code></pre>
-               </section>
-               <section>
-                  <h4>Lists</h4>
-                  <div class="row">
-                     <div class="6u 12u$(medium)">
-                        <h5>Unordered</h5>
-                        <ul>
-                           <li>Dolor pulvinar etiam.</li>
-                           <li>Sagittis adipiscing.</li>
-                           <li>Felis enim feugiat.</li>
-                        </ul>
-                        <h5>Alternate</h5>
-                        <ul class="alt">
-                           <li>Dolor pulvinar etiam.</li>
-                           <li>Sagittis adipiscing.</li>
-                           <li>Felis enim feugiat.</li>
-                        </ul>
-                     </div>
-                     <div class="6u$ 12u$(medium)">
-                        <h5>Ordered</h5>
-                        <ol>
-                           <li>Dolor pulvinar etiam.</li>
-                           <li>Etiam vel felis viverra.</li>
-                           <li>Felis enim feugiat.</li>
-                           <li>Dolor pulvinar etiam.</li>
-                           <li>Etiam vel felis lorem.</li>
-                           <li>Felis enim et feugiat.</li>
-                        </ol>
-                        <h5>Icons</h5>
-                        <ul class="icons">
-                           <li><a href="#" class="icon fa-twitter"><span class="label">Twitter</span></a></li>
-                           <li><a href="#" class="icon fa-facebook"><span class="label">Facebook</span></a></li>
-                           <li><a href="#" class="icon fa-instagram"><span class="label">Instagram</span></a></li>
-                           <li><a href="#" class="icon fa-github"><span class="label">Github</span></a></li>
-                        </ul>
-                     </div>
-                  </div>
-                  <h5>Actions</h5>
-                  <div class="row">
-                     <div class="6u 12u$(medium)">
-                        <ul class="actions">
-                           <li><a href="#" class="button special">Default</a></li>
-                           <li><a href="#" class="button">Default</a></li>
-                        </ul>
-                        <ul class="actions small">
-                           <li><a href="#" class="button special small">Small</a></li>
-                           <li><a href="#" class="button small">Small</a></li>
-                        </ul>
-                        <ul class="actions vertical">
-                           <li><a href="#" class="button special">Default</a></li>
-                           <li><a href="#" class="button">Default</a></li>
-                        </ul>
-                        <ul class="actions vertical small">
-                           <li><a href="#" class="button special small">Small</a></li>
-                           <li><a href="#" class="button small">Small</a></li>
-                        </ul>
-                     </div>
-                     <div class="6u 12u$(medium)">
-                        <ul class="actions vertical">
-                           <li><a href="#" class="button special fit">Default</a></li>
-                           <li><a href="#" class="button fit">Default</a></li>
-                        </ul>
-                        <ul class="actions vertical small">
-                           <li><a href="#" class="button special small fit">Small</a></li>
-                           <li><a href="#" class="button small fit">Small</a></li>
-                        </ul>
-                     </div>
-                  </div>
-               </section>
-               <section>
-                  <h4>Table</h4>
-                  <h5>Default</h5>
-                  <div class="table-wrapper">
-                     <table>
-                        <thead>
-                           <tr>
-                              <th>Name</th>
-                              <th>Description</th>
-                              <th>Price</th>
-                           </tr>
-                        </thead>
-                        <tbody>
-                           <tr>
-                              <td>Item One</td>
-                              <td>Ante turpis integer aliquet porttitor.</td>
-                              <td>29.99</td>
-                           </tr>
-                           <tr>
-                              <td>Item Two</td>
-                              <td>Vis ac commodo adipiscing arcu aliquet.</td>
-                              <td>19.99</td>
-                           </tr>
-                           <tr>
-                              <td>Item Three</td>
-                              <td> Morbi faucibus arcu accumsan lorem.</td>
-                              <td>29.99</td>
-                           </tr>
-                           <tr>
-                              <td>Item Four</td>
-                              <td>Vitae integer tempus condimentum.</td>
-                              <td>19.99</td>
-                           </tr>
-                           <tr>
-                              <td>Item Five</td>
-                              <td>Ante turpis integer aliquet porttitor.</td>
-                              <td>29.99</td>
-                           </tr>
-                        </tbody>
-                        <tfoot>
-                           <tr>
-                              <td colspan="2"></td>
-                              <td>100.00</td>
-                           </tr>
-                        </tfoot>
-                     </table>
-                  </div>
-                  <h5>Alternate</h5>
-                  <div class="table-wrapper">
-                     <table class="alt">
-                        <thead>
-                           <tr>
-                              <th>Name</th>
-                              <th>Description</th>
-                              <th>Price</th>
-                           </tr>
-                        </thead>
-                        <tbody>
-                           <tr>
-                              <td>Item One</td>
-                              <td>Ante turpis integer aliquet porttitor.</td>
-                              <td>29.99</td>
-                           </tr>
-                           <tr>
-                              <td>Item Two</td>
-                              <td>Vis ac commodo adipiscing arcu aliquet.</td>
-                              <td>19.99</td>
-                           </tr>
-                           <tr>
-                              <td>Item Three</td>
-                              <td> Morbi faucibus arcu accumsan lorem.</td>
-                              <td>29.99</td>
-                           </tr>
-                           <tr>
-                              <td>Item Four</td>
-                              <td>Vitae integer tempus condimentum.</td>
-                              <td>19.99</td>
-                           </tr>
-                           <tr>
-                              <td>Item Five</td>
-                              <td>Ante turpis integer aliquet porttitor.</td>
-                              <td>29.99</td>
-                           </tr>
-                        </tbody>
-                        <tfoot>
-                           <tr>
-                              <td colspan="2"></td>
-                              <td>100.00</td>
-                           </tr>
-                        </tfoot>
-                     </table>
-                  </div>
-               </section>
-               <section>
-                  <h4>Buttons</h4>
-                  <ul class="actions">
-                     <li><a href="#" class="button special">Special</a></li>
-                     <li><a href="#" class="button">Default</a></li>
-                  </ul>
-                  <ul class="actions">
-                     <li><a href="#" class="button big">Big</a></li>
-                     <li><a href="#" class="button">Default</a></li>
-                     <li><a href="#" class="button small">Small</a></li>
-                  </ul>
-                  <ul class="actions fit">
-                     <li><a href="#" class="button fit">Fit</a></li>
-                     <li><a href="#" class="button special fit">Fit</a></li>
-                     <li><a href="#" class="button fit">Fit</a></li>
-                  </ul>
-                  <ul class="actions fit small">
-                     <li><a href="#" class="button special fit small">Fit + Small</a></li>
-                     <li><a href="#" class="button fit small">Fit + Small</a></li>
-                     <li><a href="#" class="button special fit small">Fit + Small</a></li>
-                  </ul>
-                  <ul class="actions">
-                     <li><a href="#" class="button special icon fa-download">Icon</a></li>
-                     <li><a href="#" class="button icon fa-download">Icon</a></li>
-                  </ul>
-                  <ul class="actions">
-                     <li><span class="button special disabled">Disabled</span></li>
-                     <li><span class="button disabled">Disabled</span></li>
-                  </ul>
-               </section>
-               <section>
-                  <h4>Form</h4>
-                  <form method="post" action="#">
-                     <div class="row uniform">
-                        <div class="6u 12u$(xsmall)">
-                           <input type="text" name="demo-name" id="demo-name" value="" placeholder="Name" />
-                        </div>
-                        <div class="6u$ 12u$(xsmall)">
-                           <input type="email" name="demo-email" id="demo-email" value="" placeholder="Email" />
-                        </div>
-                        <div class="12u$">
-                           <div class="select-wrapper">
-                              <select name="demo-category" id="demo-category">
-                                 <option value="">- Category -</option>
-                                 <option value="1">Manufacturing</option>
-                                 <option value="1">Shipping</option>
-                                 <option value="1">Administration</option>
-                                 <option value="1">Human Resources</option>
-                              </select>
-                           </div>
-                        </div>
-                        <div class="4u 12u$(small)">
-                           <input type="radio" id="demo-priority-low" name="demo-priority" checked>
-                           <label for="demo-priority-low">Low</label>
-                        </div>
-                        <div class="4u 12u$(small)">
-                           <input type="radio" id="demo-priority-normal" name="demo-priority">
-                           <label for="demo-priority-normal">Normal</label>
-                        </div>
-                        <div class="4u$ 12u$(small)">
-                           <input type="radio" id="demo-priority-high" name="demo-priority">
-                           <label for="demo-priority-high">High</label>
-                        </div>
-                        <div class="6u 12u$(small)">
-                           <input type="checkbox" id="demo-copy" name="demo-copy">
-                           <label for="demo-copy">Email me a copy</label>
-                        </div>
-                        <div class="6u$ 12u$(small)">
-                           <input type="checkbox" id="demo-human" name="demo-human" checked>
-                           <label for="demo-human">Not a robot</label>
-                        </div>
-                        <div class="12u$">
-                           <textarea name="demo-message" id="demo-message" placeholder="Enter your message" rows="6"></textarea>
-                        </div>
-                        <div class="12u$">
-                           <ul class="actions">
-                              <li><input type="submit" value="Send Message" class="special" /></li>
-                              <li><input type="reset" value="Reset" /></li>
-                           </ul>
-                        </div>
-                     </div>
-                  </form>
-               </section>
-               <section>
-                  <h4>Image</h4>
-                  <h5>Fit</h5>
-                  <div class="box alt">
-                     <div class="row uniform">
-                        <div class="12u"><span class="image fit"><img src="images/pic04.jpg" alt="" /></span></div>
-                        <div class="4u"><span class="image fit"><img src="images/pic01.jpg" alt="" /></span></div>
-                        <div class="4u"><span class="image fit"><img src="images/pic02.jpg" alt="" /></span></div>
-                        <div class="4u"><span class="image fit"><img src="images/pic03.jpg" alt="" /></span></div>
-                        <div class="4u"><span class="image fit"><img src="images/pic02.jpg" alt="" /></span></div>
-                        <div class="4u"><span class="image fit"><img src="images/pic03.jpg" alt="" /></span></div>
-                        <div class="4u"><span class="image fit"><img src="images/pic01.jpg" alt="" /></span></div>
-                        <div class="4u"><span class="image fit"><img src="images/pic03.jpg" alt="" /></span></div>
-                        <div class="4u"><span class="image fit"><img src="images/pic01.jpg" alt="" /></span></div>
-                        <div class="4u"><span class="image fit"><img src="images/pic02.jpg" alt="" /></span></div>
-                     </div>
-                  </div>
-                  <h5>Left &amp; Right</h5>
-                  <p><span class="image left"><img src="images/pic05.jpg" alt="" /></span>Fringilla nisl. Donec accumsan interdum nisi, quis tincidunt felis sagittis eget. tempus euismod. Vestibulum ante ipsum primis in faucibus vestibulum. Blandit adipiscing eu felis iaculis volutpat ac adipiscing accumsan eu faucibus. Integer ac pellentesque praesent tincidunt felis sagittis eget. tempus euismod. Vestibulum ante ipsum primis in faucibus vestibulum. Blandit adipiscing eu felis iaculis volutpat ac adipiscing accumsan eu faucibus. Integer ac pellentesque praesent. Donec accumsan interdum nisi, quis tincidunt felis sagittis eget. tempus euismod. Vestibulum ante ipsum primis in faucibus vestibulum. Blandit adipiscing eu felis iaculis volutpat ac adipiscing accumsan eu faucibus. Integer ac pellentesque praesent tincidunt felis sagittis eget. tempus euismod. Vestibulum ante ipsum primis in faucibus vestibulum. Blandit adipiscing eu felis iaculis volutpat ac adipiscing accumsan eu faucibus. Integer ac pellentesque praesent. Blandit adipiscing eu felis iaculis volutpat ac adipiscing accumsan eu faucibus. Integer ac pellentesque praesent tincidunt felis sagittis eget. tempus euismod. Vestibulum ante ipsum primis in faucibus vestibulum. Blandit adipiscing eu felis iaculis volutpat ac adipiscing accumsan eu faucibus. Integer ac pellentesque praesent.</p>
-                  <p><span class="image right"><img src="images/pic05.jpg" alt="" /></span>Fringilla nisl. Donec accumsan interdum nisi, quis tincidunt felis sagittis eget. tempus euismod. Vestibulum ante ipsum primis in faucibus vestibulum. Blandit adipiscing eu felis iaculis volutpat ac adipiscing accumsan eu faucibus. Integer ac pellentesque praesent tincidunt felis sagittis eget. tempus euismod. Vestibulum ante ipsum primis in faucibus vestibulum. Blandit adipiscing eu felis iaculis volutpat ac adipiscing accumsan eu faucibus. Integer ac pellentesque praesent. Donec accumsan interdum nisi, quis tincidunt felis sagittis eget. tempus euismod. Vestibulum ante ipsum primis in faucibus vestibulum. Blandit adipiscing eu felis iaculis volutpat ac adipiscing accumsan eu faucibus. Integer ac pellentesque praesent tincidunt felis sagittis eget. tempus euismod. Vestibulum ante ipsum primis in faucibus vestibulum. Blandit adipiscing eu felis iaculis volutpat ac adipiscing accumsan eu faucibus. Integer ac pellentesque praesent. Blandit adipiscing eu felis iaculis volutpat ac adipiscing accumsan eu faucibus. Integer ac pellentesque praesent tincidunt felis sagittis eget. tempus euismod. Vestibulum ante ipsum primis in faucibus vestibulum. Blandit adipiscing eu felis iaculis volutpat ac adipiscing accumsan eu faucibus. Integer ac pellentesque praesent.</p>
-               </section>
-            </div>
-         </section>
-         <!== Footer -->
+	</section><!--Footer -->
 	<footer id="footer">
 		<div class="row">
 			<div class="col-md-6">
@@ -560,14 +404,14 @@ slamdunk --help</code></pre>
 		</div>
 	</footer><!-- Scripts -->
 	<script>
-	              (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	              (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	              m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	              })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-	              
-	              ga('create', 'UA-89369264-1', 'auto');
-	              ga('send', 'pageview');
-	              
+	                 (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	                 (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	                 m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	                 })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	                 
+	                 ga('create', 'UA-89369264-1', 'auto');
+	                 ga('send', 'pageview');
+	                 
 	</script> 
 	<script src="js/jquery.min.js">
 	</script> 
