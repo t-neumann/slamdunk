@@ -3114,6 +3114,14 @@ body.is-loading #header .image img {
 }
 
 /*
+	INSTALL SWITCHER PANEL
+*/
+
+.panel-body {
+	background-color: #ffffff;
+}
+
+/*
     DOCS
             */
 

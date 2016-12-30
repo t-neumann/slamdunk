@@ -75,38 +75,50 @@
 				<h2>Installation</h2>
 			</header>
 			<section>
-				<h4><b>Requirements</b></h4>
-				<p><i>slamdunk</i> has no major requirements. The python package manager will acquire all external dependencies by itself.</p>
-				<p>Both <i>alleyoop</i> and <i>splash</i> utilize R for various calculations and diagnostic plots. Therefore, a global installation of R is required to run those tools.</p>
+				<h3><b>Requirements</b></h3>
+				<h4><b>Slamdunk</b></h4>
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h3 class="panel-title" style="color: #999999;"><b><i>slamdunk</i></b> will fetch all dependencies <b>automatically</b> in its install phase. There is no need to have the requirements installed before installing <i>slamdunk</i>.</h3>
+					</div>
+				</div>
+				<p></p>
+				<p><i>slamdunk</i> depends on several python packages listed in the <i>requirements.txt</i> file.</p>
+				<p>In addition, <i>slamdunk</i> uses the following external software for its analysis:</p>
 				<ul>
-					<li>Required R version: <b>R 3.2.2</b></li>
-					<li>Required packages (from <a href="https://cran.r-project.org">CRAN</a>):
-					</li>
+					<li><b><a href="http://cibiv.github.io/NextGenMap/">NextGenMap</a></b></li>
+					<li><b><a href="http://cibiv.github.io/NextGenMap/">Samtools</a></b> &ge; 1.3.1</li>
+					<li><b><a href="http://dkoboldt.github.io/varscan/">VarScan2</a></b></li>
+					<li><b><a href="https://www.r-project.org//">R</a></b> 3.2.2</li>
 				</ul>
+				<p></p>
+				<h4><b>Alleyoop / Splash</b></h4>
+				<p>Both <i>alleyoop</i> and <i>splash</i> require <b><a href="https://www.r-project.org/">R (v3.2.2)</a></b>. All R package dependencies are resolved automatically from <a href="https://cran.r-project.org">CRAN</a> during installation.</p>
 			</section>
 			<section>
-				<h4><b>Setup</b></h4>
-				<p>Installing Slamdunk is easy. You can either:</p>
-				<ul>
-					<li>Install <i>slamdunk</i> from PyPI using the Python Package Index <b>(recommended)</b>.</li>
-					<li>Install a development version of <i>slamdunk</i> from GitHub using the Python Package Index.</li>
-					<li>Install <i>slamdunk</i> from source.</li>
-				</ul>
-				<p>For maximum convenience, you might also consider running slamdunk from our <a href="https://hub.docker.com/r/tobneu/slamdunk-full">Docker</a> container.</p>
-				<hr>
+				<h4><b>Installation</b></h4>
 				<div class="panel panel-primary" id="quick_install">
 					<div class="btn-group btn-group-justified btn-group-xs install-switcher" role="group">
 						<a class="btn active" href="#pip">pip</a> <a class="btn" href="#dev">development version</a> <a class="btn" href="#manual">manual</a>
 					</div>
 					<div class="panel-body">
-						<pre id="pip"><code><span class="comment"># Root</span>
+						<div id="pip">
+							<p>Slamdunk is hosted as Python package on the <a href="https://pypi.python.org/pypi">Python Package Index</a>. You can install it with a single command using <a href="https://pypi.python.org/pypi/pip">pip</a>.</p>
+							<pre><code><span class="comment"># Root</span>
 pip install --extra-index-url https://testpypi.python.org/pypi slamdunk
 
 <span class="comment"># Local user</span>
 pip install --extra-index-url https://testpypi.python.org/pypi --user slamdunk</code></pre>
-						<pre id="dev" style="display:none;"><code><span class="comment"># Grab source and install</span>
+						</div>
+						<div id="dev" style="display:none;">
+							<p>The latest source of Slamdunk is hosted in our <a href="https://github.com/t-neumann/slamdunk">GitHub repository</a>. You can install it directly from there using <a href="https://pypi.python.org/pypi/pip">pip</a>.</p>
+							<pre><code><span class="comment"># Grab source and install</span>
 pip install git+https://github.com/t-neumann/slamdunk.git</code></pre>
-						<pre id="manual" style="display:none;"><code>git clone https://github.com/t-neumann/slamdunk.git
+						</div>
+						<div id="manual" style="display:none;">
+							<p>If you want to install all modules and dependencies manually from source, we have all install scripts in place.</p>
+							<p><b>Note:</b> The recommended way to install python package dependencies is still using <a href="https://pypi.python.org/pypi/pip">pip</a>.</p>
+							<pre><code>git clone https://github.com/t-neumann/slamdunk.git
 cd slamdunk
 
 <span class="comment"># Root</span>
@@ -132,8 +144,10 @@ cd slamdunk/bin
 export PATH=$(pwd):$PATH
 
 slamdunk --help</code></pre>
+						</div>
 					</div>
 				</div>
+				<p>For maximum convenience, you might also consider running slamdunk from our <a href="https://hub.docker.com/r/tobneu/slamdunk-full">Docker</a> container.</p>
 			</section>
 		</div>
 	</section><!-- Intro -->
@@ -546,14 +560,14 @@ slamdunk --help</code></pre>
 		</div>
 	</footer><!-- Scripts -->
 	<script>
-	           (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	           (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	           m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	           })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-	           
-	           ga('create', 'UA-89369264-1', 'auto');
-	           ga('send', 'pageview');
-	           
+	              (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	              (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	              m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	              })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	              
+	              ga('create', 'UA-89369264-1', 'auto');
+	              ga('send', 'pageview');
+	              
 	</script> 
 	<script src="js/jquery.min.js">
 	</script> 

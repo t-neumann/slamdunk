@@ -5,7 +5,7 @@ $(function () {
   // Switch the installation instruction type
   $('.install-switcher .btn').click(function(e){
      e.preventDefault();
-     $('#quick_install pre').hide();
+     $('#quick_install div.panel-body div').hide();
      $( $(this).attr('href') ).show();
      $('.install-switcher .btn').removeClass('active');
      $(this).addClass('active');
