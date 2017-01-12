@@ -57,7 +57,7 @@ def runSam2bam(inFile, outFile, log, index=True, sort=True, delinFile=False, onl
         pysamIndex(outFile)
 
 
-def Map(inputBAM, inputReference, outputSAM, log, quantseqMapping, localMapping, threads=1, parameter="--no-progress --slam-seq 2" , outputSuffix="_ngm_slamdunk", trim5p=0, maxPolyA=-1, topn=1, sampleId=None, sampleName="NA", sampleType="NA", sampleTime=0, printOnly=False, verbose=True, force=False):
+def Map(inputBAM, inputReference, outputSAM, log, quantseqMapping, endtoendMapping, threads=1, parameter="--no-progress --slam-seq 2" , outputSuffix="_ngm_slamdunk", trim5p=0, maxPolyA=-1, topn=1, sampleId=None, sampleName="NA", sampleType="NA", sampleTime=0, printOnly=False, verbose=True, force=False):
 
     if(quantseqMapping is True) :
         parameter = "--no-progress"
@@ -68,10 +68,10 @@ def Map(inputBAM, inputReference, outputSAM, log, quantseqMapping, localMapping,
     if(maxPolyA > -1):
         parameter = parameter + " --max-polya " + str(maxPolyA)
     
-    if(localMapping is True):
-        parameter = parameter + " -l "
-    else:
+    if(endtoendMapping is True):
         parameter = parameter + " -e "
+    else:
+        parameter = parameter + " -l "
 
     if(sampleId != None):    
         parameter = parameter + " --rg-id " + str(sampleId)
