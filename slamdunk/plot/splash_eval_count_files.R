@@ -59,6 +59,7 @@ slamDunkFile = opt$slamdunk
 #slamDunkFile = "/project/ngs/philipp/slamdunk-analysis/simulation/simulation/rates_cov50_rl38/slamdunk//count/tcounts_all_samples_rates_reads.tsv"
 
 outputFile = opt$output
+outputFileCSV = paste0(outputFile, ".tsv")
 
 simulatedRates = read.table(simulatedFileRates, header=T, sep="\t", stringsAsFactors = F)
 slamDunkRates = read.table(slamDunkFile, header=T, sep="\t", stringsAsFactors = F)
@@ -85,11 +86,15 @@ boxplot(log2((simulatedSamples + 0.001) / (slamDunkSamples  + 0.001)), ylim=c(-1
 abline(h=0, lty=2, col="grey")
 
 merged = data.frame()
+#rsmeTab = data.frame(File=character(), Rate=character(), RSME=character(), stringsAsFactors=F)
+rsmeTab = matrix("", ncol=3, nrow=0)
 for(currentSample in 1:(sampleNumber - 1)) {
   #currentSample = 12 
   current = cbind(slamDunkRates[, c(1:fixedColumns - 1, fixedColumns + currentSample)], simulatedRates[, fixedColumns + currentSample])
   colnames(current) = c(colnames(slamDunkRates[, c(1:fixedColumns - 1)]), "Simulate", "Slamdunk")
   merged = rbind(merged, current)
+  
+  rsmeTab = rbind(rsmeTab, c(as.character(simulatedFileRates), as.character(substring(sampleNames[currentSample], 2)), as.character(rsme(current$Simulate, current$Slamdunk))))
 }
 
 par(mfrow=c(1,1))
@@ -105,3 +110,8 @@ plot(merged$avgReadsCPM, merged$Slamdunk - merged$Simulate, ylim=c(-1,1), pch=4)
 plot(merged$avgMultimapper, merged$Slamdunk - merged$Simulate, ylim=c(-1,1), pch=4)
 
 dev.off()
+
+rsmeTab = rbind(rsmeTab, c(as.character(simulatedFileRates), as.character(-1), as.character(rsme(merged$Simulate, merged$Slamdunk))))
+
+write.table(rsmeTab, outputFileCSV, sep = "\t", quote = F, row.names = F, col.names = T)
+
