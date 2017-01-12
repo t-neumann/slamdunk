@@ -307,24 +307,24 @@ class SlamSeqBamIterator:
                 readPos = int(readPos) - 1
                
                 readQlty = read.query_qualities[readPos]
-                
-                refPos = int(refPos) - 1
-                
-                if(read.is_reverse):
-                    isSnpPos = self._snps != None and self._snps.isAGSnp(self._chromosome, read.reference_start + int(refPos))
-                    readPos = read.query_length - readPos - 1
-                else :
-                    isSnpPos = self._snps != None and self._snps.isTCSnp(self._chromosome, read.reference_start + int(refPos))
+                if readQlty > self._minQual:
+                    refPos = int(refPos) - 1
                     
-                refPos = read.reference_start - self._startPosition + refPos
-                
-                alnPos = SlamSeqAlignmentPosition(readPos, refPos, readBase, refBase, readQlty, isSnpPos, "N","N")
-                
-                if (alnPos.isTCMismatch(read.is_reverse)) :
-                    tcCount += 1
-                
-                mismatchList.append(alnPos)
+                    if(read.is_reverse):
+                        isSnpPos = self._snps != None and self._snps.isAGSnp(self._chromosome, read.reference_start + int(refPos))
+                        readPos = read.query_length - readPos - 1
+                    else :
+                        isSnpPos = self._snps != None and self._snps.isTCSnp(self._chromosome, read.reference_start + int(refPos))
+                        
+                    refPos = read.reference_start - self._startPosition + refPos
                     
+                    alnPos = SlamSeqAlignmentPosition(readPos, refPos, readBase, refBase, readQlty, isSnpPos, "N","N")
+                    
+                    if (alnPos.isTCMismatch(read.is_reverse)) :
+                        tcCount += 1
+                    
+                    mismatchList.append(alnPos)
+                        
         return mismatchList, tcCount
                     
     def __init__(self, readIterator, refSeq, chromosome, startPosition, strand, maxReadLength, snps, minQual):

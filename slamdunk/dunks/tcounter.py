@@ -161,7 +161,7 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
             
             slamSeqUtr._Tcontent = Tcontent
 
-        readIterator = testFile.readInRegion(utr.chromosome, utr.start, utr.stop, utr.strand, maxReadLength)
+        readIterator = testFile.readInRegion(utr.chromosome, utr.start, utr.stop, utr.strand, maxReadLength, minQual)
       
         tcCountUtr = [0] * utr.getLength()
         coverageUtr = [0] * utr.getLength()

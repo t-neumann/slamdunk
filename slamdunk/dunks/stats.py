@@ -13,7 +13,7 @@ from slamdunk.slamseq.SlamSeqFile import SlamSeqBamFile, ReadDirection  # @Unres
 from slamdunk.utils import SNPtools  # @UnresolvedImport
 from slamdunk.utils.BedReader import BedIterator  # @UnresolvedImport
 
-from slamdunk.version import __version__
+from slamdunk.version import __version__  # @UnresolvedImport
 
 utrNormFactor = 200
 baseNumber = 5
@@ -596,7 +596,7 @@ def tcPerReadPos(referenceFile, bam, minQual, maxReadLength, outputCSV, outputPD
         chromosomes = testFile.getChromosomes()
         
         for chromosome in chromosomes:
-            readIterator = testFile.readsInChromosome(chromosome)
+            readIterator = testFile.readsInChromosome(chromosome, minQual)
                 
             for read in readIterator:
                 
@@ -661,7 +661,7 @@ def tcPerUtr(referenceFile, utrBed, bam, minQual, maxReadLength, outputCSV, outp
         
         for utr in BedIterator(utrBed):
                                          
-            readIterator = testFile.readInRegion(utr.chromosome, utr.start, utr.stop, utr.strand, maxReadLength)
+            readIterator = testFile.readInRegion(utr.chromosome, utr.start, utr.stop, utr.strand, maxReadLength, minQual)
             
             tcForwardCounts = [0] * utrNormFactor
             mutForwardCounts = [0] * utrNormFactor
@@ -772,7 +772,7 @@ def computeSNPMaskedRates (ref, bed, snpsFile, bam, maxReadLength, minQual, cove
             if utr.start < 0:
                 raise RuntimeError("Negativ start coordinate found. Please check the following entry in your BED file: " + utr)
     
-            readIterator = testFile.readInRegion(utr.chromosome, utr.start, utr.stop, utr.strand, maxReadLength)
+            readIterator = testFile.readInRegion(utr.chromosome, utr.start, utr.stop, utr.strand, maxReadLength, minQual)
             
             unmaskedTCCount = 0
             maskedTCCount = 0
