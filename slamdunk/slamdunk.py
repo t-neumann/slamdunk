@@ -70,16 +70,17 @@ def readSampleFile(fileName):
     with open(fileName, "r") as ins:
         for line in ins:
             line = line.strip()
-            if(fileName.endswith(".tsv")):
-                cols = line.split("\t")
-            elif(fileName.endswith(".csv")):
-                cols = line.split(",")
-            else:
-                raise RuntimeError("Unknown file extension found: " + fileName)
-            if(len(cols) < 4):
-                raise RuntimeError("Invalid sample file found: " + fileName)
-            samples.append(cols[0])
-            infos.append(cols[1] + ":" + cols[2] + ":" + cols[3])
+            if(len(line) > 1):
+                if(fileName.endswith(".tsv")):
+                    cols = line.split("\t")
+                elif(fileName.endswith(".csv")):
+                    cols = line.split(",")
+                else:
+                    raise RuntimeError("Unknown file extension found: " + fileName)
+                if(len(cols) < 4):
+                    raise RuntimeError("Invalid sample file found: " + fileName)
+                samples.append(cols[0])
+                infos.append(cols[1] + ":" + cols[2] + ":" + cols[3])
         
     return samples, infos
 
@@ -105,7 +106,7 @@ def getSamples(bams, runOnly=-1):
         
     return samples, samplesInfos
 
-def runMap(tid, inputBAM, referenceFile, threads, trim5p, maxPolyA, quantseqMapping, localMapping, topn, sampleDescription, outputDirectory, skipSAM) :
+def runMap(tid, inputBAM, referenceFile, threads, trim5p, maxPolyA, quantseqMapping, endtoendMapping, topn, sampleDescription, outputDirectory, skipSAM) :
     if skipSAM:
         outputSAM = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".bam", "_slamdunk_mapped"))
     else:
@@ -128,7 +129,7 @@ def runMap(tid, inputBAM, referenceFile, threads, trim5p, maxPolyA, quantseqMapp
         if(len(sampleDescriptions) >= 3):
             sampleTime = sampleDescriptions[2]
     
-    mapper.Map(inputBAM, referenceFile, outputSAM, getLogFile(outputLOG), quantseqMapping, localMapping, threads=threads, trim5p=trim5p, maxPolyA=maxPolyA, topn=topn, sampleId=tid, sampleName=sampleName, sampleType=sampleType, sampleTime=sampleTime, printOnly=printOnly, verbose=verbose)
+    mapper.Map(inputBAM, referenceFile, outputSAM, getLogFile(outputLOG), quantseqMapping, endtoendMapping, threads=threads, trim5p=trim5p, maxPolyA=maxPolyA, topn=topn, sampleId=tid, sampleName=sampleName, sampleType=sampleType, sampleTime=sampleTime, printOnly=printOnly, verbose=verbose)
     stepFinished()
 
 def runSam2Bam(tid, bam, threads, outputDirectory):
@@ -213,7 +214,7 @@ def runAll(args) :
         tid = i
         if args.sampleIndex > -1:
             tid = args.sampleIndex
-        runMap(tid, bam, referenceFile, n, args.trim5, args.maxPolyA, args.quantseq, args.local, args.topn, sampleInfo, dunkPath, args.skipSAM)
+        runMap(tid, bam, referenceFile, n, args.trim5, args.maxPolyA, args.quantseq, args.endtoend, args.topn, sampleInfo, dunkPath, args.skipSAM)
         
     dunkFinished()
 
@@ -312,7 +313,7 @@ def run():
     mapparser.add_argument("-a", "--max-polya", type=int, required=False, dest="maxPolyA", default=4, help="Max number of As at the 3' end of a read.")
     mapparser.add_argument("-t", "--threads", type=int, required=False, dest="threads", default = 1, help="Thread number")
     mapparser.add_argument("-q", "--quantseq", dest="quantseq", action='store_true', required=False, help="Run plain Quantseq alignment without SLAM-seq scoring")
-    mapparser.add_argument('-l', "--local", action='store_true', dest="local", help="Use a local alignment algorithm for mapping.")
+    mapparser.add_argument('-e', "--endtoend", action='store_true', dest="endtoend", help="Use a end to end alignment algorithm for mapping.")
     mapparser.add_argument("-i", "--sample-index", type=int, required=False, default=-1, dest="sampleIndex", help="Run analysis only for sample <i>. Use for distributing slamdunk analysis on a cluster (index is 1-based).")
     mapparser.add_argument('-ss', "--skip-sam", action='store_true', dest="skipSAM", help="Output BAM while mapping. Slower but, uses less hard disk.")
     
@@ -364,7 +365,7 @@ def run():
     allparser.add_argument("-n", "--topn", type=int, required=False, dest="topn", default=1, help="Max. number of alignments to report per read (default: %(default)s)")
     allparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number (default: %(default)s)")
     allparser.add_argument("-q", "--quantseq", dest="quantseq", action='store_true', required=False, help="Run plain Quantseq alignment without SLAM-seq scoring")
-    allparser.add_argument('-l', "--local", action='store_true', dest="local", help="Use a local alignment algorithm for mapping.")
+    allparser.add_argument('-e', "--endtoend", action='store_true', dest="endtoend", help="Use a end to end alignment algorithm for mapping.")
     allparser.add_argument('-m', "--multimap", action='store_true', dest="multimap", help="Use reference to resolve multimappers (requires -n > 1).")
     allparser.add_argument("-mq", "--min-mq", type=int, required=False, default=2, dest="mq", help="Minimum mapping quality (default: %(default)s)")
     allparser.add_argument("-mi", "--min-identity", type=float, required=False, default=0.95, dest="identity", help="Minimum alignment identity (default: %(default)s)")
@@ -408,7 +409,7 @@ def run():
             tid = i
             if args.sampleIndex > -1:
                 tid = args.sampleIndex
-            runMap(tid, bam, referenceFile, n, args.trim5, args.maxPolyA, args.quantseq, args.local, args.topn, sampleInfo, outputDirectory, args.skipSAM)
+            runMap(tid, bam, referenceFile, n, args.trim5, args.maxPolyA, args.quantseq, args.endtoend, args.topn, sampleInfo, outputDirectory, args.skipSAM)
             
         dunkFinished()
         
