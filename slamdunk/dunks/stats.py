@@ -604,9 +604,11 @@ def tcPerReadPos(referenceFile, bam, minQual, maxReadLength, outputCSV, outputPD
                 mutCounts = [0] * maxReadLength
                 
                 for mismatch in read.mismatches:
-                    mutCounts[mismatch.readPosition] += 1   
                     if(mismatch.isTCMismatch(read.direction == ReadDirection.Reverse)):
                         tcCounts[mismatch.readPosition] += 1
+                    else :
+                        mutCounts[mismatch.readPosition] += 1
+                        
                 
                 query_length = len(read.sequence)
                 if(read.direction == ReadDirection.Reverse):
