@@ -53,16 +53,22 @@ rsme <- function(model, measure) {
 #cfactor = 1 - dbinom(0, round(readLength / 4), tcRatePerPosition)
 
 simulatedFileRates = opt$simulated
-#simulatedFileRates = "/project/ngs/philipp/slamdunk-analysis/simulation/simulation/rates_cov50_rl38/utrsummary_all_samples_rates_reads.tsv"
+#simulatedFileRates = "/project/libby/slamdunk-analysis/simulation/data/test_rates_full_cov50_rl88_1/utrsummary_all_samples_rates_reads.tsv"
 
 slamDunkFile = opt$slamdunk
-#slamDunkFile = "/project/ngs/philipp/slamdunk-analysis/simulation/simulation/rates_cov50_rl38/slamdunk//count/tcounts_all_samples_rates_reads.tsv"
+#slamDunkFile = "/project/libby/slamdunk-analysis/simulation/data/test_rates_full_cov50_rl88_1/slamdunk/count/tcounts_all_samples_rates.tsv"
 
 outputFile = opt$output
 outputFileCSV = paste0(outputFile, ".tsv")
 
 simulatedRates = read.table(simulatedFileRates, header=T, sep="\t", stringsAsFactors = F)
 slamDunkRates = read.table(slamDunkFile, header=T, sep="\t", stringsAsFactors = F)
+
+# Should not be neccessary, but for large datasets some entries are lost.
+# Keep all that is found in both
+inBoth = intersect(simulatedRates$Name, slamDunkRates$Name)
+simulatedRates = simulatedRates[simulatedRates$Name %in% inBoth,]
+slamDunkRates = slamDunkRates[slamDunkRates$Name %in% inBoth,]
 
 fixedColumns = 11
 sampleNumber = ncol(simulatedRates) - fixedColumns + 1
@@ -88,13 +94,13 @@ abline(h=0, lty=2, col="grey")
 merged = data.frame()
 #rsmeTab = data.frame(File=character(), Rate=character(), RSME=character(), stringsAsFactors=F)
 rsmeTab = matrix("", ncol=3, nrow=0)
-for(currentSample in 1:(sampleNumber - 1)) {
-  #currentSample = 12 
+for(currentSample in 0:(sampleNumber - 1)) {
+  #currentSample = 0
   current = cbind(slamDunkRates[, c(1:fixedColumns - 1, fixedColumns + currentSample)], simulatedRates[, fixedColumns + currentSample])
   colnames(current) = c(colnames(slamDunkRates[, c(1:fixedColumns - 1)]), "Simulate", "Slamdunk")
   merged = rbind(merged, current)
   
-  rsmeTab = rbind(rsmeTab, c(as.character(simulatedFileRates), as.character(substring(sampleNames[currentSample], 2)), as.character(rsme(current$Simulate, current$Slamdunk))))
+  rsmeTab = rbind(rsmeTab, c(as.character(simulatedFileRates), as.character(substring(sampleNames[currentSample + 1], 2)), as.character(rsme(current$Simulate, current$Slamdunk))))
 }
 
 par(mfrow=c(1,1))

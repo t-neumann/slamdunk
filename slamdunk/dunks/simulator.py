@@ -39,7 +39,7 @@ def getCmpBase(base):
 
 def printUTR(utr, outBed, minLength):
     if utr.getLength() > minLength:
-        print(utr.chromosome, utr.start, utr.stop, utr.name, utr.score, utr.strand, sep="\t", file=outBed)
+        print(utr.chromosome, utr.start, utr.stop, utr.name.replace("_", "-"), utr.score, utr.strand, sep="\t", file=outBed)
 
 def prepareBED(bed, slamSimBed, minLength):
     utrs = []
