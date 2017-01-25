@@ -5,11 +5,11 @@ import subprocess
 import csv
 from slamdunk.utils.misc import checkStep, getBinary  # @UnresolvedImport
 
-def SNPs(inputBAM, outputSNP, referenceFile, minVarFreq, minCov, log, printOnly=False, verbose=True, force=False):
+def SNPs(inputBAM, outputSNP, referenceFile, minVarFreq, minCov, minQual, log, printOnly=False, verbose=True, force=False):
     if(checkStep([inputBAM, referenceFile], [outputSNP], force)):
         fileSNP = open(outputSNP, 'w')
         
-        mpileupCmd = getBinary("samtools") + " mpileup -B -A -d 10000 -f " + referenceFile + " " + inputBAM
+        mpileupCmd = getBinary("samtools") + " mpileup -B -A -Q " + str(minQual) + " -f " + referenceFile + " " + inputBAM
         if(verbose):
             print(mpileupCmd, file=log)
         if(not printOnly):

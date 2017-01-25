@@ -153,10 +153,10 @@ def runFilter(tid, bam, bed, mq, minIdentity, maxNM, outputDirectory):
     filter.Filter(bam, outputBAM, getLogFile(outputLOG), bed, mq, minIdentity, maxNM, printOnly, verbose)
     stepFinished()
 
-def runSnp(tid, referenceFile, minCov, minVarFreq, inputBAM, outputDirectory) :
+def runSnp(tid, referenceFile, minCov, minVarFreq, minQual, inputBAM, outputDirectory) :
     outputSNP = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".vcf", "_snp"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".log", "_snp"))
-    snps.SNPs(inputBAM, outputSNP, referenceFile, minVarFreq, minCov, getLogFile(outputLOG), printOnly, verbose, False)
+    snps.SNPs(inputBAM, outputSNP, referenceFile, minVarFreq, minCov, minQual, getLogFile(outputLOG), printOnly, verbose, False)
     stepFinished()
                 
 def runCount(tid, bam, ref, bed, maxLength, minQual, strictTCs, outputDirectory, snpDirectory) :
@@ -270,9 +270,14 @@ def runAll(args) :
     snpThread = n
     if(snpThread > 1):
         snpThread = snpThread / 2
+        
+    #if (args.minQual == 0) :
+    #    snpqual = 13
+    #else :
+    snpqual = args.minQual
     
     message("Running slamDunk SNP for " + str(len(samples)) + " files (" + str(snpThread) + " threads)")
-    results = Parallel(n_jobs=snpThread, verbose=verbose)(delayed(runSnp)(tid, referenceFile, minCov, minVarFreq, dunkbufferIn[tid], dunkPath) for tid in range(0, len(samples)))
+    results = Parallel(n_jobs=snpThread, verbose=verbose)(delayed(runSnp)(tid, referenceFile, minCov, minVarFreq, snpqual, dunkbufferIn[tid], dunkPath) for tid in range(0, len(samples)))
     
     dunkFinished()
     
@@ -335,6 +340,7 @@ def run():
     snpparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", default=SUPPRESS, help="Output directory for mapped BAM files.")
     snpparser.add_argument("-r", "--reference", required=True, dest="fasta", type=str, default=SUPPRESS, help="Reference fasta file")
     snpparser.add_argument("-c", "--min-coverage", required=False, dest="cov", type=int, help="Minimimum coverage to call variant", default=10)
+    snpparser.add_argument("-q", "--min-base-qual", type=int, default=13, required=False, dest="minQual", help="Min base quality for T -> C conversions (default: %(default)d)")
     snpparser.add_argument("-f", "--var-fraction", required=False, dest="var", type=float, help="Minimimum variant fraction to call variant", default=0.8)
     snpparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
     
@@ -432,11 +438,12 @@ def run():
         fasta = args.fasta
         minCov = args.cov
         minVarFreq = args.var
+        minQual = args.minQual
         n = args.threads
         if(n > 1):
             n = n / 2
         message("Running slamDunk SNP for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runSnp)(tid, fasta, minCov, minVarFreq, args.bam[tid], outputDirectory) for tid in range(0, len(args.bam)))
+        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runSnp)(tid, fasta, minCov, minVarFreq, minQual, args.bam[tid], outputDirectory) for tid in range(0, len(args.bam)))
         dunkFinished()
             
     elif (command == "count") :
