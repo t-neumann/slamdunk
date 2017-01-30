@@ -49,12 +49,12 @@ def Dedup(inputBAM, outputBAM, log, printOnly=False, verbose = True, force=False
                 outfile.write(duplicateBuffer[seq][flag])
                 retainedReads += 1
         duplicateBuffer.clear()
-        
+                
         print("Retained " + str(retainedReads) + " of " + str(processedReads) + " reads (", file=log, end = "")
         print("{0:.2f}".format(float(retainedReads) / float(processedReads)),file=log,end="")
         print(" compression rate)", file=log)
         
-        pysamIndex(outputBAM, log, verbose=verbose, dry=printOnly)
+        pysamIndex(outputBAM)
         
     else:
         print("Skipped deduplication for " + inputBAM, file=log)

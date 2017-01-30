@@ -9,7 +9,7 @@ def SNPs(inputBAM, outputSNP, referenceFile, minVarFreq, minCov, minQual, log, p
     if(checkStep([inputBAM, referenceFile], [outputSNP], force)):
         fileSNP = open(outputSNP, 'w')
         
-        mpileupCmd = getBinary("samtools") + " mpileup -B -A -Q " + str(minQual) + " -f " + referenceFile + " " + inputBAM
+        mpileupCmd = getBinary("samtools") + " mpileup -B -A -f " + referenceFile + " " + inputBAM
         if(verbose):
             print(mpileupCmd, file=log)
         if(not printOnly):
