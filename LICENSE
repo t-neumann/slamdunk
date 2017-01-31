@@ -1,4 +1,4 @@
-GNU GENERAL PUBLIC LICENSE
+                    GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 
  Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>
@@ -673,7 +673,6 @@ the library.  If this is what you want to do, use the GNU Lesser General
 Public License instead of this License.  But first, please read
 <http://www.gnu.org/philosophy/why-not-lgpl.html>.
 
-
 NextGenMap uses the MIT license:
 
 The MIT License (MIT)
@@ -761,4 +760,3 @@ e) to display the Original Work publicly.
 (e) Original Works licensed under this license shall reference "Non-Profit OSL 3.0" in licensing notices to distinguish them from works licensed under the original OSL 3.0 license.
 
 A brief explanation of this license is available.
-
