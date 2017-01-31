@@ -5,7 +5,7 @@ import pysam
 
 from slamdunk.utils.misc import checkStep, pysamIndex  # @UnresolvedImport
 
-def Dedup(inputBAM, outputBAM, log, printOnly=False, verbose = True, force=False):
+def Dedup(inputBAM, outputBAM, tcMutations, log, printOnly=False, verbose = True, force=False):
     
     if(printOnly or checkStep([inputBAM], [outputBAM], force)):
         
@@ -26,21 +26,27 @@ def Dedup(inputBAM, outputBAM, log, printOnly=False, verbose = True, force=False
             chr = read.reference_id
             start = read.reference_start
             seq = read.query_sequence
-                
-            if (chr != prevChr or start != prevStart) :
-                            
-                if (prevChr != "") :
-                    for curSeq in duplicateBuffer :
-                        for curFlag in duplicateBuffer[curSeq]:
-                            outfile.write(duplicateBuffer[curSeq][curFlag])
-                            retainedReads += 1
-                    duplicateBuffer.clear()
+            if (read.has_tag("TC")) :
+                tcflag = read.get_tag("TC")
+            else :
+                tcflag = 0
             
-            duplicateBuffer[seq] = {}
-            duplicateBuffer[seq][flag] = read
-             
-            prevChr = chr
-            prevStart = start
+            if (tcflag >= tcMutations) :
+                
+                if (chr != prevChr or start != prevStart) :
+                                
+                    if (prevChr != "") :
+                        for curSeq in duplicateBuffer :
+                            for curFlag in duplicateBuffer[curSeq]:
+                                outfile.write(duplicateBuffer[curSeq][curFlag])
+                                retainedReads += 1
+                        duplicateBuffer.clear()
+                
+                duplicateBuffer[seq] = {}
+                duplicateBuffer[seq][flag] = read
+                 
+                prevChr = chr
+                prevStart = start
             
             processedReads += 1
             

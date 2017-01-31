@@ -67,11 +67,11 @@ def createDir(directory):
         message("Creating output directory: " + directory)
         os.makedirs(directory)
             
-def runDedup(tid, bam, outputDirectory) :
+def runDedup(tid, bam, outputDirectory, tcMutations) :
     outputBAM = os.path.join(outputDirectory, replaceExtension(basename(bam), ".bam", "_dedup"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_dedup"))
     log = getLogFile(outputLOG)
-    deduplicator.Dedup(bam, outputBAM, log)
+    deduplicator.Dedup(bam, outputBAM, tcMutations, log)
     closeLogFile(log)
     stepFinished()
     
@@ -241,6 +241,7 @@ def run():
     # dedup command
     dedupparser = subparsers.add_parser('dedup', help='Deduplicate SLAM-seq aligned data', formatter_class=ArgumentDefaultsHelpFormatter)
     dedupparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", default=SUPPRESS, help="Output directory for mapped BAM files.")
+    dedupparser.add_argument("-tc", "--tcMutations", type=int, required=False, default = 0, dest="tcMutations", help="Only select reads with x number of T>C mutations.")
     dedupparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
     dedupparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     
@@ -348,8 +349,9 @@ def run():
         outputDirectory = args.outputDir
         createDir(outputDirectory)
         n = args.threads
+        tcMutations = args.tcMutations
         message("Running alleyoop dedup for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runDedup)(tid, args.bam[tid], outputDirectory) for tid in range(0, len(args.bam)))
+        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runDedup)(tid, args.bam[tid], outputDirectory, tcMutations) for tid in range(0, len(args.bam)))
         dunkFinished()
         
     if (command == "collapse") :
