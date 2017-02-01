@@ -3,16 +3,15 @@
 Docker
 ======
 
-`Docker <https://github.com/t-neumann/slamdunk>`_ enables you to run *slamdunk* out-of-the box wihtout caring about prerequisites and installation procedures.
+`Docker <https://www.docker.com/what-docker>`_ enables you to run *slamdunk* out-of-the box wihtout caring about prerequisites and installation procedures.
 All you need is to install the Docker engine and run the *slamdunk* Docker image.
 
 Docker images
 -------------
 
-You can directly use the *slamdunk* Docker images from `Docker hub <https://hub.docker.com/>`_. Two images are available:
+You can directly use the *slamdunk* Docker image from `Docker hub <https://hub.docker.com/>`_.
 
-.. * `slamdunk <https://hub.docker.com/r/tobneu/slamdunk/>`_: Build upon NextGenMap's `Docker image <https://hub.docker.com/r/philres/nextgenmap/>`_ (preferred)
-* `slamdunk-full <https://hub.docker.com/r/tobneu/slamdunk-full/>`_: Build from scratch from a clean Ubuntu image
+* `slamdunk <https://hub.docker.com/r/tobneu/slamdunk/>`_: Build from scratch from a clean Ubuntu image
 
 You can also build them from scratch using any of the two *Dockerfiles* in `slamdunk/docker`:
 
