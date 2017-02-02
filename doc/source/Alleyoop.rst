@@ -17,7 +17,7 @@ read sequence.
 
 .. code:: bash
 
-    alleyoop dedup [-h] -o <output directory> [-t <threads>] bam [bam ...]
+    alleyoop dedup [-h] -o <output directory> [-tc <# tc mutations>] [-t <threads>] bam [bam ...]
                 
 Input
 ^^^^^
@@ -50,6 +50,7 @@ Parameter  Required  Description
 =========  ========  =====================================================================================================================================================================
 **-h**               Prints the help.
 **-o**     x         The output directory where all output files of this tool will be placed.
+**-tc**              Only select reads with -tc number of T>C mutations for deduplication.
 **-t**               The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.  
 **bam**    x         Fastq/BAM file(s) containing the final filtered reads (wildcard \* accepted).
 =========  ========  =====================================================================================================================================================================
@@ -148,7 +149,7 @@ Parameter  Required  Description
 **-h**               Prints the help.
 **-o**     x         The output directory where all output files of this tool will be placed.
 **-r**     x         The reference fasta file.
-**-mq**              Minimum base quality for T->C conversions to be counted (default: 0).
+**-mq**              Minimum base quality for T->C conversions to be counted.
 **-t**               The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.  
 **bam**    x         Fastq/BAM file(s) containing the final filtered reads. Can be multiple if multiple samples are analysed simultaneously (wildcard * is recognized).
 =========  ========  =====================================================================================================================================================================
@@ -199,7 +200,7 @@ Parameter  Required  Description
 **-h**               Prints the help.
 **-o**     x         The output directory where all output files of this tool will be placed.
 **-r**     x         The reference fasta file.
-**-mq**              Minimum base quality for T->C conversions to be counted (default: 0).
+**-mq**              Minimum base quality for T->C conversions to be counted.
 **-t**               The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.  
 **bam**    x         BAM file(s) containing the final filtered reads (wildcard \* accepted).
 =========  ========  =====================================================================================================================================================================
@@ -252,7 +253,7 @@ Parameter  Required  Description
 **-h**               Prints the help.
 **-o**     x         The output directory where all output files of this tool will be placed.
 **-r**     x         The reference fasta file.
-**-mq**              Minimum base quality for T->C conversions to be counted (default: 0).
+**-mq**              Minimum base quality for T->C conversions to be counted.
 **-m**               Flag to activate the multiple T->C conversion stringency: Only T->C conversions in reads with more than 1 T->C conversion will be counted.
 **-t**               The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.
 **-b**     x         Bed file with coordinates of 3'UTRs.
@@ -318,7 +319,7 @@ Parameter  Required  Description
 **-o**     x         The output directory where all output files of this tool will be placed.
 **-s**     x         The output directory of the *snp* dunk containing the called variants.
 **-r**     x         The reference fasta file.
-**-q**               Minimum base quality for T->C conversions to be counted (default: 0).
+**-q**               Minimum base quality for T->C conversions to be counted.
 **-m**               Flag to activate the multiple T->C conversion stringency: Only T->C conversions in reads with more than 1 T->C conversion will be counted.
 **-c**               Minimum coverage to call a variant.
 **-f**               Minimum variant fraction to call a variant.
@@ -479,7 +480,7 @@ Parameter  Required  Description
 **-h**               Prints the help.
 **-o**     x         The output directory where all output files of this tool will be placed.
 **-r**     x         The reference fasta file.
-**-mq**              Minimum base quality for T->C conversions to be counted (default: 0).
+**-mq**              Minimum base quality for T->C conversions to be counted.
 **-t**               The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.
 **-s**               The called variants from the *snp* dunk to filter false-positive T->C conversions.
 **-l**               Maximum read length in all samples (will be automatically estimated if not set).
@@ -539,7 +540,7 @@ Parameter  Required  Description
 **-o**     x         The output directory where all output files of this tool will be placed.
 **-r**     x         The reference fasta file.
 **-b**     x         Bed file with coordinates of 3'UTRs.
-**-mq**              Minimum base quality for T->C conversions to be counted (default: 0).
+**-mq**              Minimum base quality for T->C conversions to be counted.
 **-t**               The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.
 **-s**               The called variants from the *snp* dunk to filter false-positive T->C conversions.
 **-l**               Maximum read length in all samples (will be automatically estimated if not set).
@@ -600,7 +601,7 @@ Parameter  Required  Description
 **-h**               Prints the help.
 **-o**     x         The output directory where all output files of this tool will be placed.
 **-r**     x         The reference fasta file.
-**-mq**              Minimum base quality for T->C conversions to be counted (default: 0).
+**-mq**              Minimum base quality for T->C conversions to be counted.
 **-t**               The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.
 **-s**     x         The called variants from the *snp* dunk to filter false-positive T->C conversions.
 **bam**    x         BAM file(s) containing the final filtered reads (wildcard \* accepted).

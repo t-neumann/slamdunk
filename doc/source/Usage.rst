@@ -19,8 +19,8 @@ Calling a module with --help shows all possible parameters text:
 
 .. code:: bash
 
-   usage: slamdunk all [-h] -r REFERENCEFILE -b BED -o OUTPUTDIR [-5 TRIM5]
-                    [-a MAXPOLYA] [-n TOPN] [-t THREADS] [-q] [-l] [-m]
+   usage: slamdunk all [-h] -r REFERENCEFILE -b BED [-fb FILTERBED] -o OUTPUTDIR [-5 TRIM5]
+                    [-a MAXPOLYA] [-n TOPN] [-t THREADS] [-q] [-e] [-m]
                     [-mq MQ] [-mi IDENTITY] [-nm NM] [-mc COV] [-mv VAR]
                     [-mts] [-rl MAXLENGTH] [-mbq MINQUAL] [-i SAMPLEINDEX]
                     [-ss]
@@ -36,6 +36,8 @@ Calling a module with --help shows all possible parameters text:
       -r REFERENCEFILE, --reference REFERENCEFILE
                             Reference fasta file
       -b BED, --bed BED     BED file with 3'UTR coordinates
+      -fb FILTERBED, --filterbed FILTERBED
+                            BED file with 3'UTR coordinates to filter multimappers
       -o OUTPUTDIR, --outputDir OUTPUTDIR
                             Output directory for slamdunk run.
       -5 TRIM5, --trim-5p TRIM5
@@ -48,7 +50,7 @@ Calling a module with --help shows all possible parameters text:
       -t THREADS, --threads THREADS
                             Thread number (default: 1)
       -q, --quantseq        Run plain Quantseq alignment without SLAM-seq scoring
-      -l, --local           Use a local alignment algorithm for mapping.
+      -e, --endtoend        Use a end to end alignment algorithm for mapping.
       -m, --multimap        Use reference to resolve multimappers (requires -n >
                             1).
       -mq MQ, --min-mq MQ   Minimum mapping quality (default: 2)
@@ -65,12 +67,13 @@ Calling a module with --help shows all possible parameters text:
       -rl MAXLENGTH, --max-read-length MAXLENGTH
                             Max read length in BAM file
       -mbq MINQUAL, --min-base-qual MINQUAL
-                            Min base quality for T -> C conversions (default: 0)
+                            Min base quality for T -> C conversions (default: 27)
       -i SAMPLEINDEX, --sample-index SAMPLEINDEX
                             Run analysis only for sample <i>. Use for distributing
-                            slamdunk analysis on a cluster (index is 0-based).
+                            slamdunk analysis on a cluster (index is 1-based).
       -ss, --skip-sam       Output BAM while mapping. Slower but, uses less hard
                             disk.
+                            
 The flow of *slamdunk* is to first map your reads, filter your alignments, call variants on your final alignments and use these to calculate conversion rates, counts and various
 statistics for your 3'UTRs.
 

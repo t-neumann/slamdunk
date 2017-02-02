@@ -73,7 +73,7 @@
 				<h4><b>Install</b></h4>
 				<div class="code bash highlight-python">
 					<div class="highlight">
-						<pre>pip install --extra-index-url https://testpypi.python.org/pypi slamdunk</pre>
+						<pre>pip install slamdunk</pre>
 					</div>
 				</div>
 				<hr class="docutils">
@@ -138,8 +138,8 @@
 				<p></p>
 				<div class="code bash highlight-python">
 					<div class="highlight">
-						<pre>alleyoop utrrates -o &lt;output directory&gt; -r &lt;reference fasta&gt; [-mq MQ] [-m] [-t &lt;threads&gt;]
-                  -b &lt;bed file&gt; [-l MAXLENGTH] bam [bam ...]
+						<pre>alleyoop utrrates -o &lt;output directory&gt; -r &lt;reference fasta&gt; -t &lt;threads&gt;
+                  -b &lt;bed file&gt; -l &lt;maximum read length&gt; bam [bam ...]
 </pre>
 					</div>
 				</div>
@@ -162,14 +162,6 @@
 						<tr class="row-odd">
 							<td><strong>-r</strong></td>
 							<td>The reference fasta file.</td>
-						</tr>
-						<tr class="row-even">
-							<td><strong>-mq</strong></td>
-							<td>Minimal base quality for SNPs.</td>
-						</tr>
-						<tr class="row-odd">
-							<td><strong>-m</strong></td>
-							<td>Flag to activate the multiple T-&gt;C conversion stringency: Only T-&gt;C conversions in reads with more than 1 T-&gt;C conversion will be counted.</td>
 						</tr>
 						<tr class="row-even">
 							<td><strong>-t</strong></td>
@@ -278,7 +270,7 @@
 				<ul>
 					<li><b><a href="http://cibiv.github.io/NextGenMap/">NextGenMap</a></b></li>
 					<li><b><a href="http://cibiv.github.io/NextGenMap/">Samtools</a></b> &ge; 1.3.1</li>
-					<li><b><a href="http://dkoboldt.github.io/varscan/">VarScan2</a></b></li>
+					<li><b><a href="http://dkoboldt.github.io/varscan/">VarScan2</a></b> (requires <b>Java</b>)</li>
 					<li><b><a href="https://www.r-project.org//">R</a></b> 3.2.2</li>
 				</ul>
 				<p></p>
@@ -295,10 +287,10 @@
 						<div id="pip">
 							<p>Slamdunk is hosted as Python package on the <a href="https://pypi.python.org/pypi">Python Package Index</a>. You can install it with a single command using <a href="https://pypi.python.org/pypi/pip">pip</a>.</p>
 							<pre><code><span class="comment"># Root</span>
-pip install --extra-index-url https://testpypi.python.org/pypi slamdunk
+pip install slamdunk
 
 <span class="comment"># Local user</span>
-pip install --extra-index-url https://testpypi.python.org/pypi --user slamdunk</code></pre>
+pip install --user slamdunk</code></pre>
 						</div>
 						<div id="dev" style="display:none;">
 							<p>The latest source of Slamdunk is hosted in our <a href="https://github.com/t-neumann/slamdunk">GitHub repository</a>. You can install it directly from there using <a href="https://pypi.python.org/pypi/pip">pip</a>.</p>

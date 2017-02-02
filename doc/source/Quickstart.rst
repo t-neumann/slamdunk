@@ -33,8 +33,8 @@ to plot the UTR conversion rates in your sample:
 
 .. code:: bash
 
-   alleyoop utrrates -o <output directory> -r <reference fasta> [-mq MQ] [-m] [-t <threads>]
-                     -b <bed file> [-l MAXLENGTH] bam [bam ...]
+   alleyoop utrrates -o <output directory> -r <reference fasta> -t <threads>
+                     -b <bed file> -l <maximum read length> bam [bam ...]
                 
 
 =========  =====================================================================================================================================================================
@@ -42,8 +42,6 @@ Parameter  Description
 =========  =====================================================================================================================================================================
 **-o**     The output directory where the plots will be placed.
 **-r**     The reference fasta file.
-**-mq**    Minimal base quality for SNPs.
-**-m**     Flag to activate the multiple T->C conversion stringency: Only T->C conversions in reads with more than 1 T->C conversion will be counted.
 **-t**     The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.
 **-b**     BED-file containing coordinates for 3' UTRs.
 **-l**     Maximum read length in all samples.

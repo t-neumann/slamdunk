@@ -169,6 +169,14 @@
           <em>
            slamdunk
           </em>
+          except for
+          <strong>
+           Java
+          </strong>
+          for
+          <strong>
+           Varscan2
+          </strong>
           . The python package will acquire all external dependencies by itself.
          </p>
          <div class="section" id="r-runtime">
@@ -326,11 +334,11 @@ of
           <div class="highlight">
            <pre># Having root permissions
 
-pip install --extra-index-url https://testpypi.python.org/pypi slamdunk
+pip install slamdunk
 
 # Local user only
 
-pip install --extra-index-url https://testpypi.python.org/pypi --user slamdunk
+pip install --user slamdunk
 export PATH=$PATH:$HOME/.local/bin/
 </pre>
           </div>
@@ -658,8 +666,8 @@ to plot the UTR conversion rates in your sample:
         </p>
         <div class="code bash highlight-python">
          <div class="highlight">
-          <pre>alleyoop utrrates -o &lt;output directory&gt; -r &lt;reference fasta&gt; [-mq MQ] [-m] [-t &lt;threads&gt;]
-                  -b &lt;bed file&gt; [-l MAXLENGTH] bam [bam ...]
+          <pre>alleyoop utrrates -o &lt;output directory&gt; -r &lt;reference fasta&gt; -t &lt;threads&gt;
+                  -b &lt;bed file&gt; -l &lt;maximum read length&gt; bam [bam ...]
 </pre>
          </div>
         </div>
@@ -699,26 +707,6 @@ to plot the UTR conversion rates in your sample:
            </td>
            <td>
             The reference fasta file.
-           </td>
-          </tr>
-          <tr class="row-even">
-           <td>
-            <strong>
-             -mq
-            </strong>
-           </td>
-           <td>
-            Minimal base quality for SNPs.
-           </td>
-          </tr>
-          <tr class="row-odd">
-           <td>
-            <strong>
-             -m
-            </strong>
-           </td>
-           <td>
-            Flag to activate the multiple T-&gt;C conversion stringency: Only T-&gt;C conversions in reads with more than 1 T-&gt;C conversion will be counted.
            </td>
           </tr>
           <tr class="row-even">
@@ -1258,8 +1246,8 @@ Wildcard characters to supply multiple files are recognized throughout
         </p>
         <div class="code bash highlight-python">
          <div class="highlight">
-          <pre>usage: slamdunk all [-h] -r REFERENCEFILE -b BED -o OUTPUTDIR [-5 TRIM5]
-                 [-a MAXPOLYA] [-n TOPN] [-t THREADS] [-q] [-l] [-m]
+          <pre>usage: slamdunk all [-h] -r REFERENCEFILE -b BED [-fb FILTERBED] -o OUTPUTDIR [-5 TRIM5]
+                 [-a MAXPOLYA] [-n TOPN] [-t THREADS] [-q] [-e] [-m]
                  [-mq MQ] [-mi IDENTITY] [-nm NM] [-mc COV] [-mv VAR]
                  [-mts] [-rl MAXLENGTH] [-mbq MINQUAL] [-i SAMPLEINDEX]
                  [-ss]
@@ -1275,6 +1263,8 @@ optional arguments:
    -r REFERENCEFILE, --reference REFERENCEFILE
                          Reference fasta file
    -b BED, --bed BED     BED file with 3'UTR coordinates
+   -fb FILTERBED, --filterbed FILTERBED
+                         BED file with 3'UTR coordinates to filter multimappers
    -o OUTPUTDIR, --outputDir OUTPUTDIR
                          Output directory for slamdunk run.
    -5 TRIM5, --trim-5p TRIM5
@@ -1287,7 +1277,7 @@ optional arguments:
    -t THREADS, --threads THREADS
                          Thread number (default: 1)
    -q, --quantseq        Run plain Quantseq alignment without SLAM-seq scoring
-   -l, --local           Use a local alignment algorithm for mapping.
+   -e, --endtoend        Use a end to end alignment algorithm for mapping.
    -m, --multimap        Use reference to resolve multimappers (requires -n &gt;
                          1).
    -mq MQ, --min-mq MQ   Minimum mapping quality (default: 2)
@@ -1304,10 +1294,10 @@ optional arguments:
    -rl MAXLENGTH, --max-read-length MAXLENGTH
                          Max read length in BAM file
    -mbq MINQUAL, --min-base-qual MINQUAL
-                         Min base quality for T -&gt; C conversions (default: 0)
+                         Min base quality for T -&gt; C conversions (default: 27)
    -i SAMPLEINDEX, --sample-index SAMPLEINDEX
                          Run analysis only for sample &lt;i&gt;. Use for distributing
-                         slamdunk analysis on a cluster (index is 0-based).
+                         slamdunk analysis on a cluster (index is 1-based).
    -ss, --skip-sam       Output BAM while mapping. Slower but, uses less hard
                          disk.
 </pre>
@@ -1362,7 +1352,7 @@ Command line output is limited to a minimum at the moment. If a sample is finish
           <div class="highlight">
            <pre>slamdunk map [-h] -r &lt;reference fasta&gt; -o &lt;output directory&gt; [-5 &lt;bp to trim from 5' end&gt;]
              [-n &lt;Output up to N alignments per multimapper&gt;] [-a &lt;maximum number of 3' As before trimming] [-t &lt;threads&gt;]
-             [-q] [-l] [-i &lt;sample index&gt;] [-ss] files [files ...]
+             [-q] [-e] [-i &lt;sample index&gt;] [-ss] files [files ...]
 </pre>
           </div>
          </div>
@@ -1559,7 +1549,7 @@ For example:
              <td>
              </td>
              <td>
-              Number of bases that will be hard-clipped from the 5’ end of each read (default: 0).
+              Number of bases that will be hard-clipped from the 5’ end of each read.
              </td>
             </tr>
             <tr class="row-even">
@@ -1583,7 +1573,7 @@ For example:
              <td>
              </td>
              <td>
-              The maximum number of alignments that will be reported for a multi-mapping read (i.e. reads with multiple alignments of equal best scores) (default: 1).
+              The maximum number of alignments that will be reported for a multi-mapping read (i.e. reads with multiple alignments of equal best scores).
              </td>
             </tr>
             <tr class="row-even">
@@ -1595,7 +1585,7 @@ For example:
              <td>
              </td>
              <td>
-              The number of threads to use for this dunk. NextGenMap runs multi-threaded, so it is recommended to use more threads than available samples (default: 1).
+              The number of threads to use for this dunk. NextGenMap runs multi-threaded, so it is recommended to use more threads than available samples.
              </td>
             </tr>
             <tr class="row-odd">
@@ -1613,13 +1603,13 @@ For example:
             <tr class="row-even">
              <td>
               <strong>
-               -l
+               -e
               </strong>
              </td>
              <td>
              </td>
              <td>
-              Switches to local alignment instead of semi-global alignment. Semi-global alignments are the default for NextGenMap.
+              Switches to semi-global alignment instead of local alignment.
              </td>
             </tr>
             <tr class="row-odd">
@@ -1886,7 +1876,7 @@ For example:
              <td>
              </td>
              <td>
-              Minimum mapping quality required to retain a read (default: 2).
+              Minimum mapping quality required to retain a read.
              </td>
             </tr>
             <tr class="row-even">
@@ -1898,7 +1888,7 @@ For example:
              <td>
              </td>
              <td>
-              Minimum alignment identity required to retain a read (default: 0.8).
+              Minimum alignment identity required to retain a read.
              </td>
             </tr>
             <tr class="row-odd">
@@ -1910,7 +1900,7 @@ For example:
              <td>
              </td>
              <td>
-              Maximum number of mismatches allowed in a read (default: -1).
+              Maximum number of mismatches allowed in a read.
              </td>
             </tr>
             <tr class="row-even">
@@ -1922,7 +1912,7 @@ For example:
              <td>
              </td>
              <td>
-              The number of threads to use for this dunk. This dunk runs single-threaded so the number of threads should be equal to the number of available samples (default: 1).
+              The number of threads to use for this dunk. This dunk runs single-threaded so the number of threads should be equal to the number of available samples.
              </td>
             </tr>
             <tr class="row-odd">
@@ -2173,7 +2163,7 @@ For example:
              <td>
              </td>
              <td>
-              The number of threads to use for this dunk. VarScan2 runs multi-threaded, so it is recommended to use more threads than available samples (default: 1).
+              The number of threads to use for this dunk. VarScan2 runs multi-threaded, so it is recommended to use more threads than available samples.
              </td>
             </tr>
             <tr class="row-even">
@@ -2501,7 +2491,7 @@ For example:
              <td>
              </td>
              <td>
-              Minimum base quality for T-&gt;C conversions to be counted (default: 0).
+              Minimum base quality for T-&gt;C conversions to be counted.
              </td>
             </tr>
             <tr class="row-even">
@@ -2513,7 +2503,7 @@ For example:
              <td>
              </td>
              <td>
-              The number of threads to use for this dunk. This dunk runs single-threaded so the number of threads should be equal to the number of available samples (default: 1)
+              The number of threads to use for this dunk. This dunk runs single-threaded so the number of threads should be equal to the number of available samples.
              </td>
             </tr>
             <tr class="row-odd">
@@ -2572,8 +2562,8 @@ provides parameters to keep full control over all dunks.
          </p>
          <div class="code bash highlight-python">
           <div class="highlight">
-           <pre>slamdunk all [-h] -r &lt;reference fasta&gt; -b &lt;bed file&gt; -o &lt;output directory&gt; [-5 &lt;bp to trim from 5' end&gt;] [-a &lt;maximum number of 3' As before trimming]
-             [-n &lt;Output up to N alignments per multimapper&gt;] [-t &lt;threads&gt;] [-q] [-l] [-m] [-mq &lt;MQ cutoff&gt;]
+           <pre>slamdunk all [-h] -r &lt;reference fasta&gt; -b &lt;bed file&gt; [-fb &lt;bed file&gt;] -o &lt;output directory&gt; [-5 &lt;bp to trim from 5' end&gt;] [-a &lt;maximum number of 3' As before trimming]
+             [-n &lt;Output up to N alignments per multimapper&gt;] [-t &lt;threads&gt;] [-q] [-e] [-m] [-mq &lt;MQ cutoff&gt;]
              [-mi &lt;identity cutoff&gt;] [-nm &lt;NM cutoff&gt;] [-mc &lt;coverage cutoff&gt;] [-mv &lt;variant fraction cutoff&gt;] [-mts]
              [-rl &lt;maximum read length&gt;] [-mbq &lt;minimum base quality&gt;] [-i &lt;sample index&gt;] [-ss] files [files ...]
 </pre>
@@ -2736,9 +2726,9 @@ provides parameters to keep full control over all dunks.
            <colgroup>
             <col width="5%">
             </col>
-            <col width="4%">
+            <col width="5%">
             </col>
-            <col width="91%">
+            <col width="90%">
             </col>
            </colgroup>
            <thead valign="bottom">
@@ -2797,6 +2787,18 @@ provides parameters to keep full control over all dunks.
             <tr class="row-odd">
              <td>
               <strong>
+               -fb
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              BED-file used to filter multimappers.
+             </td>
+            </tr>
+            <tr class="row-even">
+             <td>
+              <strong>
                -o
               </strong>
              </td>
@@ -2807,7 +2809,7 @@ provides parameters to keep full control over all dunks.
               The output directory where all output files of this dunk will be placed.
              </td>
             </tr>
-            <tr class="row-even">
+            <tr class="row-odd">
              <td>
               <strong>
                -5
@@ -2816,14 +2818,14 @@ provides parameters to keep full control over all dunks.
              <td>
              </td>
              <td>
-              Number of bases that will be hard-clipped from the 5’ end of each read (default: 0)
+              Number of bases that will be hard-clipped from the 5’ end of each read
               <strong>
                [map]
               </strong>
               .
              </td>
             </tr>
-            <tr class="row-odd">
+            <tr class="row-even">
              <td>
               <strong>
                -a
@@ -2835,7 +2837,7 @@ provides parameters to keep full control over all dunks.
               Maximum number of A at the 3’ end of a read.
              </td>
             </tr>
-            <tr class="row-even">
+            <tr class="row-odd">
              <td>
               <strong>
                -n
@@ -2844,14 +2846,14 @@ provides parameters to keep full control over all dunks.
              <td>
              </td>
              <td>
-              The maximum number of alignments that will be reported for a multi-mapping read (i.e. reads with multiple alignments of equal best scores) (default: 1)
+              The maximum number of alignments that will be reported for a multi-mapping read (i.e. reads with multiple alignments of equal best scores)
               <strong>
                [map]
               </strong>
               .
              </td>
             </tr>
-            <tr class="row-odd">
+            <tr class="row-even">
              <td>
               <strong>
                -t
@@ -2860,10 +2862,10 @@ provides parameters to keep full control over all dunks.
              <td>
              </td>
              <td>
-              The number of threads to use for this dunk. NextGenMap runs multi-threaded, so it is recommended to use more threads than available samples (default: 1)
+              The number of threads to use for this dunk. NextGenMap runs multi-threaded, so it is recommended to use more threads than available samples
              </td>
             </tr>
-            <tr class="row-even">
+            <tr class="row-odd">
              <td>
               <strong>
                -q
@@ -2879,23 +2881,23 @@ provides parameters to keep full control over all dunks.
               .
              </td>
             </tr>
-            <tr class="row-odd">
+            <tr class="row-even">
              <td>
               <strong>
-               -l
+               -e
               </strong>
              </td>
              <td>
              </td>
              <td>
-              Switches to local alignment instead of semi-global alignment. Semi-global alignments are the default for NextGenMap
+              Switches to semi-global alignment instead of local alignment
               <strong>
                [map]
               </strong>
               .
              </td>
             </tr>
-            <tr class="row-even">
+            <tr class="row-odd">
              <td>
               <strong>
                -m
@@ -2911,7 +2913,7 @@ provides parameters to keep full control over all dunks.
               .
              </td>
             </tr>
-            <tr class="row-odd">
+            <tr class="row-even">
              <td>
               <strong>
                -mq
@@ -2920,14 +2922,14 @@ provides parameters to keep full control over all dunks.
              <td>
              </td>
              <td>
-              Minimum mapping quality required to retain a read (default: 2)
+              Minimum mapping quality required to retain a read
               <strong>
                [filter]
               </strong>
               .
              </td>
             </tr>
-            <tr class="row-even">
+            <tr class="row-odd">
              <td>
               <strong>
                -mi
@@ -2936,14 +2938,14 @@ provides parameters to keep full control over all dunks.
              <td>
              </td>
              <td>
-              Minimum alignment identity required to retain a read (default: 0.8)
+              Minimum alignment identity required to retain a read
               <strong>
                [filter]
               </strong>
               .
              </td>
             </tr>
-            <tr class="row-odd">
+            <tr class="row-even">
              <td>
               <strong>
                -nm
@@ -2952,14 +2954,14 @@ provides parameters to keep full control over all dunks.
              <td>
              </td>
              <td>
-              Maximum number of mismatches allowed in a read (default: -1)
+              Maximum number of mismatches allowed in a read
               <strong>
                [filter]
               </strong>
               .
              </td>
             </tr>
-            <tr class="row-even">
+            <tr class="row-odd">
              <td>
               <strong>
                -mc
@@ -2968,14 +2970,14 @@ provides parameters to keep full control over all dunks.
              <td>
              </td>
              <td>
-              Minimum coverage to call a variant (default: 10)
+              Minimum coverage to call a variant
               <strong>
                [snp]
               </strong>
               .
              </td>
             </tr>
-            <tr class="row-odd">
+            <tr class="row-even">
              <td>
               <strong>
                -mv
@@ -2984,14 +2986,14 @@ provides parameters to keep full control over all dunks.
              <td>
              </td>
              <td>
-              Minimum variant fraction to call a variant (default: 0.8)
+              Minimum variant fraction to call a variant
               <strong>
                [snp]
               </strong>
               .
              </td>
             </tr>
-            <tr class="row-even">
+            <tr class="row-odd">
              <td>
               <strong>
                -mts
@@ -3007,7 +3009,7 @@ provides parameters to keep full control over all dunks.
               .
              </td>
             </tr>
-            <tr class="row-odd">
+            <tr class="row-even">
              <td>
               <strong>
                -rl
@@ -3023,7 +3025,7 @@ provides parameters to keep full control over all dunks.
               .
              </td>
             </tr>
-            <tr class="row-even">
+            <tr class="row-odd">
              <td>
               <strong>
                -mbq
@@ -3032,14 +3034,14 @@ provides parameters to keep full control over all dunks.
              <td>
              </td>
              <td>
-              Minimum base quality for T-&gt;C conversions to be counted (default: 0)
+              Minimum base quality for T-&gt;C conversions to be counted
               <strong>
                [count]
               </strong>
               .
              </td>
             </tr>
-            <tr class="row-odd">
+            <tr class="row-even">
              <td>
               <strong>
                files
@@ -3183,7 +3185,7 @@ read sequence.
          </p>
          <div class="code bash highlight-python">
           <div class="highlight">
-           <pre>alleyoop dedup [-h] -o &lt;output directory&gt; [-t &lt;threads&gt;] bam [bam ...]
+           <pre>alleyoop dedup [-h] -o &lt;output directory&gt; [-tc &lt;# tc mutations&gt;] [-t &lt;threads&gt;] bam [bam ...]
 </pre>
           </div>
          </div>
@@ -3336,6 +3338,18 @@ For example:
             <tr class="row-even">
              <td>
               <strong>
+               -tc
+              </strong>
+             </td>
+             <td>
+             </td>
+             <td>
+              Only select reads with -tc number of T&gt;C mutations for deduplication.
+             </td>
+            </tr>
+            <tr class="row-odd">
+             <td>
+              <strong>
                -t
               </strong>
              </td>
@@ -3345,7 +3359,7 @@ For example:
               The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.
              </td>
             </tr>
-            <tr class="row-odd">
+            <tr class="row-even">
              <td>
               <strong>
                bam
@@ -3788,7 +3802,7 @@ of the SLAMSeq technology for later labelling timepoints.
              <td>
              </td>
              <td>
-              Minimum base quality for T-&gt;C conversions to be counted (default: 0).
+              Minimum base quality for T-&gt;C conversions to be counted.
              </td>
             </tr>
             <tr class="row-even">
@@ -4024,7 +4038,7 @@ Note, that these will not be reciprocal (see e.g.
              <td>
              </td>
              <td>
-              Minimum base quality for T-&gt;C conversions to be counted (default: 0).
+              Minimum base quality for T-&gt;C conversions to be counted.
              </td>
             </tr>
             <tr class="row-even">
@@ -4267,7 +4281,7 @@ base are balanced and unbiased, except for T-&gt;C conversions in SLAMSeq sample
              <td>
              </td>
              <td>
-              Minimum base quality for T-&gt;C conversions to be counted (default: 0).
+              Minimum base quality for T-&gt;C conversions to be counted.
              </td>
             </tr>
             <tr class="row-even">
@@ -4595,7 +4609,7 @@ in the informed situation.
              <td>
              </td>
              <td>
-              Minimum base quality for T-&gt;C conversions to be counted (default: 0).
+              Minimum base quality for T-&gt;C conversions to be counted.
              </td>
             </tr>
             <tr class="row-odd">
@@ -5443,7 +5457,7 @@ conversions in the bottom plot will begin to increase compared to the overall ba
              <td>
              </td>
              <td>
-              Minimum base quality for T-&gt;C conversions to be counted (default: 0).
+              Minimum base quality for T-&gt;C conversions to be counted.
              </td>
             </tr>
             <tr class="row-even">
@@ -5747,7 +5761,7 @@ For SLAMSeq samples with longer labelling times, the overall T-&gt;C conversions
              <td>
              </td>
              <td>
-              Minimum base quality for T-&gt;C conversions to be counted (default: 0).
+              Minimum base quality for T-&gt;C conversions to be counted.
              </td>
             </tr>
             <tr class="row-odd">
@@ -6089,7 +6103,7 @@ For SLAMSeq samples with longer labelling times, the overall T-&gt;C conversions
              <td>
              </td>
              <td>
-              Minimum base quality for T-&gt;C conversions to be counted (default: 0).
+              Minimum base quality for T-&gt;C conversions to be counted.
              </td>
             </tr>
             <tr class="row-even">

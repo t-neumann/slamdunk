@@ -13,7 +13,7 @@ There are 2 different possibilities:
 Requirements
 ------------
 
-There are no major requirements for *slamdunk*. The python package will acquire all external dependencies by itself.
+There are no major requirements for *slamdunk* except for **Java** for **Varscan2**. The python package will acquire all external dependencies by itself.
 
 """""""""
 R runtime
@@ -62,11 +62,11 @@ of *slamdunk* from  the `Python Package Index PyPI <https://pypi.python.org/pypi
 
     # Having root permissions
 
-    pip install --extra-index-url https://testpypi.python.org/pypi slamdunk
+    pip install slamdunk
     
     # Local user only
 
-    pip install --extra-index-url https://testpypi.python.org/pypi --user slamdunk
+    pip install --user slamdunk
     export PATH=$PATH:$HOME/.local/bin/
     
 **Note:** There is no official *slamdunk* release yet, so there will be a test version on `TestPyPI <https://testpypi.python.org/pypi>`_ not guaranteed to be in line with latest developments.
