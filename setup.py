@@ -123,7 +123,7 @@ setup(
     long_description=long_description,
 
     # The project's main homepage.
-    url='https://slamdunk.readthedocs.org',
+    url='http://t-neumann.github.io/slamdunk',
 
     # Author details
     author='Tobias Neumann, Philipp Rescheneder',
