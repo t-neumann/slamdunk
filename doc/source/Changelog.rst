@@ -1,6 +1,14 @@
 Changelog
 =========
 
+**Version 0.2.3**
+
+*Bugfixes:*
+
+* Hotfix to include README.md in sdist packaging
+* Hotfix to fix executable permissions on some R plotting scripts
+* Fixed alleyoop collapse to ignore all MLE columns for now
+
 **Version 0.2.2**
 
 *Changes:*
