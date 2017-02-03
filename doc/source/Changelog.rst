@@ -14,11 +14,13 @@ Changelog
 * CPMs now normalized to filtered reads
 * Docker image now build automatically to head revision
 * Official webpage introduced instead of readthedocs.org hosting
+* Evaluation module for count files added to splash
 
 *Bugfixes:*
 
 * PCAs for single sample working now
 * Dedup working again
+* Sample files may contain empty lines now
 
 
 **Version 0.2.1**
