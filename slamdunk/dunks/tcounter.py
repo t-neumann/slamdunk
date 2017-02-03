@@ -29,41 +29,44 @@ def collapse(expandedCSV, collapsedCSV, log):
 
         for line in f:
             
-            fields = line.rstrip().split('\t')
-            if (len(fields) == 14) :
-            
-                gene = fields[3]
-                length = fields[4]
-                Tcontent = fields[8]
-                coverageOnTs = fields[9]
-                conversionsOnTs = fields[10]
-                readCount = fields[11]
-                tcReadCount = fields[12]
-                multimapCount = fields[13]
+            if (not line.startswith('#') and not line.startswith("Chromosome")) :
+                fields = line.rstrip().split('\t')
                 
-                if (gene in tcDict.keys()) :
-                    tcDict[gene]['length'] += max(int(length),0)
-                    tcDict[gene]['Tcontent'] += max(int(Tcontent),0)
-                    tcDict[gene]['coverageOnTs'] += max(int(coverageOnTs),0)
-                    tcDict[gene]['conversionsOnTs'] += max(int(conversionsOnTs),0)
-                    tcDict[gene]['readCount'] += max(int(readCount),0)
-                    tcDict[gene]['tcReadCount'] += max(int(tcReadCount),0)
-                    tcDict[gene]['multimapCount'] += max(int(multimapCount),0)
-                else :
-                    tcDict[gene] = {}
-                    tcDict[gene]['length'] = max(int(length),0)
-                    tcDict[gene]['Tcontent'] = max(int(Tcontent),0)
-                    tcDict[gene]['coverageOnTs'] = max(int(coverageOnTs),0)
-                    tcDict[gene]['conversionsOnTs'] = max(int(conversionsOnTs),0)
-                    tcDict[gene]['readCount'] = max(int(readCount),0)
-                    tcDict[gene]['tcReadCount'] = max(int(tcReadCount),0)
-                    tcDict[gene]['multimapCount'] = max(int(multimapCount),0)
+                # For now, ignore everything after column 14
+                if (len(fields) >= 14) :
+                
+                    gene = fields[3]
+                    length = fields[4]
+                    Tcontent = fields[8]
+                    coverageOnTs = fields[9]
+                    conversionsOnTs = fields[10]
+                    readCount = fields[11]
+                    tcReadCount = fields[12]
+                    multimapCount = fields[13]
                     
-                readNumber += int(readCount)
-            
-        else :
-            print("Error in TC file format - unexpected number of fields (" + str(len(fields)) + ") in the following line:\n" + line, file=log)
+                    if (gene in tcDict.keys()) :
+                        tcDict[gene]['length'] += max(int(length),0)
+                        tcDict[gene]['Tcontent'] += max(int(Tcontent),0)
+                        tcDict[gene]['coverageOnTs'] += max(int(coverageOnTs),0)
+                        tcDict[gene]['conversionsOnTs'] += max(int(conversionsOnTs),0)
+                        tcDict[gene]['readCount'] += max(int(readCount),0)
+                        tcDict[gene]['tcReadCount'] += max(int(tcReadCount),0)
+                        tcDict[gene]['multimapCount'] += max(int(multimapCount),0)
+                    else :
+                        tcDict[gene] = {}
+                        tcDict[gene]['length'] = max(int(length),0)
+                        tcDict[gene]['Tcontent'] = max(int(Tcontent),0)
+                        tcDict[gene]['coverageOnTs'] = max(int(coverageOnTs),0)
+                        tcDict[gene]['conversionsOnTs'] = max(int(conversionsOnTs),0)
+                        tcDict[gene]['readCount'] = max(int(readCount),0)
+                        tcDict[gene]['tcReadCount'] = max(int(tcReadCount),0)
+                        tcDict[gene]['multimapCount'] = max(int(multimapCount),0)
                         
+                    readNumber += int(readCount)
+                
+                else :
+                    print("Error in TC file format - unexpected number of fields (" + str(len(fields)) + ") in the following line:\n" + line, file=log)
+                            
     print("gene_name", "length", "readsCPM", "conversionRate", "Tcontent", "coverageOnTs", "conversionsOnTs", "readCount", "tcReadCount", "multimapCount", sep='\t', file=outCSV)
 
     for gene in sorted(tcDict.keys()) :
