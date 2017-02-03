@@ -256,7 +256,7 @@ def run():
     statsparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     statsparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", default=SUPPRESS, help="Output directory for mapped BAM files.")
     statsparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", default=SUPPRESS, help="Reference fasta file")
-    statsparser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
+    statsparser.add_argument("-mq", "--min-basequality", type=int, required=False, default=27, dest="mq", help="Minimal base quality for SNPs")
     #statsparser.add_argument('-R', "--compute-rates", dest="overallRates", action='store_true', help="Compute overall conversion rates.")
     statsparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
     
@@ -274,7 +274,7 @@ def run():
     statsutrrateparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     statsutrrateparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")
     statsutrrateparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
-    statsutrrateparser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs (default: %(default)s)")
+    statsutrrateparser.add_argument("-mq", "--min-basequality", type=int, required=False, default=27, dest="mq", help="Minimal base quality for SNPs (default: %(default)s)")
     statsutrrateparser.add_argument("-m", "--multiTCStringency", dest="strictTCs", action='store_true', required=False, help="")
     statsutrrateparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number (default: %(default)s)")
     statsutrrateparser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
@@ -291,7 +291,7 @@ def run():
     snpevalparser.add_argument("-f", "--var-fraction", required=False, dest="var", type=float, help="Minimum variant fraction to call variant (default: %(default)s)", default=0.8)
     snpevalparser.add_argument("-m", "--multiTCStringency", dest="strictTCs", action='store_true', required=False, help="")
     snpevalparser.add_argument("-l", "--max-read-length", type=int, required=False, dest="maxLength", help="Max read length in BAM file (default: %(default)s)")
-    snpevalparser.add_argument("-q", "--min-base-qual", type=int, default=0, required=False, dest="minQual", help="Min base quality for T -> C conversions (default: %(default)s)")
+    snpevalparser.add_argument("-q", "--min-base-qual", type=int, default=27, required=False, dest="minQual", help="Min base quality for T -> C conversions (default: %(default)s)")
     snpevalparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number (default: %(default)s)")
     
     # stats summary command
@@ -314,7 +314,7 @@ def run():
     conversionRateParser.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", help="Directory containing SNP files.")
     conversionRateParser.add_argument("-l", "--max-read-length", type=int, required=False, dest="maxLength", help="Max read length in BAM file")
     conversionRateParser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")#conversionRateParser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
-    conversionRateParser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs (default: %(default)s)")
+    conversionRateParser.add_argument("-mq", "--min-basequality", type=int, required=False, default=27, dest="mq", help="Minimal base quality for SNPs (default: %(default)s)")
     conversionRateParser.add_argument("-t", "--threads", type=int, required=False, dest="threads", default=1, help="Thread number (default: %(default)s)")
     
     # stats utr info command
@@ -325,7 +325,7 @@ def run():
     utrRateParser.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", help="Directory containing SNP files.")
     utrRateParser.add_argument("-l", "--max-read-length", type=int, required=False, dest="maxLength", help="Max read length in BAM file")
     utrRateParser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")#conversionRateParser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
-    utrRateParser.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs (default: %(default)s)")
+    utrRateParser.add_argument("-mq", "--min-basequality", type=int, required=False, default=27, dest="mq", help="Minimal base quality for SNPs (default: %(default)s)")
     utrRateParser.add_argument("-t", "--threads", type=int, required=False, dest="threads", default=1, help="Thread number (default: %(default)s)")
     
     # dump read info command

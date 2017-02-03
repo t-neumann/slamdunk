@@ -340,7 +340,7 @@ def run():
     snpparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", default=SUPPRESS, help="Output directory for mapped BAM files.")
     snpparser.add_argument("-r", "--reference", required=True, dest="fasta", type=str, default=SUPPRESS, help="Reference fasta file")
     snpparser.add_argument("-c", "--min-coverage", required=False, dest="cov", type=int, help="Minimimum coverage to call variant", default=10)
-    snpparser.add_argument("-q", "--min-base-qual", type=int, default=13, required=False, dest="minQual", help="Min base quality for T -> C conversions (default: %(default)d)")
+    #snpparser.add_argument("-q", "--min-base-qual", type=int, default=13, required=False, dest="minQual", help="Min base quality for T -> C conversions (default: %(default)d)")
     snpparser.add_argument("-f", "--var-fraction", required=False, dest="var", type=float, help="Minimimum variant fraction to call variant", default=0.8)
     snpparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
     
@@ -354,7 +354,7 @@ def run():
     countparser.add_argument("-b", "--bed", type=str, required=True, dest="bed", default=SUPPRESS, help="BED file")
     countparser.add_argument("-m", "--multiTCStringency", dest="strictTCs", action='store_true', required=False, help="Multiple T>C conversion required for T>C read")
     countparser.add_argument("-l", "--max-read-length", type=int, required=False, dest="maxLength", help="Max read length in BAM file")
-    countparser.add_argument("-q", "--min-base-qual", type=int, default=0, required=False, dest="minQual", help="Min base quality for T -> C conversions (default: %(default)d)")
+    countparser.add_argument("-q", "--min-base-qual", type=int, default=27, required=False, dest="minQual", help="Min base quality for T -> C conversions (default: %(default)d)")
     countparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number (default: %(default)d)")
     
     
@@ -380,7 +380,7 @@ def run():
     allparser.add_argument("-mv", "--var-fraction", required=False, dest="var", type=float, help="Minimimum variant fraction to call variant (default: %(default)s)", default=0.8)
     allparser.add_argument("-mts", "--multiTCStringency", dest="strictTCs", action='store_true', required=False, help="Multiple T>C conversion required for T>C read")
     allparser.add_argument("-rl", "--max-read-length", type=int, required=False, dest="maxLength", help="Max read length in BAM file")
-    allparser.add_argument("-mbq", "--min-base-qual", type=int, default=0, required=False, dest="minQual", help="Min base quality for T -> C conversions (default: %(default)d)")
+    allparser.add_argument("-mbq", "--min-base-qual", type=int, default=27, required=False, dest="minQual", help="Min base quality for T -> C conversions (default: %(default)d)")
     allparser.add_argument("-i", "--sample-index", type=int, required=False, default=-1, dest="sampleIndex", help="Run analysis only for sample <i>. Use for distributing slamdunk analysis on a cluster (index is 1-based).")
     allparser.add_argument("-ss", "--skip-sam", action='store_true', dest="skipSAM", help="Output BAM while mapping. Slower but, uses less hard disk.")
     
@@ -438,7 +438,8 @@ def run():
         fasta = args.fasta
         minCov = args.cov
         minVarFreq = args.var
-        minQual = args.minQual
+        #minQual = args.minQual
+        minQual = 15
         n = args.threads
         if(n > 1):
             n = n / 2

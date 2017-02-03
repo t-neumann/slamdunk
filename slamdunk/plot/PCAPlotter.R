@@ -44,6 +44,13 @@ library(ggplot2, lib.loc = libLoc)
 
 samples = read.table(opt$fileTab,stringsAsFactors=FALSE,col.names = c("sample","file"), comment.char = "")
 
+if (nrow(samples) <= 1) {
+	cat('# slamdunk PCA\n',  file=opt$outputPCA)
+	cat(paste(samples$sample,0,"0\n",sep="\t"),append=TRUE,file=opt$outputPCA)
+	#signal success and exit.
+	q(status=0)
+}
+
 countsList = list()
 
 for (i in 1:nrow(samples)) {
