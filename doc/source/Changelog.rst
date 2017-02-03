@@ -1,6 +1,26 @@
 Changelog
 =========
 
+**Version 0.2.2**
+
+*Changes:*
+
+* Slamdunk supports now `MultiQC <http://multiqc.info/>`_ report creation
+* Default set to local mapping
+* Base-quality cutoff implemented throughout the entire *slamdunk* / *alleyoop* workflow
+* BAQ computation disabled for samtools mpileup
+* Dedup now supports selection of reads containing a defined # T>C conversions
+* All documentation moved to gh-pages branch for slicker repo
+* CPMs now normalized to filtered reads
+* Docker image now build automatically to head revision
+* Official webpage introduced instead of readthedocs.org hosting
+
+*Bugfixes:*
+
+* PCAs for single sample working now
+* Dedup working again
+
+
 **Version 0.2.1**
 
 *Changes:*
