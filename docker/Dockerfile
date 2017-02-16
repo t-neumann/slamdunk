@@ -2,7 +2,7 @@ FROM ubuntu
 
 MAINTAINER Tobias Neumann <tobias.neumann.at@gmail.com>
 
-ENV SLAMDUNK_VERSION 0.2.3
+ENV SLAMDUNK_VERSION 0.2.3-dev
 
 # binutils is required to run opencl programs
 RUN buildDeps='git wget gcc g++ libc6-dev make cmake zlib1g-dev python-pip python-dev python-distribute python-pip bzip2 libncurses-dev' \
