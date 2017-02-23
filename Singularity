@@ -4,3 +4,4 @@ From:tobneu/slamdunk
 
 %post
 mkdir /clustertmp
+mkdir /groups
