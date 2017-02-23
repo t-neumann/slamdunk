@@ -1,8 +1,11 @@
-bootstrap:docker
-From:ubuntu
+BootStrap:docker
+From:tobneu/slamdunk
+%runscript
 
 %post
 # Tobias Neumann <tobias.neumann.at@gmail.com>
 export SLAMDUNK_VERSION=0.2.3-dev
 echo "
 export SLAMDUNK_VERSION=0.2.3-dev" >> /environment
+mkdir /clustertmp
+mkdir /groups
