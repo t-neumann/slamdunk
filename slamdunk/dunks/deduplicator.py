@@ -38,22 +38,31 @@ def Dedup(inputBAM, outputBAM, tcMutations, log, printOnly=False, verbose = True
                     if (prevChr != "") :
                         for curSeq in duplicateBuffer :
                             for curFlag in duplicateBuffer[curSeq]:
-                                outfile.write(duplicateBuffer[curSeq][curFlag])
-                                retainedReads += 1
+                                for readEntry in duplicateBuffer[curSeq][curFlag]:
+                                    if not readEntry.is_duplicate:
+                                       retainedReads += 1 
+                                    outfile.write(readEntry)
                         duplicateBuffer.clear()
                 
-                duplicateBuffer[seq] = {}
-                duplicateBuffer[seq][flag] = read
+                if not seq in duplicateBuffer:
+                    duplicateBuffer[seq] = {}
+                if not flag in duplicateBuffer[seq]:
+                    duplicateBuffer[seq][flag] = list()
+                if len(duplicateBuffer[seq][flag]) > 0 :
+                    read.is_duplicate = True
+                duplicateBuffer[seq][flag].append(read)
                  
                 prevChr = chr
                 prevStart = start
             
-            processedReads += 1
+                processedReads += 1
             
         for seq in duplicateBuffer:
             for flag in duplicateBuffer[seq] :
-                outfile.write(duplicateBuffer[seq][flag])
-                retainedReads += 1
+                for readEntry in duplicateBuffer[seq][flag]:
+                    if not readEntry.is_duplicate:
+                        retainedReads += 1 
+                    outfile.write(readEntry)
         duplicateBuffer.clear()
                 
         print("Retained " + str(retainedReads) + " of " + str(processedReads) + " reads (", file=log, end = "")
