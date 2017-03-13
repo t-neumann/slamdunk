@@ -208,7 +208,7 @@ class SlamSeqWriter:
 class SlamSeqBamIterator:
     
     def getRefSeq(self):
-        return self._refSeq[self._maxReadLength + 1:-self._maxReadLength]        
+        return self._refSeq[self._maxReadLength:-self._maxReadLength]        
     
     # @deprecated: Pysam calculation of conversion rates        
     def computeRatesForRead(self, read, mismatches):
@@ -397,31 +397,26 @@ class SlamSeqBamFile:
         
     def readInRegion(self, chromosome, start, stop, strand, maxReadLength, minQual = 0):
         
-        fillupLeft = 0
-        leftBorder = int(start) - maxReadLength
-        if(leftBorder < 0):
-            return iter([])
-        
-        if (leftBorder < 0) :
-            fillupLeft = abs(leftBorder)
-            leftBorder = 0
-            
-        refRegion = chromosome + ":" + str(leftBorder) + "-" + str(int(stop) + maxReadLength)
-        
-        region = chromosome + ":" + str(start) + "-" + str(stop)
-        
         if(self.isInReferenceFile(chromosome)):
+            chromosomeLength = self._referenceFile.get_reference_length(chromosome)
+                        
+            fillupLeft = 0
+            leftBorder = int(start) - maxReadLength
+            if (leftBorder < 0) :
+                fillupLeft = abs(leftBorder)
+                leftBorder = 0
+                
+            fillupRight = 0
+            rightBorder = int(stop) + maxReadLength
+            if(rightBorder > chromosomeLength):
+                fillupRight =  rightBorder - chromosomeLength
+                rightBorder = chromosomeLength
+            
+            refSeq = self._referenceFile.fetch(reference=chromosome, start=leftBorder, end=rightBorder).upper()
+            # If start or top is less than maxReadLength bp away from chromosome start or end, fill up with Ns
+            refSeq = 'N' * fillupLeft + refSeq + 'N' * fillupRight 
 
-            refSeq = self._referenceFile.fetch(region=refRegion).upper()
-
-            leftFlank = 'N' * fillupLeft
-            refSeq = leftFlank + refSeq
-            fillupRight = ((stop - start) + 1 + 2 * maxReadLength) - len(refSeq) 
-
-            rightFlank = 'N' * fillupRight
-            refSeq = refSeq + rightFlank
-
-            return SlamSeqBamIterator(self._bamFile.fetch(region=region), refSeq, chromosome, start, strand, maxReadLength, self._snps, minQual)
+            return SlamSeqBamIterator(self._bamFile.fetch(reference=chromosome, start=max(0, start), end=min(chromosomeLength, stop)), refSeq, chromosome, start, strand, maxReadLength, self._snps, minQual)
         else:
             return iter([])
     
