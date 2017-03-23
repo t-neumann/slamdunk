@@ -1,10 +1,23 @@
 #!/usr/bin/env Rscript
-#
+
 # Script to compute half-lifes from SlamSeq data 
+
+# Copyright (c) 2015 Tobias Neumann, Philipp Rescheneder, Bhat Pooja
+#
+# This file is part of Slamdunk.
 # 
-# Author: Bhat Pooja, Philipp Rescheneder
-# Email: pooja.bhat@imba.oeaw.ac.at, philipp.rescheneder@univie.ac.at 
-###############################################################################
+# Slamdunk is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+# 
+# Slamdunk is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+# 
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # Load packages only from local Rslamdunk library 
 libLoc = .libPaths()[grep("Rslamdunk",.libPaths())]
