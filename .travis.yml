@@ -5,8 +5,10 @@ python:
 # command to install dependencies
 install: 
  - pip install -r requirements.txt
- - python setup.py
+ - python setup.py install
 
 # command to run tests
-script: pytest
+script:
+ - slamdunk -h 
+ - pytest
 
