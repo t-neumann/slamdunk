@@ -2,6 +2,10 @@ language: python
 python:
   - "2.7"
 
+language: r
+r: bioc-release
+cache: packages
+
 # command to install dependencies
 install: 
  - pip install -r requirements.txt
@@ -10,5 +14,7 @@ install:
 # command to run tests
 script:
  - slamdunk -h 
+ - test_sample.sh
+ - slamdunk/test/test_sample.sh
  - pytest
 
