@@ -6,10 +6,13 @@ language: r
 r: bioc-release
 cache: packages
 
+before_install:
+ - apt-get install r-base
+
 # command to install dependencies
 install: 
- - pip install -r requirements.txt
- - python setup.py install
+ - pip install -r requirements.txt &> /dev/null
+# - python setup.py install
 
 # command to run tests
 script:
