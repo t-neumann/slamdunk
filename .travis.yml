@@ -1,16 +1,12 @@
-sudo: required
+language: python
+python:
+  - "2.7"
 
-language: ruby
+# command to install dependencies
+install: 
+ - pip install -r requirements.txt
+ - python setup.py
 
-services:
-  - docker
-
-before_install:
-- docker pull tobneu/slamdunk
-- docker run  tobneu/slamdunk /bin/sh -c "slamdunk -h"
-#- docker ps -a
-#- docker run carlad/sinatra /bin/sh -c "cd /root/sinatra; bundle exec rake test"
-
-script:
-#- bundle exec rake test
+# command to run tests
+script: pytest
 
