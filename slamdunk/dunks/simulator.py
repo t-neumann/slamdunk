@@ -189,7 +189,7 @@ def printFastaEntry(sequence, name, index, conversions, readOutSAM, conversionRa
           "0",
           "0",
           sequence,
-          "<" * len(sequence),
+          "F" * len(sequence),
           "TC:i:" + str(conversions),
           "ID:i:" + str(index),
           "CR:f" + str(conversionRate),
