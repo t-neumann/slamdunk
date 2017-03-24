@@ -6445,6 +6445,56 @@ rm -rf $F
        <div class_="docs_block" id="document-Changelog">
         <p>
          <strong>
+          Version 0.2.4
+         </strong>
+        </p>
+        <p>
+         <em>
+          Changes:
+         </em>
+        </p>
+        <ul class="simple">
+         <li>
+          License updated to AGPLv3
+         </li>
+         <li>
+          Deduplicator now only marks duplicates instead of removing them. Useful for deduplication QA like
+          <a class="reference external" href="https://bioconductor.org/packages/release/bioc/html/dupRadar.html">
+           dupRadar
+          </a>
+          . Allows for deduplication of T&gt;C-fraction of reads only.
+         </li>
+         <li>
+          <a class="reference external" href="http://singularity.lbl.gov/">
+           Singularity
+          </a>
+          build-file branch added.
+         </li>
+        </ul>
+        <p>
+         <em>
+          Bugfixes:
+         </em>
+        </p>
+        <ul class="simple">
+         <li>
+          readInRegion fixed: Switched from fetch(region=”chr:start-end” (1-based) to fetch(reference=chr, start=start, end=end) (0-based). Intervals close to the ends of a chromosome are now correctly handeled and not skipped.
+         </li>
+         <li>
+          Hotfix to fix executable permissions on some R plotting scripts
+         </li>
+         <li>
+          Fixed alleyoop collapse to ignore all MLE columns for now
+         </li>
+         <li>
+          R package dependencies fixed for IMP cluster
+         </li>
+         <li>
+          include_package_data removed for proper contrib import
+         </li>
+        </ul>
+        <p>
+         <strong>
           Version 0.2.3
          </strong>
         </p>

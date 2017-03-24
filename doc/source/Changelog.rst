@@ -1,6 +1,22 @@
 Changelog
 =========
 
+**Version 0.2.4**
+
+*Changes:*
+
+* License updated to AGPLv3
+* Deduplicator now only marks duplicates instead of removing them. Useful for deduplication QA like `dupRadar <https://bioconductor.org/packages/release/bioc/html/dupRadar.html>`_. Allows for deduplication of T>C-fraction of reads only.
+* `Singularity <http://singularity.lbl.gov/>`_ build-file branch added.
+
+*Bugfixes:*
+
+* readInRegion fixed: Switched from fetch(region="chr:start-end" (1-based) to fetch(reference=chr, start=start, end=end) (0-based). Intervals close to the ends of a chromosome are now correctly handeled and not skipped.
+* Hotfix to fix executable permissions on some R plotting scripts
+* Fixed alleyoop collapse to ignore all MLE columns for now
+* R package dependencies fixed for IMP cluster
+* include_package_data removed for proper contrib import
+
 **Version 0.2.3**
 
 *Bugfixes:*
