@@ -9,13 +9,13 @@ before_install:
 
 # command to install dependencies
 install: 
- - pip install -r requirements.txt &> /dev/null
+# - pip install -r requirements.txt &> /dev/null
 # - python setup.py install
+ - pip install .
 
 # command to run tests
 script:
- - slamdunk -h 
- - test_sample.sh
+ - bin/slamdunk -h 
  - slamdunk/test/test_sample.sh
  - pytest
 
