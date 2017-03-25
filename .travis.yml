@@ -17,7 +17,10 @@ install:
 
 # command to run tests
 script:
+ - pwd
  - bin/slamdunk -h 
+ - ls slamdunk/contrib/
+ - slamdunk/contrib/ngm
  - slamdunk/test/test_sample.sh
  - pytest
 
