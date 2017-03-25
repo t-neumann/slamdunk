@@ -13,13 +13,13 @@ addons:
         packages:
             - r-base
 
-before_install:
- - sudo apt-get install r-base
+#before_install:
+# - sudo apt-get install r-base
 
 # command to install dependencies
 install: 
  - pip install -q -r requirements.txt
-# - python setup.py install -q
+ - python setup.py -q install
 # - python setup.py install --prefix $HOME/slamdunk-bin
 # - pip install .
 
