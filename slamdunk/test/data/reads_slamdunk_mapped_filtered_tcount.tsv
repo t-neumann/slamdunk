@@ -1,2 +1,2 @@
 Chromosome	Start	End	Name	Length	Strand	ConversionRate	ReadsCPM	Tcontent	CoverageOnTs	ConversionsOnTs	ReadCount	TcReadCount	multimapCount	ConversionRateLower	ConversionRateUpper
-chr5	142903117	142906754	Actb	3637	+	0.0111111111111	666666.666667	692	90	1	8	3	0	-1.0	-1.0
+chr5	120498	122492	Actb	1994	+	0.0111111111111	666666.666667	445	90	1	8	3	0	-1.0	-1.0
