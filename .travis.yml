@@ -4,10 +4,11 @@ language: python
 python:
   - "2.7"
 
-cache: 
-    pip: true
-    apt: true
-
+cache: pip
+cache: apt   
+cache:
+    directories:
+        - /home/travis/virtualenv/python2.7.12/lib/python2.7/site-packages/slamdunk/plot/Rslamdunk
 addons:
     apt:
         packages:
