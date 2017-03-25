@@ -1,0 +1,4 @@
+#slamdunk v0.2.4	3	sample info:	sample_0	0	NA	-1
+#annotation:	actb.bed	d37557f0b1b6775487d56505af0715ad
+Chromosome	Start	End	Name	Length	Strand	ConversionRate	ReadsCPM	Tcontent	CoverageOnTs	ConversionsOnTs	ReadCount	TcReadCount	multimapCount	ConversionRateLower	ConversionRateUpper
+chr5	142903117	142906754	Actb	3637	+	0.0111111111111	666666.666667	692	90	1	8	3	0	-1.0	-1.0
