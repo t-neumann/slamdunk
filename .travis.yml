@@ -11,16 +11,18 @@ before_install:
 
 # command to install dependencies
 install: 
-# - pip install -r requirements.txt &> /dev/null
-# - python setup.py install
- - pip install .
+ - pip install -r requirements.txt &> /dev/null
+ - python setup.py install
+# - python setup.py install --prefix $HOME/slamdunk-bin
+# - pip install .
 
 # command to run tests
 script:
  - pwd
- - bin/slamdunk -h 
- - ls slamdunk/contrib/
- - slamdunk/contrib/ngm
+# - $HOME/slamdunk-bin/bin/slamdunk -h
+# - ls slamdunk-bin/lib/python2.7/site-packages/slamdunk/contrib/
+# - slamdunk/contrib/ngm
+ - slamdunk -h
  - slamdunk/test/test_sample.sh
  - pytest
 
