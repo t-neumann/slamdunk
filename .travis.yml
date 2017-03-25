@@ -14,23 +14,13 @@ addons:
         packages:
             - r-base
 
-#before_install:
-# - sudo apt-get install r-base
-
 # command to install dependencies
 install: 
  - pip install -q -r requirements.txt
  - python setup.py -q install
-# - python setup.py install --prefix $HOME/slamdunk-bin
-# - pip install .
 
 # command to run tests
 script:
- - pwd
- - R --version
-# - $HOME/slamdunk-bin/bin/slamdunk -h
-# - ls slamdunk-bin/lib/python2.7/site-packages/slamdunk/contrib/
-# - slamdunk/contrib/ngm
  - slamdunk -h
  - slamdunk/test/test_sample.sh
  - pytest
