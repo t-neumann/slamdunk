@@ -1,9 +1,8 @@
-sudo: required
+sudo: false
 
 language: python
 python:
   - "2.7"
-  - "3.5"
 
 cache: pip
 cache: apt   
@@ -23,6 +22,8 @@ install:
 # command to run tests
 script:
  - slamdunk -h
+ - alleyoop -h
+ - splash -h
  - slamdunk/test/test_sample.sh
  - pytest
 

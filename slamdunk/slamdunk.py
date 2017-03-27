@@ -22,7 +22,6 @@
 #########################################################################
 # Imports
 #########################################################################
-
 from __future__ import print_function
 import sys, os, random
 
@@ -32,8 +31,8 @@ from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter, SUPPRESS
 from os.path import basename
 
 from joblib import Parallel, delayed
-from dunks import tcounter, mapper, filter, deduplicator, stats, snps, dump
-from utils.misc import replaceExtension, readSampleNames, checkStep, estimateMaxReadLength
+from dunks import tcounter, mapper, filter, deduplicator, snps
+from utils.misc import replaceExtension, estimateMaxReadLength
 from version import __version__
 
 ########################################################################
@@ -320,7 +319,8 @@ def run():
     usage = "SLAMdunk software for analyzing SLAM-seq data"
     
     # Main Parsers
-    parser = ArgumentParser(description=usage, formatter_class=ArgumentDefaultsHelpFormatter, version=__version__)
+    parser = ArgumentParser(description=usage, formatter_class=ArgumentDefaultsHelpFormatter)
+    parser.add_argument('--version', action='version', version='%(prog)s ' + __version__)
     
     # Initialize Subparsers
     subparsers = parser.add_subparsers(help="", dest="command")
@@ -477,6 +477,9 @@ def run():
     elif (command == "all") :
         runAll(args)
         dunkFinished()
+        
+    else:
+        parser.error("Too few arguments.")
 
 if __name__ == '__main__':
     run()

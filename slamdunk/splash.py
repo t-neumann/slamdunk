@@ -105,7 +105,8 @@ def run():
     usage = "SLAMdunk software for simulating SLAM-seq data"
     
     # Main Parsers
-    parser = ArgumentParser(description=usage, formatter_class=RawDescriptionHelpFormatter, version=__version__)
+    parser = ArgumentParser(description=usage, formatter_class=RawDescriptionHelpFormatter)
+    parser.add_argument('--version', action='version', version='%(prog)s ' + __version__)
     
     # Initialize Subparsers
     subparsers = parser.add_subparsers(help="", dest="command")
@@ -397,6 +398,8 @@ def run():
                 
         results = Parallel(n_jobs=n, verbose=False)(jobs)
 
+    else:
+        parser.error("Too few arguments.")
     
 if __name__ == '__main__':
     run()
