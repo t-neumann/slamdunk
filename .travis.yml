@@ -20,7 +20,6 @@ addons:
 
 # command to install dependencies
 install: 
- - echo $PYTHONPATH
  - pip install pytest
  - pip install -r requirements.txt
  - python setup.py -q install
@@ -31,5 +30,5 @@ script:
  - alleyoop -h
  - splash -h
  - slamdunk/test/test_sample.sh
-# - pytest
+ - pytest
 
