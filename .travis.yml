@@ -8,8 +8,9 @@ python:
 cache:
     pip: true
     apt: true
-    directories:
-        - /home/travis/virtualenv/python2.7.9/lib/python2.7/site-packages
+    #directories:
+        #- /home/travis/virtualenv/python2.7.12/lib/python2.7/site-packages
+        #- /home/travis/virtualenv/python2.7.9/lib/python2.7/site-packages
         #- /home/travis/virtualenv/python2.7.12/lib/python2.7/site-packages/slamdunk/plot/Rslamdunk
         #- /home/travis/virtualenv/python2.7.9/lib/python2.7/site-packages/slamdunk/plot/Rslamdunk
 addons:
@@ -26,10 +27,9 @@ install:
 
 # command to run tests
 script:
- - pwd
-# - slamdunk -h
-# - alleyoop -h
-# - splash -h
-# - slamdunk/test/test_sample.sh
+ - slamdunk -h
+ - alleyoop -h
+ - splash -h
+ - slamdunk/test/test_sample.sh
 # - pytest
 
