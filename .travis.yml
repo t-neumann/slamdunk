@@ -7,7 +7,8 @@ python:
 cache:
     pip: true
     apt: true
-    #directories:
+    directories:
+        - /home/travis/virtualenv/python2.7.9/lib/python2.7/site-packages
         #- /home/travis/virtualenv/python2.7.12/lib/python2.7/site-packages/slamdunk/plot/Rslamdunk
         #- /home/travis/virtualenv/python2.7.9/lib/python2.7/site-packages/slamdunk/plot/Rslamdunk
 addons:
