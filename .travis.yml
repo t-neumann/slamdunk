@@ -26,5 +26,5 @@ script:
  - alleyoop -h
  - splash -h
  - slamdunk/test/test_sample.sh
-# - pytest
+ - pytest
 
