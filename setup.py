@@ -142,7 +142,7 @@ setup(
     author_email='tobias.neumann.at@gmail.com, philipp.rescheneder@univie.ac.at',
 
     # Choose your license
-    license='GNU General Public License v3 (GPLv3)',
+    license='GNU Affero General Public License v3 or later (AGPLv3+)',
 
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
