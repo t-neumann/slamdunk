@@ -1,0 +1,34 @@
+sudo: false
+dist: trusty
+
+language: python
+python:
+  - "2.7"
+
+cache:
+    pip: true
+    apt: true
+    #directories:
+        #- /home/travis/virtualenv/python2.7.12/lib/python2.7/site-packages
+        #- /home/travis/virtualenv/python2.7.9/lib/python2.7/site-packages
+        #- /home/travis/virtualenv/python2.7.12/lib/python2.7/site-packages/slamdunk/plot/Rslamdunk
+        #- /home/travis/virtualenv/python2.7.9/lib/python2.7/site-packages/slamdunk/plot/Rslamdunk
+addons:
+    apt:
+        packages:
+            - r-base
+
+# command to install dependencies
+install: 
+ - pip install pytest
+ - pip install -r requirements.txt
+ - python setup.py -q install
+
+# command to run tests
+script:
+ - slamdunk -h
+ - alleyoop -h
+ - splash -h
+ - slamdunk/test/test_sample.sh
+ - pytest
+

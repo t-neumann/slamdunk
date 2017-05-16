@@ -249,7 +249,8 @@ def run():
     usage = "AlleyOop utility tools and diagnostics for SLAMSeq data"
     
     # Main Parsers
-    parser = ArgumentParser(description=usage, formatter_class=ArgumentDefaultsHelpFormatter, version=__version__)
+    parser = ArgumentParser(description=usage, formatter_class=ArgumentDefaultsHelpFormatter)
+    parser.add_argument('--version', action='version', version='%(prog)s ' + __version__)
     
     # Initialize Subparsers
     subparsers = parser.add_subparsers(help="", dest="command")
@@ -473,6 +474,9 @@ def run():
         message("Running alleyoop dump for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
         results = Parallel(n_jobs=n, verbose=verbose)(delayed(runDumpReadInfo)(tid, args.bam[tid], referenceFile, minMQ, outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
         dunkFinished()
+    
+    else:
+        parser.error("Too few arguments.")
     
 if __name__ == '__main__':
     run()

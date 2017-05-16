@@ -35,7 +35,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
     
 # now we have a `__version__` variable
-execfile(path.join(here, name, 'version.py'))
+exec(open(path.join(here, name, 'version.py')).read())
     
 # Copy bin recursively
 def package_files(directory):

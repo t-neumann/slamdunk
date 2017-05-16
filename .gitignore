@@ -8,3 +8,8 @@
 /bin/ngm
 /slamdunk/plot/Rslamdunk
 .Rhistory
+.cache
+*-enc.2.ngm
+*-ht-13-2.3.ngm
+*.fai
+
