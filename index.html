@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Slamdunk</title>
+	<title>SlamDunk</title>
 	<meta charset="utf-8">
 	<meta charset="utf-8">
 	<meta content="IE=edge" http-equiv="X-UA-Compatible">
 	<meta content="width=device-width, initial-scale=1" name="viewport">
-	<meta content="Slamdunk website" name="description">
+	<meta content="SlamDunk website" name="description">
 	<meta content="Tobias Neumann" name="author">
 	<link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet"><!--[if lte IE 8]><script src="js/ie/html5shiv.js"></script><![endif]-->
 	<link href="css/main.css" rel="stylesheet"><!--[if lte IE 8]>
@@ -34,7 +34,10 @@
 			</div>
 			<div class="jumbotron" style="position: relative; top: 100px;">
 				<img src="images/slamdunk_logo_light.png" style="margin-bottom:100px;" width="400">
-				<h3><b>Streamlining SLAMSeq analysis with ultra-high sensitivity</b></h3>Slamdunk analyzes SLAMSeq data.
+				<h3><b>Streamlining SLAM-Seq analysis with ultra-high sensitivity</b></h3>
+				SlamDunk is a novel, fully automated software tool for automated, robust, scalable and reproducible SLAM-Seq data analysis.<br/>
+				Diagnostic plotting features and our MultiQC plugin will make your SLAM-seq data ready for immediate QA and interpretation.<br/>  
+				
 				<div class="row" style="margin-top:30px;">
 					<div class="col-md-3">
 						<a class="btn btn-block btn-lg btn-primary" href="https://www.github.com/t-neumann/slamdunk"><i class="fa fa-github fa-lg"></i> GitHub</a>
@@ -55,10 +58,10 @@
 	<section class="wrapper" id="intro">
 		<div class="inner">
 			<header class="major">
-				<h2>SLAMSeq</h2>
+				<h2>SLAM-Seq</h2>
 			</header>
 			<section>
-				<h4><b>SLAMSeq</b></h4>
+				<h4><b>SLAM-Seq</b></h4>
 				<p>SLAMSeq is a novel sequencing protocol to measure transcriptional output and transcript half-lifes.</p>
 				<hr>
 			</section>
@@ -79,7 +82,7 @@
 				<hr class="docutils">
 			</section>
 			<section>
-				<h4><b>Run Slamdunk</b></h4>
+				<h4><b>Run SlamDunk</b></h4>
 				<div class="code bash highlight-python">
 					<div class="highlight">
 						<pre>slamdunk all -r &lt;reference fasta&gt; -b &lt;bed file&gt; -o &lt;output directory&gt; -5 12 -n 100
@@ -126,7 +129,7 @@
 				</table>
 				<h4><b>Relevant results:</b></h4>
 				<ul class="simple">
-					<li>Folder <em>count</em> : Tab-separated <em>tcount</em> files containing the SLAMSeq statistics per UTR (see <a class="reference internal" href="docs.html#tcount-file"><em>Tcount file format</em></a> )
+					<li>Folder <em>count</em> : Tab-separated <em>tcount</em> files containing the SLAM-Seq statistics per UTR (see <a class="reference internal" href="docs.html#tcount-file"><em>Tcount file format</em></a> )
 					</li>
 					<li>Folder <em>filter</em> : BAM-files with the final mapped reads for visualization and further processing</li>
 				</ul>
@@ -187,10 +190,10 @@
 	<section class="wrapper" id="slamdunk">
 		<div class="inner alt">
 			<header class="major">
-				<h2>Slamdunk</h2>
+				<h2>SlamDunk</h2>
 				<div class="row" id="docstart">
 					<div class="col-sm-6">
-						<p align="left">Slamdunk consists of 4 core modules to process SLAMSeq data:</p>
+						<p align="left">SlamDunk consists of 4 core modules to process SLAM-Seq data:</p>
 						<ul align="left">
 							<li><b>map</b></li>
 							<li style="list-style: none; display: inline">
@@ -258,7 +261,7 @@
 			</header>
 			<section>
 				<h3><b>Requirements</b></h3>
-				<h4><b>Slamdunk</b></h4>
+				<h4><b>SlamDunk</b></h4>
 				<div class="panel panel-default">
 					<div class="panel-heading">
 						<h3 class="panel-title" style="color: #999999;"><b><i>slamdunk</i></b> will fetch all dependencies <b>automatically</b> in its install phase. There is no need to have the requirements installed before installing <i>slamdunk</i>.</h3>
@@ -285,7 +288,7 @@
 					</div>
 					<div class="panel-body">
 						<div id="pip">
-							<p>Slamdunk is hosted as Python package on the <a href="https://pypi.python.org/pypi">Python Package Index</a>. You can install it with a single command using <a href="https://pypi.python.org/pypi/pip">pip</a>.</p>
+							<p>SlamDunk is hosted as Python package on the <a href="https://pypi.python.org/pypi">Python Package Index</a>. You can install it with a single command using <a href="https://pypi.python.org/pypi/pip">pip</a>.</p>
 							<pre><code><span class="comment"># Root</span>
 pip install slamdunk
 
@@ -293,7 +296,7 @@ pip install slamdunk
 pip install --user slamdunk</code></pre>
 						</div>
 						<div id="dev" style="display:none;">
-							<p>The latest source of Slamdunk is hosted in our <a href="https://github.com/t-neumann/slamdunk">GitHub repository</a>. You can install it directly from there using <a href="https://pypi.python.org/pypi/pip">pip</a>.</p>
+							<p>The latest source of SlamDunk is hosted in our <a href="https://github.com/t-neumann/slamdunk">GitHub repository</a>. You can install it directly from there using <a href="https://pypi.python.org/pypi/pip">pip</a>.</p>
 							<pre><code><span class="comment"># Grab source and install</span>
 pip install git+https://github.com/t-neumann/slamdunk.git</code></pre>
 						</div>
@@ -342,7 +345,7 @@ slamdunk --help</code></pre>
 				<div id="multiqc-description">
 					<p><b><a href="http://multiqc.info">MultiQC</a></b> is a popular tool to aggregate results from bioinformatics analyses across many samples into a single report.</p>
 					<p></p>
-					<p>We implemented a MultiQC module which was released with <b>MultiQC v0.9</b> to support integration of Slamdunk QC plots and statistics into your MultiQC reports.</p>
+					<p>We implemented a MultiQC module which was released with <b>MultiQC v0.9</b> to support integration of SlamDunk QC plots and statistics into your MultiQC reports.</p>
 					<p>Currently we support integration of the <em>summary</em>, <em>rates</em>, <em>utrrates</em>, <em>tcperreadpos</em> and <em>tcperutrpos</em> modules.</p>
 					<div class="row">
 						<div class="col-md-8">
@@ -364,7 +367,7 @@ slamdunk --help</code></pre>
 						</div><span id="iframe_browser_title">MultiQC Example Reports</span>
 						<ul id="iframe_browser_tabs">
 							<li class="active">
-								<a href="multiqc_example/multiqc_report.html">Slamdunk</a>
+								<a href="multiqc_example/multiqc_report.html">SlamDunk</a>
 							</li>
 						</ul>
 					</div><iframe src="multiqc_example/multiqc_report.html"></iframe>
@@ -378,7 +381,7 @@ slamdunk --help</code></pre>
 			<section class="spotlight">
 				<div class="content">
 					<h3>Authors and Contributors</h3>
-					<p>Slamdunk is developed by <a href="mailto:tobias.neumann.at@gmail.com" target="_blank">Tobias Neumann</a> and <a href="mailto:philipp.rescheneder@univie.ac.at" target="_blank">Philipp Rescheneder</a>.</p>
+					<p>SlamDunk is developed by <a href="mailto:tobias.neumann.at@gmail.com" target="_blank">Tobias Neumann</a> and <a href="mailto:philipp.rescheneder@univie.ac.at" target="_blank">Philipp Rescheneder</a>.</p>
 				</div>
 			</section>
 		</div>
