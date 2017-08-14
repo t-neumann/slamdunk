@@ -11,6 +11,7 @@ from collections import defaultdict
 from __builtin__ import False
 
 from fisher import pvalue
+import numpy as np
 
 def getFisher(expReads1, expReads2, obsReads1, obsReads2):
         
@@ -228,7 +229,7 @@ def callPosition(refBase, readCounts, callType, minReads2, minVarFreq, minAvgQua
                             if (reads2 < 0) :
                                 reads2 = 0
                                 
-                            callResult += genotypeToCode(genotype) + "\t" + str(thisReads1) + "\t" + str(reads2) + "\t" + str(thisVarFreq) + "%\t" + str(strands1) + "\t" 
+                            callResult += genotypeToCode(genotype) + "\t" + str(thisReads1) + "\t" + str(reads2) + "\t" + ('%05.3f' % thisVarFreq) + "%\t" + str(strands1) + "\t" 
                             callResult += str(strands2) + "\t" + str(avgQual1) + "\t" + str(avgQual2) + "\t" + str(pValue) + "\t" + str(avgMap1) + "\t"
                             callResult += str(avgMap2) + "\t" + str(reads1plus) + "\t" + str(reads1minus) + "\t" + str(reads2plus) + "\t" 
                             callResult += str(reads2minus) + "\t" + str(varAllele)
@@ -238,11 +239,11 @@ def callPosition(refBase, readCounts, callType, minReads2, minVarFreq, minAvgQua
     
     if (len(callResult) == 0 and callType == "CNS") :
         if (reads1 > 0 and reads1 > minReads2) :
-            callResult = str(refBase) + "\t" + str(reads1) + "\t" + str(reads2) + "\t" + str(varFreq) + "%\t" + str(strands1) + "\t" + str(strands2) + "\t" 
+            callResult = str(refBase) + "\t" + str(reads1) + "\t" + str(reads2) + "\t" + ('%05.3f' % varFreq) + "%\t" + str(strands1) + "\t" + str(strands2) + "\t" 
             callResult += str(avgQual1) + "\t" + str(avgQual2) + "\t" + str(pValue) + "\t" + str(avgMap1) + "\t" + str(avgMap2)
             callResult += "\t" + str(reads1plus) + "\t" + str(reads1minus) + "\t" + str(reads2plus) + "\t" + str(reads2minus) + "\t" + str(varAllele)
         else:
-            callResult = "N" + "\t" + str(reads1) + "\t" + str(reads2) + "\t" + str(varFreq) + "%\t" + str(strands1) + "\t" + str(strands2)
+            callResult = "N" + "\t" + str(reads1) + "\t" + str(reads2) + "\t" + ('%05.3f' % varFreq) + "%\t" + str(strands1) + "\t" + str(strands2)
             callResult += "\t" + str(avgQual1) + "\t" + str(avgQual2) + "\t" + str(pValue) + "\t" + str(avgMap1) + "\t" + str(avgMap2)             
             callResult += "\t" + str(reads1plus) + "\t" + str(reads1minus) + "\t" + str(reads2plus) + "\t" + str(reads2minus) + "\t" + str(varAllele)
 
@@ -543,6 +544,8 @@ minFreqForHom = 0.75
 pValueThreshold = 0.99
 strandPvalueThreshold = 0.01
 snpsOnly = True
+indelsOnly = False
+variantsOnly = False
 strandFilter = False
 
 verbose = True
@@ -555,7 +558,6 @@ numFailStrandFilter = 0
 numVariantsReported = 0
 numSNPsReported = 0
 numIndelsReported = 0
-
 
 numParsingExceptions = 0
 
@@ -585,8 +587,6 @@ vcfHeader += "\n" + "##FORMAT=<ID=ADR,Number=1,Type=Integer,Description=\"Depth 
 vcfHeader += "\n" + "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT"
 #varscanCmd = "java -jar " + getBinary("VarScan.v2.4.1.jar") + " mpileup2snp  --strand-filter 0 --output-vcf --min-var-freq " + str(minVarFreq) + " --min-coverage " + str(minCov) + " --variants 1"
 
-print(vcfHeader)
-
 with open(args.pileup) as f:
     for line in f:
         
@@ -595,12 +595,14 @@ with open(args.pileup) as f:
         if (len(fields) > 5 and len(fields[0]) > 0 and len(fields[1]) > 0 and len(fields[2]) > 0 and len(fields[3]) > 0):
             chr = fields[0]
             pos = fields[1]
-            ref = fields[2]
-            depth = 0
-            results = 0
-            vcfResults = 0
-            varAllel = 0
+            refBase = fields[2]
+            callDepths = ""
+            callResults = ""
+            vcfResults = ""
+            varAlleles = dict()
+            variantFlag = False
             snpFlag = False
+            indelFlag = False
             samplesRef = 0
             samplesHet = 0
             samplesHom = 0
@@ -615,84 +617,269 @@ with open(args.pileup) as f:
             alReadBases = ""
             allReadQualities = ""
             
-            depth = int(fields[3])
+            readDepth = int(fields[3])
             readBases = fields[4]
-            readQs = fields[5]
-            mapQs = ""
+            readQualities = fields[5]
+            mapQualities = ""
             
             qualityDepth = 0
-            for c in readQs :
+            for c in readQualities :
                 if (ord(c) - 33 >= minAvgQual) :
                     qualityDepth += 1
                     
-            thisVcf = "./.:.:" + str(qualityDepth)
+            thisCall = "N" + ":" + str(qualityDepth) + ":-:-:-:-"                    
+            thisVCF = "./.:.:" + str(qualityDepth)
             
-            if (depth >= minCoverage and qualityDepth >= minCoverage) :
+            if (readDepth >= minCoverage and qualityDepth >= minCoverage) :
                 
-                readCounts = getReadCounts(ref, readBases, readQs, minAvgQual, mapQs)
-                positionCall = callPosition(ref, readCounts, "CNS", minReads2, minVarFreq, minAvgQual, pValueThreshold, minFreqForHom)
-                #print(positionCall)
-                                    
+                readCounts = getReadCounts(refBase, readBases, readQualities, minAvgQual, mapQualities)
+                positionCall = callPosition(refBase, readCounts, "CNS", minReads2, minVarFreq, minAvgQual, pValueThreshold, minFreqForHom)
+                                
+                if (len(positionCall) > 0) :
+                    callLines = positionCall.split("\n")
                     
+                    for lineCounter in range(0, len(callLines)):
+                        callContents = callLines[lineCounter].split("\t")
+                        consBase = callContents[0]
+                        reads1 = int(callContents[1])
+                        reads2 = int(callContents[2])
+                        varFreq = callContents[3]
+                        strands1 = int(callContents[4])
+                        strands2 = int(callContents[5])
+                        qual1 = int(callContents[6])
+                        qual2= int(callContents[7])
+                        pValue = float(callContents[8])
+                        reads1plus = int(callContents[11])
+                        reads1minus = int(callContents[12])
+                        reads2plus = int(callContents[13])
+                        reads2minus = int(callContents[14])
+                        varAllele = ""
+                        
+                        logP = 0.0
+                        try :
+                            logP = 0 - (10 * np.log10(pValue))
+                            if (logP > 255) : logP = 255
+                        except Exception as ex:
+                            pass
+                        
+                        if (consBase != refBase and consBase != "N" and len(callContents) > 15) :
+                            varAllele = callContents[15]
+                            
+                            varAlleleNumber = 0
+                            
+                            if (varAllele in varAlleles) :
+                                varAlleleNumber = varAlleles[varAllele]
+                            else :
+                                varAlleleNumber = len(varAlleles) + 1
+                                varAlleles[varAllele] = varAlleleNumber
+                            
+                            # IMPLEMENT THIS
+                            if (True) :
+                                samplesHom += 1
+                                thisVCF = varAlleleNumber + "/" + varAlleleNumber
+                            else :
+                                samplesHet += 1
+                                thisVCF = "0" + "/" + varAlleleNumber
+                                
+                            thisVCF += ":" + int(logP) + ":" + readDepth + ":" + qualityDepth
+                            thisVCF += ":" + str(reads1) + ":" + str(reads2) + ":" + str(varFreq) + ":" + str(pValue)
+                            thisVCF += ":" + str(qual1) + ":" + str(qual2)
+                            thisVCF += ":" + str(reads1plus) + ":" + str(reads1minus) + ":" + str(reads2plus) + ":" + str(reads2minus)
+                            
+                        elif (consBase == refBase) :
+                            expReads1 = int((reads1 + reads2) / 2)
+                            expReads2 = (reads1 + reads2) - expReads1
+                            
+                            newPvalue = getFisher(reads1, reads2, expReads1, expReads2)
+                            newLogP = 0
+                            try :
+                                newLogP = 0 - (10 * np.log10(newPvalue))
+                            except Exception as ex:
+                                pass
+                            thisVCF = "0" + "/" + "0"
+                            thisVCF += ":" + str(int(newLogP)) + ":" + str(readDepth) + ":" + str(qualityDepth)
+                            thisVCF += ":" + str(reads1) + ":" + str(reads2) + ":" + str(varFreq) + ":" + str(pValue)
+                            thisVCF += ":" + str(qual1) + ":" + str(qual2)
+                            thisVCF += ":" + str(reads1plus) + ":" + str(reads1minus) + ":" + str(reads2plus) + ":" + str(reads2minus)
+                            
+                        thisCall = consBase + ":" + str(qualityDepth) + ":" + str(reads1) + ":" + str(reads2)
+                        thisCall += ":" + str(varFreq) + ":" + str(pValue)
+                        
+                        if (consBase != refBase and consBase != "N") :
+                            variantFlag = True
+                            if (len(consBase) > 1) :
+                                indelFlag = True
+                            else :
+                                snpFlag = True
+                                
+                            allReads1plus += reads1plus
+                            allReads1minus += reads1minus
+                            allReads2plus += reads2plus
+                            allReads2minus += reads2minus
+                            
+                        else :
+                            samplesRef += 1
+                
+                else :
+                    samplesUncalled += 1
+            else :
+                samplesUncalled += 1
+                            
+            if len(callDepths) > 0:
+                callDepths += " "
+            callDepths += str(readDepth)
+            
+            if (len(callResults) > 0) :
+                callResults += " "
+            callResults += thisCall
+            
+            if (len(vcfResults) > 0) :
+                vcfResults += "\t"
+            vcfResults += thisVCF
+            
+            qualityDepth = 0
+            # IMPLEMENT THIS
+            allMapQualities = ""
+            allConsensusCall = "N:" + str(qualityDepth) + ":-:-:-:-"
+            
+            varBases = ""
+            sortedKeys = varAlleles.keys()
+            alleleKeys = varAlleles.keys()
+            
+            for allele in sortedKeys:
+                arrayIndex = varAlleles[allele] - 1
+                alleleKeys[arrayIndex] = allele
+                
+            for allele in alleleKeys :
+                if (len(varBases) > 0) :
+                    varBases += ","
+                varBases += allele
+                
+            if(len(varBases) == 0) :
+                varBases = "."
+                
+            if (variantFlag) :
+                numVariantPositions += 1
+            if (snpFlag) :
+                numSNPpositions += 1
+            if (indelFlag) :
+                numIndelPositions += 1
+                
+            strandFilterStatus = "Pass:" + str(allReads1plus) + ":" + str(allReads1minus) + ":" + str(allReads2plus) + ":" + str(allReads2minus) + ":" + str(strandPvalue)
+            failedStrandFilter = False
+                
+            outLine = chr + "\t" + pos + "\t"
+            
+            avgQualityDepth = 0
+            
+            if (samplesRef + samplesHet + samplesHom + samplesUncalled > 0) :
+                avgQualityDepth = qualityDepth / (samplesRef + samplesHet + samplesHom + samplesUncalled)
+                
+            refColumn = ""
+            varColumn = ""
+            
+            if ("," in varBases and "-" in varBases or "+" in varBases) :
+                maxDelSize = 0
+                maxDelBases = ""
+                varBaseContents = varBases.split(",")
+                for varAllele in varBaseContents:
+                    if varAllele[0] == "-":
+                        varAllele = re.sub(r'-', '', varAllele)
+                        if (len(varAllele) > maxDelSize) :
+                            maxDelBases = varAllele
+                            maxDelSize = len(varAllele)
+            
+            
+                refColumn = refBase + maxDelBases
+                
+                varColumn = ""
+                
+                for varAllele in varBaseContents:
+                    if len(varColumn) > 0 :
+                        varColumn += ","
+                        
+                    if varAllele[0] == "-":
+                        varAllele = re.sub(r'-', '', varAllele)
+                    
+                        if (len(varAllele) < maxDelSize) :
+                            varEntry = re.sub(varAllele, '', varEntry)
+                            varColumn = varColumn + refBase + varEntry
+                        else :
+                            varColumn += refBase
+                            
+                    elif varAllele[0] == "+":
+                        varAllele = re.sub('+', '', varAllele)
+                        varEntry = refBase + varAllele + maxDelBases
+                        varColumn += varEntry
+                    else:
+                        varEntry = varAllele + maxDelBases
+                        varColumn += varEntry
+                        
+            elif (varBases[0] == "+") :
+                refColumn = refBase
+                varColumn = refBase + re.sub('+', '', varBases)
+                
+            elif (varBases[0] == "-") :
+                refColumn = refBase + re.sub('-', '', varBases)
+                varColumn = refBase
+                
+            else:
+                refColumn = refBase
+                varColumn = varBases
+                
+            varColumn = re.sub(r'\+', '', varColumn)
+            varColumn = re.sub(r'-', '', varColumn)
+            
+            outLine += "." + "\t" + refColumn + "\t" + varColumn + "\t.\t";
+            
+            if ("Pass" in strandFilterStatus):
+                outLine += "PASS\t"
+            else :
+                outLine += "str10\t"
+                outLine += "ADP=" + str(avgQualityDepth) + ";WT=" + str(samplesRef) + ";HET=" + str(samplesHet) + ";HOM=" + str(samplesHom) + ";NC=" + str(samplesUncalled)
+                outLine += "\t" + "GT:GQ:SDP:DP:RD:AD:FREQ:PVAL:RBQ:ABQ:RDF:RDR:ADF:ADR" + "\t" + vcfResults
+                
+            reportFlag = False
+            
+            if (variantFlag and strandFilter and failedStrandFilter) :
+                if (not variantsOnly and not snpsOnly and not indelsOnly) :
+                    reportFlag = True
+            elif ((variantsOnly or snpsOnly or indelsOnly) and not variantFlag) :
+                pass
+            elif (not variantsOnly and not snpsOnly and not indelsOnly) :
+                reportFlag = True
+            elif (variantFlag and variantsOnly) :
+                reportFlag = True
+            elif (snpFlag and snpsOnly) :
+                reportFlag = True
+            elif (indelFlag and indelsOnly) :
+                reportFlag = True
+            else :
+                pass
+            
+            if reportFlag:
+                print(outLine)
+                
+                if variantFlag:
+                    numVariantsReported += 1
+                if snpFlag:
+                    numSNPsReported += 1
+                if indelFlag:
+                    numIndelsReported += 1
+                    
+        else:
+            if (len(fileContents) >= 4 and lineContents[3] == "0") :
+                pass
+            else :
+                print("Warning: Line ignored: Invalid pileup format in line " + str(numBases) + "\n" + line + "\n", file = sys.stderr)    
+   
         
         if (verbose and numBases % 100000 == 0 and numBases != 0) :
             print("Parsed " + str(numBases) + " positions.")
             
         numBases += 1
-
-#         pile = fields[4]
-#          
-#         # Replace starts
-#         pile = re.sub("\^.","",pile)
-#         # Replace matches
-#         pile = re.sub("\.","",pile)
-#         pile = re.sub(",","",pile)
-#         # Replace dels
-#         pile = re.sub("\*","",pile)
-#         # Replace ends
-#         pile = re.sub("\$","",pile)
-#          
-#         indel = False
-#         type = ""
-#         length = ""
-#         bases = ""
-#         parsed = 0
-#          
-#         if len(pile) == 0:
-#             if not "ref" in mutDict[chr][pos]:
-#                 mutDict[chr][pos]["ref"] = 0
-#          
-#         for char in pile:
-#             if (char == "+") :
-#                 indel = True
-#                 type = "ins"
-#             elif (char == "-") :
-#                 indel = True
-#                 type = "del"
-#             elif (char.isdigit()) :
-#                 length = length + char
-#             else :
-#                 if indel:
-#                     if bases == "":
-#                         length = int(length)
-#                     bases = bases + char
-#                     parsed += 1
-#  
-#                     if (parsed == length) :
-#                          
-#                         indelType = type + bases
-#                          
-#                         indel = False
-#                         length = ""
-#                         parsed = 0
-#                         bases = ""
-#                         type = ""
-#                          
-#                         if not indelType in mutDict[chr][pos]:
-#                             mutDict[chr][pos][indelType] = 0
-#                         mutDict[chr][pos][indelType] += 1
-#                 else :
-#                     conversion = ref.upper() + ">" + char.upper()
-#                     if not conversion in mutDict[chr][pos]:
-#                         mutDict[chr][pos][conversion] = 0
-#                     mutDict[chr][pos][conversion] += 1
+        
+print(str(numBases) + " bases in pileup file", file=sys.stderr)
+print(str(numVariantPositions) + " variant positions (" + str(numSNPpositions) + " SNP, " + str(numIndelPositions) + " indel)", file=sys.stderr)
+print(str(numFailStrandFilter) + " were failed by the strand-filter", file=sys.stderr)
+print(str(numVariantsReported) + " variant positions reported (" + str(numSNPsReported) + " SNP, " + str(numIndelsReported) + " indel)", file=sys.stderr)
