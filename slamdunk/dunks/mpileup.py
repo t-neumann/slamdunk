@@ -10,8 +10,243 @@ import pysam, random
 from collections import defaultdict
 from __builtin__ import False
 
+from fisher import pvalue
+
+def getFisher(expReads1, expReads2, obsReads1, obsReads2):
+        
+    if expReads1 < 0 : expReads1 = 0
+    if expReads2 < 0 : expReads2 = 0
+    if obsReads1 < 0 : obsReads1 = 0
+    if obsReads2 < 0 : obsReads2 = 0
+    
+    p = pvalue(obsReads1, obsReads2, expReads1, expReads2)
+    
+    if (p.right_tail > p.left_tail) :
+        return p.left_tail
+    else :
+        return p.right_tail
+    
+
+def getSignificance(obsReads1, obsReads2) :
+    
+    pValue = 1.0
+    baselineError = 0.001
+    
+    coverage = obsReads1 + obsReads2
+    
+    expReads2 = int(coverage * baselineError)
+    expReads1 = coverage - expReads2
+    
+    pValue = getFisher(obsReads1, obsReads2, expReads1, expReads2)
+    
+    return pValue
+
+def getShortIndel(gt):
+    
+    if ("INS" in gt or "DEL" in gt) :
+        try:
+            gtContents = gt.split("-")
+            indelType = gtContents[0]
+            indelSize = gtContents[1]
+            indelBases = gtContents[2]
+            
+            if ("INS" in indelType) :
+                return "+" + indelBases
+            else :
+                return "-" + indelBases
+        except Exception as ex:
+            print("Warning: error generating consensu from " + gt, file = sys.stderr)
+            
+    return "N"
+
+def genotypeToCode(gt) :
+    
+    if (gt == "AA"): return "A"
+    if (gt == "CC"): return "C"
+    if (gt == "GG"): return "G"
+    if (gt == "TT"): return "T"
+    if (gt == "AC" or gt == "CA"): return "M"
+    if (gt == "AG" or gt == "GA"): return "R"
+    if (gt == "AT" or gt == "TA"): return "W"
+    if (gt == "CG" or gt == "GC"): return "S"
+    if (gt == "CT" or gt == "TC"): return "Y"
+    if (gt == "GT" or gt == "TG"): return "K"
+    if (gt[0] == "N") : return "N"
+    
+    return gt
+     
 def callPosition(refBase, readCounts, callType, minReads2, minVarFreq, minAvgQual, pValueThreshold, minFreqForHom) :
-    return ""
+    
+    callResult = ""
+    
+    reads1 = 0
+    reads2 = 0
+    readsWithIndels = 0
+    strands1 = 0
+    strands2 = 0
+    avgQual1 = 0
+    avgQual2 = 0
+    avgMap1 = 0
+    avgMap2 = 0
+    reads1indel = 0
+    reads1plus = 0
+    reads1minus = 0
+    reads2plus = 0
+    reads2minus = 0
+    pValue = 1
+    varFreq = 0.00
+    varAllele = ""
+    
+    try :
+        
+        try: 
+            if (refBase in readCounts) :
+                refBaseContent = readCounts[refBase].split("\t")
+                reads1 = int(refBaseContent[0])
+                strands1 = int(refBaseContent[1])
+                avgQual1 = int(refBaseContent[2])
+                avgMap1 = int(refBaseContent[3])
+                reads1plus = int(refBaseContent[4])
+                reads1minus = int(refBaseContent[5])
+                
+                if (len(refBaseContent) > 6) :
+                    reads1indel = reads1minus = int(refBaseContent[6])
+        except Exception as ex:
+            print("refBase readcount error: " + readCounts[refBase], file = sys.stderr)
+            
+        alleleKeys = readCounts.keys()
+        alleleKeys.sort()
+        
+        totalReadCounts = 0
+        
+        for allele in alleleKeys:
+            alleleContents = readCounts[allele].split("\t")
+            try :
+                thisReads = int(alleleContents[0])
+                totalReadCounts += thisReads
+            except Exception as ex:
+                pass
+            
+        for allele in alleleKeys:
+            alleleContents = readCounts[allele].split("\t")
+            
+            if (allele != refBase) :
+                thisReads1      = reads1
+                thisReads2      = 0
+                thisStrands2    = 0
+                thisAvgQual2    = 0
+                thisAvgMap2     = 0
+                thisReads2plus  = 0
+                thisReads2minus = 0
+                
+                try:
+                    thisReads2 = int(alleleContents[0])
+                    thisStrands2 = int(alleleContents[1])
+                    thisAvgQual2 = int(alleleContents[2])
+                    thisAvgMap2 = int(alleleContents[3])
+                    thisReads2plus = int(alleleContents[4])
+                    thisReads2minus = int(alleleContents[5])
+                    
+                    if ("INS" in allele or "DEL" in allele) :
+                        readsWithIndels += thisReads2
+                except Exception as ex:
+                    pass
+                
+        if (callType != "CNS" or thisReads2 > reads2) :
+            thisVarFreq = float(thisReads2) / float(totalReadCounts)
+            thisPvalue = 1
+            
+            if ("INS" in allele or "DEL" in allele) :
+                thisTotalReadCounts = totalReadCounts - reads1indel
+                if (thisTotalReadCounts < thisReads2) :
+                    thisTotalReadCounts = thisReads2
+                    
+                thisVarFreq = float(thisReads2) / float(totalReadCounts)
+                
+            if (pValueThreshold == 0.99) :
+                thisPvalue = 0.98
+            else :
+                thisPvalue = getSignificance(reads1, thisReads2)
+            
+            if (thisReads2 > reads2 and thisAvgMap2 >= minAvgQual) :
+                if ("INS" in allele or "DEL" in allele) :
+                    varAllele = getShortIndel(allele)
+                else :
+                    varAllele = allele
+                    
+                reads2 = thisReads2
+                strands2 = thisStrands2
+                avgQual2 = thisAvgQual2
+                avgMap2 = thisAvgMap2
+                reads2plus = thisReads2plus
+                reads2minus = thisReads2minus
+                varFreq = thisVarFreq * 100.0
+                pValue = thisPvalue
+                
+            if (thisReads2 >= minReads2 and thisAvgQual2 >= minAvgQual and thisVarFreq >= minVarFreq) :
+                thisReads1 = reads1
+                thisVarFreq = thisVarFreq * 100.0
+                
+                thisVarType = "SNP"
+                
+                if ("INS" in allele or "DEL" in allele) :
+                    thisVarType = "INDEL"
+                    thisReads1 = reads1
+                    if (thisReads1 < 0) :
+                        thisReads1 = 0
+                    allele = getShortIndel(allele)
+                    
+                if (thisPvalue <= pValueThreshold) :
+                    if (callType == "SNP" or callType == "INDEL") :
+                        
+                        reads2 = thisReads2
+                        strands2 = thisStrands2
+                        avgQual2 = thisAvgQual2
+                        avgMap2 = thisAvgMap2
+                        reads2plus = thisReads2plus
+                        reads2minus = thisReads2minus
+                        pValue = thisPvalue
+                        
+                        genotype = ""
+                        
+                        if (thisVarFreq >= (float(minFreqForHom) * 100)) :
+                            genotype = allele + allele
+                            if thisVarType == "INDEL" :
+                                genotype = allele + "/" + allele
+                        else:
+                            genotype = refBase + allele
+                            if thisVarType == "INDEL":
+                                genotype = "*/" + allele
+                                
+                        if thisVarType == callType:
+                            if (len(callResult) > 0) :
+                                callResult += "\n"
+                            
+                            if (thisReads1 < 0) :
+                                thisReads1 = 0
+                                
+                            if (reads2 < 0) :
+                                reads2 = 0
+                                
+                            callResult += genotypeToCode(genotype) + "\t" + str(thisReads1) + "\t" + str(reads2) + "\t" + str(thisVarFreq) + "%\t" + str(strands1) + "\t" 
+                            callResult += str(strands2) + "\t" + str(avgQual1) + "\t" + str(avgQual2) + "\t" + str(pValue) + "\t" + str(avgMap1) + "\t"
+                            callResult += str(avgMap2) + "\t" + str(reads1plus) + "\t" + str(reads1minus) + "\t" + str(reads2plus) + "\t" 
+                            callResult += str(reads2minus) + "\t" + str(varAllele)
+                                
+    except Exception as ex:
+        pass
+    
+    if (len(callResult) == 0 and callType == "CNS") :
+        if (reads1 > 0 and reads1 > minReads2) :
+            callResult = str(refBase) + "\t" + str(reads1) + "\t" + str(reads2) + "\t" + str(varFreq) + "%\t" + str(strands1) + "\t" + str(strands2) + "\t" 
+            callResult += str(avgQual1) + "\t" + str(avgQual2) + "\t" + str(pValue) + "\t" + str(avgMap1) + "\t" + str(avgMap2)
+            callResult += "\t" + str(reads1plus) + "\t" + str(reads1minus) + "\t" + str(reads2plus) + "\t" + str(reads2minus) + "\t" + str(varAllele)
+        else:
+            callResult = "N" + "\t" + str(reads1) + "\t" + str(reads2) + "\t" + str(varFreq) + "%\t" + str(strands1) + "\t" + str(strands2)
+            callResult += "\t" + str(avgQual1) + "\t" + str(avgQual2) + "\t" + str(pValue) + "\t" + str(avgMap1) + "\t" + str(avgMap2)             
+            callResult += "\t" + str(reads1plus) + "\t" + str(reads1minus) + "\t" + str(reads2plus) + "\t" + str(reads2minus) + "\t" + str(varAllele)
+
+    return callResult
 
 def getReadCounts(refBase, readBases, readQuals, minAvgQual, mapQuals):
     readCounts = dict()
@@ -396,7 +631,7 @@ with open(args.pileup) as f:
                 
                 readCounts = getReadCounts(ref, readBases, readQs, minAvgQual, mapQs)
                 positionCall = callPosition(ref, readCounts, "CNS", minReads2, minVarFreq, minAvgQual, pValueThreshold, minFreqForHom)
-                
+                #print(positionCall)
                                     
                     
         
