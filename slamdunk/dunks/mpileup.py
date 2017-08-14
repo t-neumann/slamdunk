@@ -270,8 +270,9 @@ def getReadCounts(refBase, readBases, readQuals, minAvgQual, mapQuals):
     readStart = False
     j = 0
     
-    for i, c in enumerate(readBases):
-        readBase = c
+    i = 0
+    while i < len(readBases) :
+        readBase = readBases[i]
         if(i == 0 and len(readBase) == 0):
             
             i += 1
@@ -293,11 +294,10 @@ def getReadCounts(refBase, readBases, readQuals, minAvgQual, mapQuals):
         if (j < len(mapQuals)) :
             mapQ = ord(mapQuals[j]) - 33
             
-        if (readBase == "." or readBase == "," and nextBase != "-" or nextBase == "+") :
+        if ((readBase == "." or readBase == ",") and nextBase != "-" and nextBase != "+") :
             strand = "+"
             if (readBase == ",") :
                 strand = "-"
-            
             if (baseQ >= minAvgQual) :
                 reads1 += 1
                 
@@ -325,6 +325,8 @@ def getReadCounts(refBase, readBases, readQuals, minAvgQual, mapQuals):
                 else :
                     qualitySum["ref"] = baseQ
                     mapQualitySum["ref"] = mapQ
+            j += 1
+            readStart = False
                     
         elif (readBase.upper() == "A" or readBase.upper() == "G" or readBase.upper() == "C" or readBase.upper() == "T") :
             
@@ -389,13 +391,13 @@ def getReadCounts(refBase, readBases, readQuals, minAvgQual, mapQuals):
                 indelSize = 0
                 maxParse = 1
                 indelBases = ""
-                
+                                
                 try:
                 
                     stringWithSize = readBases[i + 1] + readBases[i + 2] + readBases[i + 3]
                     stringWithSize = re.sub(r'[^0-9]', '', stringWithSize)
-                    maxParse = int(indelSize) + len(indelSize)
-                    
+                    maxParse = int(stringWithSize) + len(stringWithSize)
+                            
                     for basesParsed in range(0, maxParse) :
                         thisBase = readBases[i + 1 + basesParsed]
                         try :
@@ -404,8 +406,10 @@ def getReadCounts(refBase, readBases, readQuals, minAvgQual, mapQuals):
                             if (thisBase == "." or thisBase == ",") :
                                 basesParsed = maxParse
                             elif (thisBase.upper() == "A" or thisBase.upper() == "C" or thisBase.upper() == "G" or thisBase.upper() == "T" or thisBase.upper() == "N") :
-                                indelBases = thisBase
+                                indelBases += thisBase
+
                     i = i + maxParse
+                    
                 except Exception as ex:
                     indelSize = int(readBases[i + 1])
                     for basesParsed in range(0, indelSize) :
@@ -470,6 +474,8 @@ def getReadCounts(refBase, readBases, readQuals, minAvgQual, mapQuals):
                 pass
             else :
                 j += 1
+                
+        i += 1
                     
     results = dict()
     
@@ -494,8 +500,8 @@ def getReadCounts(refBase, readBases, readQuals, minAvgQual, mapQuals):
         
     if (reads1 < 0) :
         reads1 = 0
-        results[refBase] = str(reads1) + "\t" + str(strands1) + "\t" + str(avgMapQual1) + "\t" + str(avgMapQual1) + "\t" + str(reads1plus) + "\t" + str(reads1minus) + "\t" + str(reads1indel)
-    
+    results[refBase] = str(reads1) + "\t" + str(strands1) + "\t" + str(avgQual1) + "\t" + str(avgMapQual1) + "\t" + str(reads1plus) + "\t" + str(reads1minus) + "\t" + str(reads1indel)
+        
     variantKeys = readCounts.keys()
     variantKeys.sort()
     
@@ -518,7 +524,7 @@ def getReadCounts(refBase, readBases, readQuals, minAvgQual, mapQuals):
         avgmapQual2 = mapQualitySum[key] / reads2
         
         if (reads2 > 0) :
-            results[key] = str(reads2) + "\t" + str(strands2) + "\t" + str(avgmapQual2) + "\t" + str(reads2plus) + "\t" + str(reads2minus) 
+            results[key] = str(reads2) + "\t" + str(strands2) + "\t" + str(avgQual2) + "\t" + str(avgmapQual2) + "\t" + str(reads2plus) + "\t" + str(reads2minus) 
         
     return results
 
@@ -632,8 +638,12 @@ with open(args.pileup) as f:
             
             if (readDepth >= minCoverage and qualityDepth >= minCoverage) :
                 
+                print(line)
                 readCounts = getReadCounts(refBase, readBases, readQualities, minAvgQual, mapQualities)
+                print(readCounts)
                 positionCall = callPosition(refBase, readCounts, "CNS", minReads2, minVarFreq, minAvgQual, pValueThreshold, minFreqForHom)
+                print(positionCall)
+                sys.stdin.readline()
                                 
                 if (len(positionCall) > 0) :
                     callLines = positionCall.split("\n")
@@ -856,7 +866,7 @@ with open(args.pileup) as f:
                 reportFlag = True
             else :
                 pass
-            
+                        
             if reportFlag:
                 print(outLine)
                 
