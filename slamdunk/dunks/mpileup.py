@@ -13,6 +13,32 @@ from __builtin__ import False
 from fisher import pvalue
 import numpy as np
 
+def getQualityDepth(readQuals, minAvgQual):
+    
+    qualityDepth = 0;
+    
+    j = 0
+    
+    while (j < len(readQuals)) :
+        
+        baseQuality = ord(readQuals[j]) - 33
+        if (baseQuality >= minAvgQual) :
+            qualityDepth += 1
+        j += 1
+
+    return qualityDepth
+
+def isHomozygous(genotype):
+    
+    if "/" in genotype:
+        alleles = genotype.split("/")
+        if (alleles[0] == alleles[1]):
+                 return True
+    else:
+        if (genotype == "A" or genotype == "C" or genotype == "G" or genotype == "T") :
+            return True
+    return False
+
 def getFisher(expReads1, expReads2, obsReads1, obsReads2):
         
     if expReads1 < 0 : expReads1 = 0
@@ -22,7 +48,7 @@ def getFisher(expReads1, expReads2, obsReads1, obsReads2):
     
     p = pvalue(obsReads1, obsReads2, expReads1, expReads2)
     
-    if (p.right_tail > p.left_tail) :
+    if (p.right_tail >= 0.999) :
         return p.left_tail
     else :
         return p.right_tail
@@ -35,8 +61,10 @@ def getSignificance(obsReads1, obsReads2) :
     
     coverage = obsReads1 + obsReads2
     
-    expReads2 = int(coverage * baselineError)
+    expReads2 = int(float(coverage) * float(baselineError))
     expReads1 = coverage - expReads2
+    
+    #print("[" + str(obsReads1) + "," + str(obsReads2) + "][" + str(expReads1) + "," + str(expReads2) + "]")
     
     pValue = getFisher(obsReads1, obsReads2, expReads1, expReads2)
     
@@ -56,7 +84,7 @@ def getShortIndel(gt):
             else :
                 return "-" + indelBases
         except Exception as ex:
-            print("Warning: error generating consensu from " + gt, file = sys.stderr)
+            print("Warning: error generating consensus from " + gt, file = sys.stderr)
             
     return "N"
 
@@ -100,8 +128,9 @@ def callPosition(refBase, readCounts, callType, minReads2, minVarFreq, minAvgQua
     
     try :
         
-        try: 
-            if (refBase in readCounts) :
+        if (refBase in readCounts) :
+            
+            try:
                 refBaseContent = readCounts[refBase].split("\t")
                 reads1 = int(refBaseContent[0])
                 strands1 = int(refBaseContent[1])
@@ -112,12 +141,12 @@ def callPosition(refBase, readCounts, callType, minReads2, minVarFreq, minAvgQua
                 
                 if (len(refBaseContent) > 6) :
                     reads1indel = reads1minus = int(refBaseContent[6])
-        except Exception as ex:
-            print("refBase readcount error: " + readCounts[refBase], file = sys.stderr)
-            
+            except Exception as ex:
+                print("refBase readcount error: " + readCounts[refBase], file = sys.stderr)
+
         alleleKeys = readCounts.keys()
         alleleKeys.sort()
-        
+                
         totalReadCounts = 0
         
         for allele in alleleKeys:
@@ -127,7 +156,7 @@ def callPosition(refBase, readCounts, callType, minReads2, minVarFreq, minAvgQua
                 totalReadCounts += thisReads
             except Exception as ex:
                 pass
-            
+                        
         for allele in alleleKeys:
             alleleContents = readCounts[allele].split("\t")
             
@@ -153,87 +182,75 @@ def callPosition(refBase, readCounts, callType, minReads2, minVarFreq, minAvgQua
                 except Exception as ex:
                     pass
                 
-        if (callType != "CNS" or thisReads2 > reads2) :
-            thisVarFreq = float(thisReads2) / float(totalReadCounts)
-            thisPvalue = 1
-            
-            if ("INS" in allele or "DEL" in allele) :
-                thisTotalReadCounts = totalReadCounts - reads1indel
-                if (thisTotalReadCounts < thisReads2) :
-                    thisTotalReadCounts = thisReads2
+                if (callType != "CNS" or thisReads2 > reads2) :
+                    thisVarFreq = float(thisReads2) / float(totalReadCounts)
+                    thisPvalue = 1
                     
-                thisVarFreq = float(thisReads2) / float(totalReadCounts)
-                
-            if (pValueThreshold == 0.99) :
-                thisPvalue = 0.98
-            else :
-                thisPvalue = getSignificance(reads1, thisReads2)
-            
-            if (thisReads2 > reads2 and thisAvgMap2 >= minAvgQual) :
-                if ("INS" in allele or "DEL" in allele) :
-                    varAllele = getShortIndel(allele)
-                else :
-                    varAllele = allele
-                    
-                reads2 = thisReads2
-                strands2 = thisStrands2
-                avgQual2 = thisAvgQual2
-                avgMap2 = thisAvgMap2
-                reads2plus = thisReads2plus
-                reads2minus = thisReads2minus
-                varFreq = thisVarFreq * 100.0
-                pValue = thisPvalue
-                
-            if (thisReads2 >= minReads2 and thisAvgQual2 >= minAvgQual and thisVarFreq >= minVarFreq) :
-                thisReads1 = reads1
-                thisVarFreq = thisVarFreq * 100.0
-                
-                thisVarType = "SNP"
-                
-                if ("INS" in allele or "DEL" in allele) :
-                    thisVarType = "INDEL"
-                    thisReads1 = reads1
-                    if (thisReads1 < 0) :
-                        thisReads1 = 0
-                    allele = getShortIndel(allele)
-                    
-                if (thisPvalue <= pValueThreshold) :
-                    if (callType == "SNP" or callType == "INDEL") :
+                    if ("INS" in allele or "DEL" in allele) :
+                        thisTotalReadCounts = totalReadCounts - reads1indel
+                        if (thisTotalReadCounts < thisReads2) :
+                            thisTotalReadCounts = thisReads2
+                            
+                        thisVarFreq = float(thisReads2) / float(totalReadCounts)
                         
+                    if (pValueThreshold == 0.99) :
+                        thisPvalue = 0.98
+                    else :
+                        thisPvalue = getSignificance(reads1, thisReads2)
+                    
+                    if (thisReads2 > reads2 and thisAvgQual2 >= minAvgQual) :
+                        if ("INS" in allele or "DEL" in allele) :
+                            varAllele = getShortIndel(allele)
+                        else :
+                            varAllele = allele
+                            
                         reads2 = thisReads2
                         strands2 = thisStrands2
                         avgQual2 = thisAvgQual2
                         avgMap2 = thisAvgMap2
                         reads2plus = thisReads2plus
                         reads2minus = thisReads2minus
+                        varFreq = thisVarFreq * 100.0
                         pValue = thisPvalue
                         
-                        genotype = ""
+                    if (thisReads2 >= minReads2 and thisAvgQual2 >= minAvgQual and thisVarFreq >= minVarFreq) :
+                        thisReads1 = reads1
+                        thisVarFreq = thisVarFreq * 100.0
+                                                
+                        thisVarType = "SNP"
                         
-                        if (thisVarFreq >= (float(minFreqForHom) * 100)) :
-                            genotype = allele + allele
-                            if thisVarType == "INDEL" :
-                                genotype = allele + "/" + allele
-                        else:
-                            genotype = refBase + allele
-                            if thisVarType == "INDEL":
-                                genotype = "*/" + allele
-                                
-                        if thisVarType == callType:
-                            if (len(callResult) > 0) :
-                                callResult += "\n"
-                            
+                        if ("INS" in allele or "DEL" in allele) :
+                            thisVarType = "INDEL"
+                            thisReads1 = reads1
                             if (thisReads1 < 0) :
                                 thisReads1 = 0
+                            allele = getShortIndel(allele)
+                            
+                        if (thisPvalue <= pValueThreshold) :
+                            
+                            if (callType == "CNS" and thisReads2 >= reads2):
+                                reads2      = thisReads2
+                                strands2    = thisStrands2
+                                avgQual2    = thisAvgQual2
+                                avgMap2     = thisAvgMap2
+                                reads2plus  = thisReads2plus
+                                reads2minus = thisReads2minus
+                                pValue      = thisPvalue
+
+                                genotype = ""
                                 
-                            if (reads2 < 0) :
-                                reads2 = 0
-                                
-                            callResult += genotypeToCode(genotype) + "\t" + str(thisReads1) + "\t" + str(reads2) + "\t" + ('%05.3f' % thisVarFreq) + "%\t" + str(strands1) + "\t" 
-                            callResult += str(strands2) + "\t" + str(avgQual1) + "\t" + str(avgQual2) + "\t" + str(pValue) + "\t" + str(avgMap1) + "\t"
-                            callResult += str(avgMap2) + "\t" + str(reads1plus) + "\t" + str(reads1minus) + "\t" + str(reads2plus) + "\t" 
-                            callResult += str(reads2minus) + "\t" + str(varAllele)
-                                
+                                if (thisVarFreq >= (minFreqForHom * 100)):
+                                    genotype = allele + allele
+                                    if thisVarType == "INDEL":
+                                        genotype = allele + "/" + allele
+                                else:
+                                    genotype = refBase + allele
+                                    if thisVarType == "INDEL":
+                                        genotype = "*/" + allele
+
+                                callResult = genotypeToCode(genotype) + "\t" + str(thisReads1) + "\t" + str(reads2) + "\t" + ('%05.3f' % thisVarFreq) + "%\t" + str(strands1) + "\t"
+                                callResult += str(strands2) + "\t" + str(avgQual1) + "\t" + str(avgQual2) + "\t" + str(pValue) + "\t" + str(avgMap1) + "\t" + str(avgMap2)
+                                callResult += "\t" + str(reads1plus) + "\t" + str(reads1minus) + "\t" + str(reads2plus) + "\t" + str(reads2minus) + "\t" + str(varAllele)
     except Exception as ex:
         pass
     
@@ -396,6 +413,7 @@ def getReadCounts(refBase, readBases, readQuals, minAvgQual, mapQuals):
                 
                     stringWithSize = readBases[i + 1] + readBases[i + 2] + readBases[i + 3]
                     stringWithSize = re.sub(r'[^0-9]', '', stringWithSize)
+                    indelSize = int(stringWithSize);
                     maxParse = int(stringWithSize) + len(stringWithSize)
                             
                     for basesParsed in range(0, maxParse) :
@@ -545,9 +563,9 @@ args = parser.parse_args()
 minCoverage = 10
 minReads2 = 2
 minAvgQual = 15
-minVarFreq = 0.8
+minVarFreq = 0.2
 minFreqForHom = 0.75
-pValueThreshold = 0.99
+pValueThreshold = 0.01
 strandPvalueThreshold = 0.01
 snpsOnly = True
 indelsOnly = False
@@ -591,7 +609,8 @@ vcfHeader += "\n" + "##FORMAT=<ID=RDR,Number=1,Type=Integer,Description=\"Depth 
 vcfHeader += "\n" + "##FORMAT=<ID=ADF,Number=1,Type=Integer,Description=\"Depth of variant-supporting bases on forward strand (reads2plus)\">"
 vcfHeader += "\n" + "##FORMAT=<ID=ADR,Number=1,Type=Integer,Description=\"Depth of variant-supporting bases on reverse strand (reads2minus)\">"
 vcfHeader += "\n" + "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT"
-#varscanCmd = "java -jar " + getBinary("VarScan.v2.4.1.jar") + " mpileup2snp  --strand-filter 0 --output-vcf --min-var-freq " + str(minVarFreq) + " --min-coverage " + str(minCov) + " --variants 1"
+
+print(vcfHeader)
 
 with open(args.pileup) as f:
     for line in f:
@@ -620,13 +639,17 @@ with open(args.pileup) as f:
             allReads2plus = 0
             allReads2minus = 0
             strandPvalue = 1
-            alReadBases = ""
+            allReadBases = ""
             allReadQualities = ""
             
             readDepth = int(fields[3])
             readBases = fields[4]
             readQualities = fields[5]
             mapQualities = ""
+            
+            allReadDepth += readDepth;
+            allReadBases = allReadBases + readBases;
+            allReadQualities = allReadQualities + readQualities;
             
             qualityDepth = 0
             for c in readQualities :
@@ -638,12 +661,11 @@ with open(args.pileup) as f:
             
             if (readDepth >= minCoverage and qualityDepth >= minCoverage) :
                 
-                print(line)
                 readCounts = getReadCounts(refBase, readBases, readQualities, minAvgQual, mapQualities)
-                print(readCounts)
+                #print(readCounts)
                 positionCall = callPosition(refBase, readCounts, "CNS", minReads2, minVarFreq, minAvgQual, pValueThreshold, minFreqForHom)
-                print(positionCall)
-                sys.stdin.readline()
+                #print(positionCall)
+                #sys.stdin.readline()
                                 
                 if (len(positionCall) > 0) :
                     callLines = positionCall.split("\n")
@@ -666,11 +688,9 @@ with open(args.pileup) as f:
                         varAllele = ""
                         
                         logP = 0.0
-                        try :
+                        if (pValue > 0) :
                             logP = 0 - (10 * np.log10(pValue))
                             if (logP > 255) : logP = 255
-                        except Exception as ex:
-                            pass
                         
                         if (consBase != refBase and consBase != "N" and len(callContents) > 15) :
                             varAllele = callContents[15]
@@ -683,15 +703,14 @@ with open(args.pileup) as f:
                                 varAlleleNumber = len(varAlleles) + 1
                                 varAlleles[varAllele] = varAlleleNumber
                             
-                            # IMPLEMENT THIS
-                            if (True) :
+                            if (isHomozygous(consBase)) :
                                 samplesHom += 1
-                                thisVCF = varAlleleNumber + "/" + varAlleleNumber
+                                thisVCF = str(varAlleleNumber) + "/" + str(varAlleleNumber)
                             else :
                                 samplesHet += 1
-                                thisVCF = "0" + "/" + varAlleleNumber
+                                thisVCF = "0" + "/" + str(varAlleleNumber)
                                 
-                            thisVCF += ":" + int(logP) + ":" + readDepth + ":" + qualityDepth
+                            thisVCF += ":" + str(int(logP)) + ":" + str(readDepth) + ":" + str(qualityDepth)
                             thisVCF += ":" + str(reads1) + ":" + str(reads2) + ":" + str(varFreq) + ":" + str(pValue)
                             thisVCF += ":" + str(qual1) + ":" + str(qual2)
                             thisVCF += ":" + str(reads1plus) + ":" + str(reads1minus) + ":" + str(reads2plus) + ":" + str(reads2minus)
@@ -702,10 +721,8 @@ with open(args.pileup) as f:
                             
                             newPvalue = getFisher(reads1, reads2, expReads1, expReads2)
                             newLogP = 0
-                            try :
+                            if (newPvalue > 0) :
                                 newLogP = 0 - (10 * np.log10(newPvalue))
-                            except Exception as ex:
-                                pass
                             thisVCF = "0" + "/" + "0"
                             thisVCF += ":" + str(int(newLogP)) + ":" + str(readDepth) + ":" + str(qualityDepth)
                             thisVCF += ":" + str(reads1) + ":" + str(reads2) + ":" + str(varFreq) + ":" + str(pValue)
@@ -748,7 +765,8 @@ with open(args.pileup) as f:
             vcfResults += thisVCF
             
             qualityDepth = 0
-            # IMPLEMENT THIS
+            qualityDepth = getQualityDepth(allReadQualities, minAvgQual)
+            
             allMapQualities = ""
             allConsensusCall = "N:" + str(qualityDepth) + ":-:-:-:-"
             
@@ -818,7 +836,7 @@ with open(args.pileup) as f:
                             varColumn += refBase
                             
                     elif varAllele[0] == "+":
-                        varAllele = re.sub('+', '', varAllele)
+                        varAllele = re.sub(r'\+', '', varAllele)
                         varEntry = refBase + varAllele + maxDelBases
                         varColumn += varEntry
                     else:
@@ -827,7 +845,7 @@ with open(args.pileup) as f:
                         
             elif (varBases[0] == "+") :
                 refColumn = refBase
-                varColumn = refBase + re.sub('+', '', varBases)
+                varColumn = refBase + re.sub(r'\+', '', varBases)
                 
             elif (varBases[0] == "-") :
                 refColumn = refBase + re.sub('-', '', varBases)
@@ -846,8 +864,8 @@ with open(args.pileup) as f:
                 outLine += "PASS\t"
             else :
                 outLine += "str10\t"
-                outLine += "ADP=" + str(avgQualityDepth) + ";WT=" + str(samplesRef) + ";HET=" + str(samplesHet) + ";HOM=" + str(samplesHom) + ";NC=" + str(samplesUncalled)
-                outLine += "\t" + "GT:GQ:SDP:DP:RD:AD:FREQ:PVAL:RBQ:ABQ:RDF:RDR:ADF:ADR" + "\t" + vcfResults
+            outLine += "ADP=" + str(avgQualityDepth) + ";WT=" + str(samplesRef) + ";HET=" + str(samplesHet) + ";HOM=" + str(samplesHom) + ";NC=" + str(samplesUncalled)
+            outLine += "\t" + "GT:GQ:SDP:DP:RD:AD:FREQ:PVAL:RBQ:ABQ:RDF:RDR:ADF:ADR" + "\t" + vcfResults
                 
             reportFlag = False
             
@@ -885,7 +903,7 @@ with open(args.pileup) as f:
    
         
         if (verbose and numBases % 100000 == 0 and numBases != 0) :
-            print("Parsed " + str(numBases) + " positions.")
+            print("Parsed " + str(numBases) + " positions.", file=sys.stderr)
             
         numBases += 1
         
