@@ -19,11 +19,12 @@
 
 from __future__ import print_function
 import subprocess
-import csv, re, sys
+import csv, re
 from slamdunk.utils.misc import checkStep, getBinary  # @UnresolvedImport
 
 from fisher import pvalue
 import numpy as np
+from slamdunk.version import __version__
 
 def getQualityDepth(readQuals, minAvgQual):
     
@@ -579,7 +580,7 @@ def varCallPileup(mpileup, fileSNP, minVarFreq, minCoverage, minAvgQual, log, ve
     numParsingExceptions = 0
     
     vcfHeader = "##fileformat=VCFv4.1"
-    vcfHeader += "\n" + "##source=Slamdunk"
+    vcfHeader += "\n" + "##source=Slamdunk_v" + __version__
     vcfHeader += "\n" + "##INFO=<ID=ADP,Number=1,Type=Integer,Description=\"Average per-sample depth of bases with Phred score >= " + str(minAvgQual) + "\">"
     vcfHeader += "\n" + "##INFO=<ID=WT,Number=1,Type=Integer,Description=\"Number of samples called reference (wild-type)\">"
     vcfHeader += "\n" + "##INFO=<ID=HET,Number=1,Type=Integer,Description=\"Number of samples called heterozygous-variant\">"
@@ -901,7 +902,7 @@ def varCallPileup(mpileup, fileSNP, minVarFreq, minCoverage, minAvgQual, log, ve
     if (verbose):      
         print(str(numBases) + " bases in pileup file", file=log)
         print(str(numVariantPositions) + " variant positions (" + str(numSNPpositions) + " SNP, " + str(numIndelPositions) + " indel)", file=log)
-        print(str(numFailStrandFilter) + " were failed by the strand-filter", file=sys.stderr)
+        print(str(numFailStrandFilter) + " were failed by the strand-filter", file=log)
         print(str(numVariantsReported) + " variant positions reported (" + str(numSNPsReported) + " SNP, " + str(numIndelsReported) + " indel)", file=log)
 
 def SNPs(inputBAM, outputSNP, referenceFile, minVarFreq, minCov, minQual, log, printOnly=False, verbose=True, force=False):
