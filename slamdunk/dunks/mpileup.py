@@ -63,9 +63,7 @@ def getSignificance(obsReads1, obsReads2) :
     
     expReads2 = int(float(coverage) * float(baselineError))
     expReads1 = coverage - expReads2
-    
-    #print("[" + str(obsReads1) + "," + str(obsReads2) + "][" + str(expReads1) + "," + str(expReads2) + "]")
-    
+        
     pValue = getFisher(obsReads1, obsReads2, expReads1, expReads2)
     
     return pValue
@@ -563,7 +561,7 @@ args = parser.parse_args()
 minCoverage = 10
 minReads2 = 2
 minAvgQual = 15
-minVarFreq = 0.2
+minVarFreq = 0.8
 minFreqForHom = 0.75
 pValueThreshold = 0.01
 strandPvalueThreshold = 0.01
