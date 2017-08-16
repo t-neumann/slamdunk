@@ -614,7 +614,7 @@ def varCallPileup(mpileup, fileSNP, minVarFreq, minCoverage, minAvgQual, log, ve
             if (len(fields) > 5 and len(fields[0]) > 0 and len(fields[1]) > 0 and len(fields[2]) > 0 and len(fields[3]) > 0):
                 chr = fields[0]
                 pos = fields[1]
-                refBase = fields[2]
+                refBase = fields[2].upper()
                 callDepths = ""
                 callResults = ""
                 vcfResults = ""
@@ -849,7 +849,7 @@ def varCallPileup(mpileup, fileSNP, minVarFreq, minCoverage, minAvgQual, log, ve
                 varColumn = re.sub(r'\+', '', varColumn)
                 varColumn = re.sub(r'-', '', varColumn)
                 
-                outLine += "." + "\t" + refColumn + "\t" + varColumn + "\t.\t";
+                outLine += "." + "\t" + refColumn.upper() + "\t" + varColumn + "\t.\t";
                 
                 if ("Pass" in strandFilterStatus):
                     outLine += "PASS\t"
