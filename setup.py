@@ -21,6 +21,7 @@ import os, sys, re
 try:
     from setuptools import setup, find_packages
     from setuptools.command.install import install as _install
+    from setuptools.command.build_ext import build_ext as _build_ext
     from codecs import open
     from os import path
 except ImportError:
@@ -97,6 +98,14 @@ def _runExternalBuilds(dir, externalNGM, externalSamtools, skipRLibraries):
     print("Building RNASeqReadSimulator.")
     syscall = "(cd " + os.path.join(dir, name, "contrib") + " ; ./build-rnaseqreadsimulator.sh)"
     subprocess.call([syscall], shell=True)
+    
+class build_ext(_build_ext):
+    def finalize_options(self):
+        _build_ext.finalize_options(self)
+        # Prevent numpy from thinking it is still in its setup process:
+        __builtins__.__NUMPY_SETUP__ = False
+        import numpy
+        self.include_dirs.append(numpy.get_include())
      
 class install(_install):
     
@@ -187,7 +196,7 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['joblib>=0.9.4','pybedtools>=0.6.4','intervaltree>=2.1.0','pandas>=0.13.1','numpy==1.8.1','biopython>=1.63','pysam>=0.8.3', 'Cython>=0.20.1', "fisher>=0.1.4"],
+    install_requires=['joblib>=0.9.4','pybedtools>=0.6.4','intervaltree>=2.1.0','pandas>=0.13.1','biopython>=1.63','pysam>=0.8.3', 'Cython>=0.20.1', "fisher>=0.1.4"],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
@@ -225,4 +234,7 @@ setup(
     #scripts= ['bin/slamdunk', 'bin/alleyoop', 'bin/slamsim'],
     
     cmdclass={'install': install},
+    setup_requires=['numpy==1.8.1'],
+    
+    
 )

@@ -22,7 +22,7 @@ MAINTAINER Tobias Neumann <tobias.neumann.at@gmail.com>
 #ENV SLAMDUNK_VERSION version-dev
 
 # binutils is required to run opencl programs
-RUN buildDeps='git wget gcc g++ libc6-dev make cmake zlib1g-dev python-pip python-dev python-distribute python-pip bzip2 libncurses-dev' \
+RUN buildDeps='git wget gcc g++ libc6-dev make cmake zlib1g-dev python-pip python-dev python-distribute bzip2 libncurses-dev' \
     runDeps='python default-jre binutils r-base unzip' \
     && set -x \
     && apt-get update && apt-get install -y $buildDeps $runDeps --no-install-recommends \

@@ -561,7 +561,7 @@ args = parser.parse_args()
 minCoverage = 10
 minReads2 = 2
 minAvgQual = 15
-minVarFreq = 0.8
+minVarFreq = 0.2
 minFreqForHom = 0.75
 pValueThreshold = 0.01
 strandPvalueThreshold = 0.01
@@ -618,7 +618,7 @@ with open(args.pileup) as f:
         if (len(fields) > 5 and len(fields[0]) > 0 and len(fields[1]) > 0 and len(fields[2]) > 0 and len(fields[3]) > 0):
             chr = fields[0]
             pos = fields[1]
-            refBase = fields[2]
+            refBase = fields[2].upper()
             callDepths = ""
             callResults = ""
             vcfResults = ""
