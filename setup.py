@@ -21,7 +21,6 @@ import os, sys, re
 try:
     from setuptools import setup, find_packages
     from setuptools.command.install import install as _install
-    from setuptools.command.build_ext import build_ext as _build_ext
     from codecs import open
     from os import path
 except ImportError:
@@ -52,7 +51,12 @@ plot_files = package_files(name + os.sep + 'plot')
 def _runExternalBuilds(dir, externalNGM, externalSamtools, skipRLibraries):
     
     import subprocess
-   
+    
+    print("Installing fisher 0.1.4")
+    syscall = "pip install fisher==0.1.4"
+    print(syscall)
+    subprocess.call([syscall], shell=True)
+    
     print("Setting up R package destination.")
     syscall = "mkdir -p " + os.path.join(dir, name, "plot", "Rslamdunk")
     print(syscall)
@@ -98,14 +102,6 @@ def _runExternalBuilds(dir, externalNGM, externalSamtools, skipRLibraries):
     print("Building RNASeqReadSimulator.")
     syscall = "(cd " + os.path.join(dir, name, "contrib") + " ; ./build-rnaseqreadsimulator.sh)"
     subprocess.call([syscall], shell=True)
-    
-class build_ext(_build_ext):
-    def finalize_options(self):
-        _build_ext.finalize_options(self)
-        # Prevent numpy from thinking it is still in its setup process:
-        __builtins__.__NUMPY_SETUP__ = False
-        import numpy
-        self.include_dirs.append(numpy.get_include())
      
 class install(_install):
     
@@ -233,8 +229,6 @@ setup(
     },
     #scripts= ['bin/slamdunk', 'bin/alleyoop', 'bin/slamsim'],
     
-    cmdclass={'install': install},
-    setup_requires=['numpy==1.8.1'],
-    
+    cmdclass={'install': install},    
     
 )
