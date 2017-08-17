@@ -19,7 +19,7 @@ FROM ubuntu
 
 MAINTAINER Tobias Neumann <tobias.neumann.at@gmail.com>
 
-#ENV SLAMDUNK_VERSION version-dev
+ARG VERSION_ARG
 
 # binutils is required to run opencl programs
 RUN buildDeps='git wget gcc g++ libc6-dev make cmake zlib1g-dev python-pip python-dev python-distribute python-pip bzip2 libncurses-dev' \
@@ -28,5 +28,5 @@ RUN buildDeps='git wget gcc g++ libc6-dev make cmake zlib1g-dev python-pip pytho
     && apt-get update && apt-get install -y $buildDeps $runDeps --no-install-recommends \
     && rm -rf /var/lib/apt/lists/* \
     && pip install --upgrade pip \
-    && pip install git+https://github.com/t-neumann/slamdunk.git \
+    && pip install git+https://github.com/t-neumann/slamdunk.git@${VERSION_ARG} \
     && apt-get purge -y --auto-remove $buildDeps
