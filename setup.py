@@ -51,12 +51,7 @@ plot_files = package_files(name + os.sep + 'plot')
 def _runExternalBuilds(dir, externalNGM, externalSamtools, skipRLibraries):
     
     import subprocess
-    
-    print("Installing fisher 0.1.4")
-    syscall = "pip install fisher==0.1.4"
-    print(syscall)
-    subprocess.call([syscall], shell=True)
-    
+   
     print("Setting up R package destination.")
     syscall = "mkdir -p " + os.path.join(dir, name, "plot", "Rslamdunk")
     print(syscall)
@@ -192,7 +187,7 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['joblib>=0.9.4','pybedtools>=0.6.4','intervaltree>=2.1.0','pandas>=0.13.1','biopython>=1.63','pysam>=0.8.3', 'Cython>=0.20.1', "fisher>=0.1.4"],
+    install_requires=['joblib==0.9.4','pybedtools==0.6.4','intervaltree==2.1.0','pandas==0.13.1','numpy==1.8.1','biopython==1.63','pysam==0.8.3', 'Cython==0.20.1','scipy==0.13.3'],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
@@ -229,6 +224,5 @@ setup(
     },
     #scripts= ['bin/slamdunk', 'bin/alleyoop', 'bin/slamsim'],
     
-    cmdclass={'install': install},    
-    
+    cmdclass={'install': install},
 )

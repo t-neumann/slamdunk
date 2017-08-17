@@ -22,9 +22,11 @@ import subprocess
 import csv, re
 from slamdunk.utils.misc import checkStep, getBinary  # @UnresolvedImport
 
-from fisher import pvalue
+from scipy import stats
 import numpy as np
 from slamdunk.version import __version__
+
+hypergeom = stats.distributions.hypergeom
 
 def getQualityDepth(readQuals, minAvgQual):
     
@@ -59,12 +61,27 @@ def getFisher(expReads1, expReads2, obsReads1, obsReads2):
     if obsReads1 < 0 : obsReads1 = 0
     if obsReads2 < 0 : obsReads2 = 0
     
-    p = pvalue(obsReads1, obsReads2, expReads1, expReads2)
+    #c = np.asarray([[obsReads1, obsReads2], [expReads1, expReads2]], dtype=np.int64)
+    #n1 = c[0,0] + c[0,1]
+    #n2 = c[1,0] + c[1,1]
+    #n = c[0,0] + c[1,0]
     
-    if (p.right_tail >= 0.999) :
-        return p.left_tail
+    #rightTail = hypergeom.cdf(c[0,1], n1 + n2, n1, c[0,1] + c[1,1])
+    #leftTail = hypergeom.cdf(c[0,0], n1 + n2, n1, n)
+    
+    n1 = obsReads1 + obsReads2
+    n2 = expReads1 + expReads2
+    n = obsReads1 + expReads1
+    
+    rightTail = hypergeom.cdf(obsReads2, n1 + n2, n1, obsReads2 + expReads2)
+    leftTail = hypergeom.cdf(obsReads1, n1 + n2, n1, n)
+    #rightTail = stats.fisher_exact([[obsReads1, obsReads2], [expReads1, expReads2]], alternative="less")[1]
+    #leftTail = stats.fisher_exact([[obsReads1, obsReads2], [expReads1, expReads2]], alternative="greater")[1]
+    
+    if (rightTail >= 0.999) :
+        return leftTail
     else :
-        return p.right_tail
+        return rightTail
     
 
 def getSignificance(obsReads1, obsReads2) :
