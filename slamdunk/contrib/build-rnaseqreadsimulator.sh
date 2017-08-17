@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env sh
 
 # Copyright (c) 2015 Tobias Neumann, Philipp Rescheneder.
 #
