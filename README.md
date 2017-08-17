@@ -1,6 +1,6 @@
 <img src="http://t-neumann.github.io/slamdunk/images/slamdunk_logo_light.png" width="300" title="Slamdunk">
 
-### Streamlining SLAMSeq analysis with ultra-high sensitivity.
+### Streamlining SLAM-Seq analysis with ultra-high sensitivity.
 
 [![GitHub release](https://img.shields.io/github/release/t-neumann/slamdunk.svg)](https://github.com/t-neumann/slamdunk/releases/latest)
 [![PyPI release](https://img.shields.io/pypi/v/slamdunk.svg)](https://pypi.python.org/pypi/slamdunk)
