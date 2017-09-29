@@ -88,11 +88,6 @@ def _runExternalBuilds(dir, externalNGM, externalSamtools, skipRLibraries):
         subprocess.call([syscall], shell=True)
     else :
         print("External NGM will be manually linked. Skipping.")
-        
-    print("Building Varscan2.")
-    syscall = "(cd " + os.path.join(dir, name, "contrib") + " ; ./build-varscan.sh)"
-    print(syscall)    
-    subprocess.call([syscall], shell=True)
     
     print("Building RNASeqReadSimulator.")
     syscall = "(cd " + os.path.join(dir, name, "contrib") + " ; ./build-rnaseqreadsimulator.sh)"
