@@ -154,8 +154,13 @@ void BAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scor
 	int readlen = read->length;
 	char * readname = read->name;
 
-	char * qltystr = read->qlty;
 	int qltylen = readlen;
+	char * qltystr = new char[qltylen + 1];
+	if(qltystr != 0) {
+		memcpy(qltystr, read->qlty, sizeof(char) * qltylen);
+	} else {
+		qltystr[0] = '\0';
+	}
 
 	al->AlignmentFlag = 0;
 	translate_flag(al, flags);
@@ -230,7 +235,7 @@ void BAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scor
 //	//Optional fields
 	al->AddTag("AS", "i", (int) read->Scores[scoreId].Score.f);
 	al->AddTag("NM", "i", read->Alignments[scoreId].NM);
-	al->AddTag("NH", "i", read->Calculated);
+	al->AddTag("NH", "i", (int) read->numTopScores);
 
 	if (Config.GetInt("bs_mapping") == 1) {
 		if (!(read->ReadId & 1) || read->Paired == 0) {
@@ -288,6 +293,12 @@ void BAMWriter::DoWriteReadGeneric(MappedRead const * const read, int const scor
 
 
 	buffer[bufferIndex++] = al;
+
+	if(qltystr) {
+		delete[] qltystr;
+		qltystr = 0;
+	}
+
 
 //NGMUnlock(&m_OutputMutex);
 }
@@ -405,8 +416,8 @@ void BAMWriter::DoWritePair(MappedRead const * const read1, int const scoreId1, 
 	}
 	if (!read1->hasCandidates() && !read2->hasCandidates()) {
 		//Both mates unmapped
-		DoWriteUnmappedRead(read2, flags2 | 0x8);
-		DoWriteUnmappedRead(read1, flags1 | 0x8);
+		DoWriteUnmappedReadGeneric(read2, -1, -1, -1, -1, 0, 0, flags2 | 0x8);
+		DoWriteUnmappedReadGeneric(read1, -1, -1, -1, -1, 0, 0, flags1 | 0x8);
 	} else if (!read1->hasCandidates()) {
 		//First mate unmapped
 		DoWriteReadGeneric(read2, scoreId2, read2->Scores[scoreId2].Location.getrefId(), read2->Scores[scoreId2].Location.m_Location, 0,
@@ -451,6 +462,10 @@ void BAMWriter::DoWritePair(MappedRead const * const read1, int const scoreId1, 
 			DoWriteReadGeneric(read1, scoreId1, read2->Scores[scoreId2].Location.getrefId(), read2->Scores[scoreId2].Location.m_Location, 0,
 					read1->mappingQlty, flags1);
 		}
+	}
+	if (bufferIndex >= (bufferLength - 1000)) {
+		writer->SaveAlignment(buffer, bufferIndex);
+		bufferIndex = 0;
 	}
 }
 void BAMWriter::DoWriteEpilog() {
