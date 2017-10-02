@@ -141,6 +141,9 @@ def multimapUTRRetainment (infile, outfile, bed, minIdentity, NM, log):
                 query = set()
             
             if len(query) > 0:
+                # Skip overlapping UTR multimappers
+                if len(query) > 1:
+                    dumpBuffer = False
                 # First UTR hit is recorded without checks
                 if (len(multimapBuffer) == 0) :
                     for result in query :
