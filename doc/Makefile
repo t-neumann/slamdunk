@@ -52,8 +52,8 @@ clean:
 
 docs:
 	$(SPHINXBUILD) -b singlehtml $(ALLSPHINXOPTS) $(BUILDDIR)/singlehtml
-	python ../python/documentation_DOM_prepare.py -s $(BUILDDIR)/singlehtml/index.html -t ../templates/doctemplate.html | sed -e 's/index\.html#/docs\.html#/g' > ../docs.html
-	cp -R $(BUILDDIR)/singlehtml/_images ..
+	python ../python/documentation_DOM_prepare.py -s $(BUILDDIR)/singlehtml/index.html -t ../templates/doctemplate.html | sed -e 's/index\.html#/docs\.html#/g'  | sed -e 's/_images/images/g'> ../docs.html
+	cp -R $(BUILDDIR)/singlehtml/_images/* ../images
 	@echo
 	@echo "Build finished. The HTML page is in $(BUILDDIR)/singlehtml."
 

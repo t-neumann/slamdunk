@@ -10,4 +10,4 @@ Authors
 License
 ^^^^^^^
 
-*slamdunk* is provided under the `GNU General Public License v3 <http://www.gnu.org/licenses/gpl-3.0.en.html>`_.
+*slamdunk* is provided under the `GNU Affero General Public License v3 <http://www.gnu.org/licenses/>`_.

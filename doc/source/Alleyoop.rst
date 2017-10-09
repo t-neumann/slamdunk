@@ -73,7 +73,7 @@ Input
 ===================  ==================================================================================================================================================================
 File                 Description
 ===================  ==================================================================================================================================================================
-**Tcount file**      A tab-separated *tcount* file per sample containing the SLAMSeq statistics (see :ref:`tcount-file`).
+**Tcount file**      A tab-separated *tcount* file per sample containing the SLAMseq statistics (see :ref:`tcount-file`).
 ===================  ==================================================================================================================================================================
 
 Output
@@ -81,7 +81,7 @@ Output
 ============================  =================================================================================================================================
 File                          Description
 ============================  =================================================================================================================================
-**Tcount file**               A tab-separated *tcount* file per sample containing the SLAMSeq statistics (see :ref:`tcount-file`) with collapsed 3'UTR entries.
+**Tcount file**               A tab-separated *tcount* file per sample containing the SLAMseq statistics (see :ref:`tcount-file`) with collapsed 3'UTR entries.
 ============================  =================================================================================================================================
 
 Output files have the same name as the input files with the prefix "_collapsed".
@@ -100,7 +100,7 @@ Parameter       Required  Description
 **-h**                    Prints the help.
 **-o**          x         The output directory where all output files of this tool will be placed.
 **-t**                    The number of threads to use. All tools run single-threaded, so it is recommended to use as many threads as available samples.  
-**Tcount file** x         A tab-separated *tcount* file per sample containing the SLAMSeq statistics (see :ref:`tcount-file`) with collapsed 3'UTR entries.
+**Tcount file** x         A tab-separated *tcount* file per sample containing the SLAMseq statistics (see :ref:`tcount-file`) with collapsed 3'UTR entries.
 =============== ========  =====================================================================================================================================================================
 
 ------------------------------------------------------  
@@ -135,10 +135,10 @@ File                           Description
 ============================   ===========================================================================================================
 
 Below is an example plot of the overall conversion rates of the reads in a sample. One can appreciate the typical excess of T->C conversion (A->G on minus strand)
-of the SLAMSeq technology for later labelling timepoints.
+of the SLAMseq technology for later labelling timepoints.
 
-.. .. image:: img/stats.rates.png
-..   :width: 600px
+.. image:: img/stats.rates.png
+   :width: 600px
 
 
 Parameters
@@ -188,8 +188,8 @@ File                           Description
 Below is an example plot of the T-context of all reads in a sample. On top you will find the 5' context of individual Ts, at the bottom the respective 3' context of the individual Ts.
 Note, that these will not be reciprocal (see e.g. `this publication <http://www.sciencedirect.com/science/article/pii/S0888754305002600>`_).
 
-.. .. image:: img/stats.TCcontext.png
-..   :width: 600px
+.. image:: img/stats.TCcontext.png
+   :width: 600px
 
 
 Parameters
@@ -239,10 +239,10 @@ File                           Description
 ============================   ===========================================================================================================
 
 Below is an example plot of conversion rates for all UTRs for a given sample. Typically, the individual conversions for a given starting
-base are balanced and unbiased, except for T->C conversions in SLAMSeq samples with longer labelling times. 
+base are balanced and unbiased, except for T->C conversions in SLAMseq samples with longer labelling times. 
 
-.. .. image:: img/stats.utrrates.png
-..   :width: 600px
+.. image:: img/stats.utrrates.png
+   :width: 600px
 
 
 Parameters
@@ -407,7 +407,7 @@ Input
 ===================  =====================================================================================================
 File                 Description
 ===================  =====================================================================================================
-**countFiles**       A tab-separated *tcount* file per sample containing the SLAMSeq statistics (see :ref:`tcount-file`).
+**countFiles**       A tab-separated *tcount* file per sample containing the SLAMseq statistics (see :ref:`tcount-file`).
 ===================  =====================================================================================================
 
 Output
@@ -426,7 +426,7 @@ Parameter      Required  Description
 **-h**                   Prints the help.
 **-o**         x         The output file name.
 **-c**                   Column or expression used to summarize files (e.g. "TcReadCount / ReadCount")
-**countFiles** x         A tab-separated *tcount* file per sample containing the SLAMSeq statistics (see :ref:`tcount-file`).
+**countFiles** x         A tab-separated *tcount* file per sample containing the SLAMseq statistics (see :ref:`tcount-file`).
 ============== ========  =====================================================================================================================================================================
 
 ------------------------------------------------------
@@ -465,11 +465,11 @@ File                           Description
 
 Below is an example plot of mutation rates along all reads in a sample. Typically, one will see increasing error rates towards the end of a reads,
 as for all Illumina reads. In addition, depending on how many bases were clipped from the 5' end of the reads, one will also observe higher error
-rates in the beginning of the read as illustrated in the example plot. Finally, for SLAMSeq samples with longer labelling times, the overall T->C 
+rates in the beginning of the read as illustrated in the example plot. Finally, for SLAMseq samples with longer labelling times, the overall T->C 
 conversions in the bottom plot will begin to increase compared to the overall background in the top plot.
 
-.. .. image:: img/stats.tcperreadpos.png
-..   :width: 600px
+.. image:: img/stats.tcperreadpos.png
+   :width: 600px
 
 
 Parameters
@@ -525,10 +525,10 @@ File                           Description
 ============================   ===========================================================================================================
 
 Below is an example plot of mutation rates along all UTRs in a sample. Typically, one will see increasing error rates towards the end of a UTRs.
-For SLAMSeq samples with longer labelling times, the overall T->C conversions in the bottom plot will begin to increase compared to the overall background in the top plot. 
+For SLAMseq samples with longer labelling times, the overall T->C conversions in the bottom plot will begin to increase compared to the overall background in the top plot. 
 
-.. .. image:: img/stats.tcperutrpos.png
-..   :width: 600px
+.. image:: img/stats.tcperutrpos.png
+   :width: 600px
 
 
 Parameters
