@@ -116,7 +116,7 @@ def getMean(values, skipZeros=True):
     else:
         return 0.0
 
-def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputCSV, outputBedgraphPlus, outputBedgraphMinus, strictTCs, log, mle = False):
+def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputCSV, outputBedgraphPlus, outputBedgraphMinus, conversionThreshold, log, mle = False):
     
     referenceFile = pysam.FastaFile(ref)
     
@@ -181,7 +181,7 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
             
             slamSeqUtr._Tcontent = Tcontent
 
-        readIterator = testFile.readInRegion(utr.chromosome, utr.start, utr.stop, utr.strand, maxReadLength, minQual)
+        readIterator = testFile.readInRegion(utr.chromosome, utr.start, utr.stop, utr.strand, maxReadLength, minQual, conversionThreshold)
       
         tcCountUtr = [0] * utr.getLength()
         coverageUtr = [0] * utr.getLength()
@@ -200,7 +200,7 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
         for read in readIterator:
             
             # Overwrite any conversions for non-TC reads (reads with < 2 TC conversions)
-            if (not read.isTcRead and strictTCs) :
+            if (not read.isTcRead) :
                 read.tcCount = 0
                 read.mismatches = []
                 read.conversionRates = 0.0

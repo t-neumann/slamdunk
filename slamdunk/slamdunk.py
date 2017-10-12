@@ -175,7 +175,7 @@ def runSnp(tid, referenceFile, minCov, minVarFreq, minQual, inputBAM, outputDire
     snps.SNPs(inputBAM, outputSNP, referenceFile, minVarFreq, minCov, minQual, getLogFile(outputLOG), printOnly, verbose, False)
     stepFinished()
                 
-def runCount(tid, bam, ref, bed, maxLength, minQual, strictTCs, outputDirectory, snpDirectory) :
+def runCount(tid, bam, ref, bed, maxLength, minQual, conversionThreshold, outputDirectory, snpDirectory) :
     outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".tsv", "_tcount"))
     outputBedgraphPlus = os.path.join(outputDirectory, replaceExtension(basename(bam), ".bedgraph", "_tcount_plus"))
     outputBedgraphMinus = os.path.join(outputDirectory, replaceExtension(basename(bam), ".bedgraph", "_tcount_mins"))
@@ -195,7 +195,7 @@ def runCount(tid, bam, ref, bed, maxLength, minQual, strictTCs, outputDirectory,
     
     print("Using " + str(maxLength) + " as maximum read length.",file=log)
     
-    tcounter.computeTconversions(ref, bed, inputSNP, bam, maxLength, minQual, outputCSV, outputBedgraphPlus, outputBedgraphMinus, strictTCs, log)
+    tcounter.computeTconversions(ref, bed, inputSNP, bam, maxLength, minQual, outputCSV, outputBedgraphPlus, outputBedgraphMinus, conversionThreshold, log)
     stepFinished()
     return outputCSV        
             
@@ -306,7 +306,7 @@ def runAll(args) :
     snpDirectory = os.path.join(outputDirectory, "snp")
     
     message("Running slamDunk tcount for " + str(len(samples)) + " files (" + str(n) + " threads)")
-    results = Parallel(n_jobs=n, verbose=verbose)(delayed(runCount)(tid, dunkbufferIn[tid], referenceFile, args.bed, args.maxLength, args.minQual, args.strictTCs, dunkPath, snpDirectory) for tid in range(0, len(samples)))
+    results = Parallel(n_jobs=n, verbose=verbose)(delayed(runCount)(tid, dunkbufferIn[tid], referenceFile, args.bed, args.maxLength, args.minQual, args.conversionThreshold, dunkPath, snpDirectory) for tid in range(0, len(samples)))
     
     dunkFinished()
     
@@ -370,7 +370,7 @@ def run():
     countparser.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", default=SUPPRESS, help="Directory containing SNP files.")
     countparser.add_argument("-r", "--reference", type=str, required=True, dest="ref", default=SUPPRESS, help="Reference fasta file")
     countparser.add_argument("-b", "--bed", type=str, required=True, dest="bed", default=SUPPRESS, help="BED file")
-    countparser.add_argument("-m", "--multiTCStringency", dest="strictTCs", action='store_true', required=False, help="Multiple T>C conversion required for T>C read")
+    countparser.add_argument("-c", "--conversion-threshold", type=int, dest="conversionThreshold", required=False, default=1,help="Number of T>C conversions required to count read as T>C read (default: %(default)d)")
     countparser.add_argument("-l", "--max-read-length", type=int, required=False, dest="maxLength", help="Max read length in BAM file")
     countparser.add_argument("-q", "--min-base-qual", type=int, default=27, required=False, dest="minQual", help="Min base quality for T -> C conversions (default: %(default)d)")
     countparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number (default: %(default)d)")
@@ -396,7 +396,7 @@ def run():
     allparser.add_argument("-nm", "--max-nm", type=int, required=False, default=-1, dest="nm", help="Maximum NM for alignments (default: %(default)s)")
     allparser.add_argument("-mc", "--min-coverage", required=False, dest="cov", type=int, help="Minimimum coverage to call variant (default: %(default)s)", default=10)
     allparser.add_argument("-mv", "--var-fraction", required=False, dest="var", type=float, help="Minimimum variant fraction to call variant (default: %(default)s)", default=0.8)
-    allparser.add_argument("-mts", "--multiTCStringency", dest="strictTCs", action='store_true', required=False, help="Multiple T>C conversion required for T>C read")
+    allparser.add_argument("-c", "--conversion-threshold", type=int, dest="conversionThreshold", required=False, default=1,help="Number of T>C conversions required to count read as T>C read (default: %(default)d)")
     allparser.add_argument("-rl", "--max-read-length", type=int, required=False, dest="maxLength", help="Max read length in BAM file")
     allparser.add_argument("-mbq", "--min-base-qual", type=int, default=27, required=False, dest="minQual", help="Min base quality for T -> C conversions (default: %(default)d)")
     allparser.add_argument("-i", "--sample-index", type=int, required=False, default=-1, dest="sampleIndex", help="Run analysis only for sample <i>. Use for distributing slamdunk analysis on a cluster (index is 1-based).")
@@ -471,7 +471,7 @@ def run():
         snpDirectory = args.snpDir
         n = args.threads
         message("Running slamDunk tcount for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runCount)(tid, args.bam[tid], args.ref, args.bed, args.maxLength, args.minQual, args.strictTCs, outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
+        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runCount)(tid, args.bam[tid], args.ref, args.bed, args.maxLength, args.minQual, args.conversionThreshold, outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
         dunkFinished()    
         
     elif (command == "all") :

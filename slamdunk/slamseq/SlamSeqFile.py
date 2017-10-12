@@ -344,7 +344,7 @@ class SlamSeqBamIterator:
                         
         return mismatchList, tcCount
                     
-    def __init__(self, readIterator, refSeq, chromosome, startPosition, strand, maxReadLength, snps, minQual):
+    def __init__(self, readIterator, refSeq, chromosome, startPosition, strand, maxReadLength, snps, minQual, conversionThreshold = 1):
         self._readIterator = readIterator
         self._refSeq = refSeq
         self._chromosome = chromosome
@@ -353,6 +353,7 @@ class SlamSeqBamIterator:
         self._maxReadLength = maxReadLength
         self._snps = snps
         self._minQual = minQual
+        self._conversionThreshold = conversionThreshold
         
     def __iter__(self):
         return self
@@ -390,7 +391,7 @@ class SlamSeqBamIterator:
         else:
             slamSeqRead.chromosome = None
         
-        if(slamSeqRead.tcCount > 1) :
+        if(slamSeqRead.tcCount >= self._conversionThreshold) :
             slamSeqRead.isTcRead = True
         else :
             slamSeqRead.isTcRead = False        
@@ -412,7 +413,7 @@ class SlamSeqBamFile:
         self._referenceFile = pysam.FastaFile(referenceFile)   
         self._snps = snps
         
-    def readInRegion(self, chromosome, start, stop, strand, maxReadLength, minQual = 0):
+    def readInRegion(self, chromosome, start, stop, strand, maxReadLength, minQual = 0, conversionThreshold = 1):
         
         if(self.isInReferenceFile(chromosome)):
             chromosomeLength = self._referenceFile.get_reference_length(chromosome)
@@ -433,7 +434,7 @@ class SlamSeqBamFile:
             # If start or top is less than maxReadLength bp away from chromosome start or end, fill up with Ns
             refSeq = 'N' * fillupLeft + refSeq + 'N' * fillupRight 
 
-            return SlamSeqBamIterator(self._bamFile.fetch(reference=chromosome, start=max(0, start), end=min(chromosomeLength, stop)), refSeq, chromosome, start, strand, maxReadLength, self._snps, minQual)
+            return SlamSeqBamIterator(self._bamFile.fetch(reference=chromosome, start=max(0, start), end=min(chromosomeLength, stop)), refSeq, chromosome, start, strand, maxReadLength, self._snps, minQual, conversionThreshold)
         else:
             return iter([])
     
