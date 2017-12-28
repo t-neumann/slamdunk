@@ -197,7 +197,7 @@ def runCount(tid, bam, ref, bed, maxLength, minQual, conversionThreshold, output
     
     tcounter.computeTconversions(ref, bed, inputSNP, bam, maxLength, minQual, outputCSV, outputBedgraphPlus, outputBedgraphMinus, conversionThreshold, log)
     stepFinished()
-    return outputCSV        
+    return outputCSV
             
 def runAll(args) :
     message("slamdunk all")

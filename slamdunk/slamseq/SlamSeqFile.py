@@ -410,7 +410,7 @@ class SlamSeqBamFile:
                 if pg['ID'] == "slamdunk":
                     self.bamVersion = pg['VN']
          
-        self._referenceFile = pysam.FastaFile(referenceFile)   
+        self._referenceFile = pysam.FastaFile(referenceFile)
         self._snps = snps
         
     def readInRegion(self, chromosome, start, stop, strand, maxReadLength, minQual = 0, conversionThreshold = 1):
@@ -438,9 +438,9 @@ class SlamSeqBamFile:
         else:
             return iter([])
     
-    def readsInChromosome(self, chromosome, minQual = 0):
+    def readsInChromosome(self, chromosome, minQual = 0, conversionThreshold = 1):
         refSeq = self._referenceFile.fetch(region=chromosome).upper()
-        return SlamSeqBamIterator(self._bamFile.fetch(region=chromosome), refSeq, chromosome, 1, ".", 0, self._snps, minQual)
+        return SlamSeqBamIterator(self._bamFile.fetch(region=chromosome), refSeq, chromosome, 1, ".", 0, self._snps, minQual, conversionThreshold)
     
     def atoi(self, text):
         return int(text) if text.isdigit() else text
@@ -460,4 +460,7 @@ class SlamSeqBamFile:
         refs = list(self._referenceFile.references)
         refs.sort(key=self.natural_keys)
         return refs
+    
+    def getChromosomeLength(self, chromosome):
+        return self._referenceFile.get_reference_length(chromosome)
     

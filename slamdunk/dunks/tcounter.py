@@ -22,6 +22,9 @@ from __future__ import print_function
 import sys
 import pysam
 import os
+import re
+
+from os.path import basename
 
 from slamdunk.utils.misc import replaceExtension, getSampleInfo, SlamSeqInfo, md5, callR, getPlotter  # @UnresolvedImport
 from slamdunk.utils.BedReader import BedIterator  # @UnresolvedImport
@@ -322,3 +325,140 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
         fileNameMLE = replaceExtension(outputCSV, ".tsv", "_mle")
         callR(getPlotter("compute_conversion_rate_mle") +  " -f " + fileNameTest + " -r " + "0.024" + " -o " + fileNameMLE + " &> /dev/null")
 
+def genomewideConversionRates(referenceFile, snpsFile, bam, minBaseQual, outputBedGraphPrefix, conversionThreshold, log):
+    
+    ref = pysam.FastaFile(referenceFile)
+     
+    snps = SNPtools.SNPDictionary(snpsFile)
+    snps.read()
+    
+    # Go through one chr after the other
+    testFile = SlamSeqBamFile(bam, referenceFile, snps)
+     
+    chromosomes = testFile.getChromosomes()
+    
+    bedGraphInfo = re.sub("_slamdunk_mapped.*","",basename(outputBedGraphPrefix))
+    print(bedGraphInfo)
+    
+    fileBedGraphRatesPlus = open(outputBedGraphPrefix + "_TC_rates_genomewide.bedGraph", 'w')
+    fileBedGraphRatesMinus = open(outputBedGraphPrefix + "_AG_rates_genomewide.bedGraph", 'w')
+    fileBedGraphCoveragePlus = open(outputBedGraphPrefix + "_coverage_plus_genomewide.bedGraph", 'w')
+    fileBedGraphCoverageMinus = open(outputBedGraphPrefix + "_coverage_minus_genomewide.bedGraph", 'w')
+    fileBedGraphT = open(outputBedGraphPrefix + "_coverage_T_genomewide.bedGraph", 'w')
+    fileBedGraphA = open(outputBedGraphPrefix + "_coverage_A_genomewide.bedGraph", 'w')
+    
+    print("track type=bedGraph name=\"" + bedGraphInfo + " tc-conversions\" description=\"# T->C conversions / # reads on T per position genome-wide\"", file=fileBedGraphRatesPlus)
+    print("track type=bedGraph name=\"" + bedGraphInfo + " ag-conversions\" description=\"# A->G conversions / # reads on A per position genome-wide\"", file=fileBedGraphRatesMinus)
+    print("track type=bedGraph name=\"" + bedGraphInfo + " plus-strand coverage\" description=\"# Reads on plus strand genome-wide\"", file=fileBedGraphCoveragePlus)
+    print("track type=bedGraph name=\"" + bedGraphInfo + " minus-strand coverage\" description=\"# Reads on minus strand genome-wide\"", file=fileBedGraphCoverageMinus)
+    print("track type=bedGraph name=\"" + bedGraphInfo + " T-coverage\" description=\"# Plus-strand reads on Ts genome-wide\"", file=fileBedGraphT)
+    print("track type=bedGraph name=\"" + bedGraphInfo + " A-coverage\" description=\"# Minus-strand reads on As genome-wide\"", file=fileBedGraphA)
+             
+    for chromosome in chromosomes:
+        
+        chrLength = testFile.getChromosomeLength(chromosome)
+        
+        tcCount = [0] * chrLength
+        agCount = [0] * chrLength
+        
+        coveragePlus = [0] * chrLength
+        coverageMinus = [0] * chrLength
+        
+        tCoverage = [0] * chrLength
+        aCoverage = [0] * chrLength
+        
+        readIterator = testFile.readsInChromosome(chromosome, minBaseQual, conversionThreshold)
+             
+        for read in readIterator:
+            if (not read.isTcRead) :
+                read.tcCount = 0
+                read.mismatches = []
+                read.conversionRates = 0.0
+                read.tcRate = 0.0
+            
+            for mismatch in read.mismatches:
+                if(mismatch.isTCMismatch(read.direction == ReadDirection.Reverse) and mismatch.referencePosition >= 0 and mismatch.referencePosition < chrLength):
+                    if read.direction == ReadDirection.Reverse:
+                        agCount[mismatch.referencePosition] += 1
+                    else :
+                        tcCount[mismatch.referencePosition] += 1
+                        
+            for i in xrange(read.startRefPos, read.endRefPos):
+                if(i >= 0 and i < chrLength):
+                    if read.direction == ReadDirection.Reverse:
+                        coverageMinus[i] += 1
+                    else :
+                        coveragePlus[i] += 1
+        
+        prevCoveragePlus = 0
+        prevCoveragePlusPos = 0
+        prevCoverageMinus = 0
+        prevCoverageMinusPos = 0
+        prevTCConversionRate = 0
+        prevTCConversionRatePos = 0
+        prevAGConversionRate = 0
+        prevAGConversionRatePos = 0
+        prevTCoverage = 0
+        prevTCoveragePos = 0
+        prevACoverage = 0
+        prevACoveragePos = 0
+                
+        for pos in xrange(0, chrLength):
+            if prevCoveragePlus != coveragePlus[pos]:
+                print(chromosome + "\t" + str(prevCoveragePlusPos + 1) + "\t" + str(pos + 1) + "\t" + str(prevCoveragePlus), file = fileBedGraphCoveragePlus)
+                prevCoveragePlus = coveragePlus[pos]
+                prevCoveragePlusPos = pos
+            if prevCoverageMinus != coverageMinus[pos]:
+                print(chromosome + "\t" + str(prevCoverageMinusPos + 1) + "\t" + str(pos + 1) + "\t" + str(prevCoverageMinus), file = fileBedGraphCoverageMinus)
+                prevCoverageMinus = coverageMinus[pos]
+                prevCoverageMinusPos = pos
+                
+            tCoverage = 0
+                
+            if coveragePlus[pos] > 0:
+                base = ref.fetch(reference=chromosome, start = pos + 1, end = pos + 2)
+                if base.upper() == "T":
+                    tCoverage = coveragePlus[pos]
+                                        
+            aCoverage = 0
+            
+            if coverageMinus[pos] > 0:
+                base = ref.fetch(reference=chromosome, start = pos + 1, end = pos + 2)
+                if base.upper() == "A":
+                    aCoverage = coverageMinus[pos]
+                    
+            if prevTCoverage != tCoverage:
+                print(chromosome + "\t" + str(prevTCoveragePos + 1) + "\t" + str(pos + 1) + "\t" + str(prevTCoverage), file = fileBedGraphT)
+                prevTCoverage = tCoverage
+                prevTCoveragePos = pos
+                
+            if prevACoverage != aCoverage:
+                print(chromosome + "\t" + str(prevACoveragePos + 1) + "\t" + str(pos + 1) + "\t" + str(prevACoverage), file = fileBedGraphA)
+                prevACoverage = aCoverage
+                prevACoveragePos = pos
+                
+            TCconversionRate = 0
+            if coveragePlus[pos] > 0:
+                TCconversionRate = float(tcCount[pos]) / float(coveragePlus[pos])
+                
+            AGconversionRate = 0
+            if coverageMinus[pos] > 0:
+                AGconversionRate = float(agCount[pos]) / float(coverageMinus[pos])
+                
+            if prevTCConversionRate != TCconversionRate:
+                print(chromosome + "\t" + str(prevTCConversionRatePos + 1) + "\t" + str(pos + 1) + "\t" + str(prevTCConversionRate), file = fileBedGraphRatesPlus)
+                prevTCConversionRate = TCconversionRate
+                prevTCConversionRatePos = pos
+                
+            if prevAGConversionRate != AGconversionRate:
+                print(chromosome + "\t" + str(prevAGConversionRatePos + 1) + "\t" + str(pos + 1) + "\t" + str(prevAGConversionRate), file = fileBedGraphRatesMinus)
+                prevAGConversionRate = AGconversionRate
+                prevAGConversionRatePos = pos
+                    
+    fileBedGraphRatesPlus.close()
+    fileBedGraphRatesMinus.close()
+    fileBedGraphCoveragePlus.close()
+    fileBedGraphCoverageMinus.close()
+    fileBedGraphT.close()
+    fileBedGraphA.close()
+    

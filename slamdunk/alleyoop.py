@@ -112,6 +112,19 @@ def runHalfLifes(bams, timepoints, outputDirectory) :
     closeLogFile(log)
     stepFinished()
     
+def runPositionalRates(tid, bam, ref, minQual, conversionThreshold, outputDirectory, snpDirectory) :
+    outputBedGraphPrefix = os.path.join(outputDirectory, replaceExtension(basename(bam), "", "_positional_rates"))
+    outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_positional_rates"))
+    if(snpDirectory != None):
+        inputSNP = os.path.join(snpDirectory, replaceExtension(basename(bam), ".vcf", "_snp"))
+    else:
+        inputSNP = None
+    
+    log = getLogFile(outputLOG)
+        
+    tcounter.genomewideConversionRates(ref, inputSNP, bam, minQual, outputBedGraphPrefix, conversionThreshold, log)
+    stepFinished()
+    
 def runStatsRates(tid, bam, referenceFile, minMQ, outputDirectory) :
     outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_overallrates"))
     outputPDF = os.path.join(outputDirectory, replaceExtension(basename(bam), ".pdf", "_overallrates"))
@@ -173,7 +186,6 @@ def runSNPeval(tid, bam, ref, bed, maxLength, minQual, coverageCutoff, variantFr
     
     stats.computeSNPMaskedRates(ref, bed, inputSNP, bam, maxLength, minQual, coverageCutoff, variantFraction, outputCSV, outputPDF, strictTCs, log)
     stepFinished()
-    return outputCSV
 
     
 def runTcPerReadPos(tid, bam, referenceFile, minMQ, maxReadLength, outputDirectory, snpDirectory):
@@ -267,6 +279,16 @@ def run():
     collapseparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", default=SUPPRESS, help="Output directory for mapped BAM files.")
     collapseparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number")
     collapseparser.add_argument('tcount', action='store', help='Tcount file(s)' , nargs="+")
+    
+    # positional-rates command
+    posratesparser = subparsers.add_parser('positional-tracks', help='Genome-wide positional tracks as bedgraph', formatter_class=ArgumentDefaultsHelpFormatter)
+    posratesparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
+    posratesparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", default=SUPPRESS, help="Output directory for bedGraph files.")
+    posratesparser.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", default=SUPPRESS, help="Directory containing SNP files.")
+    posratesparser.add_argument("-r", "--reference", type=str, required=True, dest="ref", default=SUPPRESS, help="Reference fasta file")
+    posratesparser.add_argument("-c", "--conversion-threshold", type=int, dest="conversionThreshold", required=False, default=1,help="Number of T>C conversions required to count read as T>C read (default: %(default)d)")
+    posratesparser.add_argument("-q", "--min-base-qual", type=int, default=27, required=False, dest="minQual", help="Min base quality for T -> C conversions (default: %(default)d)")
+    posratesparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number (default: %(default)d)")
     
     # stats command
     statsparser = subparsers.add_parser('rates', help='Calculate overall conversion rates on SLAM-seq datasets', formatter_class=ArgumentDefaultsHelpFormatter)
@@ -371,13 +393,22 @@ def run():
         results = Parallel(n_jobs=n, verbose=verbose)(delayed(runDedup)(tid, args.bam[tid], outputDirectory, tcMutations) for tid in range(0, len(args.bam)))
         dunkFinished()
         
-    if (command == "collapse") :
+    elif (command == "collapse") :
         outputDirectory = args.outputDir
         createDir(outputDirectory)
         n = args.threads
         message("Running alleyoop collapse for " + str(len(args.tcount)) + " files (" + str(n) + " threads)")
         results = Parallel(n_jobs=n, verbose=verbose)(delayed(runCollapse)(tid, args.tcount[tid], outputDirectory) for tid in range(0, len(args.tcount)))
         dunkFinished()
+        
+    elif (command == "positional-rates") :
+        outputDirectory = args.outputDir
+        createDir(outputDirectory)
+        snpDirectory = args.snpDir
+        n = args.threads
+        message("Running alleyoop positional-rates for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runPositionalRates)(tid, args.bam[tid], args.ref, args.minQual, args.conversionThreshold, outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
+        dunkFinished()       
         
     elif (command == "half-lifes") :
         
