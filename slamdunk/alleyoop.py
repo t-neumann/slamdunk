@@ -401,12 +401,12 @@ def run():
         results = Parallel(n_jobs=n, verbose=verbose)(delayed(runCollapse)(tid, args.tcount[tid], outputDirectory) for tid in range(0, len(args.tcount)))
         dunkFinished()
         
-    elif (command == "positional-rates") :
+    elif (command == "positional-tracks") :
         outputDirectory = args.outputDir
         createDir(outputDirectory)
         snpDirectory = args.snpDir
         n = args.threads
-        message("Running alleyoop positional-rates for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+        message("Running alleyoop positional-tracks for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
         results = Parallel(n_jobs=n, verbose=verbose)(delayed(runPositionalRates)(tid, args.bam[tid], args.ref, args.minQual, args.conversionThreshold, outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
         dunkFinished()       
         

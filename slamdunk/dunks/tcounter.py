@@ -344,6 +344,8 @@ def genomewideConversionRates(referenceFile, snpsFile, bam, minBaseQual, outputB
     fileBedGraphRatesMinus = open(outputBedGraphPrefix + "_AG_rates_genomewide.bedGraph", 'w')
     fileBedGraphCoveragePlus = open(outputBedGraphPrefix + "_coverage_plus_genomewide.bedGraph", 'w')
     fileBedGraphCoverageMinus = open(outputBedGraphPrefix + "_coverage_minus_genomewide.bedGraph", 'w')
+    fileBedGraphTCConversions = open(outputBedGraphPrefix + "_TC_conversions_genomewide.bedGraph", 'w')
+    fileBedGraphAGConversions = open(outputBedGraphPrefix + "_AG_conversions_genomewide.bedGraph", 'w')
     fileBedGraphT = open(outputBedGraphPrefix + "_coverage_T_genomewide.bedGraph", 'w')
     fileBedGraphA = open(outputBedGraphPrefix + "_coverage_A_genomewide.bedGraph", 'w')
     
@@ -351,6 +353,8 @@ def genomewideConversionRates(referenceFile, snpsFile, bam, minBaseQual, outputB
     print("track type=bedGraph name=\"" + bedGraphInfo + " ag-conversions\" description=\"# A->G conversions / # reads on A per position genome-wide\"", file=fileBedGraphRatesMinus)
     print("track type=bedGraph name=\"" + bedGraphInfo + " plus-strand coverage\" description=\"# Reads on plus strand genome-wide\"", file=fileBedGraphCoveragePlus)
     print("track type=bedGraph name=\"" + bedGraphInfo + " minus-strand coverage\" description=\"# Reads on minus strand genome-wide\"", file=fileBedGraphCoverageMinus)
+    print("track type=bedGraph name=\"" + bedGraphInfo + " T->C conversions\" description=\"# T->C conversions on plus strand genome-wide\"", file=fileBedGraphTCConversions)
+    print("track type=bedGraph name=\"" + bedGraphInfo + " A->G conversions\" description=\"# A->G conversions on minus strand genome-wide\"", file=fileBedGraphAGConversions)
     print("track type=bedGraph name=\"" + bedGraphInfo + " T-coverage\" description=\"# Plus-strand reads on Ts genome-wide\"", file=fileBedGraphT)
     print("track type=bedGraph name=\"" + bedGraphInfo + " A-coverage\" description=\"# Minus-strand reads on As genome-wide\"", file=fileBedGraphA)
              
@@ -398,6 +402,10 @@ def genomewideConversionRates(referenceFile, snpsFile, bam, minBaseQual, outputB
         prevTCConversionRatePos = 0
         prevAGConversionRate = 0
         prevAGConversionRatePos = 0
+        prevTCConversions = 0
+        prevTCConversionPos = 0
+        prevAGConversions = 0
+        prevAGConversionPos = 0
         prevTCoverage = 0
         prevTCoveragePos = 0
         prevACoverage = 0
@@ -437,6 +445,16 @@ def genomewideConversionRates(referenceFile, snpsFile, bam, minBaseQual, outputB
                 prevACoverage = aCoverage
                 prevACoveragePos = pos
                 
+            if prevTCConversions != tcCount[pos]:
+                print(chromosome + "\t" + str(prevTCConversionPos + 1) + "\t" + str(pos + 1) + "\t" + str(prevTCConversions), file = fileBedGraphTCConversions)
+                prevTCConversions = tcCount[pos]
+                prevTCConversionPos = pos
+                
+            if prevAGConversions != agCount[pos]:
+                print(chromosome + "\t" + str(prevAGConversionPos + 1) + "\t" + str(pos + 1) + "\t" + str(prevAGConversions), file = fileBedGraphAGConversions)
+                prevAGConversions = agCount[pos]
+                prevAGConversionPos = pos
+                
             TCconversionRate = 0
             if coveragePlus[pos] > 0:
                 TCconversionRate = float(tcCount[pos]) / float(coveragePlus[pos])
@@ -459,6 +477,8 @@ def genomewideConversionRates(referenceFile, snpsFile, bam, minBaseQual, outputB
     fileBedGraphRatesMinus.close()
     fileBedGraphCoveragePlus.close()
     fileBedGraphCoverageMinus.close()
+    fileBedGraphTCConversions.close()
+    fileBedGraphAGConversions.close()
     fileBedGraphT.close()
     fileBedGraphA.close()
     
