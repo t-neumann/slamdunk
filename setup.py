@@ -187,7 +187,7 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['joblib>=0.9.4','pybedtools>=0.6.4','intervaltree>=2.1.0','pandas>=0.13.1','numpy>=1.8.1','biopython>=1.63','pysam>=0.8.3', 'Cython>=0.20.1'],
+    install_requires=['joblib>=0.9.4','pybedtools>=0.6.4','intervaltree>=2.1.0','pandas>=0.13.1','biopython>=1.63','pysam>=0.8.3', 'Cython>=0.20.1'],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
