@@ -112,7 +112,7 @@ def runHalfLifes(bams, timepoints, outputDirectory) :
     closeLogFile(log)
     stepFinished()
     
-def runPositionalRates(tid, bam, ref, minQual, conversionThreshold, outputDirectory, snpDirectory) :
+def runPositionalRates(tid, bam, ref, minQual, conversionThreshold, coverageCutoff, outputDirectory, snpDirectory) :
     outputBedGraphPrefix = os.path.join(outputDirectory, replaceExtension(basename(bam), "", "_positional_rates"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_positional_rates"))
     if(snpDirectory != None):
@@ -122,7 +122,7 @@ def runPositionalRates(tid, bam, ref, minQual, conversionThreshold, outputDirect
     
     log = getLogFile(outputLOG)
         
-    tcounter.genomewideConversionRates(ref, inputSNP, bam, minQual, outputBedGraphPrefix, conversionThreshold, log)
+    tcounter.genomewideConversionRates(ref, inputSNP, bam, minQual, outputBedGraphPrefix, conversionThreshold, coverageCutoff, log)
     stepFinished()
     
 def runStatsRates(tid, bam, referenceFile, minMQ, outputDirectory) :
@@ -287,6 +287,7 @@ def run():
     posratesparser.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", default=SUPPRESS, help="Directory containing SNP files.")
     posratesparser.add_argument("-r", "--reference", type=str, required=True, dest="ref", default=SUPPRESS, help="Reference fasta file")
     posratesparser.add_argument("-c", "--conversion-threshold", type=int, dest="conversionThreshold", required=False, default=1,help="Number of T>C conversions required to count read as T>C read (default: %(default)d)")
+    posratesparser.add_argument("-a", "--coverage-cutoff", type=int, dest="coverageCutoff", required=False, default=1,help="Minimum coverage required to report nucleotide-conversion rate (default: %(default)d). Anything less than 1 will be set to 1 to avoid division by zero.")
     posratesparser.add_argument("-q", "--min-base-qual", type=int, default=27, required=False, dest="minQual", help="Min base quality for T -> C conversions (default: %(default)d)")
     posratesparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number (default: %(default)d)")
     
@@ -407,7 +408,7 @@ def run():
         snpDirectory = args.snpDir
         n = args.threads
         message("Running alleyoop positional-tracks for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runPositionalRates)(tid, args.bam[tid], args.ref, args.minQual, args.conversionThreshold, outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
+        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runPositionalRates)(tid, args.bam[tid], args.ref, args.minQual, args.conversionThreshold, args.coverageCutoff, outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
         dunkFinished()       
         
     elif (command == "half-lifes") :

@@ -325,7 +325,7 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
         fileNameMLE = replaceExtension(outputCSV, ".tsv", "_mle")
         callR(getPlotter("compute_conversion_rate_mle") +  " -f " + fileNameTest + " -r " + "0.024" + " -o " + fileNameMLE + " &> /dev/null")
 
-def genomewideConversionRates(referenceFile, snpsFile, bam, minBaseQual, outputBedGraphPrefix, conversionThreshold, log):
+def genomewideConversionRates(referenceFile, snpsFile, bam, minBaseQual, outputBedGraphPrefix, conversionThreshold, coverageCutoff, log):
     
     ref = pysam.FastaFile(referenceFile)
      
@@ -456,11 +456,11 @@ def genomewideConversionRates(referenceFile, snpsFile, bam, minBaseQual, outputB
                 prevAGConversionPos = pos
                 
             TCconversionRate = 0
-            if coveragePlus[pos] > 0:
+            if coveragePlus[pos] > 0 and coveragePlus[pos] >= coverageCutoff:
                 TCconversionRate = float(tcCount[pos]) / float(coveragePlus[pos])
                 
             AGconversionRate = 0
-            if coverageMinus[pos] > 0:
+            if coverageMinus[pos] > 0 and coverageMinus[pos] >= coverageCutoff:
                 AGconversionRate = float(agCount[pos]) / float(coverageMinus[pos])
                 
             if prevTCConversionRate != TCconversionRate:

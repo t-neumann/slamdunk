@@ -32,7 +32,7 @@ from slamdunk.utils.BedReader import BedIterator  # @UnresolvedImport
 
 from slamdunk.version import __version__  # @UnresolvedImport
 
-utrNormFactor = 200
+utrNormFactor = 250
 baseNumber = 5
 toBase = [ 'A', 'C', 'G', 'T', 'N' ]
 
