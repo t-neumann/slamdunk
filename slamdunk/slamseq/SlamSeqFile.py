@@ -17,7 +17,7 @@
 
 from __future__ import print_function
 import pysam
-import re    
+import re, sys 
 
 class ReadDirection:
     Forward = 1
@@ -432,9 +432,12 @@ class SlamSeqBamFile:
             
             refSeq = self._referenceFile.fetch(reference=chromosome, start=leftBorder, end=rightBorder).upper()
             # If start or top is less than maxReadLength bp away from chromosome start or end, fill up with Ns
-            refSeq = 'N' * fillupLeft + refSeq + 'N' * fillupRight 
-
-            return SlamSeqBamIterator(self._bamFile.fetch(reference=chromosome, start=max(0, start), end=min(chromosomeLength, stop)), refSeq, chromosome, start, strand, maxReadLength, self._snps, minQual, conversionThreshold)
+            refSeq = 'N' * fillupLeft + refSeq + 'N' * fillupRight
+            
+            if (chromosome in self._bamFile.references) :
+                return SlamSeqBamIterator(self._bamFile.fetch(reference=chromosome, start=max(0, start), end=min(chromosomeLength, stop)), refSeq, chromosome, start, strand, maxReadLength, self._snps, minQual, conversionThreshold)
+            else:
+                return iter([])
         else:
             return iter([])
     
