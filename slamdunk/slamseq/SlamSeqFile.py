@@ -17,7 +17,7 @@
 
 from __future__ import print_function
 import pysam
-import re, sys 
+import re 
 
 class ReadDirection:
     Forward = 1
@@ -442,8 +442,12 @@ class SlamSeqBamFile:
             return iter([])
     
     def readsInChromosome(self, chromosome, minQual = 0, conversionThreshold = 1):
-        refSeq = self._referenceFile.fetch(region=chromosome).upper()
-        return SlamSeqBamIterator(self._bamFile.fetch(region=chromosome), refSeq, chromosome, 1, ".", 0, self._snps, minQual, conversionThreshold)
+        
+        if (chromosome in self._bamFile.references) :
+            refSeq = self._referenceFile.fetch(region=chromosome).upper()
+            return SlamSeqBamIterator(self._bamFile.fetch(region=chromosome), refSeq, chromosome, 1, ".", 0, self._snps, minQual, conversionThreshold)
+        else :
+            return iter([])
     
     def atoi(self, text):
         return int(text) if text.isdigit() else text
