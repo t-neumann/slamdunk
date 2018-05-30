@@ -34,6 +34,9 @@ from slamdunk.slamseq.SlamSeqFile import SlamSeqBamFile, ReadDirection, SlamSeqI
 
 from slamdunk.version import __version__, __bam_version__, __count_version__  # @UnresolvedImport
 
+def pysamIndex(outputBam):
+    pysam.index(outputBam)  # @UndefinedVariable
+
 def collapse(expandedCSV, collapsedCSV, log):
     
     tcDict = {}
@@ -481,4 +484,48 @@ def genomewideConversionRates(referenceFile, snpsFile, bam, minBaseQual, outputB
     fileBedGraphAGConversions.close()
     fileBedGraphT.close()
     fileBedGraphA.close()
+    
+def genomewideReadSeparation(referenceFile, snpsFile, bam, minBaseQual, outputBAMPrefix, conversionThreshold, log):
+    
+    ref = pysam.FastaFile(referenceFile)
+     
+    snps = SNPtools.SNPDictionary(snpsFile)
+    snps.read()
+    
+    # Go through one chr after the other
+    testFile = SlamSeqBamFile(bam, referenceFile, snps)
+    
+    samFile = pysam.AlignmentFile(bam, "rb")
+     
+    chromosomes = testFile.getChromosomes()
+    
+    backgroundReadFileName = outputBAMPrefix + "_backgroundReads.bam"
+    tcReadFileName = outputBAMPrefix + "_TCReads.bam"
+    
+    backgroundReadFile = pysam.AlignmentFile(backgroundReadFileName, "wb", template=samFile)
+    tcReadFile = pysam.AlignmentFile(tcReadFileName, "wb", template=samFile)
+    
+    tcReadDict = dict()
+    
+    for chromosome in chromosomes:
+        
+        readIterator = testFile.readsInChromosome(chromosome, minBaseQual, conversionThreshold)
+             
+        for read in readIterator:
+            if (read.isTcRead) :
+                tcReadDict[read.name] = 0
+                
+    for read in samFile.fetch():
+        if read.query_name in tcReadDict:
+            tcReadFile.write(read)
+        else:
+            backgroundReadFile.write(read)
+            
+    backgroundReadFile.close()
+    tcReadFile.close()
+    
+    pysamIndex(backgroundReadFileName)
+    pysamIndex(tcReadFileName)
+    
+    
     

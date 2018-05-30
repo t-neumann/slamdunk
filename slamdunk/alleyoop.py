@@ -125,6 +125,19 @@ def runPositionalRates(tid, bam, ref, minQual, conversionThreshold, coverageCuto
     tcounter.genomewideConversionRates(ref, inputSNP, bam, minQual, outputBedGraphPrefix, conversionThreshold, coverageCutoff, log)
     stepFinished()
     
+def runReadSeparator(tid, bam, ref, minQual, conversionThreshold, outputDirectory, snpDirectory) :
+    outputBAM = os.path.join(outputDirectory, replaceExtension(basename(bam), "", ""))
+    outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_read_separator"))
+    if(snpDirectory != None):
+        inputSNP = os.path.join(snpDirectory, replaceExtension(basename(bam), ".vcf", "_snp"))
+    else:
+        inputSNP = None
+    
+    log = getLogFile(outputLOG)
+        
+    tcounter.genomewideReadSeparation(ref, inputSNP, bam, minQual, outputBAM, conversionThreshold, log)
+    stepFinished()
+    
 def runStatsRates(tid, bam, referenceFile, minMQ, outputDirectory) :
     outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_overallrates"))
     outputPDF = os.path.join(outputDirectory, replaceExtension(basename(bam), ".pdf", "_overallrates"))
@@ -291,6 +304,17 @@ def run():
     posratesparser.add_argument("-q", "--min-base-qual", type=int, default=27, required=False, dest="minQual", help="Min base quality for T -> C conversions (default: %(default)d)")
     posratesparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number (default: %(default)d)")
     
+    # TC read separator
+    readseparatorparser = subparsers.add_parser('read-separator', help='Separate TC-reads from background reads genome-wide', formatter_class=ArgumentDefaultsHelpFormatter)
+    readseparatorparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
+    readseparatorparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", default=SUPPRESS, help="Output directory for bam files.")
+    readseparatorparser.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", default=SUPPRESS, help="Directory containing SNP files.")
+    readseparatorparser.add_argument("-r", "--reference", type=str, required=True, dest="ref", default=SUPPRESS, help="Reference fasta file")
+    readseparatorparser.add_argument("-c", "--conversion-threshold", type=int, dest="conversionThreshold", required=False, default=1,help="Number of T>C conversions required to count read as T>C read (default: %(default)d)")
+    readseparatorparser.add_argument("-q", "--min-base-qual", type=int, default=27, required=False, dest="minQual", help="Min base quality for T -> C conversions (default: %(default)d)")
+    readseparatorparser.add_argument("-t", "--threads", type=int, required=False, default=1, dest="threads", help="Thread number (default: %(default)d)")
+    
+    
     # stats command
     statsparser = subparsers.add_parser('rates', help='Calculate overall conversion rates on SLAM-seq datasets', formatter_class=ArgumentDefaultsHelpFormatter)
     statsparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
@@ -409,6 +433,15 @@ def run():
         n = args.threads
         message("Running alleyoop positional-tracks for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
         results = Parallel(n_jobs=n, verbose=verbose)(delayed(runPositionalRates)(tid, args.bam[tid], args.ref, args.minQual, args.conversionThreshold, args.coverageCutoff, outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
+        dunkFinished()
+        
+    elif (command == "read-separator") :
+        outputDirectory = args.outputDir
+        createDir(outputDirectory)
+        snpDirectory = args.snpDir
+        n = args.threads
+        message("Running alleyoop read-separator for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
+        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runReadSeparator)(tid, args.bam[tid], args.ref, args.minQual, args.conversionThreshold, outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
         dunkFinished()       
         
     elif (command == "half-lifes") :
