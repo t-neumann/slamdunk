@@ -33,6 +33,6 @@ RUN buildDeps='git wget gcc g++ libc6-dev make cmake zlib1g-dev python-pip pytho
     && set -x \
     && apt-get update && apt-get install -y $buildDeps $runDeps --no-install-recommends \
     && rm -rf /var/lib/apt/lists/* \
-    && pip install --upgrade pip \
+    && pip install --upgrade pip==9.0.3 \
     && pip install git+https://github.com/t-neumann/slamdunk.git@${VERSION_ARG} \
     && apt-get purge -y --auto-remove $buildDeps
