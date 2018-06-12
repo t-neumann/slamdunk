@@ -290,7 +290,7 @@ def Filter(inputBAM, outputBAM, log, bed, MQ=2, minIdentity=0.8, NM=-1, printOnl
                 slamseqInfo.AnnotationName = ""
                 slamseqInfo.AnnotationMD5 = ""
             
-            if isinstance(inFileBamHeader, pysam.libcalignmentfile.AlignmentHeader):
+            if not isinstance(inFileBamHeader, dict):
                 inFileBamHeader = inFileBamHeader.to_dict()
             inFileBamHeader['RG'][0]['DS'] = str(slamseqInfo)
             #inFileBamHeader['RG'][0]['DS'] = "{'sequenced':" + str(mappedReads + unmappedReads) + "," + "'mapped':" + str(mappedReads) + "," + "'filtered':" + str(filteredReads) + "}"        
