@@ -6469,6 +6469,58 @@ rm -rf $F
        <div class_="docs_block" id="document-Changelog">
         <p>
          <strong>
+          Version 0.3.0
+         </strong>
+        </p>
+        <p>
+         <em>
+          Changes:
+         </em>
+        </p>
+        <ul class="simple">
+         <li>
+          Travis-CI testing added.
+         </li>
+         <li>
+          Automated versionable Docker container builds.
+         </li>
+         <li>
+          Static 2 T&gt;C conversion cutoff multiTCSTringency parameter replaced by dynamic conversion-threshold parameter
+         </li>
+         <li>
+          Positional track module added to Alleyoop to produce genome-wide positional T&gt;C conversion rate bigWigtracks
+         </li>
+         <li>
+          Read-separator module added to Alleyoop to separated T&gt;C reads from non T&gt;C reads into bam-files.
+         </li>
+         <li>
+          Docker base image set to ubuntu:18.04
+         </li>
+        </ul>
+        <p>
+         <em>
+          Bugfixes:
+         </em>
+        </p>
+        <ul class="simple">
+         <li>
+          Supplementary alignment flags unset in filtered bam
+         </li>
+         <li>
+          Fixed numpy version removed to satisfy pandas dependency
+         </li>
+         <li>
+          Minimum baseQ filter now inclusive which is the expected behaviour
+         </li>
+         <li>
+          Reference check for short chromosomes introduced
+         </li>
+         <li>
+          Backwards compatibility to pysam 0.8.3 introduced
+         </li>
+        </ul>
+        <p>
+         <strong>
           Version 0.2.4
          </strong>
         </p>
