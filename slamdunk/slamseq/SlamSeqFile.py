@@ -238,7 +238,7 @@ class SlamSeqBamIterator:
     
         for mismatch in mismatches:
             
-            if not mismatch.isSnpPosition and mismatch.readBaseQlty > self._minQual:
+            if not mismatch.isSnpPosition and mismatch.readBaseQlty >= self._minQual:
                 rates.incRate(mismatch.referenceBase, mismatch.readBase)
                 rates.decRate(mismatch.readBase, mismatch.readBase)
             else:
@@ -324,7 +324,7 @@ class SlamSeqBamIterator:
                 readPos = int(readPos) - 1
                
                 readQlty = read.query_qualities[readPos]
-                if readQlty > self._minQual:
+                if readQlty >= self._minQual:
                     refPos = int(refPos) - 1
                     
                     if(read.is_reverse):
