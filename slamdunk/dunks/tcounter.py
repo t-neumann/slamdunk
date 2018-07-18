@@ -23,6 +23,7 @@ import sys
 import pysam
 import os
 import re
+import numpy
 
 from os.path import basename
 
@@ -122,7 +123,7 @@ def getMean(values, skipZeros=True):
     else:
         return 0.0
 
-def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputCSV, outputBedgraphPlus, outputBedgraphMinus, conversionThreshold, log, mle = False):
+def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputCSV, outputBedgraphPlus, outputBedgraphMinus, conversionThreshold, log, mle = True):
     
     referenceFile = pysam.FastaFile(ref)
     
@@ -135,13 +136,11 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
     bedMD5 = md5(bed)
     
     if(mle):
-        fileNameTest = replaceExtension(outputCSV, ".tsv", "_perread")
+        fileNameTest = replaceExtension(outputCSV, ".tsv", "mle")
         fileTest = open(fileNameTest,'w')
         print("#slamdunk v" + __version__, __count_version__, "sample info:", sampleInfo.Name, sampleInfo.ID, sampleInfo.Type, sampleInfo.Time, sep="\t", file=fileTest)
         print("#annotation:", os.path.basename(bed), bedMD5, sep="\t", file=fileTest)
-        #print("utr", "n", "k", file=fileTest)
-        print(SlamSeqInterval.Header, file=fileTest)
-    
+        #print("utr", "n", "k", file=fileTest)    
     
     fileCSV = open(outputCSV,'w')
     print("#slamdunk v" + __version__, __count_version__, "sample info:", sampleInfo.Name, sampleInfo.ID, sampleInfo.Type, sampleInfo.Time, sep="\t", file=fileCSV)
@@ -203,6 +202,8 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
         multiMapFwd = 0
         multiMapRev = 0
         
+        readMatrix = numpy.zeros(shape=(maxReadLength,maxReadLength))
+        
         for read in readIterator:
             
             # Overwrite any conversions for non-TC reads (reads with < 2 TC conversions)
@@ -211,6 +212,8 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
                 read.mismatches = []
                 read.conversionRates = 0.0
                 read.tcRate = 0.0
+            
+            readMatrix[read.getTcount()][read.tcCount] =+ 1
             
             if(read.direction == ReadDirection.Reverse):
                 countRev += 1
@@ -305,7 +308,9 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
 
         print(slamSeqUtr, file=fileCSV)
         if(mle):
-            print(slamSeqUtrMLE, file=fileTest)
+            for row in range(maxReadLength):
+                print(utr.name + "\t" + '\t'.join(map(str, readMatrix[row])), file=fileTest)
+            #print(slamSeqUtrMLE, file=fileTest)
         
     fileCSV.close()
     if(mle):
@@ -325,8 +330,9 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
     fileBedgraphMinus.close()
     
     if(mle):
-        fileNameMLE = replaceExtension(outputCSV, ".tsv", "_mle")
-        callR(getPlotter("compute_conversion_rate_mle") +  " -f " + fileNameTest + " -r " + "0.024" + " -o " + fileNameMLE + " &> /dev/null")
+        pass
+        #fileNameMLE = replaceExtension(outputCSV, ".tsv", "_mle")
+        #callR(getPlotter("compute_conversion_rate_mle") +  " -f " + fileNameTest + " -r " + "0.024" + " -o " + fileNameMLE + " &> /dev/null")
 
 def genomewideConversionRates(referenceFile, snpsFile, bam, minBaseQual, outputBedGraphPrefix, conversionThreshold, coverageCutoff, log):
     
