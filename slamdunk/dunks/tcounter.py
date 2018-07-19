@@ -213,7 +213,7 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
                 read.conversionRates = 0.0
                 read.tcRate = 0.0
             
-            readMatrix[read.getTcount()][read.tcCount] =+ 1
+            readMatrix[read.tcCount][read.getTcount()] =+ 1
             
             if(read.direction == ReadDirection.Reverse):
                 countRev += 1
@@ -228,9 +228,16 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
                 if read.isMultimapper:
                     multiMapFwd += 1
             
+            schaas = 0
             for mismatch in read.mismatches:
                 if(mismatch.isTCMismatch(read.direction == ReadDirection.Reverse) and mismatch.referencePosition >= 0 and mismatch.referencePosition < utr.getLength()):
                     tcCountUtr[mismatch.referencePosition] += 1
+                    schaas += 1
+                   
+            if read.tcCount > read.getTcount(): 
+                print("From mismagchs")
+                print(schaas)
+                sys.stdin.readline()
 
             testN = read.getTcount()
             testk = 0

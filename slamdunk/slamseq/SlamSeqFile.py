@@ -177,15 +177,17 @@ class SlamSeqRead:
         self.isTcRead = None
         # Read is Multimapper
         self.isMultimapper = None
+        # Read has mutations from T
+        self.tMuts = None
         
     def getTcount(self):
         if(self.direction == ReadDirection.Reverse):
-            return self.sequence.count("a") + self.sequence.count("A")
+            return self.sequence.count("a") + self.sequence.count("A") + self.tMuts
         else:
-            return self.sequence.count("t") + self.sequence.count("T")
+            return self.sequence.count("t") + self.sequence.count("T") + self.tMuts
         
     def __repr__(self):
-        return "\t".join([self.name, str(self.direction), self.sequence, str(self.tcCount), str(self.tCount), str(self.tcRate), self.conversionRates.__repr__(), str(self.startRefPos), str(self.endRefPos), self.mismatches.__repr__(), str(self.isTcRead), str(self.isMultimapper)])
+        return "\t".join([self.name, str(self.direction), self.sequence, str(self.tcCount), str(self.tCount), str(self.tMuts), str(self.tcRate), self.conversionRates.__repr__(), str(self.startRefPos), str(self.endRefPos), self.mismatches.__repr__(), str(self.isTcRead), str(self.isMultimapper)])
 
 class SlamSeqWriter:
     
@@ -313,6 +315,7 @@ class SlamSeqBamIterator:
     def fillMismatchesNGM(self, read):
 
         tcCount = 0
+        tMuts = 0
         
         mismatchList = []
         if (read.has_tag("MP")) :
@@ -322,6 +325,11 @@ class SlamSeqBamIterator:
                 conversion, readPos, refPos = mismatch.split(":")
                 refBase, readBase = self.MPTagToConversion(conversion)
                 readPos = int(readPos) - 1
+        
+                if (refBase.upper() == "A" and read.is_reverse) or (refBase.upper() == "T" and not read.is_reverse):
+                    tMuts += 1
+                if (readBase.upper() == "A" and read.is_reverse) or (readBase.upper() == "T" and not read.is_reverse):
+                    tMuts -= 1
                
                 readQlty = read.query_qualities[readPos]
                 if readQlty >= self._minQual:
@@ -342,7 +350,7 @@ class SlamSeqBamIterator:
                     
                     mismatchList.append(alnPos)
                         
-        return mismatchList, tcCount
+        return mismatchList, tcCount, tMuts
                     
     def __init__(self, readIterator, refSeq, chromosome, startPosition, strand, maxReadLength, snps, minQual, conversionThreshold = 1):
         self._readIterator = readIterator
@@ -380,7 +388,7 @@ class SlamSeqBamIterator:
         else :
             slamSeqRead.isMultimapper = False
             
-        slamSeqRead.mismatches, slamSeqRead.tcCount = self.fillMismatchesNGM(read)
+        slamSeqRead.mismatches, slamSeqRead.tcCount, slamSeqRead.tMuts = self.fillMismatchesNGM(read)
         slamSeqRead.conversionRates = self.computeRatesForRead(read, slamSeqRead.mismatches)
         slamSeqRead.startRefPos = read.reference_start - int(self._startPosition)
         slamSeqRead.endRefPos = read.reference_end - int(self._startPosition)
