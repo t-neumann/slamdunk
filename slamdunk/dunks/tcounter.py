@@ -202,7 +202,7 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
         multiMapFwd = 0
         multiMapRev = 0
         
-        readMatrix = numpy.zeros(shape=(maxReadLength,maxReadLength))
+        readMatrix = numpy.zeros(shape=(maxReadLength,maxReadLength)).astype(int)
         
         for read in readIterator:
             
