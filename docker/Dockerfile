@@ -25,7 +25,7 @@ ENV DEBIAN_FRONTEND noninteractive
 ENV DEBCONF_NONINTERACTIVE_SEEN true
 
 # binutils is required to run opencl programs
-RUN buildDeps='git wget gcc g++ libc6-dev make cmake zlib1g-dev python-pip python-dev python-distribute python-pip bzip2 libncurses-dev' \
+RUN buildDeps='git wget gcc g++ libc6-dev make cmake zlib1g-dev python-pip python-dev python-distribute python-pip bzip2 libncurses-dev libbz2-dev liblzma-dev' \
     runDeps='python default-jre binutils r-base unzip' \
     && echo "tzdata tzdata/Areas select Europe" > /tmp/preseed.txt; \
     echo "tzdata tzdata/Zones/Europe select Berlin" >> /tmp/preseed.txt; \

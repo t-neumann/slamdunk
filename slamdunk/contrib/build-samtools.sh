@@ -17,11 +17,11 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-wget https://github.com/samtools/samtools/releases/download/1.3.1/samtools-1.3.1.tar.bz2
-tar xjvf samtools-1.3.1.tar.bz2
-cd samtools-1.3.1
+wget https://github.com/samtools/samtools/releases/download/1.9/samtools-1.9.tar.bz2
+tar xjvf samtools-1.9.tar.bz2
+cd samtools-1.9
 ./configure
 make
 cd ..
-rm samtools-1.3.1.tar.bz2
-ln -s samtools-1.3.1/samtools
+rm samtools-1.9.tar.bz2
+ln -s samtools-1.9/samtools
