@@ -176,8 +176,9 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
         
         if(utr.chromosome in list(referenceFile.references)):
             #print(refRegion,file=sys.stderr)
-            refSeq = referenceFile.fetch(region=region).upper()
-            
+            # pysam-0.15.0.1
+            #refSeq = referenceFile.fetch(region=region).upper()
+            refSeq = referenceFile.fetch(reference=utr.chromosome, start=utr.start, end=utr.stop).upper()
             if (utr.strand == "-") :
                 #refSeq = complement(refSeq[::-1])
                 Tcontent = refSeq.count("A")
