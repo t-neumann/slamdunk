@@ -7,6 +7,6 @@ SLAMseq is a novel sequencing protocol that directly uncovers 4-thiouridine inco
 
 Original publication: `Herzog et al., Nature Methods, 2017; doi:10.1038/nmeth.4435 <https://www.nature.com/nmeth/journal/vaop/ncurrent/full/nmeth.4435.html>`_
 
-.. image:: http://www.rna-seqblog.com/wp-content/uploads/2017/09/slam.jpg
+.. image:: images/slam.png
    :width: 800px
    :align: center

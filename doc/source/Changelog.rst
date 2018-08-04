@@ -1,6 +1,17 @@
 Changelog
 =========
 
+**Version 0.3.1**
+
+*Changes:*
+
+* Upgrade Samtools 1.3.1 -> Samtools 1.9 for upcoming bioconda build.
+
+*Bugfixes:*
+
+* pysam-0.15.0.1 region retreival fix. (dashed chromosomes allowed now)
+* NGM permission fix to allow Singularity image build directly from Docker hub.
+
 **Version 0.3.0**
 
 *Changes:*

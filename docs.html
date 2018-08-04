@@ -106,8 +106,8 @@
           Herzog et al., Nature Methods, 2017; doi:10.1038/nmeth.4435
          </a>
         </p>
-        <a class="reference internal image-reference" href="http://www.rna-seqblog.com/wp-content/uploads/2017/09/slam.jpg">
-         <img alt="http://www.rna-seqblog.com/wp-content/uploads/2017/09/slam.jpg" class="align-center" src="http://www.rna-seqblog.com/wp-content/uploads/2017/09/slam.jpg" style="width: 800px;"/>
+        <a class="reference internal image-reference" href="images/slam.png">
+         <img alt="images/slam.png" class="align-center" src="images/slam.png" style="width: 800px;"/>
         </a>
        </div>
       </div>
@@ -6467,6 +6467,34 @@ rm -rf $F
         Changelog
        </h1>
        <div class_="docs_block" id="document-Changelog">
+        <p>
+         <strong>
+          Version 0.3.1
+         </strong>
+        </p>
+        <p>
+         <em>
+          Changes:
+         </em>
+        </p>
+        <ul class="simple">
+         <li>
+          Upgrade Samtools 1.3.1 -&gt; Samtools 1.9 for upcoming bioconda build.
+         </li>
+        </ul>
+        <p>
+         <em>
+          Bugfixes:
+         </em>
+        </p>
+        <ul class="simple">
+         <li>
+          pysam-0.15.0.1 region retreival fix. (dashed chromosomes allowed now)
+         </li>
+         <li>
+          NGM permission fix to allow Singularity image build directly from Docker hub.
+         </li>
+        </ul>
         <p>
          <strong>
           Version 0.3.0
