@@ -3,51 +3,40 @@ Installation
 
 This section covers the installation of *slamdunk*. Alternatively one could also run *slamdunk* from out of the box :ref:`docker-label` containers.
 
-There are 2 different possibilities:
+There are 3 different possibilities:
 
-1. Installation from `PyPI <https://pypi.python.org/pypi>`_ using the :ref:`pip-label` **(recommended)**
+1. Installation with `conda <https://conda.io/docs/>`_ from the :ref:`conda-label` channel **(recommended)**
 
-2. Installation from :ref:`source-label`
+2. Installation with `pip <https://pypi.python.org/pypi/pip>`_ from the :ref:`pip-label`
 
-------------
+3. Manual installation from :ref:`source-label`
+
+.. _conda-label:
+
+--------
+Bioconda
+--------
+
+We recommend using virtual environments to manage your Python installation. Our favourite is `Anaconda <https://www.anaconda.com/>`_, a cross-platform tool to manage Python environments. You can installation instructions for Anaconda `here <http://conda.pydata.org/docs/install/quick.html>`_.
+Then you can directly install `slamdunk <https://bioconda.github.io/recipes/slamdunk/README.html>`_ from the `Bioconda channel <https://bioconda.github.io/>`_.
+
+""""""""""""
 Requirements
-------------
+""""""""""""
 
-There are no major requirements for *slamdunk* except for **Java** for **Varscan2**. The python package will acquire all external dependencies by itself.
+* `Miniconda <https://conda.io/miniconda.html>`_ or `Anaconda <https://www.anaconda.com/download/>`_
 
-"""""""""
-R runtime
-"""""""""
+""""""""""""
+Installation
+""""""""""""
 
-Both *alleyoop* and *splash* utilize `R <https://www.r-project.org/>`_ for various calculations and diagnostic plots.
-Therefore, a global installation of R is required to run those tools.
+Once Anaconda is installed, you can create an environment containing the *slamdunk* package with the following command:
 
-* Minimum required R version: **R 3.2.2**
+.. code:: bash
 
-
-* Required packages (from `CRAN <https://cran.r-project.org/>`_):
-
-+----------------+
-| R packages     |
-+================+
-| *getopt*       |
-+----------------+
-| *ggplot2*      |
-+----------------+
-| *gridExtra*    |
-+----------------+
-| *RColorBrewer* |
-+----------------+
-| *lattice*      |
-+----------------+
-| *matrixStats*  |
-+----------------+
-| *dplyr*        |
-+----------------+
-| *tidyr*        |
-+----------------+
-
-**Note:** All required R packages will be installed automatically from PyPI or upon the first analysis run of *alleyoop* or *splash* from source.
+    conda create --name <name> -c bioconda slamdunk
+    
+..
 
 .. _pip-label:
 
@@ -58,25 +47,54 @@ Python Package Index
 `pip <https://pypi.python.org/pypi/pip>`_ is the recommended tool for installing Python packages. It allows a convenient and simple installation
 of *slamdunk* from  the `Python Package Index PyPI <https://pypi.python.org/pypi>`_.
 
+""""""""""""
+Requirements
+""""""""""""
+
+* Python 2.7
+* pip
+* Java
+* cmake
+* `R <https://www.r-project.org/>`_ 3.2.2 for *alleyoop* and *splash*
+
+""""""""""""
+Installation
+""""""""""""
+
 .. code:: bash
 
     # Having root permissions
 
     pip install slamdunk
     
+    # Latest development version
+    
+    pip install git+https://github.com/t-neumann/slamdunk.git
+    
     # Local user only
 
     pip install --user slamdunk
     export PATH=$PATH:$HOME/.local/bin/
     
-**Note:** There is no official *slamdunk* release yet, so there will be a test version on `TestPyPI <https://testpypi.python.org/pypi>`_ not guaranteed to be in line with latest developments.
-If you want to be absolutely sure you're pulling the latest version, install *slamdunk* from :ref:`source-label`.
-
 .. _source-label:
 
 ------
 Source
 ------
+
+""""""""""""
+Requirements
+""""""""""""
+
+* Python 2.7
+* pip
+* Java
+* cmake
+* `R <https://www.r-project.org/>`_ 3.2.2 for *alleyoop* and *splash*
+
+""""""""""""
+Installation
+""""""""""""
 
 1. Clone from `Github <https://github.com/t-neumann/slamdunk>`_.
 

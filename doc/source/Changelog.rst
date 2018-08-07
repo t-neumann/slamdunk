@@ -1,6 +1,13 @@
 Changelog
 =========
 
+**Version 0.3.2**
+
+*Changes:*
+
+* `Bioconda <https://bioconda.github.io/recipes/slamdunk/README.html>`_: Slamdunk recipe added. **Slamdunk now available via conda from v0.3.2!**
+* Symlink ngm -> nextgenmap/bin/ngm-0.5.2/ngm replaced by hard copy for bioconda-utils build compatibility.
+
 **Version 0.3.1**
 
 *Changes:*

@@ -138,26 +138,39 @@
          containers.
         </p>
         <p>
-         There are 2 different possibilities:
+         There are 3 different possibilities:
         </p>
         <ol class="arabic simple">
          <li>
-          Installation from
-          <a class="reference external" href="https://pypi.python.org/pypi">
-           PyPI
+          Installation with
+          <a class="reference external" href="https://conda.io/docs/">
+           conda
           </a>
-          using the
-          <a class="reference internal" href="docs.html#pip-label">
+          from the
+          <a class="reference internal" href="docs.html#conda-label">
            <em>
-            Python Package Index
+            Bioconda
            </em>
           </a>
+          channel
           <strong>
            (recommended)
           </strong>
          </li>
          <li>
-          Installation from
+          Installation with
+          <a class="reference external" href="https://pypi.python.org/pypi/pip">
+           pip
+          </a>
+          from the
+          <a class="reference internal" href="docs.html#pip-label">
+           <em>
+            Python Package Index
+           </em>
+          </a>
+         </li>
+         <li>
+          Manual installation from
           <a class="reference internal" href="docs.html#source-label">
            <em>
             Source
@@ -165,153 +178,77 @@
           </a>
          </li>
         </ol>
-        <div class="section" id="requirements">
-         <h1 id="requirements">
-          <a class="header-link" href="#requirements">
+        <div class="section" id="bioconda">
+         <span id="conda-label">
+         </span>
+         <h1 id="bioconda">
+          <a class="header-link" href="#bioconda">
            <span class="glyphicon glyphicon-link">
            </span>
           </a>
-          Requirements
+          Bioconda
          </h1>
          <p>
-          There are no major requirements for
-          <em>
+          We recommend using virtual environments to manage your Python installation. Our favourite is
+          <a class="reference external" href="https://www.anaconda.com/">
+           Anaconda
+          </a>
+          , a cross-platform tool to manage Python environments. You can installation instructions for Anaconda
+          <a class="reference external" href="http://conda.pydata.org/docs/install/quick.html">
+           here
+          </a>
+          .
+Then you can directly install
+          <a class="reference external" href="https://bioconda.github.io/recipes/slamdunk/README.html">
            slamdunk
-          </em>
-          except for
-          <strong>
-           Java
-          </strong>
-          for
-          <strong>
-           Varscan2
-          </strong>
-          . The python package will acquire all external dependencies by itself.
+          </a>
+          from the
+          <a class="reference external" href="https://bioconda.github.io/">
+           Bioconda channel
+          </a>
+          .
          </p>
-         <div class="section" id="r-runtime">
-          <h2 id="r-runtime">
-           <a class="header-link" href="#r-runtime">
+         <div class="section" id="requirements">
+          <h2 id="requirements">
+           <a class="header-link" href="#requirements">
             <span class="glyphicon glyphicon-link">
             </span>
            </a>
-           R runtime
+           Requirements
           </h2>
-          <p>
-           Both
-           <em>
-            alleyoop
-           </em>
-           and
-           <em>
-            splash
-           </em>
-           utilize
-           <a class="reference external" href="https://www.r-project.org/">
-            R
-           </a>
-           for various calculations and diagnostic plots.
-Therefore, a global installation of R is required to run those tools.
-          </p>
           <ul class="simple">
            <li>
-            Minimum required R version:
-            <strong>
-             R 3.2.2
-            </strong>
-           </li>
-           <li>
-            Required packages (from
-            <a class="reference external" href="https://cran.r-project.org/">
-             CRAN
+            <a class="reference external" href="https://conda.io/miniconda.html">
+             Miniconda
             </a>
-            ):
+            or
+            <a class="reference external" href="https://www.anaconda.com/download/">
+             Anaconda
+            </a>
            </li>
           </ul>
-          <table border="1" class="docutils">
-           <colgroup>
-            <col width="100%">
-            </col>
-           </colgroup>
-           <thead valign="bottom">
-            <tr class="row-odd">
-             <th class="head">
-              R packages
-             </th>
-            </tr>
-           </thead>
-           <tbody valign="top">
-            <tr class="row-even">
-             <td>
-              <em>
-               getopt
-              </em>
-             </td>
-            </tr>
-            <tr class="row-odd">
-             <td>
-              <em>
-               ggplot2
-              </em>
-             </td>
-            </tr>
-            <tr class="row-even">
-             <td>
-              <em>
-               gridExtra
-              </em>
-             </td>
-            </tr>
-            <tr class="row-odd">
-             <td>
-              <em>
-               RColorBrewer
-              </em>
-             </td>
-            </tr>
-            <tr class="row-even">
-             <td>
-              <em>
-               lattice
-              </em>
-             </td>
-            </tr>
-            <tr class="row-odd">
-             <td>
-              <em>
-               matrixStats
-              </em>
-             </td>
-            </tr>
-            <tr class="row-even">
-             <td>
-              <em>
-               dplyr
-              </em>
-             </td>
-            </tr>
-            <tr class="row-odd">
-             <td>
-              <em>
-               tidyr
-              </em>
-             </td>
-            </tr>
-           </tbody>
-          </table>
+         </div>
+         <div class="section" id="id2">
+          <h2 id="id2">
+           <a class="header-link" href="#id2">
+            <span class="glyphicon glyphicon-link">
+            </span>
+           </a>
+           Installation
+          </h2>
           <p>
-           <strong>
-            Note:
-           </strong>
-           All required R packages will be installed automatically from PyPI or upon the first analysis run of
+           Once Anaconda is installed, you can create an environment containing the
            <em>
-            alleyoop
+            slamdunk
            </em>
-           or
-           <em>
-            splash
-           </em>
-           from source.
+           package with the following command:
           </p>
+          <div class="code bash highlight-python">
+           <div class="highlight">
+            <pre>conda create --name &lt;name&gt; -c bioconda slamdunk
+</pre>
+           </div>
+          </div>
          </div>
         </div>
         <div class="section" id="python-package-index">
@@ -339,44 +276,68 @@ of
           </a>
           .
          </p>
-         <div class="code bash highlight-python">
-          <div class="highlight">
-           <pre># Having root permissions
+         <div class="section" id="id4">
+          <h2 id="id4">
+           <a class="header-link" href="#id4">
+            <span class="glyphicon glyphicon-link">
+            </span>
+           </a>
+           Requirements
+          </h2>
+          <ul class="simple">
+           <li>
+            Python 2.7
+           </li>
+           <li>
+            pip
+           </li>
+           <li>
+            Java
+           </li>
+           <li>
+            cmake
+           </li>
+           <li>
+            <a class="reference external" href="https://www.r-project.org/">
+             R
+            </a>
+            3.2.2 for
+            <em>
+             alleyoop
+            </em>
+            and
+            <em>
+             splash
+            </em>
+           </li>
+          </ul>
+         </div>
+         <div class="section" id="id5">
+          <h2 id="id5">
+           <a class="header-link" href="#id5">
+            <span class="glyphicon glyphicon-link">
+            </span>
+           </a>
+           Installation
+          </h2>
+          <div class="code bash highlight-python">
+           <div class="highlight">
+            <pre># Having root permissions
 
 pip install slamdunk
+
+# Latest development version
+
+pip install git+https://github.com/t-neumann/slamdunk.git
 
 # Local user only
 
 pip install --user slamdunk
 export PATH=$PATH:$HOME/.local/bin/
 </pre>
+           </div>
           </div>
          </div>
-         <p>
-          <strong>
-           Note:
-          </strong>
-          There is no official
-          <em>
-           slamdunk
-          </em>
-          release yet, so there will be a test version on
-          <a class="reference external" href="https://testpypi.python.org/pypi">
-           TestPyPI
-          </a>
-          not guaranteed to be in line with latest developments.
-If you want to be absolutely sure you’re pulling the latest version, install
-          <em>
-           slamdunk
-          </em>
-          from
-          <a class="reference internal" href="docs.html#source-label">
-           <em>
-            Source
-           </em>
-          </a>
-          .
-         </p>
         </div>
         <div class="section" id="source">
          <span id="source-label">
@@ -388,128 +349,172 @@ If you want to be absolutely sure you’re pulling the latest version, install
           </a>
           Source
          </h1>
-         <ol class="arabic simple">
-          <li>
-           Clone from
-           <a class="reference external" href="https://github.com/t-neumann/slamdunk">
-            Github
+         <div class="section" id="id6">
+          <h2 id="id6">
+           <a class="header-link" href="#id6">
+            <span class="glyphicon glyphicon-link">
+            </span>
            </a>
-           .
-          </li>
-         </ol>
-         <div class="code bash highlight-python">
-          <div class="highlight">
-           <pre>git clone https://github.com/t-neumann/slamdunk.git
+           Requirements
+          </h2>
+          <ul class="simple">
+           <li>
+            Python 2.7
+           </li>
+           <li>
+            pip
+           </li>
+           <li>
+            Java
+           </li>
+           <li>
+            cmake
+           </li>
+           <li>
+            <a class="reference external" href="https://www.r-project.org/">
+             R
+            </a>
+            3.2.2 for
+            <em>
+             alleyoop
+            </em>
+            and
+            <em>
+             splash
+            </em>
+           </li>
+          </ul>
+         </div>
+         <div class="section" id="id8">
+          <h2 id="id8">
+           <a class="header-link" href="#id8">
+            <span class="glyphicon glyphicon-link">
+            </span>
+           </a>
+           Installation
+          </h2>
+          <ol class="arabic simple">
+           <li>
+            Clone from
+            <a class="reference external" href="https://github.com/t-neumann/slamdunk">
+             Github
+            </a>
+            .
+           </li>
+          </ol>
+          <div class="code bash highlight-python">
+           <div class="highlight">
+            <pre>git clone https://github.com/t-neumann/slamdunk.git
 
 cd slamdunk
 </pre>
+           </div>
           </div>
-         </div>
-         <ol class="arabic simple" start="2">
-          <li>
-           Install required python modules:
-          </li>
-         </ol>
-         <div class="code bash highlight-python">
-          <div class="highlight">
-           <pre># Having root permissions
+          <ol class="arabic simple" start="2">
+           <li>
+            Install required python modules:
+           </li>
+          </ol>
+          <div class="code bash highlight-python">
+           <div class="highlight">
+            <pre># Having root permissions
 pip install -r requirements.txt
 
 # Local user only
 pip install --user -r requirements.txt
 </pre>
+           </div>
           </div>
-         </div>
-         <ol class="arabic simple" start="3">
-          <li>
-           Change to
-           <cite>
-            contrib
-           </cite>
-          </li>
-         </ol>
-         <div class="code bash highlight-python">
-          <div class="highlight">
-           <pre>cd slamdunk/contrib
+          <ol class="arabic simple" start="3">
+           <li>
+            Change to
+            <cite>
+             contrib
+            </cite>
+           </li>
+          </ol>
+          <div class="code bash highlight-python">
+           <div class="highlight">
+            <pre>cd slamdunk/contrib
 </pre>
+           </div>
           </div>
-         </div>
-         <ol class="arabic simple" start="4">
-          <li>
-           Install NGM by following the
-           <cite>
-            build-ngm.sh
-           </cite>
-           instructions.
-          </li>
-         </ol>
-         <div class="code bash highlight-python">
-          <div class="highlight">
-           <pre>./build-ngm.sh
+          <ol class="arabic simple" start="4">
+           <li>
+            Install NGM by following the
+            <cite>
+             build-ngm.sh
+            </cite>
+            instructions.
+           </li>
+          </ol>
+          <div class="code bash highlight-python">
+           <div class="highlight">
+            <pre>./build-ngm.sh
 </pre>
+           </div>
           </div>
-         </div>
-         <ol class="arabic simple" start="5">
-          <li>
-           Install VarScan2 following the
-           <cite>
-            build-varscan.sh
-           </cite>
-           instructions.
-          </li>
-         </ol>
-         <div class="code bash highlight-python">
-          <div class="highlight">
-           <pre>./build-varscan.sh
+          <ol class="arabic simple" start="5">
+           <li>
+            Install VarScan2 following the
+            <cite>
+             build-varscan.sh
+            </cite>
+            instructions.
+           </li>
+          </ol>
+          <div class="code bash highlight-python">
+           <div class="highlight">
+            <pre>./build-varscan.sh
 </pre>
+           </div>
           </div>
-         </div>
-         <ol class="arabic simple" start="6">
-          <li>
-           Install Samtools following the
-           <cite>
-            build-samtools.sh
-           </cite>
-           instructions.
-          </li>
-         </ol>
-         <div class="code bash highlight-python">
-          <div class="highlight">
-           <pre>./build-samtools.sh
+          <ol class="arabic simple" start="6">
+           <li>
+            Install Samtools following the
+            <cite>
+             build-samtools.sh
+            </cite>
+            instructions.
+           </li>
+          </ol>
+          <div class="code bash highlight-python">
+           <div class="highlight">
+            <pre>./build-samtools.sh
 </pre>
+           </div>
           </div>
-         </div>
-         <ol class="arabic simple" start="7">
-          <li>
-           Install RNASeqReadSimulator following the
-           <cite>
-            build-rnaseqreadsimulator.sh
-           </cite>
-           instructions.
-          </li>
-         </ol>
-         <div class="code bash highlight-python">
-          <div class="highlight">
-           <pre>./build-rnaseqreadsimulator.sh
+          <ol class="arabic simple" start="7">
+           <li>
+            Install RNASeqReadSimulator following the
+            <cite>
+             build-rnaseqreadsimulator.sh
+            </cite>
+            instructions.
+           </li>
+          </ol>
+          <div class="code bash highlight-python">
+           <div class="highlight">
+            <pre>./build-rnaseqreadsimulator.sh
 </pre>
+           </div>
           </div>
-         </div>
-         <ol class="arabic simple" start="8">
-          <li>
-           Run
-           <em>
-            slamdunk
-           </em>
-           (optionally put it in your
-           <em>
-            $PATH
-           </em>
-           to run it from anywhere).
-          </li>
-         </ol>
-         <div class="code bash highlight-python">
-          <div class="highlight">
-           <pre>cd slamdunk/bin
+          <ol class="arabic simple" start="8">
+           <li>
+            Run
+            <em>
+             slamdunk
+            </em>
+            (optionally put it in your
+            <em>
+             $PATH
+            </em>
+            to run it from anywhere).
+           </li>
+          </ol>
+          <div class="code bash highlight-python">
+           <div class="highlight">
+            <pre>cd slamdunk/bin
 
 # Run it from directory
 ./slamdunk --help
@@ -519,6 +524,7 @@ export PATH=$(pwd):$PATH
 
 slamdunk --help
 </pre>
+           </div>
           </div>
          </div>
         </div>
@@ -1749,13 +1755,12 @@ For example:
           </table>
          </div>
          <div class="section" id="id2">
-          <h2 id="id2">
-           <a class="header-link" href="#id2">
-            <span class="glyphicon glyphicon-link">
-            </span>
-           </a>
+          <h4>
            Output
-          </h2>
+           <a class="headerlink" href="#id2" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
           <table border="1" class="docutils">
            <colgroup>
             <col width="21%">
@@ -1974,13 +1979,12 @@ analyses to reduce the false-positive number.
           </div>
          </div>
          <div class="section" id="id4">
-          <h2 id="id4">
-           <a class="header-link" href="#id4">
-            <span class="glyphicon glyphicon-link">
-            </span>
-           </a>
+          <h4>
            Input
-          </h2>
+           <a class="headerlink" href="#id4" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
           <table border="1" class="docutils">
            <colgroup>
             <col width="10%">
@@ -2017,13 +2021,12 @@ analyses to reduce the false-positive number.
           </table>
          </div>
          <div class="section" id="id5">
-          <h2 id="id5">
-           <a class="header-link" href="#id5">
-            <span class="glyphicon glyphicon-link">
-            </span>
-           </a>
+          <h4>
            Output
-          </h2>
+           <a class="headerlink" href="#id5" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
           <table border="1" class="docutils">
            <colgroup>
             <col width="9%">
@@ -2071,13 +2074,12 @@ For example:
           </div>
          </div>
          <div class="section" id="id6">
-          <h2 id="id6">
-           <a class="header-link" href="#id6">
-            <span class="glyphicon glyphicon-link">
-            </span>
-           </a>
+          <h4>
            Parameters
-          </h2>
+           <a class="headerlink" href="#id6" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
           <table border="1" class="docutils">
            <colgroup>
             <col width="5%">
@@ -2300,13 +2302,12 @@ For example:
           </table>
          </div>
          <div class="section" id="id8">
-          <h2 id="id8">
-           <a class="header-link" href="#id8">
-            <span class="glyphicon glyphicon-link">
-            </span>
-           </a>
+          <h4>
            Output
-          </h2>
+           <a class="headerlink" href="#id8" title="Permalink to this headline">
+            ¶
+           </a>
+          </h4>
           <table border="1" class="docutils">
            <colgroup>
             <col width="15%">
@@ -6469,6 +6470,30 @@ rm -rf $F
        <div class_="docs_block" id="document-Changelog">
         <p>
          <strong>
+          Version 0.3.2
+         </strong>
+        </p>
+        <p>
+         <em>
+          Changes:
+         </em>
+        </p>
+        <ul class="simple">
+         <li>
+          <a class="reference external" href="https://bioconda.github.io/recipes/slamdunk/README.html">
+           Bioconda
+          </a>
+          : Slamdunk recipe added.
+          <strong>
+           Slamdunk now available via conda from v0.3.2!
+          </strong>
+         </li>
+         <li>
+          Symlink ngm -&gt; nextgenmap/bin/ngm-0.5.2/ngm replaced by hard copy for bioconda-utils build compatibility.
+         </li>
+        </ul>
+        <p>
+         <strong>
           Version 0.3.1
          </strong>
         </p>
@@ -6859,13 +6884,18 @@ Please rerun alle your samples with slamdunk 0.2.0!
    </a>
    <ul class="nav nav-stacked">
     <li>
-     <a href="#requirements">
-      Requirements
+     <a href="#bioconda">
+      Bioconda
      </a>
      <ul class="nav nav-stacked">
       <li>
-       <a href="#r-runtime">
-        R runtime
+       <a href="#requirements">
+        Requirements
+       </a>
+      </li>
+      <li>
+       <a href="#id2">
+        Installation
        </a>
       </li>
      </ul>
@@ -6874,11 +6904,35 @@ Please rerun alle your samples with slamdunk 0.2.0!
      <a href="#python-package-index">
       Python Package Index
      </a>
+     <ul class="nav nav-stacked">
+      <li>
+       <a href="#id4">
+        Requirements
+       </a>
+      </li>
+      <li>
+       <a href="#id5">
+        Installation
+       </a>
+      </li>
+     </ul>
     </li>
     <li>
      <a href="#source">
       Source
      </a>
+     <ul class="nav nav-stacked">
+      <li>
+       <a href="#id6">
+        Requirements
+       </a>
+      </li>
+      <li>
+       <a href="#id8">
+        Installation
+       </a>
+      </li>
+     </ul>
     </li>
    </ul>
   </li>
@@ -6970,7 +7024,7 @@ Please rerun alle your samples with slamdunk 0.2.0!
       </li>
       <li>
        <a href="#id2">
-        Output
+        Installation
        </a>
       </li>
       <li>
@@ -6987,17 +7041,17 @@ Please rerun alle your samples with slamdunk 0.2.0!
      <ul class="nav nav-stacked">
       <li>
        <a href="#id4">
-        Input
+        Requirements
        </a>
       </li>
       <li>
        <a href="#id5">
-        Output
+        Installation
        </a>
       </li>
       <li>
        <a href="#id6">
-        Parameters
+        Requirements
        </a>
       </li>
      </ul>
@@ -7014,7 +7068,7 @@ Please rerun alle your samples with slamdunk 0.2.0!
       </li>
       <li>
        <a href="#id8">
-        Output
+        Installation
        </a>
       </li>
       <li>
@@ -7087,7 +7141,7 @@ Please rerun alle your samples with slamdunk 0.2.0!
       </li>
       <li>
        <a href="#id2">
-        Output
+        Installation
        </a>
       </li>
       <li>
@@ -7104,17 +7158,17 @@ Please rerun alle your samples with slamdunk 0.2.0!
      <ul class="nav nav-stacked">
       <li>
        <a href="#id4">
-        Input
+        Requirements
        </a>
       </li>
       <li>
        <a href="#id5">
-        Output
+        Installation
        </a>
       </li>
       <li>
        <a href="#id6">
-        Parameters
+        Requirements
        </a>
       </li>
      </ul>
@@ -7131,7 +7185,7 @@ Please rerun alle your samples with slamdunk 0.2.0!
       </li>
       <li>
        <a href="#id8">
-        Output
+        Installation
        </a>
       </li>
       <li>

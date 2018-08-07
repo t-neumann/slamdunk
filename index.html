@@ -78,9 +78,16 @@
 			</header>
 			<section>
 				<h4><b>Install</b></h4>
+				<h5><b>pip</b></h5>
 				<div class="code bash highlight-python">
 					<div class="highlight">
 						<pre>pip install slamdunk</pre>
+					</div>
+				</div>
+				<h5><b>conda</b></h5>
+				<div class="code bash highlight-python">
+					<div class="highlight">
+						<pre>conda create --name myenv -c bioconda slamdunk</pre>
 					</div>
 				</div>
 				<hr class="docutils">
@@ -264,7 +271,7 @@
 				<h2>Installation</h2>
 			</header>
 			<section>
-				<h3><b>Requirements</b></h3>
+				<h3><b>Dependencies</b></h3>
 				<h4><b>SlamDunk</b></h4>
 				<div class="panel panel-default">
 					<div class="panel-heading">
@@ -288,7 +295,7 @@
 				<h4><b>Installation</b></h4>
 				<div class="panel panel-primary" id="quick_install">
 					<div class="btn-group btn-group-justified btn-group-xs install-switcher" role="group">
-						<a class="btn active" href="#pip">pip</a> <a class="btn" href="#dev">development version</a> <a class="btn" href="#manual">manual</a>
+						<a class="btn active" href="#pip">pip</a> <a class="btn" href="#conda">conda</a> <a class="btn" href="#dev">development version</a> <a class="btn" href="#manual">manual</a>
 					</div>
 					<div class="panel-body">
 						<div id="pip">
@@ -298,6 +305,10 @@ pip install slamdunk
 
 <span class="comment"># Local user</span>
 pip install --user slamdunk</code></pre>
+						</div>
+						<div id="conda">
+							<p>SlamDunk is hosted as <a href="https://conda.io/docs/">conda</a> package on <a href="https://bioconda.github.io/recipes/slamdunk/README.html">Bioconda</a>. You can install it with a single command into an environment of your choice.</p>
+							<pre><code>conda create --name myenv -c bioconda slamdunk</code></pre>
 						</div>
 						<div id="dev" style="display:none;">
 							<p>The latest source of SlamDunk is hosted in our <a href="https://github.com/t-neumann/slamdunk">GitHub repository</a>. You can install it directly from there using <a href="https://pypi.python.org/pypi/pip">pip</a>.</p>
