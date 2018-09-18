@@ -569,7 +569,7 @@ def readSummary(filteredFiles, countDirectory, outputFile, log, printOnly=False,
             else:
                 ID = sampleInfo.ID
         
-            contentDict[int(ID)] = "\t".join([bam, sampleInfo.Name, sampleInfo.Type, sampleInfo.Time, str(slamseqInfo.SequencedReads), str(slamseqInfo.MappedReads), str(slamseqInfo.DedupReads), str(slamseqInfo.MQFilteredReads), str(slamseqInfo.IdFilteredReads), str(slamseqInfo.NmFilteredReads), str(slamseqInfo.MultimapperReads), str(slamseqInfo.FilteredReads), slamseqInfo.AnnotationName])
+            contentDict[ID] = "\t".join([bam, sampleInfo.Name, sampleInfo.Type, sampleInfo.Time, str(slamseqInfo.SequencedReads), str(slamseqInfo.MappedReads), str(slamseqInfo.DedupReads), str(slamseqInfo.MQFilteredReads), str(slamseqInfo.IdFilteredReads), str(slamseqInfo.NmFilteredReads), str(slamseqInfo.MultimapperReads), str(slamseqInfo.FilteredReads), slamseqInfo.AnnotationName])
           
     if (countDirectory != None) :
         

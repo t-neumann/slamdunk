@@ -81,6 +81,8 @@ def Dedup(inputBAM, outputBAM, tcMutations, log, printOnly=False, verbose = True
                         retainedReads += 1 
                     outfile.write(readEntry)
         duplicateBuffer.clear()
+        
+        outfile.close()
                 
         print("Retained " + str(retainedReads) + " of " + str(processedReads) + " reads (", file=log, end = "")
         print("{0:.2f}".format(float(retainedReads) / float(processedReads)),file=log,end="")
