@@ -444,8 +444,8 @@ class SlamSeqBamFile:
     def readsInChromosome(self, chromosome, minQual = 0, conversionThreshold = 1):
 
         if (chromosome in self._bamFile.references) :
-            refSeq = self._referenceFile.fetch(region=chromosome).upper()
-            return SlamSeqBamIterator(self._bamFile.fetch(region=chromosome), refSeq, chromosome, 1, ".", 0, self._snps, minQual, conversionThreshold)
+            refSeq = self._referenceFile.fetch(reference=chromosome).upper()
+            return SlamSeqBamIterator(self._bamFile.fetch(reference=chromosome), refSeq, chromosome, 1, ".", 0, self._snps, minQual, conversionThreshold)
         else :
             return iter([])
 
