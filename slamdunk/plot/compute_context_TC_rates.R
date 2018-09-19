@@ -53,7 +53,6 @@ if ( is.null(opt$outputFile) ) { opt$outputFile = "out.pdf" }
 
 library(ggplot2, lib.loc = libLoc)
 library(gridExtra, lib.loc = libLoc)
-library(dplyr, lib.loc = libLoc)
 
 rates = read.table(opt$rateTab,stringsAsFactors=FALSE,col.names = c("sample","file"),comment.char = "")
 
