@@ -112,8 +112,12 @@ GSEAplot <- function(counts, snps, ...) {
 	rect.yt <- 0.5
 	rect(0.5, 0, num + 0.5, 0.5, col = "pink", border = NA)
 	
-	segments(snpLoc, barlim[1], snpLoc, barlim[2]/2, lwd = lwd, col = "black")
-	segments(snpLoc, barlim[2]/2, snpLoc, barlim[2]/2 * 2, lwd = lwd, col = "black")
+	if (length(snpLoc) > 0) {
+	
+		segments(snpLoc, barlim[1], snpLoc, barlim[2]/2, lwd = lwd, col = "black")
+		segments(snpLoc, barlim[2]/2, snpLoc, barlim[2]/2 * 2, lwd = lwd, col = "black")
+	
+	}
 	
 	axis(side = 2, at = 0.5, padj = 3.8, cex.axis = 0.85, 
 			labels = "High # T>C reads", tick = FALSE)
@@ -153,27 +157,34 @@ table = table[table$count >= quantile(table$count, 0.75),]
 
 par(mfrow=c(2,1))
 
-blindTest = wilcox.test(table$unmasked ~ table$snp == "1", alternative = "less")
-maskedTest = wilcox.test(table$masked ~ table$snp == "1", alternative = "less")
+if (length(table(table$snp)) > 1) {
 
-blindPvalue = blindTest$p.value
+	blindTest = wilcox.test(table$unmasked ~ table$snp == "1", alternative = "less")
+	maskedTest = wilcox.test(table$masked ~ table$snp == "1", alternative = "less")
+	
+	blindPvalue = blindTest$p.value
+	
+	if (blindPvalue < 0.01) {
+		blindPvalue = "< 0.01"
+	} else {
+		blindPvalue =  paste("= ",round(blindPvalue,digits=2),sep="")
+	}
+	
+	maskedPvalue = maskedTest$p.value
+	
+	if (maskedPvalue < 0.01) {
+		maskedPvalue = "< 0.01"
+	} else {
+		maskedPvalue =  paste("= ",round(maskedPvalue,digits=2),sep="")
+	}
+	
+	GSEAplot(table$unmasked, which(table$snp == 1), main="Blind", xlab = paste("Mann-Whitney-U:  p-value ",blindPvalue,sep=""))
+	GSEAplot(table$masked, which(table$snp == 1), main="SNP-masked", xlab = paste("Mann-Whitney-U:  p-value ",maskedPvalue,sep=""))
 
-if (blindPvalue < 0.01) {
-	blindPvalue = "< 0.01"
 } else {
-	blindPvalue =  paste("= ",round(blindPvalue,digits=2),sep="")
+	GSEAplot(table$unmasked, which(table$snp == 1), main="Blind", xlab = paste("Mann-Whitney-U:  p-value NA",sep=""))
+	GSEAplot(table$masked, which(table$snp == 1), main="SNP-masked", xlab = paste("Mann-Whitney-U:  p-value NA",sep=""))
 }
-
-maskedPvalue = maskedTest$p.value
-
-if (maskedPvalue < 0.01) {
-	maskedPvalue = "< 0.01"
-} else {
-	maskedPvalue =  paste("= ",round(maskedPvalue,digits=2),sep="")
-}
-
-GSEAplot(table$unmasked, which(table$snp == 1), main="Blind", xlab = paste("Mann-Whitney-U:  p-value ",blindPvalue,sep=""))
-GSEAplot(table$masked, which(table$snp == 1), main="SNP-masked", xlab = paste("Mann-Whitney-U:  p-value ",maskedPvalue,sep=""))
 
 # wilcox.test(testTab$masked ~ testTab$snp == "1")
 # wilcox.test(testTab$unmasked ~ testTab$snp == "1")
