@@ -20,7 +20,7 @@
 
 checkLib <- function(libLoc) {
 	
-	list.of.packages <- c("getopt","ggplot2","gridExtra","RColorBrewer","lattice","matrixStats","dplyr","tidyr","assertthat","lazyeval","tibble")
+	list.of.packages <- c("getopt","ggplot2","gridExtra","RColorBrewer","lattice","matrixStats","assertthat","lazyeval","tibble")
 	new.packages <- list.of.packages[!(list.of.packages %in% installed.packages(lib.loc = libLoc)[,"Package"])]
 	
 	if(length(new.packages)) install.packages(new.packages, repos="http://cran.wu.ac.at/", lib = libLoc, dependencies = TRUE)

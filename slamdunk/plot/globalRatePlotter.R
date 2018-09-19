@@ -53,8 +53,6 @@ if ( is.null(opt$outputFile) ) { opt$outputFile = "out.pdf" }
 
 library(ggplot2, lib.loc = libLoc)
 library(gridExtra, lib.loc = libLoc)
-library(dplyr, lib.loc = libLoc)
-library(tidyr, lib.loc = libLoc)
 
 rates = read.table(opt$rateTab,stringsAsFactors=FALSE,col.names = c("sample","file"), comment.char = "")
 
@@ -65,59 +63,114 @@ plotList = list()
 for (i in 1:nrow(rates)) {
 	curTab = read.delim(rates$file[i],stringsAsFactors=FALSE,comment.char='#')
 	
-	plusTab = curTab %>% dplyr::filter(Strand == "+")
-	minusTab = curTab %>% dplyr::filter(Strand == "-") %>%
-			dplyr::select(A_A = T_T, G_G = C_C, C_C = G_G, T_T = A_A, A_C = T_G, A_G = T_C, A_T = T_A, C_A = G_T, C_G = G_C, C_T = G_A, G_A = C_T, G_C = C_G, G_T = C_A, T_A = A_T, T_C = A_G, T_G = A_C)
+	plusTab = curTab[curTab$Strand == "+",]
+	minusTab = curTab[curTab$Strand == "-",]
 	
-	#plusTab = plusTab %>% dplyr::select(-contains("N")) %>% dplyr::select(-one_of("Chr","Start")) %>% mutate(rowsum = rowSums(.)) %>% filter(rowsum > 0) %>% mutate_each(funs(. / rowsum)) %>% dplyr::select(-one_of(c("rowsum","A_A","C_C","G_G","T_T")))
-	plusTab = plusTab %>% dplyr::select(-contains("N")) %>%
-			dplyr::select(-one_of("Chr","Start")) %>%
-			filter(rowSums(.) > 0) %>%
-			mutate(Asum = A_A + A_C + A_G + A_T) %>%
-			mutate(Csum = C_A + C_C + C_G + C_T) %>% 
-			mutate(Gsum = G_A + G_C + G_G + G_T) %>%
-			mutate(Tsum = T_A + T_C + T_G + T_T) %>%
-			mutate_each(funs(. / Asum),matches("A_")) %>%
-			mutate_each(funs(. / Csum),matches("C_")) %>%
-			mutate_each(funs(. / Gsum),matches("G_")) %>%
-			mutate_each(funs(. / Tsum),matches("T_")) %>%
-			dplyr::select(-one_of(c("Asum","Csum","Gsum","Tsum"))) %>%
-			mutate_each(funs(. * 100))
+	# "Name"      "Chr"       "Start"     "End"       "Strand"    "ReadCount"
+	# "A_A"       "A_C"       "A_G"       "A_T"       "A_N"       "C_A"
+	# "C_C"       "C_G"       "C_T"       "C_N"       "G_A"       "G_C"
+	# "G_G"       "G_T"       "G_N"       "T_A"       "T_C"       "T_G"
+	# "T_T"       "T_N"       "N_A"       "N_C"       "N_G"       "N_T"
+	# "N_N"
 	
-	minusTab = minusTab %>% filter(rowSums(.) > 0) %>%
-			mutate(Asum = A_A + A_C + A_G + A_T) %>%
-			mutate(Csum = C_A + C_C + C_G + C_T) %>% 
-			mutate(Gsum = G_A + G_C + G_G + G_T) %>%
-			mutate(Tsum = T_A + T_C + T_G + T_T) %>%
-			mutate_each(funs(. / Asum),matches("A_")) %>%
-			mutate_each(funs(. / Csum),matches("C_")) %>%
-			mutate_each(funs(. / Gsum),matches("G_")) %>%
-			mutate_each(funs(. / Tsum),matches("T_")) %>%
-			dplyr::select(-one_of(c("Asum","Csum","Gsum","Tsum"))) %>%
-			mutate_each(funs(. * 100))
+	names(minusTab) = c("Name", "Chr", "Start", "End", "Strand", "ReadCount",
+			"T_T", "T_G", "T_C", "T_A", "NNN", "G_T",
+			"G_G", "G_C", "G_A", "NNN", "C_T", "C_G",
+			"C_C", "C_A", "NNN", "A_T", "A_G", "A_C",
+			"A_A", "NNN", "NNN", "NNN", "NNN", "NNN",
+			"NNN")
 	
-	#minusTab = minusTab %>% mutate(rowsum = rowSums(.)) %>% filter(rowsum > 0) %>% mutate_each(funs(. / rowsum)) %>% dplyr::select(-rowsum)
+	plusTab = plusTab[,c(1,grep("N",names(plusTab),invert=TRUE))]
+	minusTab = minusTab[,grep("NNN",names(minusTab),invert=TRUE)]
 	
-	#plotTab = gather(curTab,"class","values",A_A,A_C,A_G,A_T,C_A,C_C,C_G,C_T,G_A,G_C,G_G,G_T,T_A,T_C,T_G,T_T)
-	#plotTab = rbind(gather(plusTab,"class","values",A_C,A_G,A_T,C_A,C_G,C_T,G_A,G_C,G_T,T_A,T_C,T_G),
-	#                gather(minusTab,"class","values",A_C,A_G,A_T,C_A,C_G,C_T,G_A,G_C,G_T,T_A,T_C,T_G)
-	#)
+	plusTab = plusTab[,c(-1,-2,-3,-4,-5,-6)]
+	plusTab = plusTab[rowSums(plusTab) > 0,]
+	
+	plusTab$Asum = plusTab$A_A + plusTab$A_C + plusTab$A_G + plusTab$A_T
+	plusTab$Csum = plusTab$C_A + plusTab$C_C + plusTab$C_G + plusTab$C_T
+	plusTab$Gsum = plusTab$G_A + plusTab$G_C + plusTab$G_G + plusTab$G_T
+	plusTab$Tsum = plusTab$T_A + plusTab$T_C + plusTab$T_G + plusTab$T_T
+	
+	plusTab$A_A = plusTab$A_A / plusTab$Asum
+	plusTab$A_C = plusTab$A_C / plusTab$Asum
+	plusTab$A_G = plusTab$A_G / plusTab$Asum
+	plusTab$A_T = plusTab$A_T / plusTab$Asum
+	
+	plusTab$C_A = plusTab$C_A / plusTab$Csum
+	plusTab$C_C = plusTab$C_C / plusTab$Csum
+	plusTab$C_G = plusTab$C_G / plusTab$Csum
+	plusTab$C_T = plusTab$C_T / plusTab$Csum
+	
+	plusTab$G_A = plusTab$G_A / plusTab$Gsum
+	plusTab$G_C = plusTab$G_C / plusTab$Gsum
+	plusTab$G_G = plusTab$G_G / plusTab$Gsum
+	plusTab$G_T = plusTab$G_T / plusTab$Gsum
+	
+	plusTab$T_A = plusTab$T_A / plusTab$Tsum
+	plusTab$T_C = plusTab$T_C / plusTab$Tsum
+	plusTab$T_G = plusTab$T_G / plusTab$Tsum
+	plusTab$T_T = plusTab$T_T / plusTab$Tsum
+	
+	plusTab = plusTab[,grep("sum",names(plusTab),invert=TRUE)]
+	
+	plusTab = plusTab * 100
+	
+	minusTab = minusTab[,c(-1,-2,-3,-4,-5,-6)]
+	minusTab = minusTab[rowSums(minusTab) > 0,]
+	
+	minusTab$Asum = minusTab$A_A + minusTab$A_C + minusTab$A_G + minusTab$A_T
+	minusTab$Csum = minusTab$C_A + minusTab$C_C + minusTab$C_G + minusTab$C_T
+	minusTab$Gsum = minusTab$G_A + minusTab$G_C + minusTab$G_G + minusTab$G_T
+	minusTab$Tsum = minusTab$T_A + minusTab$T_C + minusTab$T_G + minusTab$T_T
+	
+	minusTab$A_A = minusTab$A_A / minusTab$Asum
+	minusTab$A_C = minusTab$A_C / minusTab$Asum
+	minusTab$A_G = minusTab$A_G / minusTab$Asum
+	minusTab$A_T = minusTab$A_T / minusTab$Asum
+	
+	minusTab$C_A = minusTab$C_A / minusTab$Csum
+	minusTab$C_C = minusTab$C_C / minusTab$Csum
+	minusTab$C_G = minusTab$C_G / minusTab$Csum
+	minusTab$C_T = minusTab$C_T / minusTab$Csum
+	
+	minusTab$G_A = minusTab$G_A / minusTab$Gsum
+	minusTab$G_C = minusTab$G_C / minusTab$Gsum
+	minusTab$G_G = minusTab$G_G / minusTab$Gsum
+	minusTab$G_T = minusTab$G_T / minusTab$Gsum
+	
+	minusTab$T_A = minusTab$T_A / minusTab$Tsum
+	minusTab$T_C = minusTab$T_C / minusTab$Tsum
+	minusTab$T_G = minusTab$T_G / minusTab$Tsum
+	minusTab$T_T = minusTab$T_T / minusTab$Tsum
+	
+	minusTab = minusTab[,grep("sum",names(minusTab),invert=TRUE)]
+	
+	minusTab = minusTab * 100
+	
 	plotTab = rbind(plusTab, minusTab)
-	plotTab = plotTab %>% dplyr::select(A_C,A_G,A_T,C_A,C_G,C_T,G_A,G_C,G_T,T_A,T_C,T_G)
+	
+	plotTab = plotTab[,c("A_C","A_G","A_T","C_A","C_G","C_T","G_A","G_C","G_T","T_A","T_C","T_G")]
 	quantiles = lapply(plotTab, function(x) {
 				return(quantile(x, na.rm=TRUE, p=0.75) + 1.5 * IQR(x, na.rm=TRUE))
 			})
 	
-	#ymax = 0
-	#for (base in names(quantiles)) {
-	#  whiskerTop = quantiles[[base]][4] + 1.5 * (quantiles[[base]][4] - quantiles[[base]][2])
-	#  print(whiskerTop)
-	#  ymax = max(ymax, whiskerTop)
-	#}
-	#ymax = ceiling(ymax)
 	ymax = ceiling(max(unlist(quantiles)))
-	#plotTab$values = plotTab$values / sum(plotTab$values) * 100
-	plotTab = gather(plotTab,"class","values",A_C,A_G,A_T,C_A,C_G,C_T,G_A,G_C,G_T,T_A,T_C,T_G)
+	
+	plotTab = rbind(
+			data.frame(class = "A_C", values = plotTab$A_C),
+			data.frame(class = "A_G", values = plotTab$A_G),
+			data.frame(class = "A_T", values = plotTab$A_T),
+			data.frame(class = "C_A", values = plotTab$C_A),
+			data.frame(class = "C_G", values = plotTab$C_G),
+			data.frame(class = "C_T", values = plotTab$C_T),
+			data.frame(class = "G_A", values = plotTab$G_A),
+			data.frame(class = "G_C", values = plotTab$G_C),
+			data.frame(class = "G_T", values = plotTab$G_T),
+			data.frame(class = "T_A", values = plotTab$T_A),
+			data.frame(class = "T_C", values = plotTab$T_C),
+			data.frame(class = "T_G", values = plotTab$T_G)
+	)
+	
 	plotTab$highlight = "no"
 	plotTab$highlight[plotTab$class == "T_C"] = "yes"
 	plotTab$class = sub("_", ">", plotTab$class)
@@ -127,11 +180,6 @@ for (i in 1:nrow(rates)) {
 	plotTab$group[plotTab$class %in% c("T>A","T>C","T>G")] = "T"
 	
 	plotTab = plotTab[!is.na(plotTab$values),]
-	
-	#curPlot = ggplot(plotTab, aes(x=class,y=values,fill=highlight,col=highlight)) + stat_boxplot(geom ='errorbar') + geom_boxplot(outlier.shape = NA,lwd=0.8,fatten=2) + facet_grid(~group, scales="free", space="free") + xlab("") + ylab("Mutation rate per UTR base [%]") +
-	#scale_fill_manual(values=c("white","white")) + scale_color_manual(values=c("black", "red")) + theme_classic() +  theme(axis.ticks.x = element_blank(), axis.line.y = element_line(color="black"), legend.position = "none")
-	
-	#plotList[[length(plotList)+1]] <- curPlot + ylim(0,ymax)
 	
 	curPlot = ggplot(plotTab, aes(x=class,y=values,fill=highlight,col=highlight)) + stat_boxplot(geom ='errorbar') + geom_boxplot(outlier.shape = NA,lwd=0.8,fatten=2) + facet_grid(~group, scales="free", space="free") + xlab("") + ylab("Mutation rate per UTR base [%]") +
 			scale_fill_manual(values=c("white","white")) + scale_color_manual(values=c("black", "red")) + theme(axis.ticks.x = element_blank(), legend.position = "none")
