@@ -555,7 +555,7 @@ def readSummary(filteredFiles, countDirectory, outputFile, log, printOnly=False,
                 print(sampleInfo.Name, countFile, sep='\t', file=f)
                 countedReads = sumCounts(countFile)
             
-            if(sampleInfo.ID in contentDict):
+            if(int(sampleInfo.ID) in contentDict):
                 ID = len(contentDict) + 1
             else:
                 ID = sampleInfo.ID
@@ -564,12 +564,12 @@ def readSummary(filteredFiles, countDirectory, outputFile, log, printOnly=False,
         
         else :
             
-            if(sampleInfo.ID in contentDict):
+            if(int(sampleInfo.ID) in contentDict):
                 ID = len(contentDict) + 1
             else:
                 ID = sampleInfo.ID
         
-            contentDict[ID] = "\t".join([bam, sampleInfo.Name, sampleInfo.Type, sampleInfo.Time, str(slamseqInfo.SequencedReads), str(slamseqInfo.MappedReads), str(slamseqInfo.DedupReads), str(slamseqInfo.MQFilteredReads), str(slamseqInfo.IdFilteredReads), str(slamseqInfo.NmFilteredReads), str(slamseqInfo.MultimapperReads), str(slamseqInfo.FilteredReads), slamseqInfo.AnnotationName])
+            contentDict[int(ID)] = "\t".join([bam, sampleInfo.Name, sampleInfo.Type, sampleInfo.Time, str(slamseqInfo.SequencedReads), str(slamseqInfo.MappedReads), str(slamseqInfo.DedupReads), str(slamseqInfo.MQFilteredReads), str(slamseqInfo.IdFilteredReads), str(slamseqInfo.NmFilteredReads), str(slamseqInfo.MultimapperReads), str(slamseqInfo.FilteredReads), slamseqInfo.AnnotationName])
           
     if (countDirectory != None) :
         
