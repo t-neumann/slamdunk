@@ -146,8 +146,7 @@ def removeFile(files):
 
 def checkStep(inFiles, outFiles, force=False):    
     if not files_exist(inFiles):
-        print(inFiles, outFiles)
-        raise RuntimeError("One or more input files don't exist.")
+        raise RuntimeError("One or more input files don't exist: " + str(inFiles))
     inFileDate = os.path.getmtime(inFiles[0])
     for x in inFiles[1:]:
         inFileDate = max(inFileDate, os.path.getmtime(x))    
