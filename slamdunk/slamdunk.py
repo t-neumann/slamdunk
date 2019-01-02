@@ -188,7 +188,7 @@ def runCount(tid, bam, ref, bed, maxLength, minQual, conversionThreshold, output
     if (maxLength == None) :
         maxLength = estimateMaxReadLength(bam)
     if (maxLength < 0) :
-        print("Could not reliable estimate maximum read length. Please specify --max-read-length parameter.")
+        print("Difference between minimum and maximum read length is > 10. Please specify --max-read-length parameter.")
         sys.exit(0)
     
     log = getLogFile(outputLOG)
