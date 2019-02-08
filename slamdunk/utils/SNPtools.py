@@ -28,12 +28,13 @@ class SNPDictionary(object):
         self._agSNPs = {}
 
     def _addSNP(self, snp):
+
         if(snp[3].upper() == "T" and snp[4].upper() == "C"):
             key = snp[0] + snp[1]
             self._tcSNPs[key] = True
         
         if(snp[3].upper() == "A" and snp[4].upper() == "G"):
-            key = snp[0] + str(int(snp[1]) - 1)
+            key = snp[0] + snp[1]
             self._agSNPs[key] = True
         
     def read(self):        
