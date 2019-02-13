@@ -1,6 +1,23 @@
 Changelog
 =========
 
+**Version 0.3.4**
+
+*Bugfixes:*
+
+* Reverse strand A->G SNP coordinates offset fixed.
+* Mismatch of string to int in key search fixed for summary.
+
+**Version 0.3.3**
+
+*Bugfixes:*
+
+* Mutation type bugfix in MPTagToConversion fixed
+* Deduplicated bam file properly closed for indexing
+* alleyoop snpeval also works now without snp sets
+* Chromosome retreival fix for pysam
+* dplyr dependencies removed (Bioconda)
+
 **Version 0.3.2**
 
 *Changes:*
