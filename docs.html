@@ -97,18 +97,50 @@
         Introduction
        </h1>
        <div class_="docs_block" id="document-Introduction">
-        <p id="slamseq">
-         SLAMseq is a novel sequencing protocol that directly uncovers 4-thiouridine incorporation events in RNA by high-throughput sequencing. When combined with metabolic labeling protocols, SLAM-seq allows to study the intracellular RNA dynamics, from transcription, RNA processing to RNA stability.
-        </p>
-        <p>
-         Original publication:
-         <a class="reference external" href="https://www.nature.com/nmeth/journal/vaop/ncurrent/full/nmeth.4435.html">
-          Herzog et al., Nature Methods, 2017; doi:10.1038/nmeth.4435
+        <div class="section" id="slam-seq">
+         <span id="slamseq">
+         </span>
+         <h1 id="slam-seq">
+          <a class="header-link" href="#slam-seq">
+           <span class="glyphicon glyphicon-link">
+           </span>
+          </a>
+          SLAM-seq
+         </h1>
+         <p>
+          SLAMseq is a novel sequencing protocol that directly uncovers 4-thiouridine incorporation events in RNA by high-throughput sequencing. When combined with metabolic labeling protocols, SLAM-seq allows to study the intracellular RNA dynamics, from transcription, RNA processing to RNA stability.
+         </p>
+         <p>
+          Original publication:
+          <a class="reference external" href="https://www.nature.com/nmeth/journal/vaop/ncurrent/full/nmeth.4435.html">
+           Herzog et al., Nature Methods, 2017; doi:10.1038/nmeth.4435
+          </a>
+         </p>
+         <a class="reference internal image-reference" href="images/slam.png">
+          <img alt="images/slam.png" class="align-center" src="images/slam.png" style="width: 800px;"/>
          </a>
-        </p>
-        <a class="reference internal image-reference" href="images/slam.png">
-         <img alt="images/slam.png" class="align-center" src="images/slam.png" style="width: 800px;"/>
-        </a>
+        </div>
+        <div class="section" id="slam-dunk">
+         <span id="slamdunk">
+         </span>
+         <h1 id="slam-dunk">
+          <a class="header-link" href="#slam-dunk">
+           <span class="glyphicon glyphicon-link">
+           </span>
+          </a>
+          SLAM-DUNK
+         </h1>
+         <p>
+          Neumann, T., Herzog, V. A., Muhar, M., Haeseler, von, A., Zuber, J., Ameres, S. L., &amp; Rescheneder, P. (2019).
+          <strong>
+           Quantification of experimentally induced nucleotide conversions in high-throughput sequencing datasets
+          </strong>
+          . BMC Bioinformatics, 20(1), 258.
+          <a class="reference external" href="http://doi.org/10.1186/s12859-019-2849-7">
+           doi:10.1186/s12859-019-2849-7
+          </a>
+         </p>
+        </div>
        </div>
       </div>
       <div class="docs_section">
@@ -171,11 +203,9 @@
          </li>
          <li>
           Manual installation from
-          <a class="reference internal" href="docs.html#source-label">
-           <em>
-            Source
-           </em>
-          </a>
+          <em class="xref std std-ref">
+           source-label
+          </em>
          </li>
         </ol>
         <div class="section" id="bioconda">
@@ -337,195 +367,8 @@ export PATH=$PATH:$HOME/.local/bin/
 </pre>
            </div>
           </div>
-         </div>
-        </div>
-        <div class="section" id="source">
-         <span id="source-label">
-         </span>
-         <h1 id="source">
-          <a class="header-link" href="#source">
-           <span class="glyphicon glyphicon-link">
-           </span>
-          </a>
-          Source
-         </h1>
-         <div class="section" id="id6">
-          <h2 id="id6">
-           <a class="header-link" href="#id6">
-            <span class="glyphicon glyphicon-link">
-            </span>
-           </a>
-           Requirements
-          </h2>
-          <ul class="simple">
-           <li>
-            Python 2.7
-           </li>
-           <li>
-            pip
-           </li>
-           <li>
-            Java
-           </li>
-           <li>
-            cmake
-           </li>
-           <li>
-            <a class="reference external" href="https://www.r-project.org/">
-             R
-            </a>
-            3.2.2 for
-            <em>
-             alleyoop
-            </em>
-            and
-            <em>
-             splash
-            </em>
-           </li>
-          </ul>
-         </div>
-         <div class="section" id="id8">
-          <h2 id="id8">
-           <a class="header-link" href="#id8">
-            <span class="glyphicon glyphicon-link">
-            </span>
-           </a>
-           Installation
-          </h2>
-          <ol class="arabic simple">
-           <li>
-            Clone from
-            <a class="reference external" href="https://github.com/t-neumann/slamdunk">
-             Github
-            </a>
-            .
-           </li>
-          </ol>
-          <div class="code bash highlight-python">
-           <div class="highlight">
-            <pre>git clone https://github.com/t-neumann/slamdunk.git
-
-cd slamdunk
-</pre>
-           </div>
-          </div>
-          <ol class="arabic simple" start="2">
-           <li>
-            Install required python modules:
-           </li>
-          </ol>
-          <div class="code bash highlight-python">
-           <div class="highlight">
-            <pre># Having root permissions
-pip install -r requirements.txt
-
-# Local user only
-pip install --user -r requirements.txt
-</pre>
-           </div>
-          </div>
-          <ol class="arabic simple" start="3">
-           <li>
-            Change to
-            <cite>
-             contrib
-            </cite>
-           </li>
-          </ol>
-          <div class="code bash highlight-python">
-           <div class="highlight">
-            <pre>cd slamdunk/contrib
-</pre>
-           </div>
-          </div>
-          <ol class="arabic simple" start="4">
-           <li>
-            Install NGM by following the
-            <cite>
-             build-ngm.sh
-            </cite>
-            instructions.
-           </li>
-          </ol>
-          <div class="code bash highlight-python">
-           <div class="highlight">
-            <pre>./build-ngm.sh
-</pre>
-           </div>
-          </div>
-          <ol class="arabic simple" start="5">
-           <li>
-            Install VarScan2 following the
-            <cite>
-             build-varscan.sh
-            </cite>
-            instructions.
-           </li>
-          </ol>
-          <div class="code bash highlight-python">
-           <div class="highlight">
-            <pre>./build-varscan.sh
-</pre>
-           </div>
-          </div>
-          <ol class="arabic simple" start="6">
-           <li>
-            Install Samtools following the
-            <cite>
-             build-samtools.sh
-            </cite>
-            instructions.
-           </li>
-          </ol>
-          <div class="code bash highlight-python">
-           <div class="highlight">
-            <pre>./build-samtools.sh
-</pre>
-           </div>
-          </div>
-          <ol class="arabic simple" start="7">
-           <li>
-            Install RNASeqReadSimulator following the
-            <cite>
-             build-rnaseqreadsimulator.sh
-            </cite>
-            instructions.
-           </li>
-          </ol>
-          <div class="code bash highlight-python">
-           <div class="highlight">
-            <pre>./build-rnaseqreadsimulator.sh
-</pre>
-           </div>
-          </div>
-          <ol class="arabic simple" start="8">
-           <li>
-            Run
-            <em>
-             slamdunk
-            </em>
-            (optionally put it in your
-            <em>
-             $PATH
-            </em>
-            to run it from anywhere).
-           </li>
-          </ol>
-          <div class="code bash highlight-python">
-           <div class="highlight">
-            <pre>cd slamdunk/bin
-
-# Run it from directory
-./slamdunk --help
-
-# Put it in your $PATH to run it from anywhere
-export PATH=$(pwd):$PATH
-
-slamdunk --help
-</pre>
-           </div>
-          </div>
+          <span class="target" id="source-label">
+          </span>
          </div>
         </div>
        </div>
@@ -2074,12 +1917,13 @@ For example:
           </div>
          </div>
          <div class="section" id="id6">
-          <h4>
-           Parameters
-           <a class="headerlink" href="#id6" title="Permalink to this headline">
-            ¶
+          <h2 id="id6">
+           <a class="header-link" href="#id6">
+            <span class="glyphicon glyphicon-link">
+            </span>
            </a>
-          </h4>
+           Parameters
+          </h2>
           <table border="1" class="docutils">
            <colgroup>
             <col width="5%">
@@ -2302,12 +2146,13 @@ For example:
           </table>
          </div>
          <div class="section" id="id8">
-          <h4>
-           Output
-           <a class="headerlink" href="#id8" title="Permalink to this headline">
-            ¶
+          <h2 id="id8">
+           <a class="header-link" href="#id8">
+            <span class="glyphicon glyphicon-link">
+            </span>
            </a>
-          </h4>
+           Output
+          </h2>
           <table border="1" class="docutils">
            <colgroup>
             <col width="15%">
@@ -6922,6 +6767,18 @@ Please rerun alle your samples with slamdunk 0.2.0!
    <a href="#document-Introduction">
     Introduction
    </a>
+   <ul class="nav nav-stacked">
+    <li>
+     <a href="#slam-seq">
+      SLAM-seq
+     </a>
+    </li>
+    <li>
+     <a href="#slam-dunk">
+      SLAM-DUNK
+     </a>
+    </li>
+   </ul>
   </li>
   <li>
    <a href="#document-Installation">
@@ -6957,23 +6814,6 @@ Please rerun alle your samples with slamdunk 0.2.0!
       </li>
       <li>
        <a href="#id5">
-        Installation
-       </a>
-      </li>
-     </ul>
-    </li>
-    <li>
-     <a href="#source">
-      Source
-     </a>
-     <ul class="nav nav-stacked">
-      <li>
-       <a href="#id6">
-        Requirements
-       </a>
-      </li>
-      <li>
-       <a href="#id8">
         Installation
        </a>
       </li>
@@ -7096,7 +6936,7 @@ Please rerun alle your samples with slamdunk 0.2.0!
       </li>
       <li>
        <a href="#id6">
-        Requirements
+        Parameters
        </a>
       </li>
      </ul>
@@ -7113,7 +6953,7 @@ Please rerun alle your samples with slamdunk 0.2.0!
       </li>
       <li>
        <a href="#id8">
-        Installation
+        Output
        </a>
       </li>
       <li>
@@ -7213,7 +7053,7 @@ Please rerun alle your samples with slamdunk 0.2.0!
       </li>
       <li>
        <a href="#id6">
-        Requirements
+        Parameters
        </a>
       </li>
      </ul>
@@ -7230,7 +7070,7 @@ Please rerun alle your samples with slamdunk 0.2.0!
       </li>
       <li>
        <a href="#id8">
-        Installation
+        Output
        </a>
       </li>
       <li>
