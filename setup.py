@@ -1,17 +1,17 @@
 # Copyright (c) 2015 Tobias Neumann, Philipp Rescheneder.
 #
 # This file is part of Slamdunk.
-# 
+#
 # Slamdunk is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
-# 
+#
 # Slamdunk is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -33,10 +33,10 @@ name = "slamdunk"
 #Get the long description from the README file
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
-    
+
 # now we have a `__version__` variable
 exec(open(path.join(here, name, 'version.py')).read())
-    
+
 # Copy bin recursively
 def package_files(directory):
     paths = []
@@ -47,82 +47,27 @@ def package_files(directory):
 
 bin_files = package_files(name + os.sep + 'contrib')
 plot_files = package_files(name + os.sep + 'plot')
-     
-def _runExternalBuilds(dir, externalNGM, externalSamtools, skipRLibraries):
-    
-    import subprocess
-   
-    print("Setting up R package destination.")
-    syscall = "mkdir -p " + os.path.join(dir, name, "plot", "Rslamdunk")
-    print(syscall)
-    subprocess.call([syscall], shell=True)
-    
-    if (skipRLibraries is None) :
-         print("Installing R packages.")
-         syscall = "export R_LIBS_SITE=" + os.path.join(dir, name, "plot", "Rslamdunk") + " ; "
-         syscall +=  "R --vanilla -e 'libLoc = .libPaths()[grep(\"Rslamdunk\",.libPaths())]; source(\"" + os.path.join(dir, name, "plot", "checkLibraries.R") + "\"); checkLib(libLoc)'"
-         print(syscall)
-         p = subprocess.Popen(syscall, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
-         lines_iterator = iter(p.stdout.readline, b"")
-         for line in lines_iterator:
-             print(line, end="")
-         p.wait();
-         if(p.returncode != 0):
-             raise RuntimeError("Error while executing command: \"" + syscall + "\"")
-    else :
-        print("Skipping R package installation.")
-        print("(Retrying upon first alleyoop / splash run).")
-    
-    if (externalSamtools is None) :
-        print("Building Samtools.")
-        syscall = "(cd " + os.path.join(dir, name, "contrib") + " ; ./build-samtools.sh)"
-        print(syscall)    
-        subprocess.call([syscall], shell=True) 
-    else :
-        print("External Samtools will be manually linked. Skipping.")
 
-    if (externalNGM is None) :
-        print("Building NGM.")
-        syscall = "(cd " + os.path.join(dir, name, "contrib") + " ; ./build-ngm.sh)"
-        print(syscall)
-        subprocess.call([syscall], shell=True)
-    else :
-        print("External NGM will be manually linked. Skipping.")
-        
-    print("Building Varscan2.")
-    syscall = "(cd " + os.path.join(dir, name, "contrib") + " ; ./build-varscan.sh)"
-    print(syscall)    
-    subprocess.call([syscall], shell=True)
-    
+def _runExternalBuilds(dir):
+
+    import subprocess
+
     print("Building RNASeqReadSimulator.")
     syscall = "(cd " + os.path.join(dir, name, "contrib") + " ; ./build-rnaseqreadsimulator.sh)"
     subprocess.call([syscall], shell=True)
-     
+
 class install(_install):
-    
-    user_options = _install.user_options + [
-        ('externalNGM', None, None),
-        ('externalSamtools', None, None),
-        ('skipRLibraries', None, None)
-    ]
-    
+
     def initialize_options(self):
         _install.initialize_options(self)
-        self.externalNGM = None
-        self.externalSamtools = None
-        self.skipRLibraries = None
-        
+
     def finalize_options(self):
         _install.finalize_options(self)
-    
+
     def run(self):
-        global externalNGM, externalSamtools
-        externalNGM = self.externalNGM
-        externalSamtools = self.externalSamtools
-        skipRLibraries = self.skipRLibraries
         _install.run(self)
-        self.execute(_runExternalBuilds, (self.install_lib, externalNGM, externalSamtools, skipRLibraries),msg="Installing external dependencies")
-         
+        self.execute(_runExternalBuilds, (self.install_lib),msg="Installing external dependencies")
+
 setup(
     name = name,
 
@@ -222,7 +167,6 @@ setup(
         'splash=slamdunk.splash:run',
     ],
     },
-    #scripts= ['bin/slamdunk', 'bin/alleyoop', 'bin/slamsim'],
-    
+
     cmdclass={'install': install},
 )
