@@ -1,21 +1,21 @@
 #!/usr/bin/env Rscript
 
 # Script to plot pairwise correlations and PCA
-# 
+#
 # Copyright (c) 2015 Tobias Neumann, Philipp Rescheneder.
 #
 # This file is part of Slamdunk.
-# 
+#
 # Slamdunk is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
-# 
+#
 # Slamdunk is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -25,12 +25,12 @@ my_panel_cor <- function(x, y, digits=2, prefix="", cex.cor, ...)
 {
 	usr <- par("usr"); on.exit(par(usr))
 	par(usr = c(0, 1, 0, 1))
-	
-	
+
+
 	toUse = which(is.finite(x) & is.finite(y) & (x|y>0))
 	r <- abs(cor(x[toUse], y[toUse]))
-	
-	
+
+
 	txt <- format(c(r, 0.123456789), digits=digits)[1]
 	txt <- paste(prefix, txt, sep="")
 	if(missing(cex.cor)) cex.cor <- 0.8/strwidth(txt)
@@ -44,15 +44,7 @@ my_panel_smooth <- function(x, y,lcol="red")
 	abline(0,1,col=lcol)
 }
 
-# Load packages only from local Rslamdunk library 
-libLoc = .libPaths()[grep("Rslamdunk",.libPaths())]
-
-# Check if libraries are available, install otherwise
-source(paste(libLoc,'/../checkLibraries.R',sep=""))
-
-checkLib(libLoc)
-
-library(getopt, lib.loc = libLoc)
+library(getopt)
 
 spec = matrix(c(
 				'help'      , 'h', 0, "logical","print the usage of the command",
@@ -100,7 +92,7 @@ select = order(rowVariances, decreasing = TRUE)[seq_len(min(500, length(rowVaria
 pca = prcomp(t(values[select, ]))
 
 if (ncol(values) == 2) {
-	col = brewer.pal(3, "Paired")[1:2]	
+	col = brewer.pal(3, "Paired")[1:2]
 } else if (ncol(values) > 12) {
 	getPalette = colorRampPalette(brewer.pal(9, "Set1"))
 	col = getPalette(ncol(values))
@@ -121,13 +113,13 @@ if (ncol(values) > 12) {
 	)
 
 } else {
-	
+
 	xyplot(PC2 ~ PC1, groups = colnames(values), data = as.data.frame(pca$x),
 			pch = 20, cex = 2, aspect = "iso", col = col, main = draw.key(key = list(rect = list(col = col),
 							text = list(colnames(values)), rep = FALSE)), xlab = paste("PC1 (", round(varianceProportion[1],digits=2), " variance)",sep=""),
 			ylab = paste("PC2 (", round(varianceProportion[2],digits=2), " variance)",sep=""),
 	)
-	
+
 }
 
 dev.off()
@@ -146,4 +138,4 @@ if (ncol(values) <= 12) {
 }
 
 #signal success and exit.
-q(status=0)		
+q(status=0)

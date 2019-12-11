@@ -3,29 +3,21 @@
 # Copyright (c) 2015 Tobias Neumann, Philipp Rescheneder.
 #
 # This file is part of Slamdunk.
-# 
+#
 # Slamdunk is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
-# 
+#
 # Slamdunk is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Load packages only from local Rslamdunk library 
-libLoc = .libPaths()[grep("Rslamdunk",.libPaths())]
-
-# Check if libraries are available, install otherwise
-source(paste(libLoc,'/../checkLibraries.R',sep=""))
-
-checkLib(libLoc)
-
-library(getopt, lib.loc = libLoc)
+library(getopt)
 
 spec = matrix(c(
   'help'      , 'h', 0, "logical","print the usage of the command",
@@ -137,7 +129,7 @@ dev.off()
 
 #ggplot(predHLUniq,aes(x=simulated_hl,y=log2Diff)) + geom_point(alpha = 0.3)
 #p = p + stat_binhex(bins=100)
-#p = p 
+#p = p
 #ggplot(predHLMulti,aes(x=simulated_hl,y=log2Diff)) + stat_binhex(bins=100)
 
 

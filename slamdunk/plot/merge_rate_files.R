@@ -1,35 +1,25 @@
 #!/usr/bin/env Rscript
 #
 # Script to merge SlamDunk count files
-# 
+#
 # Copyright (c) 2015 Tobias Neumann, Philipp Rescheneder.
 #
 # This file is part of Slamdunk.
-# 
+#
 # Slamdunk is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
-# 
+#
 # Slamdunk is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Load packages only from local Rslamdunk library 
-libLoc = .libPaths()[grep("Rslamdunk",.libPaths())]
-
-# Check if libraries are available, install otherwise
-source(paste(libLoc,'/../checkLibraries.R',sep=""))
-
-checkLib(libLoc)
-
-library(getopt, lib.loc = libLoc)
-
-#library(getopt)
+library(getopt)
 
 spec = matrix(c(
   'help'      , 'h', 0, "logical","print the usage of the command",
@@ -78,9 +68,9 @@ readMeatInfo <- function(fileName) {
   sampleInfo = read.table(fileName, nrows = 1, skip = 1, comment.char = "")
   annotationMD5 = as.character(sampleInfo[1, ]$V3)
   annotationName = as.character(sampleInfo[1, ]$V2)
-  c(sampleID, sampleName, sampleType, sampleTime, annotationName, annotationMD5, version)  
+  c(sampleID, sampleName, sampleType, sampleTime, annotationName, annotationMD5, version)
 }
-  
+
 sampleNumber = length(filesSlamDunk)
 mergedRates = data.frame()
 
@@ -92,20 +82,20 @@ IDs = c()
 # Merge rates from all samples
 for(i in 1:length(filesSlamDunk)) {
   #i = 1
-  file = filesSlamDunk[i]  
+  file = filesSlamDunk[i]
   meta = readMeatInfo(file)
   sampleName = meta[columnName]
-  
+
   if(i == 1) {
     version = meta[7]
     annotationName = meta[5]
     annotationMD5 = meta[6]
   } else {
     if(annotationMD5 != meta[6]) {
-      
+
     }
   }
-  
+
   IDs = c(IDs, as.numeric(meta[1]))
   data = read.table(file, header = T)
   if(i == 1) {
@@ -147,9 +137,9 @@ mergedRates = mergedRates[, c(1:(firstSampleColumn - 1), (sampleColumnOrder + fi
 #head(mergedRates)
 
 # Write to output file
-con <- file(outputFile, open="wt") 
+con <- file(outputFile, open="wt")
 writeLines(version, con)
 writeLines(paste0("#Annotation:\t", annotationName, "\t", annotationMD5), con)
 writeLines(paste0("#Expression:\t", evalExpression), con)
 write.table(mergedRates, con, sep = "\t", quote = F, row.names = F, col.names = T)
-close(con) 
+close(con)

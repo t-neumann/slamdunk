@@ -1,33 +1,25 @@
 #!/usr/bin/env Rscript
 
-# Script to compute half-lifes from SlamSeq data 
+# Script to compute half-lifes from SlamSeq data
 
 # Copyright (c) 2015 Tobias Neumann, Philipp Rescheneder, Bhat Pooja
 #
 # This file is part of Slamdunk.
-# 
+#
 # Slamdunk is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
-# 
+#
 # Slamdunk is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Load packages only from local Rslamdunk library 
-libLoc = .libPaths()[grep("Rslamdunk",.libPaths())]
-
-# Check if libraries are available, install otherwise
-source(paste(libLoc,'/../checkLibraries.R',sep=""))
-
-checkLib(libLoc)
-
-library(getopt, lib.loc = libLoc)
+library(getopt)
 
 spec = matrix(c(
   'help'      , 'h', 0, "logical","print the usage of the command",
@@ -56,8 +48,6 @@ slamDunkFiles = opt$slamdunk
 #slamDunkFiles = "/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_1_0min_reads_slamdunk_mapped_filtered_tcount.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_2_15min_reads_slamdunk_mapped_filtered_tcount.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_3_30min_reads_slamdunk_mapped_filtered_tcount.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_4_60min_reads_slamdunk_mapped_filtered_tcount.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_5_180min_reads_slamdunk_mapped_filtered_tcount.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_6_360min_reads_slamdunk_mapped_filtered_tcount.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_7_720min_reads_slamdunk_mapped_filtered_tcount.csv,/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/slamdunk/count/pooja_UTR_annotation_examples_8_1440min_reads_slamdunk_mapped_filtered_tcount.csv"
 filesSlamDunk = as.character(ordered(strsplit(slamDunkFiles, ",")[[1]]))
 outputFile = opt$output
-#outputFile = "/project/ngs/philipp/slamdunk-analysis/simulation/simulation_1/eval/halflife_per_gene_eval_plots.tsv"
-#timesParameter = "0,15,30,60,180,360,720,1440"
 timesParameter = opt$timepoints
 times = as.numeric(strsplit(timesParameter, ",")[[1]])
 times = times / 60
@@ -100,11 +90,11 @@ computeHalfLife <- function(rates, timepoints) {
   # Infere half life from data
   a_start<-max(rates) #param a is the y value when x=0
   k_start = log(2, base = exp(1))/5
-  
+
   halfLifePred = NA
   C = NA
   k = NA
-  
+
   tryCatch( {
     fit = nls(rates ~ a*(1-exp(-k*(timepoints))), start=list(a=a_start,k=k_start))
     halfLifePred = log(2, base = exp(1))/coef(fit)[2] * 60
@@ -112,11 +102,11 @@ computeHalfLife <- function(rates, timepoints) {
     k = coef(fit)[2]
   }, error=function(e){})
   summary(fit)
-  
+
   RSS.p <- sum(residuals(fit)^2)
   TSS <- sum((rates - mean(rates))^2)
   rsquared = 1 - (RSS.p/TSS)
-  
+
   c(halfLifePred, C, k, rsquared)
 }
 
@@ -129,12 +119,12 @@ for(utr in 1:nrow(slamDunkMergedRates)) {
   #utr = 8
   slamDunkMergedRates[utr,]
   pulseSlamDunk = data.frame(y = as.numeric(t(slamDunkMergedRates[utr, 8:(7 + length(times))])[,1]), x = times)
-  
+
   result = computeHalfLife(pulseSlamDunk$y, pulseSlamDunk$x)
   #rates = pulseSlamDunk$y
   #timepoints = pulseSlamDunk$x
   halfLifeTable = rbind(halfLifeTable, cbind(slamDunkMergedRates[utr, c("chr", "start", "stop", "name", "strand", "readsCPM", "multiMapCount")], result[1]))
-}  
+}
 
 colnames(halfLifeTable) = c("#chr", "start", "stop", "name", "strand", "readsCPM", "multiMapCount", "score")
 

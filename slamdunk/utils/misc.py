@@ -3,17 +3,17 @@
 # Copyright (c) 2015 Tobias Neumann, Philipp Rescheneder.
 #
 # This file is part of Slamdunk.
-# 
+#
 # Slamdunk is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
-# 
+#
 # Slamdunk is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -43,7 +43,7 @@ class SlamSeqInfo:
     ID_SNPs = "snps"
     ID_AnnotationName = "annotation"
     ID_AnnotationMD5 = "annotationmd5"
-    
+
     def getFromReadStat(self, name, stats):
         if(name in stats):
             return stats[name]
@@ -62,10 +62,10 @@ class SlamSeqInfo:
             self.MultimapperReads = 0
             self.SNPs = 0
             self.AnnotationName = "NA"
-            self.AnnotationMD5 = "NA"            
+            self.AnnotationMD5 = "NA"
         else:
             DS = ast.literal_eval(getReadGroup(bam)['DS'])
-    
+
             self.SequencedReads = self.getFromReadStat(self.ID_SequencedRead, DS)
             self.MappedReads = self.getFromReadStat(self.ID_MappedReads, DS)
             self.DedupReads = self.getFromReadStat(self.ID_DedupReads, DS)
@@ -77,7 +77,7 @@ class SlamSeqInfo:
             self.SNPs = self.getFromReadStat(self.ID_SNPs, DS)
             self.AnnotationName = self.getFromReadStat(self.ID_AnnotationName, DS)
             self.AnnotationMD5 = self.getFromReadStat(self.ID_AnnotationMD5, DS)
-         
+
     def __repr__(self):
         return "{" + "'" + self.ID_SequencedRead + "':" + str(self.SequencedReads) + "," + "'" + self.ID_MappedReads + "':" + str(self.MappedReads) + "," + "'" + self.ID_FilteredReads + "':" + str(self.FilteredReads) + "," + "'" + self.ID_MQFilteredReads + "':" + str(self.MQFilteredReads) + "," + "'" + self.ID_IdFilteredReads + "':" + str(self.IdFilteredReads) + "," + "'" + self.ID_NmFilteredReads + "':" + str(self.NmFilteredReads) + "," + "'" + self.ID_MultimapperReads + "':" + str(self.MultimapperReads) + "," + "'" + self.ID_DedupReads + "':" + str(self.DedupReads) + "," + "'" + self.ID_SNPs + "':" + str(self.SNPs) + "," + "'" + self.ID_AnnotationName + "':'" + str(self.AnnotationName) + "'," + "'" + self.ID_AnnotationMD5 + "':'" + str(self.AnnotationMD5) +  "'}"
 
@@ -91,16 +91,16 @@ def md5(fname):
 def estimateMaxReadLength(bam):
 
     readfile = pysam.AlignmentFile(bam, "rb")
-    
+
     minLength = sys.maxint
     maxLength = 0
-    
+
     for read in readfile.head(n = 1000) :
         minLength = min(minLength, read.query_length + read.get_tag("XA"))
         maxLength = max(maxLength, read.query_length + read.get_tag("XA"))
-        
+
     range = maxLength - minLength
-    
+
     if (range <= 10) :
         return(maxLength + 10)
     else:
@@ -108,7 +108,7 @@ def estimateMaxReadLength(bam):
 
 #Replaces the file extension of inFile to with <newExtension> and adds a suffix
 #Example replaceExtension("reads.fq", ".sam", suffix="_namg") => reads_ngm.sam
-def replaceExtension(inFile, newExtension, suffix=""):    
+def replaceExtension(inFile, newExtension, suffix=""):
     return os.path.splitext(inFile)[0] + suffix + newExtension
 
 #Removes right-most extension from file name
@@ -144,41 +144,41 @@ def removeFile(files):
             os.remove(files)
 
 
-def checkStep(inFiles, outFiles, force=False):    
+def checkStep(inFiles, outFiles, force=False):
     if not files_exist(inFiles):
         raise RuntimeError("One or more input files don't exist: " + str(inFiles))
     inFileDate = os.path.getmtime(inFiles[0])
     for x in inFiles[1:]:
-        inFileDate = max(inFileDate, os.path.getmtime(x))    
-    
+        inFileDate = max(inFileDate, os.path.getmtime(x))
+
     if len(outFiles) > 0 and files_exist(outFiles):
         outFileDate = os.path.getmtime(outFiles[0])
         for x in outFiles[1:]:
-            outFileDate = min(outFileDate, os.path.getmtime(x))        
+            outFileDate = min(outFileDate, os.path.getmtime(x))
         if outFileDate > inFileDate:
             if(force == True):
                 return True
             else:
                 return False
-    
+
     return True
 
 def getBinary(name):
-    
+
     projectPath = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    
+
     return os.path.join(projectPath, "contrib", name)
 
 def getPlotter(name):
-    
+
     projectPath = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    
+
     return os.path.join(projectPath, "plot", name + ".R")
 
 def run(cmd, log=sys.stderr, verbose=False, dry=False):
     if(verbose or dry):
         print(cmd, file=log)
-    
+
     if(not dry):
         #ret = os.system(cmd)
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
@@ -188,21 +188,14 @@ def run(cmd, log=sys.stderr, verbose=False, dry=False):
         p.wait();
         if(p.returncode != 0):
             raise RuntimeError("Error while executing command: \"" + cmd + "\"")
-        
+
 def callR(cmd, log=sys.stderr, verbose=False, dry=False):
-    
-    RLIBS_VARIABLE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),"plot","Rslamdunk")
-    
-    if not os.path.exists(RLIBS_VARIABLE):
-        os.makedirs(RLIBS_VARIABLE)
-        
-    os.environ['R_LIBS_SITE'] = RLIBS_VARIABLE
-    
+
     if(verbose or dry):
         print(cmd, file=log)
-    
+
     if(not dry):
-        
+
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
         lines_iterator = iter(p.stdout.readline, b"")
         for line in lines_iterator:
@@ -235,7 +228,7 @@ def getReadGroup(bam):
         return header['RG'][0]
     else:
         raise RuntimeError("Could not get mapped/unmapped/filtered read counts from BAM file. RG is missing. Please rerun slamdunk filter.")
-    
+
 def getSampleInfo(bam):
     sampleInfo = getReadGroup(bam)
     sampleInfos = sampleInfo['SM'].split(":")
@@ -243,14 +236,14 @@ def getSampleInfo(bam):
 
 def readSampleNames(sampleNames, bams):
     samples = None
-    
+
     if(sampleNames != None and files_exist(sampleNames)):
         samples = {}
         with open(sampleNames, "r") as sampleFile:
             samplesReader = csv.reader(sampleFile, delimiter='\t')
             for row in samplesReader:
                 samples[removeExtension(row[0])] = row[1]
-        
+
     return samples
 
 def getSampleName(fileName, samples):
@@ -260,7 +253,7 @@ def getSampleName(fileName, samples):
         for key in samples:
             if(key in fileName):
                 return samples[key]
-        
+
     return
 
 def matchFile(sample, files):
@@ -271,18 +264,18 @@ def matchFile(sample, files):
                 fileName = item
             else:
                 raise RuntimeError("Found more than one matching file in list.")
-            
+
     return fileName
 
 def complement(seq):
-    complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A', 'N' : 'N'} 
-    bases = list(seq) 
-    bases = [complement[base] for base in bases] 
+    complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A', 'N' : 'N'}
+    bases = list(seq)
+    bases = [complement[base] for base in bases]
     return ''.join(bases)
 
 def shell(cmd):
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
-    p.wait()    
+    p.wait()
     if(p.returncode != 0):
         raise RuntimeError("Error while executing command: " + cmd)
     else:
@@ -290,9 +283,8 @@ def shell(cmd):
 
 def shellerr(cmd, raiseError=True):
     p = subprocess.Popen(cmd, stderr=subprocess.PIPE, shell=True)
-    p.wait()    
+    p.wait()
     if(p.returncode != 0 and raiseError == True):
         raise RuntimeError("Error while executing command: " + cmd)
     else:
-        return p.communicate()[1]  
-    
+        return p.communicate()[1]

@@ -32,7 +32,7 @@ def SNPs(inputBAM, outputSNP, referenceFile, minVarFreq, minCov, minQual, log, p
         if(not printOnly):
             mpileup = subprocess.Popen(mpileupCmd, shell=True, stdout=subprocess.PIPE, stderr=log)
 
-        varscanCmd = "java -jar " + getBinary("VarScan.v2.4.1.jar") + " mpileup2snp  --strand-filter 0 --output-vcf --min-var-freq " + str(minVarFreq) + " --min-coverage " + str(minCov) + " --variants 1"
+        varscanCmd = "varscan mpileup2snp  --strand-filter 0 --output-vcf --min-var-freq " + str(minVarFreq) + " --min-coverage " + str(minCov) + " --variants 1"
         if(verbose):
             print(varscanCmd, file=log)
         if(not printOnly):

@@ -3,29 +3,21 @@
 # Copyright (c) 2015 Tobias Neumann, Philipp Rescheneder.
 #
 # This file is part of Slamdunk.
-# 
+#
 # Slamdunk is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
-# 
+#
 # Slamdunk is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Load packages only from local Rslamdunk library 
-libLoc = .libPaths()[grep("Rslamdunk",.libPaths())]
-
-# Check if libraries are available, install otherwise
-source(paste(libLoc,'/../checkLibraries.R',sep=""))
-
-checkLib(libLoc)
-
-library(getopt, lib.loc = libLoc)
+library(getopt)
 
 spec = matrix(c(
   'help'      , 'h', 0, "logical","print the usage of the command",
@@ -74,12 +66,12 @@ for(timepoint in 1:length(filesSimulated)) {
   simDataFile = filesSimulated[timepoint]
   slamDunkFile = filesSlamDunk[timepoint]
   name = basename(simDataFile)
-  
+
   simulation = read.table(simDataFile)
   colnames(simulation) = c("chr", "start", "stop", "name", "strand", "conversionRate", "readsCPM", "tCount", "tcCount", "readCount", "convertedReads", "multiMapCount")
   #simulation$coverage = (simulation$simulatedReads / (simulation$stop - simulation$start) * 50)
   simulation$convertedReadsRate = simulation$convertedReads / simulation$readCount
-  
+
   slamdunk = read.table(slamDunkFile)
   colnames(slamdunk) = c("chr", "start", "stop", "name", "strand", "conversionRate", "readsCPM", "tCount", "tcCount", "readCount", "convertedReads", "multiMapCount")
   slamdunk$readsCPM_sim = simulation$readsCPM
@@ -89,7 +81,7 @@ for(timepoint in 1:length(filesSimulated)) {
   #slamdunk$diffconvertedReadsRate = (simulation$convertedReads - slamdunk$convertedReads)
   #slamdunk$diffconvertedReadsRatediff = ((simulation$convertedReads / simulation$readCount) - (slamdunk$convertedReads / slamdunk$readCount))
   #plot(simulation$V11 ~ slamdunk$V6, xlim=c(0, 0.01), ylim=c(0, 0.01))
-  
+
   par(mfrow=c(1,2))
   #yLim = max(abs(slamdunk$diffconvertedReadsRate))
   yLim = as.numeric(conversionRate)
@@ -99,10 +91,10 @@ for(timepoint in 1:length(filesSimulated)) {
   plot(slamDunkUniq$readsCPM_sim, slamDunkUniq$diff, main=name, pch=4, ylim=c(-yLim, yLim), ylab="conversion (sim) - conversion (slamdunk)", xlab="read counts per million")
   points(slamDunkMulti$readsCPM_sim, slamDunkMulti$diff, pch=4, col="red")
   abline(h=0, lty=2, col="grey")
-  
+
   yLim = 4
   plot(slamDunkUniq$readsCPM_sim, slamDunkUniq$log2diff, main=name, pch=4, ylim=c(-yLim, yLim), ylab="log2(conversion (sim) / conversion (slamdunk))", xlab="read counts per million")
   points(slamDunkMulti$readsCPM_sim, slamDunkMulti$log2diff, pch=4, col="red")
   abline(h=0, lty=2, col="grey")
-} 
+}
 dev.off()

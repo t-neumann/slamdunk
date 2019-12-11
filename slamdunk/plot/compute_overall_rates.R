@@ -1,35 +1,27 @@
 #!/usr/bin/env Rscript
 
-# Script to overlap public database file 
-# 
+# Script to overlap public database file
+#
 # Copyright (c) 2015 Tobias Neumann, Philipp Rescheneder.
 #
 # This file is part of Slamdunk.
-# 
+#
 # Slamdunk is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
-# 
+#
 # Slamdunk is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Load packages only from local Rslamdunk library 
-libLoc = .libPaths()[grep("Rslamdunk",.libPaths())]
-
-# Check if libraries are available, install otherwise
-source(paste(libLoc,'/../checkLibraries.R',sep=""))
-
-checkLib(libLoc)
-
-library(getopt, lib.loc = libLoc)
-library(ggplot2, lib.loc = libLoc)
-library(gridExtra , lib.loc = libLoc)
+library(getopt)
+library(ggplot2)
+library(gridExtra)
 
 spec = matrix(c(
 				'help'      , 'h', 0, "logical","print the usage of the command",
@@ -69,10 +61,10 @@ plotList = list()
 
 #for (i in 1:nrow(rates)) {
 	curTab = read.table(fileName,stringsAsFactors=FALSE)
-	
+
 	curTab[, c("A", "C", "G", "T")] <- curTab[, c("A", "C", "G", "T")]/rowSums(curTab[, c("A", "C", "G", "T")]) * 100
 	curTab[, c("a", "c", "g", "t")] <- curTab[, c("a", "c", "g", "t")]/rowSums(curTab[, c("a", "c", "g", "t")])  * 100
-	
+
 	printTab = data.frame(rates=c(rep("AT",2),rep("AC",2),rep("AG",2),
 					rep("TA",2),rep("TC",2),rep("TG",2),
 					rep("CA",2),rep("CT",2),rep("CG",2),
@@ -82,7 +74,7 @@ plotList = list()
 					curTab["C","A"],curTab["C","a"],curTab["C","T"],curTab["C","t"],curTab["C","G"],curTab["C","g"],
 					curTab["G","A"],curTab["G","a"],curTab["G","T"],curTab["G","t"],curTab["G","C"],curTab["G","c"])
 	)
-	
+
 
 	#fwdATot = max(1, sum(curTab["A",c("A", "C", "G", "T", "N")]))
 	#fwdCTot = max(1, sum(curTab["C",c("A", "C", "G", "T", "N")]))
@@ -97,15 +89,15 @@ plotList = list()
 	#total = c(rep(c(fwdATot, revATot), 3), rep(c(fwdTTot, revTTot), 3), rep(c(fwdCTot, revCTot), 3), rep(c(fwdGTot, revGTot), 3) )
 
 	#printTab$rate_percent = printTab$rate_percent / total * 100
-	
+
 	maxRatePercent = max(10, max(printTab$rate_percent) * 1.1)
-	
+
 	printTab$y = -0.3
 	printTab[printTab$strand == "-", ]$y = printTab[printTab$strand == "-", ]$rate_percent + printTab[printTab$strand == "+", ]$rate_percent
-	
+
 	curPlot = qplot(x=rates, y=rate_percent, fill=strand,data=printTab) + ylim(-0.5,maxRatePercent) + geom_bar(stat="identity") + geom_text(aes(y = printTab$y, label = round(rate_percent,digits=2)), size = 3, hjust = 0.5, vjust = -0.50) + ylab("Rate percent %") + xlab(sampleName) +
 			theme(text = element_text(size=12),axis.text.x = element_text(size=12))
-	#curPlot + xlim(0,35)	
+	#curPlot + xlim(0,35)
 	plotList[[length(plotList)+1]] <- curPlot #+ ylim(0.0,maxRatePercent)
 #}
 
@@ -114,4 +106,4 @@ do.call(grid.arrange,  plotList)
 dev.off()
 
 #signal success and exit.
-q(status=0)		
+q(status=0)

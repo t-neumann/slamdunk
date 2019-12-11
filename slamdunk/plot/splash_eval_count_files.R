@@ -1,33 +1,24 @@
 #!/usr/bin/env Rscript
 # Script to evaluate Slamdunk count results
-# 
+#
 # Copyright (c) 2015 Tobias Neumann, Philipp Rescheneder.
 #
 # This file is part of Slamdunk.
-# 
+#
 # Slamdunk is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
-# 
+#
 # Slamdunk is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Load packages only from local Rslamdunk library 
-libLoc = .libPaths()[grep("Rslamdunk",.libPaths())]
-
-# Check if libraries are available, install otherwise
-source(paste(libLoc,'/../checkLibraries.R',sep=""))
-
-checkLib(libLoc)
-
-library(getopt, lib.loc = libLoc)
-
+library(getopt)
 
 spec = matrix(c(
   'help'      , 'h', 0, "logical","print the usage of the command",
@@ -112,7 +103,7 @@ for(currentSample in 0:(sampleNumber - 1)) {
   current = cbind(slamDunkRates[, c(1:fixedColumns - 1, fixedColumns + currentSample)], simulatedRates[, fixedColumns + currentSample])
   colnames(current) = c(colnames(slamDunkRates[, c(1:fixedColumns - 1)]), "Simulate", "Slamdunk")
   merged = rbind(merged, current)
-  
+
   rsmeTab = rbind(rsmeTab, c(as.character(simulatedFileRates), as.character(substring(sampleNames[currentSample + 1], 2)), as.character(rsme(current$Simulate, current$Slamdunk))))
 }
 
@@ -133,4 +124,3 @@ dev.off()
 rsmeTab = rbind(rsmeTab, c(as.character(simulatedFileRates), as.character(-1), as.character(rsme(merged$Simulate, merged$Slamdunk))))
 
 write.table(rsmeTab, outputFileCSV, sep = "\t", quote = F, row.names = F, col.names = T)
-
