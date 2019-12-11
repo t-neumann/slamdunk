@@ -66,7 +66,7 @@ class install(_install):
 
     def run(self):
         _install.run(self)
-        self.execute(_runExternalBuilds, (self.install_lib),msg="Installing external dependencies")
+        self.execute(_runExternalBuilds, (self.install_lib) ,msg="Installing external dependencies")
 
 setup(
     name = name,
@@ -167,6 +167,4 @@ setup(
         'splash=slamdunk.splash:run',
     ],
     },
-
-    cmdclass={'install': install},
 )
