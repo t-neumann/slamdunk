@@ -169,6 +169,12 @@ def getBinary(name):
 
     return os.path.join(projectPath, "contrib", name)
 
+def getRNASeqReadSimulator(name):
+
+    projectPath = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+    return os.path.join(projectPath, "contrib", "RNASeqReadSimulator", "src", name)
+
 def getPlotter(name):
 
     projectPath = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

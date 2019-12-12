@@ -460,7 +460,7 @@ def run():
         minQual = 15
         n = args.threads
         if(n > 1):
-            n = n / 2
+            n = int(n / 2)
         message("Running slamDunk SNP for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
         results = Parallel(n_jobs=n, verbose=verbose)(delayed(runSnp)(tid, fasta, minCov, minVarFreq, minQual, args.bam[tid], outputDirectory) for tid in range(0, len(args.bam)))
         dunkFinished()
