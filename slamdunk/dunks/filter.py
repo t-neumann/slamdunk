@@ -56,7 +56,7 @@ def bamSort(outputBAM, log, newHeader, verbose):
 def dumpBufferToBam (buffer, multimapList, outbam, infile):
     # Randomly write hit from read
     #read = random.choice(buffer.values()).pop()
-    read = buffer.values().pop().pop()
+    read = list(buffer.values()).pop().pop()
 
 #     printer = read.query_name + "\t" + infile.getrname(read.reference_id) + "\t" + str(read.reference_start) + "\t" + str(read.reference_end) + "\tPRINT\tTrue"
     read.set_tag("RD", multimapList.rstrip(" "), "Z")
@@ -137,7 +137,7 @@ def multimapUTRRetainment (infile, outfile, bed, minIdentity, NM, log):
             start = read.reference_start
             end = read.reference_end
 
-            if (utrIntervallTreeDict.has_key(chr)) :
+            if (chr in utrIntervallTreeDict) :
                 query = utrIntervallTreeDict[chr][start:end]
             else :
                 query = set()
@@ -146,13 +146,13 @@ def multimapUTRRetainment (infile, outfile, bed, minIdentity, NM, log):
                 # First UTR hit is recorded without checks
                 if (len(multimapBuffer) == 0) :
                     for result in query :
-                        if (not multimapBuffer.has_key(result.data)) :
+                        if (not result.data in multimapBuffer) :
                             multimapBuffer[result.data] = []
                         multimapBuffer[result.data].append(read)
                 # Second UTR hit looks at previous UTR hits -> no dump if hit on different UTR
                 else :
                     for result in query :
-                        if (not multimapBuffer.has_key(result.data)) :
+                        if (not result.data in multimapBuffer) :
                             multimapBuffer[result.data] = []
                             multimapBuffer[result.data].append(read)
                             dumpBuffer = False
