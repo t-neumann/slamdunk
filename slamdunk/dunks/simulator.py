@@ -26,6 +26,7 @@ import glob
 import sys
 import numpy
 import pysam
+import tempfile
 
 from slamdunk.utils import SNPtools  # @UnresolvedImport
 from slamdunk.utils.BedReader import BedIterator, bedToIntervallTree  # @UnresolvedImport
@@ -122,14 +123,25 @@ def prepareUTRs(bed, bed12, bed12Fasta, referenceFasta, readLength, polyALength,
 
     bedFasta = bedFile.sequence(fi=referenceFasta, s=True, name=True)
 
-    bed12FastaFile = open(bed12Fasta, "w")
-    utrName = None
+    f = tempfile.NamedTemporaryFile(mode='w', delete=False)
+
     for line in bedFasta.print_sequence().splitlines():
         if(line[0] == ">"):
-            print(line, file=bed12FastaFile)
-            utrName = line[1:]
+            print(line.split("::")[0], file=f)
         else:
-            print(simulateUTR(line, utrs[utrName], polyALength, snpRate, vcf), file=bed12FastaFile)
+            print(line.rstrip(), file=f)
+
+    f.close()
+
+    bed12FastaFile = open(bed12Fasta, "w")
+    utrName = None
+    with open(f.name, 'r') as f:
+        for line in f:
+            if(line[0] == ">"):
+                print(line.rstrip(), file=bed12FastaFile)
+                utrName = line.rstrip()[1:]
+            else:
+                print(simulateUTR(line.rstrip(), utrs[utrName], polyALength, snpRate, vcf).rstrip(), file=bed12FastaFile)
     bed12FastaFile.close()
     vcf.close()
 
@@ -161,9 +173,11 @@ def prepareUTRs(bed, bed12, bed12Fasta, referenceFasta, readLength, polyALength,
 
 def simulateReads(bed12, bed12Fasta, explv, bedReads, faReads, readLength, readCount, seqError):
     #output = shell(getBinary("gensimreads.py") + " -l " + str(readLength) + " -e " + explv + " -n " + str(readCount) + " -b " + rNASeqReadSimulatorPath + "demo/input/sampleposbias.txt --stranded " + bed12 + " > " + bedReads)
+
     output = shell(getRNASeqReadSimulator("gensimreads.py") + " -l " + str(readLength) + " -e " + explv + " -n " + str(readCount) + " --stranded " + bed12 + " 2> /dev/null > " + bedReads)
     if len(output.strip()) > 5:
         print(output)
+
     output = shell(getRNASeqReadSimulator("getseqfrombed.py") + " -f -r " + str(seqError) + " -l " + str(readLength) + " " + bedReads + " " + bed12Fasta + " 2> /dev/null > " + faReads)
     if len(output.strip()) > 5:
         print(output)
