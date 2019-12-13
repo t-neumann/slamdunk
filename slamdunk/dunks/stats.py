@@ -321,7 +321,7 @@ def statsComputeTCContext(referenceFile, bam, minBaseQual, outputCSV, outputPDF,
     if(not checkStep([bam, referenceFile], [outputPDF], force)):
         print("Skipped computing overall rate pdfs for file " + bam, file=log)
     else:
-        f = tempfile.NamedTemporaryFile(delete=False)
+        f = tempfile.NamedTemporaryFile(mode='w',delete=False)
         print(removeExtension(os.path.basename(bam)), outputCSV, sep='\t', file=f)
         f.close()
 
