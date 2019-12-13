@@ -27,7 +27,7 @@ install:
   # We just set up a conda environment with the right Python version. This
   # should not need changing.
 
-  - conda env create -f slamdunk/environment.yaml
+  - conda env create -f t-neumann/slamdunk/environment.yaml
   - source activate slamdunk
   - pip install pytest
   - pip install .
