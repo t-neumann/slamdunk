@@ -24,6 +24,10 @@ NOTE
 
 HISTORY
 
+
+    14/12/2019:
+        Tobias Neumann: Make python3 compatible.
+        Fix a bug with error profiles in the minus strand.
 	02/01/2013:
 	  Fix a bug with no read errors generated.
 	  Fix a bug with error profiles in the minus strand.
