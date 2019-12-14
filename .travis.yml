@@ -1,28 +1,36 @@
-sudo: false
-dist: trusty
-
 language: python
 python:
+  # We don't actually use the Travis Python, but this keeps it organized.
   - "2.7"
+  - "3.5"
+  - "3.6"
+  - "3.7"
 
-cache:
-    pip: true
-    apt: true
-    #directories:
-        #- /home/travis/virtualenv/python2.7.12/lib/python2.7/site-packages
-        #- /home/travis/virtualenv/python2.7.9/lib/python2.7/site-packages
-        #- /home/travis/virtualenv/python2.7.12/lib/python2.7/site-packages/slamdunk/plot/Rslamdunk
-        #- /home/travis/virtualenv/python2.7.9/lib/python2.7/site-packages/slamdunk/plot/Rslamdunk
-addons:
-    apt:
-        packages:
-            - r-base
+before_install:
 
-# command to install dependencies
-install: 
- - pip install pytest
- - pip install -r requirements.txt
- - python setup.py -q install
+  # Here we just install Miniconda, which you shouldn't have to change.
+  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then
+        wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh;
+    else
+        wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+    fi
+  - chmod +x miniconda.sh
+  - ./miniconda.sh -b -p $HOME/miniconda
+  - export PATH=/home/travis/miniconda/bin:$PATH
+  - conda update --yes conda
+  - conda config --add channels defaults
+  - conda config --add channels bioconda
+  - conda config --add channels conda-forge
+
+install:
+
+  # We just set up a conda environment with the right Python version. This
+  # should not need changing.
+
+  - conda env create -f environment.yml
+  - source activate slamdunk
+  - pip install pytest
+  - pip install .
 
 # command to run tests
 script:
@@ -31,4 +39,3 @@ script:
  - splash -h
  - slamdunk/test/test_sample.sh
  - pytest
-

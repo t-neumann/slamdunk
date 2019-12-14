@@ -3,29 +3,20 @@
 # Copyright (c) 2015 Tobias Neumann, Philipp Rescheneder.
 #
 # This file is part of Slamdunk.
-# 
+#
 # Slamdunk is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
-# 
+#
 # Slamdunk is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Load packages only from local Rslamdunk library 
-#libLoc = .libPaths()[grep("Rslamdunk",.libPaths())]
-
-# Check if libraries are available, install otherwise
-#source(paste(libLoc,'/../checkLibraries.R',sep=""))
-
-#checkLib(libLoc)
-
-#library(getopt, lib.loc = libLoc)
 library(getopt)
 library(bbmle)
 
@@ -81,7 +72,7 @@ readMeatInfo <- function(fileName) {
   sampleInfo = read.table(fileName, nrows = 1, skip = 1, comment.char = "")
   annotationMD5 = as.character(sampleInfo[1, ]$V3)
   annotationName = as.character(sampleInfo[1, ]$V2)
-  c(sampleID, sampleName, sampleType, sampleTime, annotationName, annotationMD5, version)  
+  c(sampleID, sampleName, sampleType, sampleTime, annotationName, annotationMD5, version)
 }
 
 
@@ -111,7 +102,7 @@ for(i in 1:nrow(data)) {
   sample = data.frame(n = N, k = k)
   fit = mle2(minuslogl = LL2, start = list(as = 0.29), method = "L-BFGS-B", lower = c(as = 0.000001), upper = c(as = 0.99))
   confinv = confint(fit)
-  
+
   #result = rbind(result, c(id, type, time, name, fit@coef[[1]], confinv[[1]], confinv[[2]]))
   data[i,]$ConversionRate = fit@coef[[1]]
   data[i,]$ReadCount = length(N)
@@ -142,21 +133,21 @@ if(sum(is.na(data$ConversionRateUpper) > 0)) {
 
 #for(name in names) {
 #  #name = names[2]
-#  sample = all[all$utr == name, ]  
-#  
+#  sample = all[all$utr == name, ]
+#
 #  fit = mle2(minuslogl = LL2, start = list(as = 0.29), method = "L-BFGS-B", lower = c(as = 0.000001), upper = c(as = 0.99))
 #  confinv = confint(fit)
 ##  result = rbind(result, c(id, type, time, name, fit@coef[[1]], confinv[[1]], confinv[[2]]))
-#  
+#
 #}
 #
 
 # Read header
 header = readLines(file, 2)
-con <- file(output, open="wt") 
+con <- file(output, open="wt")
 # Print header
 writeLines(header[1], con)
 writeLines(header[2], con)
 # Print data
 write.table(data, con, sep = "\t", quote = F, row.names = F, col.names = T)
-close(con) 
+close(con)

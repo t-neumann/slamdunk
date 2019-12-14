@@ -358,13 +358,13 @@ class SlamSeqBamIterator:
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
 
-        read = self._readIterator.next()
+        read = self._readIterator.__next__()
 
         # Strand-specific assay - skip all reads from antisense-strand
         while((self._strand == "+" and read.is_reverse) or (self._strand == "-" and not read.is_reverse)) :
-            read = self._readIterator.next()
+            read = self._readIterator.__next__()
 
         # Create SlamSeqRead
         slamSeqRead = SlamSeqRead()
@@ -470,4 +470,3 @@ class SlamSeqBamFile:
 
     def getChromosomeLength(self, chromosome):
         return self._referenceFile.get_reference_length(chromosome)
-

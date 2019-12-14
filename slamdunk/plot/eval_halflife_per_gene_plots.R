@@ -3,29 +3,21 @@
 # Copyright (c) 2015 Tobias Neumann, Philipp Rescheneder.
 #
 # This file is part of Slamdunk.
-# 
+#
 # Slamdunk is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
-# 
+#
 # Slamdunk is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Load packages only from local Rslamdunk library 
-libLoc = .libPaths()[grep("Rslamdunk",.libPaths())]
-
-# Check if libraries are available, install otherwise
-source(paste(libLoc,'/../checkLibraries.R',sep=""))
-
-checkLib(libLoc)
-
-library(getopt, lib.loc = libLoc)
+library(getopt)
 
 spec = matrix(c(
   'help'      , 'h', 0, "logical","print the usage of the command",
@@ -83,18 +75,18 @@ computeHalfLife <- function(rates, timepoints) {
   # Infere half life from data
   a_start<-max(rates) #param a is the y value when x=0
   k_start = log(2, base = exp(1))/5
-  
+
   halfLifePred = NA
   C = NA
   k = NA
-  
+
   tryCatch( {
     fit = nls(rates ~ a*(1-exp(-k*(timepoints))), start=list(a=a_start,k=k_start))
     halfLifePred = log(2, base = exp(1))/coef(fit)[2] * 60
     C = coef(fit)[1]
     k = coef(fit)[2]
   }, error=function(e){})
-  
+
   c(halfLifePred, C, k)
 }
 
@@ -148,21 +140,21 @@ for(utr in 1:nrow(slamDunkMergedRates)) {
   if(perRead) {
     yLab = "% of T->C reads"
   }
-  
+
   # Infere half life from data
   halfLifeResultSlamDunk = computeHalfLife(pulseSlamDunk$y, pulseSlamDunk$x)
   halfLifePred = halfLifeResultSlamDunk[1]
   halfLifeResultSimulated = computeHalfLife(pulseSimulated$y, pulseSimulated$x)
   halfLifeSim = halfLifeResultSimulated[1]
   halfLifeTruth = bed[utr, ]$score
-  
-  
+
+
   plot(0, type="n", main=paste0(slamDunkMergedRates[utr, ]$name, "\n half life: ", round(halfLifeTruth, digits = 0), " (truth), ", round(halfLifeSim, digits = 0), " (sim), ", round(halfLifePred, digits = 0)," (slamDunk)"), xlab="Time (hours)", ylab=yLab, ylim=c(0, yLim), xlim=c(times[1], times[length(times)]), pch=4)
-  lines(pulseSimulated$x, pulseSimulated$y, type="p", col="green", lty=1, pch=4)     
-  lines(pulseSlamDunk$x, pulseSlamDunk$y, type="p", col="blue", lty=1, pch=4)     
+  lines(pulseSimulated$x, pulseSimulated$y, type="p", col="green", lty=1, pch=4)
+  lines(pulseSlamDunk$x, pulseSlamDunk$y, type="p", col="blue", lty=1, pch=4)
   legend("bottomright", c("rates (slamDunk)", "rates (simulated)", "slamDunk", "simulated", "truth"), col=c("blue", "green", "blue", "green", "grey"), lty=c(1, 1, 2, 2, 2), bty="n")
-  
-  
+
+
   t = 0:max(times)
   # Print truth
   lambda = log(2) / (halfLifeTruth / 60)
@@ -171,13 +163,13 @@ for(utr in 1:nrow(slamDunkMergedRates)) {
   lines((1 - exp(-halfLifeResultSimulated[3]*t)) * halfLifeResultSimulated[2] ~ t, type="l", lty=2, col="green")
   # Print slamDunk
   lines((1 - exp(-halfLifeResultSlamDunk[3]*t)) * halfLifeResultSlamDunk[2] ~ t, type="l", lty=2, col="blue")
-  
+
   if(utr %% 100 == 0) {
     dev.off()
     pageNumber = pageNumber + 1
     pdf(paste0(outputFile, "_page_", pageNumber, ".pdf"), height=6, width=9)
     print(paste0(outputFile, "_page_", pageNumber, ".pdf"))
   }
-  
-}  
+
+}
 dev.off()

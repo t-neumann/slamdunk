@@ -1,0 +1,129 @@
+RNASeqReadSimulator
+==================
+Author: Wei Li (li.david.wei AT gmail.com)
+
+Introduction
+------------
+RNASeqReadSimulator is a set of scripts generating simulated RNA-Seq reads. RNASeqReadSimulator provides users a simple tool to generate RNA-Seq reads for research purposes, and a framework to allow experienced users to expand functions. RNASeqReadSimulator offers the following features:
+
+1. It allows users to randomly assign expression levels of transcripts and generate simulated single-end or paired-end RNA-Seq reads.
+
+2. It is able to generate RNA-Seq reads that have a specified positional bias profile.
+
+3. It is able to simulate random read errors from sequencing platforms.
+
+4. The simulator consists of a few simple Python scripts. All scripts are command line driven, allowing users to invoke and design more functions.
+
+Requirements
+------------
+RNASeqReadSimulator runs on python 2.7 with biopython package installed.
+
+Installation
+------------
+After download, it is suggested that the path of the scripts (src) be added to the system path. For example, if the scripts are located at /home/me/rnaseqsimulator, then add the following command to your .bashrc profile:
+
+export PATH="$PATH:/home/me/rnaseqsimulator/src"
+
+Demo
+----
+The demo folder includes a few scripts and sample input files to generate RNA-Seq reads from a simple example. Two bash scripts, gensingleendreads.sh and genpairedendreads.sh, are examples to generate single-end and paired-end reads.
+
+
+
+Usage
+-----
+
+RNASeqReadSimulator includes the following essential scripts:
+
+  genexplvprofile.py is used to assign a random expression level of transcripts;
+
+  gensimreads.py simulates RNA-Seq reads in BED format;
+
+  getseqfrombed.py converts reads from BED format to FASTA format;
+
+Other optional scripts and files include:
+
+  splitfasta.py splits paired-end reads in FASTA file into to separate files;
+
+  addvariation2splicingbed.py is a supplementary script to generate variations in splicing RNA-Seq reads. 
+
+
+
+genexplvprofile.py
+------------------
+
+This file randomly assigns weights for each transcript, and gets the transcript statistics by a given transcript annotation file (BED File).
+
+    USAGE    genexplvprofile.py {OPTIONS} <BED-File|->
+
+    OPTIONS
+
+      -h/--help	  			Print this message
+
+      -e/--lognormal <float,float>	Specify the mean and variance of the lognormal distribution used to assign expression levels. Default -4,4
+
+      -f/--statonly   			Print the statistics only; do not assign expression levels.
+
+    NOTE:
+
+      To get a good group information, the BED file is suggested to sort according to the chromosome name and start position. In Unix systems, use "sort -k 1,1 -k 2,2n in.BED > out.BED" to get a sorted version (out.BED) of the bed file (in.BED).
+
+      The weight is at the 8th column, if -f option is not specified. The expression level of each transcript (RPKM) can be calculated as column[8]*10^9/column[2]/sum(column[8]).
+
+
+gensimreads.py
+-------------
+This script generates simulated RNA-Seq reads (in .bed format) from known gene annotations.
+
+    Usage: gensimreads.py {OPTIONS} <BED-File|->
+        
+    BED-File:      The gene annotation file (in BED format). Use '-' for STDIN input.
+
+    OPTIONS
+
+      -e/--expression <expression level file>   Specify the weight of each transcript. Each line in the file should have at least (NFIELD+1)  fields, with field 0 the annotation id, and field NFIELD the weight of this annotation. NFIELD is given by -f/--field option. If this file is not provided, uniform weight is applied. See the output of genexplvprofile.py as an example.
+
+      -n/--nreads <int>  		  	Specify the number of reads to be generated. Default 100000.
+
+      -b/--posbias <positional bias file>     	Specify the positional bias file. The file should include at least 100 lines, each contains only one integer number, showing the preference of the positional bias at this position. If no positional bias file is specified, use uniform distribution bias.
+
+      -l/--readlen <int>      			Specify the read length. Default 32.
+
+      -o/--output <output file> 		Specify the output file. The default is STDOUT
+
+      -f/--field  <int>				The field of each line as weight input. Default is 7 (beginning from field 0).
+
+      -p/--pairend <int,int>		  	Generate paired-end reads with specified insert length mean and standard derivation. The default is 200,20.
+ 
+      --stranded 				Generate stranded RNA-Seq reads.
+
+    NOTE
+
+      The bed file is required to sort according to the chromosome name and position. In Unix systems, use "sort -k 1,1 -k 2,2n in.BED > out.BED" to get a sorted version (out.BED) of the bed file (in.BED).
+
+      No problem to handle reads spanning multiple exons.
+
+
+getseqfrombed.py
+----------------
+This script is used to extract sequences from bed file.
+
+    USAGE getseqfrombed.py {OPTIONS} <input .bed file> <reference .fasta file>
+
+    OPTIONS
+
+      -b/--seqerror <error file>		Specify the positional error profile to be used. The file should include at least 100 lines, each containing a positive number. The number at line x is the weight that an error is occured at x% position of the read. If no positional error file specified, uniform weight is assumed.
+
+      -r/--errorrate <float>			Specify the overall error rate, a real positive number. The number of errors of each read will follow a Poisson distribution with its mean value specified by --errorrate.  Default 0 (no errors).
+
+      -l/--readlen <int>		 	Specify the read length. Default is 75.
+
+      -f/--fill <string> 			Fill at the end of each read by the sequence seq, if the read is shorter than the read length. Default is 'A' (to simulate poly-A tails in RNA-Seq reads).
+
+    NOTE
+
+      1. The input .bed file is best to sort according to chromosome names. Use - to input from STDIN.
+
+      2. Biopython and numpy package are required.
+
+      3. I assume that all sequences are in the same length. The length information is given by the -l parameter. If the sequence length is greater than the read length, nucleotides outside the read length will not be simulated for error.
