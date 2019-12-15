@@ -15,24 +15,23 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-FROM ubuntu:18.04
+FROM continuumio/miniconda3:4.7.12
 
 MAINTAINER Tobias Neumann <tobias.neumann.at@gmail.com>
 
 ARG VERSION_ARG
 
-ENV DEBIAN_FRONTEND noninteractive
-ENV DEBCONF_NONINTERACTIVE_SEEN true
+COPY environment.yml /tmp/environment.yml
 
-# binutils is required to run opencl programs
-RUN buildDeps='git wget gcc g++ libc6-dev make cmake zlib1g-dev python-pip python-dev python-distribute python-pip bzip2 libncurses-dev libbz2-dev liblzma-dev' \
-    runDeps='python default-jre binutils r-base unzip' \
-    && echo "tzdata tzdata/Areas select Europe" > /tmp/preseed.txt; \
-    echo "tzdata tzdata/Zones/Europe select Berlin" >> /tmp/preseed.txt; \
-    debconf-set-selections /tmp/preseed.txt \
-    && set -x \
-    && apt-get update && apt-get install -y $buildDeps $runDeps --no-install-recommends \
+RUN apt-get update \
+    && apt-get install -y procps \
+    && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/* \
-    && pip install --upgrade pip==9.0.3 \
-    && pip install git+https://github.com/t-neumann/slamdunk.git@${VERSION_ARG} \
-    && apt-get purge -y --auto-remove $buildDeps
+    && conda config --add channels defaults \
+    && conda config --add channels bioconda \
+    && conda config --add channels conda-forge \
+    && conda env create --name slamdunk -f /tmp/environment.yml \
+    && /opt/conda/envs/slamdunk/bin/pip install git+https://github.com/t-neumann/slamdunk.git@${VERSION_ARG} \
+    && rm -rf /opt/conda/pkgs/*
+
+ENV PATH /opt/conda/envs/slamdunk/bin:$PATH
