@@ -286,7 +286,7 @@ def runAll(args) :
 
     snpThread = n
     if(snpThread > 1):
-        snpThread = snpThread / 2
+        snpThread = int(snpThread / 2)
 
     #if (args.minQual == 0) :
     #    snpqual = 13

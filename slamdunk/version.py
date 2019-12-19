@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # Overall slamDunk version
-__version__ = "0.4.0"
+__version__ = "0.4.1"
 # File format version of BAM files from slamdunk filter
 __bam_version__ = "3"
 # File format version of count files from slamdunk count
