@@ -34,7 +34,7 @@ def sort(inputSAM, outputBAM, log, threads=1, keepSam=True, dry=False, verbose=T
 
 def checkNextGenMapVersion():
     ngmHelp = shellerr("ngm", raiseError = False)
-    matchObj = re.match( r'.*([0-9]+\.[0-9]+\.[0-9]+).*', ngmHelp, re.M|re.I)
+    matchObj = re.match( r'.*([0-9]+\.[0-9]+\.[0-9]+).*', str(ngmHelp), re.M|re.I)
     if matchObj:
         version = matchObj.group(1)
         if version != __ngm_version__:
