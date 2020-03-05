@@ -386,7 +386,7 @@ class SlamSeqBamIterator:
         slamSeqRead.endRefPos = read.reference_end - int(self._startPosition)
 
         # "reference_name" not available in pysam < 0.9.0
-        if hasattr(read, 'read'):
+        if hasattr(read, 'reference_name'):
             slamSeqRead.chromosome = read.reference_name
         else:
             slamSeqRead.chromosome = None
