@@ -428,7 +428,8 @@ def evaluateReads(bam, referenceFile, bed, outputFile, mainOutput):
 
             print(read.name, read.chromosome, read.startRefPos, utrSim, utrFound, tcCountSim, read.tcCount, sep = "\t", file=outFile)
 
-    print(correct * 100.0 / total, correcPosWrongTC * 100.0 / total, wrongPos * 100.0 / total, total)
+    #print(correct * 100.0 / total, correcPosWrongTC * 100.0 / total, wrongPos * 100.0 / total, total)
+    print(correct, correcPosWrongTC, wrongPos, total)
 
 def plotconversiondifferences(simDir, slamDir, conversionRate, outputPDF):
 

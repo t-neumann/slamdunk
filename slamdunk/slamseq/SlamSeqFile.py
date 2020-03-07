@@ -17,7 +17,7 @@
 
 from __future__ import print_function
 import pysam
-import re
+import re, sys
 
 class ReadDirection:
     Forward = 1
@@ -323,7 +323,10 @@ class SlamSeqBamIterator:
                 refBase, readBase = self.MPTagToConversion(conversion)
                 readPos = int(readPos) - 1
 
-                readQlty = read.query_qualities[readPos]
+                if readPos >= len(read.query_qualities):
+                    readQlty = 0
+                else :
+                    readQlty = read.query_qualities[readPos]
                 if readQlty >= self._minQual:
                     refPos = int(refPos) - 1
 
