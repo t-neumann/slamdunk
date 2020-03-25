@@ -92,7 +92,7 @@ def estimateMaxReadLength(bam):
 
     readfile = pysam.AlignmentFile(bam, "rb")
 
-    minLength = sys.maxint
+    minLength = sys.maxsize
     maxLength = 0
 
     for read in readfile.head(n = 1000) :
