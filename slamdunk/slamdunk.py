@@ -228,7 +228,7 @@ def runAll(args) :
     for i in range(0, len(samples)):
         bam = samples[i]
 
-        if not args.sampleName:
+        if not args.sampleName or len(samples) > 1:
             sampleName = replaceExtension(basename(bam), "", "")
         else :
             sampleName = args.sampleName
@@ -445,7 +445,7 @@ def run():
         for i in range(0, len(samples)):
             bam = samples[i]
 
-            if not args.sampleName:
+            if not args.sampleName or len(samples) > 1:
                 sampleName = replaceExtension(basename(bam), "", "")
             else :
                 sampleName = args.sampleName
