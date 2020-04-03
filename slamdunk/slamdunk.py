@@ -229,13 +229,13 @@ def runAll(args) :
         bam = samples[i]
 
         if not args.sampleName:
-            sampleName = replaceExtension(basename(bam), "", ""))
+            sampleName = replaceExtension(basename(bam), "", "")
         else :
             sampleName = args.sampleName
 
         sampleInfo = samplesInfos[i]
         if sampleInfo == "":
-            sampleInfo = args.sampleName + ":" + args.sampleType + ":" args.sampleTime
+            sampleInfo = sampleName + ":" + args.sampleType + ":" + str(args.sampleTime)
         tid = i
         if args.sampleIndex > -1:
             tid = args.sampleIndex
@@ -446,13 +446,13 @@ def run():
             bam = samples[i]
 
             if not args.sampleName:
-                sampleName = replaceExtension(basename(bam), "", ""))
+                sampleName = replaceExtension(basename(bam), "", "")
             else :
                 sampleName = args.sampleName
 
             sampleInfo = samplesInfos[i]
             if sampleInfo == "":
-                sampleInfo = args.sampleName + ":" + args.sampleType + ":" args.sampleTime
+                sampleInfo = sampleName + ":" + args.sampleType + ":" + str(args.sampleTime)
             tid = i
             if args.sampleIndex > -1:
                 tid = args.sampleIndex
