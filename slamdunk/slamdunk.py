@@ -129,7 +129,8 @@ def runMap(tid, inputBAM, referenceFile, threads, trim5p, maxPolyA, quantseqMapp
         outputSAM = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".sam", "_slamdunk_mapped"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(inputBAM), ".log", "_slamdunk_mapped"))
 
-    sampleName = "sample_" + str(tid)
+    #sampleName = "sample_" + str(tid)
+    sampleName = replaceExtension(basename(inputBAM), ".bam", "")
     sampleType = "NA"
     sampleTime = "-1"
     if(sampleDescription != ""):
@@ -226,7 +227,15 @@ def runAll(args) :
 
     for i in range(0, len(samples)):
         bam = samples[i]
+
+        if not args.sampleName:
+            sampleName = replaceExtension(basename(bam), "", ""))
+        else :
+            sampleName = args.sampleName
+
         sampleInfo = samplesInfos[i]
+        if sampleInfo == "":
+            sampleInfo = args.sampleName + ":" + args.sampleType + ":" args.sampleTime
         tid = i
         if args.sampleIndex > -1:
             tid = args.sampleIndex
@@ -337,6 +346,9 @@ def run():
     mapparser.add_argument("-t", "--threads", type=int, required=False, dest="threads", default = 1, help="Thread number")
     mapparser.add_argument("-q", "--quantseq", dest="quantseq", action='store_true', required=False, help="Run plain Quantseq alignment without SLAM-seq scoring")
     mapparser.add_argument('-e', "--endtoend", action='store_true', dest="endtoend", help="Use a end to end alignment algorithm for mapping.")
+    mapparser.add_argument('-sn', "--sampleName", type=str, dest="sampleName", required = False, help="Use this sample name for all supplied samples")
+    mapparser.add_argument('-sy', "--sampleType", type=str, dest="sampleType", required = False, default = "pulse", help="Use this sample type for all supplied samples")
+    mapparser.add_argument('-st', "--sampleTime", type=int, dest="sampleTime", required = False, default = 0, help="Use this sample time for all supplied samples")
     mapparser.add_argument("-i", "--sample-index", type=int, required=False, default=-1, dest="sampleIndex", help="Run analysis only for sample <i>. Use for distributing slamdunk analysis on a cluster (index is 1-based).")
     mapparser.add_argument('-ss', "--skip-sam", action='store_true', dest="skipSAM", help="Output BAM while mapping. Slower but, uses less hard disk.")
 
@@ -399,6 +411,9 @@ def run():
     allparser.add_argument("-c", "--conversion-threshold", type=int, dest="conversionThreshold", required=False, default=1,help="Number of T>C conversions required to count read as T>C read (default: %(default)d)")
     allparser.add_argument("-rl", "--max-read-length", type=int, required=False, dest="maxLength", help="Max read length in BAM file")
     allparser.add_argument("-mbq", "--min-base-qual", type=int, default=27, required=False, dest="minQual", help="Min base quality for T -> C conversions (default: %(default)d)")
+    allparser.add_argument('-sn', "--sampleName", type=str, dest="sampleName", required = False, help="Use this sample name for all supplied samples")
+    allparser.add_argument('-sy', "--sampleType", type=str, dest="sampleType", required = False, default = "pulse", help="Use this sample type for all supplied samples")
+    allparser.add_argument('-st', "--sampleTime", type=int, dest="sampleTime", required = False, default = 0, help="Use this sample time for all supplied samples")
     allparser.add_argument("-i", "--sample-index", type=int, required=False, default=-1, dest="sampleIndex", help="Run analysis only for sample <i>. Use for distributing slamdunk analysis on a cluster (index is 1-based).")
     allparser.add_argument("-ss", "--skip-sam", action='store_true', dest="skipSAM", help="Output BAM while mapping. Slower but, uses less hard disk.")
 
@@ -429,7 +444,15 @@ def run():
         message("Running slamDunk map for " + str(len(samples)) + " files (" + str(n) + " threads)")
         for i in range(0, len(samples)):
             bam = samples[i]
+
+            if not args.sampleName:
+                sampleName = replaceExtension(basename(bam), "", ""))
+            else :
+                sampleName = args.sampleName
+
             sampleInfo = samplesInfos[i]
+            if sampleInfo == "":
+                sampleInfo = args.sampleName + ":" + args.sampleType + ":" args.sampleTime
             tid = i
             if args.sampleIndex > -1:
                 tid = args.sampleIndex
