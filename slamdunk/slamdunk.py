@@ -181,6 +181,7 @@ def runCount(tid, bam, ref, bed, maxLength, minQual, conversionThreshold, output
     outputBedgraphPlus = os.path.join(outputDirectory, replaceExtension(basename(bam), ".bedgraph", "_tcount_plus"))
     outputBedgraphMinus = os.path.join(outputDirectory, replaceExtension(basename(bam), ".bedgraph", "_tcount_mins"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_tcount"))
+
     if (vcfFile != None) :
         inputSNP = vcfFile
     elif(snpDirectory != None):
@@ -290,8 +291,9 @@ def runAll(args) :
     # Run snps dunk only if vcf not specified
 
     snpDirectory = None
+    vcfFile = None
 
-    if not args.vcfFile:
+    if not "vcfFile" in args:
 
         dunkPath = os.path.join(outputDirectory, "snp")
         createDir(dunkPath)
@@ -314,6 +316,8 @@ def runAll(args) :
         snpDirectory = os.path.join(outputDirectory, "snp")
 
         dunkFinished()
+    else :
+        vcfFile = args.vcfFile
 
     # Run count dunk
 
@@ -321,7 +325,7 @@ def runAll(args) :
     createDir(dunkPath)
 
     message("Running slamDunk tcount for " + str(len(samples)) + " files (" + str(n) + " threads)")
-    results = Parallel(n_jobs=n, verbose=verbose)(delayed(runCount)(tid, dunkbufferIn[tid], referenceFile, args.bed, args.maxLength, args.minQual, args.conversionThreshold, dunkPath, snpDirectory, args.vcfFile) for tid in range(0, len(samples)))
+    results = Parallel(n_jobs=n, verbose=verbose)(delayed(runCount)(tid, dunkbufferIn[tid], referenceFile, args.bed, args.maxLength, args.minQual, args.conversionThreshold, dunkPath, snpDirectory, vcfFile) for tid in range(0, len(samples)))
 
     dunkFinished()
 
@@ -402,7 +406,7 @@ def run():
     allparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
     allparser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file with 3'UTR coordinates")
     allparser.add_argument("-fb", "--filterbed", type=str, required=False, dest="filterbed", help="BED file with 3'UTR coordinates to filter multimappers (activates -m)")
-    allparser.add_argument("-v", "--vcf", type=str, required=False, dest="vcfFile", default=SUPPRESS, help="Skip SNP step and provide custom variant file .")
+    allparser.add_argument("-v", "--vcf", type=str, required=False, dest="vcfFile", default=SUPPRESS, help="Skip SNP step and provide custom variant file.")
     allparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for slamdunk run.")
     allparser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", default=12, help="Number of bp removed from 5' end of all reads (default: %(default)s)")
     allparser.add_argument("-a", "--max-polya", type=int, required=False, dest="maxPolyA", default=4, help="Max number of As at the 3' end of a read (default: %(default)s)")
@@ -499,8 +503,14 @@ def run():
     elif (command == "count") :
         outputDirectory = args.outputDir
         createDir(outputDirectory)
-        snpDirectory = args.snpDir
-        vcfFile = args.vcfFile
+        if "snpDir" in args:
+            snpDirectory = args.snpDir
+        else :
+            snpDirectory = None
+        if "vcfFile" in args:
+            vcfFile = args.vcfFile
+        else :
+            vcfFile = None
         n = args.threads
         message("Running slamDunk tcount for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
         results = Parallel(n_jobs=n, verbose=verbose)(delayed(runCount)(tid, args.bam[tid], args.ref, args.bed, args.maxLength, args.minQual, args.conversionThreshold, outputDirectory, snpDirectory, vcfFile) for tid in range(0, len(args.bam)))
