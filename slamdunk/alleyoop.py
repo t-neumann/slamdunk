@@ -112,10 +112,13 @@ def runHalfLifes(bams, timepoints, outputDirectory) :
     closeLogFile(log)
     stepFinished()
 
-def runPositionalRates(tid, bam, ref, minQual, conversionThreshold, coverageCutoff, outputDirectory, snpDirectory) :
+def runPositionalRates(tid, bam, ref, minQual, conversionThreshold, coverageCutoff, outputDirectory, snpDirectory, vcfFile) :
     outputBedGraphPrefix = os.path.join(outputDirectory, replaceExtension(basename(bam), "", "_positional_rates"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_positional_rates"))
-    if(snpDirectory != None):
+
+    if (vcfFile != None) :
+        inputSNP = vcfFile
+    elif(snpDirectory != None):
         inputSNP = os.path.join(snpDirectory, replaceExtension(basename(bam), ".vcf", "_snp"))
     else:
         inputSNP = None
@@ -125,10 +128,13 @@ def runPositionalRates(tid, bam, ref, minQual, conversionThreshold, coverageCuto
     tcounter.genomewideConversionRates(ref, inputSNP, bam, minQual, outputBedGraphPrefix, conversionThreshold, coverageCutoff, log)
     stepFinished()
 
-def runReadSeparator(tid, bam, ref, minQual, conversionThreshold, outputDirectory, snpDirectory) :
+def runReadSeparator(tid, bam, ref, minQual, conversionThreshold, outputDirectory, snpDirectory, vcfFile) :
     outputBAM = os.path.join(outputDirectory, replaceExtension(basename(bam), "", ""))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_read_separator"))
-    if(snpDirectory != None):
+
+    if (vcfFile != None) :
+        inputSNP = vcfFile
+    elif(snpDirectory != None):
         inputSNP = os.path.join(snpDirectory, replaceExtension(basename(bam), ".vcf", "_snp"))
     else:
         inputSNP = None
@@ -201,11 +207,14 @@ def runSNPeval(tid, bam, ref, bed, maxLength, minQual, coverageCutoff, variantFr
     stepFinished()
 
 
-def runTcPerReadPos(tid, bam, referenceFile, minMQ, maxReadLength, outputDirectory, snpDirectory):
+def runTcPerReadPos(tid, bam, referenceFile, minMQ, maxReadLength, outputDirectory, snpDirectory, vcfFile):
     outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_tcperreadpos"))
     outputPDF = os.path.join(outputDirectory, replaceExtension(basename(bam), ".pdf", "_tcperreadpos"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_tcperreadpos"))
-    if(snpDirectory != None):
+
+    if (vcfFile != None) :
+        inputSNP = vcfFile
+    elif(snpDirectory != None):
         inputSNP = os.path.join(snpDirectory, replaceExtension(basename(bam), ".vcf", "_snp"))
     else:
         inputSNP = None
@@ -225,11 +234,14 @@ def runTcPerReadPos(tid, bam, referenceFile, minMQ, maxReadLength, outputDirecto
     closeLogFile(log)
     stepFinished()
 
-def runTcPerUtr(tid, bam, referenceFile, bed, minMQ, maxReadLength, outputDirectory, snpDirectory):
+def runTcPerUtr(tid, bam, referenceFile, bed, minMQ, maxReadLength, outputDirectory, snpDirectory, vcfFile):
     outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".csv", "_tcperutr"))
     outputPDF = os.path.join(outputDirectory, replaceExtension(basename(bam), ".pdf", "_tcperutr"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_tcperutr"))
-    if(snpDirectory != None):
+
+    if (vcfFile != None) :
+        inputSNP = vcfFile
+    elif(snpDirectory != None):
         inputSNP = os.path.join(snpDirectory, replaceExtension(basename(bam), ".vcf", "_snp"))
     else:
         inputSNP = None
@@ -249,13 +261,17 @@ def runTcPerUtr(tid, bam, referenceFile, bed, minMQ, maxReadLength, outputDirect
     closeLogFile(log)
     stepFinished()
 
-def runDumpReadInfo(tid, bam, referenceFile, minMQ, outputDirectory, snpDirectory):
+def runDumpReadInfo(tid, bam, referenceFile, minMQ, outputDirectory, snpDirectory, vcfFile):
     outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".sdunk", "_readinfo"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_readinfo"))
-    if(snpDirectory != None):
+
+    if (vcfFile != None) :
+        inputSNP = vcfFile
+    elif(snpDirectory != None):
         inputSNP = os.path.join(snpDirectory, replaceExtension(basename(bam), ".vcf", "_snp"))
     else:
         inputSNP = None
+
     log = getLogFile(outputLOG)
 
     dump.dumpReadInfo(referenceFile, bam, minMQ, outputCSV, inputSNP, log)
@@ -298,6 +314,7 @@ def run():
     posratesparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     posratesparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", default=SUPPRESS, help="Output directory for bedGraph files.")
     posratesparser.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", default=SUPPRESS, help="Directory containing SNP files.")
+    posratesparser.add_argument("-v", "--vcf", type=str, required=False, dest="vcfFile", default=SUPPRESS, help="Skip SNP step and provide custom variant file.")
     posratesparser.add_argument("-r", "--reference", type=str, required=True, dest="ref", default=SUPPRESS, help="Reference fasta file")
     posratesparser.add_argument("-c", "--conversion-threshold", type=int, dest="conversionThreshold", required=False, default=1,help="Number of T>C conversions required to count read as T>C read (default: %(default)d)")
     posratesparser.add_argument("-a", "--coverage-cutoff", type=int, dest="coverageCutoff", required=False, default=1,help="Minimum coverage required to report nucleotide-conversion rate (default: %(default)d). Anything less than 1 will be set to 1 to avoid division by zero.")
@@ -309,6 +326,7 @@ def run():
     readseparatorparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     readseparatorparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", default=SUPPRESS, help="Output directory for bam files.")
     readseparatorparser.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", default=SUPPRESS, help="Directory containing SNP files.")
+    readseparatorparser.add_argument("-v", "--vcf", type=str, required=False, dest="vcfFile", default=SUPPRESS, help="Skip SNP step and provide custom variant file.")
     readseparatorparser.add_argument("-r", "--reference", type=str, required=True, dest="ref", default=SUPPRESS, help="Reference fasta file")
     readseparatorparser.add_argument("-c", "--conversion-threshold", type=int, dest="conversionThreshold", required=False, default=1,help="Number of T>C conversions required to count read as T>C read (default: %(default)d)")
     readseparatorparser.add_argument("-q", "--min-base-qual", type=int, default=27, required=False, dest="minQual", help="Min base quality for T -> C conversions (default: %(default)d)")
@@ -376,6 +394,7 @@ def run():
     conversionRateParser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     conversionRateParser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
     conversionRateParser.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", help="Directory containing SNP files.")
+    conversionRateParser.add_argument("-v", "--vcf", type=str, required=False, dest="vcfFile", default=SUPPRESS, help="Skip SNP step and provide custom variant file.")
     conversionRateParser.add_argument("-l", "--max-read-length", type=int, required=False, dest="maxLength", help="Max read length in BAM file")
     conversionRateParser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")#conversionRateParser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
     conversionRateParser.add_argument("-mq", "--min-basequality", type=int, required=False, default=27, dest="mq", help="Minimal base quality for SNPs (default: %(default)s)")
@@ -387,6 +406,7 @@ def run():
     utrRateParser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
     utrRateParser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file")
     utrRateParser.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", help="Directory containing SNP files.")
+    utrRateParser.add_argument("-v", "--vcf", type=str, required=False, dest="vcfFile", default=SUPPRESS, help="Skip SNP step and provide custom variant file.")
     utrRateParser.add_argument("-l", "--max-read-length", type=int, required=False, dest="maxLength", help="Max read length in BAM file")
     utrRateParser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for mapped BAM files.")#conversionRateParser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
     utrRateParser.add_argument("-mq", "--min-basequality", type=int, required=False, default=27, dest="mq", help="Minimal base quality for SNPs (default: %(default)s)")
@@ -397,6 +417,7 @@ def run():
     dumpReadInfo.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     dumpReadInfo.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", default=SUPPRESS, help="Reference fasta file")
     dumpReadInfo.add_argument("-s", "--snp-directory", type=str, required=True, dest="snpDir", default=SUPPRESS, help="Directory containing SNP files.")
+    dumpReadInfo.add_argument("-v", "--vcf", type=str, required=False, dest="vcfFile", default=SUPPRESS, help="Skip SNP step and provide custom variant file.")
     dumpReadInfo.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", default=SUPPRESS, help="Output directory for mapped BAM files.")#conversionRateParser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
     dumpReadInfo.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
     dumpReadInfo.add_argument("-t", "--threads", type=int, required=False, dest="threads", default=1, help="Thread number")
@@ -429,19 +450,33 @@ def run():
     elif (command == "positional-tracks") :
         outputDirectory = args.outputDir
         createDir(outputDirectory)
-        snpDirectory = args.snpDir
+        if "snpDir" in args:
+            snpDirectory = args.snpDir
+        else :
+            snpDirectory = None
+        if "vcfFile" in args:
+            vcfFile = args.vcfFile
+        else :
+            vcfFile = None
         n = args.threads
         message("Running alleyoop positional-tracks for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runPositionalRates)(tid, args.bam[tid], args.ref, args.minQual, args.conversionThreshold, args.coverageCutoff, outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
+        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runPositionalRates)(tid, args.bam[tid], args.ref, args.minQual, args.conversionThreshold, args.coverageCutoff, outputDirectory, snpDirectory, vcfFile) for tid in range(0, len(args.bam)))
         dunkFinished()
 
     elif (command == "read-separator") :
         outputDirectory = args.outputDir
         createDir(outputDirectory)
-        snpDirectory = args.snpDir
+        if "snpDir" in args:
+            snpDirectory = args.snpDir
+        else :
+            snpDirectory = None
+        if "vcfFile" in args:
+            vcfFile = args.vcfFile
+        else :
+            vcfFile = None
         n = args.threads
         message("Running alleyoop read-separator for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runReadSeparator)(tid, args.bam[tid], args.ref, args.minQual, args.conversionThreshold, outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
+        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runReadSeparator)(tid, args.bam[tid], args.ref, args.minQual, args.conversionThreshold, outputDirectory, snpDirectory, vcfFile) for tid in range(0, len(args.bam)))
         dunkFinished()
 
     elif (command == "half-lifes") :
@@ -510,34 +545,55 @@ def run():
         outputDirectory = args.outputDir
         createDir(outputDirectory)
         n = args.threads
-        snpDirectory = args.snpDir
+        if "snpDir" in args:
+            snpDirectory = args.snpDir
+        else :
+            snpDirectory = None
+        if "vcfFile" in args:
+            vcfFile = args.vcfFile
+        else :
+            vcfFile = None
         referenceFile = args.referenceFile
         minMQ = args.mq
         message("Running alleyoop tcperreadpos for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runTcPerReadPos)(tid, args.bam[tid], referenceFile, minMQ, args.maxLength, outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
+        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runTcPerReadPos)(tid, args.bam[tid], referenceFile, minMQ, args.maxLength, outputDirectory, snpDirectory, vcfFile) for tid in range(0, len(args.bam)))
         dunkFinished()
 
     elif (command == "tcperutrpos") :
         outputDirectory = args.outputDir
         createDir(outputDirectory)
         n = args.threads
-        snpDirectory = args.snpDir
+        if "snpDir" in args:
+            snpDirectory = args.snpDir
+        else :
+            snpDirectory = None
+        if "vcfFile" in args:
+            vcfFile = args.vcfFile
+        else :
+            vcfFile = None
         referenceFile = args.referenceFile
         minMQ = args.mq
         snpDirectory = args.snpDir
         message("Running alleyoop tcperutrpos for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runTcPerUtr)(tid, args.bam[tid], referenceFile, args.bed, minMQ, args.maxLength, outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
+        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runTcPerUtr)(tid, args.bam[tid], referenceFile, args.bed, minMQ, args.maxLength, outputDirectory, snpDirectory, vcfFile) for tid in range(0, len(args.bam)))
         dunkFinished()
 
     elif (command == "dump") :
         outputDirectory = args.outputDir
         createDir(outputDirectory)
         n = args.threads
-        snpDirectory = args.snpDir
+        if "snpDir" in args:
+            snpDirectory = args.snpDir
+        else :
+            snpDirectory = None
+        if "vcfFile" in args:
+            vcfFile = args.vcfFile
+        else :
+            vcfFile = None
         referenceFile = args.referenceFile
         minMQ = args.mq
         message("Running alleyoop dump for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runDumpReadInfo)(tid, args.bam[tid], referenceFile, minMQ, outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
+        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runDumpReadInfo)(tid, args.bam[tid], referenceFile, minMQ, outputDirectory, snpDirectory, vcfFile) for tid in range(0, len(args.bam)))
         dunkFinished()
 
     else:
