@@ -176,12 +176,14 @@ def runSnp(tid, referenceFile, minCov, minVarFreq, minQual, inputBAM, outputDire
     snps.SNPs(inputBAM, outputSNP, referenceFile, minVarFreq, minCov, minQual, getLogFile(outputLOG), printOnly, verbose, False)
     stepFinished()
 
-def runCount(tid, bam, ref, bed, maxLength, minQual, conversionThreshold, outputDirectory, snpDirectory) :
+def runCount(tid, bam, ref, bed, maxLength, minQual, conversionThreshold, outputDirectory, snpDirectory, vcfFile) :
     outputCSV = os.path.join(outputDirectory, replaceExtension(basename(bam), ".tsv", "_tcount"))
     outputBedgraphPlus = os.path.join(outputDirectory, replaceExtension(basename(bam), ".bedgraph", "_tcount_plus"))
     outputBedgraphMinus = os.path.join(outputDirectory, replaceExtension(basename(bam), ".bedgraph", "_tcount_mins"))
     outputLOG = os.path.join(outputDirectory, replaceExtension(basename(bam), ".log", "_tcount"))
-    if(snpDirectory != None):
+    if (vcfFile != None) :
+        inputSNP = vcfFile
+    elif(snpDirectory != None):
         inputSNP = os.path.join(snpDirectory, replaceExtension(basename(bam), ".vcf", "_snp"))
     else:
         inputSNP = None
@@ -285,37 +287,41 @@ def runAll(args) :
 
     dunkFinished()
 
-    # Run snps dunk
+    # Run snps dunk only if vcf not specified
 
-    dunkPath = os.path.join(outputDirectory, "snp")
-    createDir(dunkPath)
+    snpDirectory = None
 
-    minCov = args.cov
-    minVarFreq = args.var
+    if not args.vcfFile:
 
-    snpThread = n
-    if(snpThread > 1):
-        snpThread = int(snpThread / 2)
+        dunkPath = os.path.join(outputDirectory, "snp")
+        createDir(dunkPath)
 
-    #if (args.minQual == 0) :
-    #    snpqual = 13
-    #else :
-    snpqual = args.minQual
+        minCov = args.cov
+        minVarFreq = args.var
 
-    message("Running slamDunk SNP for " + str(len(samples)) + " files (" + str(snpThread) + " threads)")
-    results = Parallel(n_jobs=snpThread, verbose=verbose)(delayed(runSnp)(tid, referenceFile, minCov, minVarFreq, snpqual, dunkbufferIn[tid], dunkPath) for tid in range(0, len(samples)))
+        snpThread = n
+        if(snpThread > 1):
+            snpThread = int(snpThread / 2)
 
-    dunkFinished()
+        #if (args.minQual == 0) :
+        #    snpqual = 13
+        #else :
+        snpqual = args.minQual
+
+        message("Running slamDunk SNP for " + str(len(samples)) + " files (" + str(snpThread) + " threads)")
+        results = Parallel(n_jobs=snpThread, verbose=verbose)(delayed(runSnp)(tid, referenceFile, minCov, minVarFreq, snpqual, dunkbufferIn[tid], dunkPath) for tid in range(0, len(samples)))
+
+        snpDirectory = os.path.join(outputDirectory, "snp")
+
+        dunkFinished()
 
     # Run count dunk
 
     dunkPath = os.path.join(outputDirectory, "count")
     createDir(dunkPath)
 
-    snpDirectory = os.path.join(outputDirectory, "snp")
-
     message("Running slamDunk tcount for " + str(len(samples)) + " files (" + str(n) + " threads)")
-    results = Parallel(n_jobs=n, verbose=verbose)(delayed(runCount)(tid, dunkbufferIn[tid], referenceFile, args.bed, args.maxLength, args.minQual, args.conversionThreshold, dunkPath, snpDirectory) for tid in range(0, len(samples)))
+    results = Parallel(n_jobs=n, verbose=verbose)(delayed(runCount)(tid, dunkbufferIn[tid], referenceFile, args.bed, args.maxLength, args.minQual, args.conversionThreshold, dunkPath, snpDirectory, args.vcfFile) for tid in range(0, len(samples)))
 
     dunkFinished()
 
@@ -380,6 +386,7 @@ def run():
     countparser.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     countparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", default=SUPPRESS, help="Output directory for mapped BAM files.")
     countparser.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", default=SUPPRESS, help="Directory containing SNP files.")
+    countparser.add_argument("-v", "--vcf", type=str, required=False, dest="vcfFile", default=SUPPRESS, help="Externally provided custom variant file.")
     countparser.add_argument("-r", "--reference", type=str, required=True, dest="ref", default=SUPPRESS, help="Reference fasta file")
     countparser.add_argument("-b", "--bed", type=str, required=True, dest="bed", default=SUPPRESS, help="BED file")
     countparser.add_argument("-c", "--conversion-threshold", type=int, dest="conversionThreshold", required=False, default=1,help="Number of T>C conversions required to count read as T>C read (default: %(default)d)")
@@ -395,6 +402,7 @@ def run():
     allparser.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", help="Reference fasta file")
     allparser.add_argument("-b", "--bed", type=str, required=True, dest="bed", help="BED file with 3'UTR coordinates")
     allparser.add_argument("-fb", "--filterbed", type=str, required=False, dest="filterbed", help="BED file with 3'UTR coordinates to filter multimappers (activates -m)")
+    allparser.add_argument("-v", "--vcf", type=str, required=False, dest="vcfFile", default=SUPPRESS, help="Skip SNP step and provide custom variant file .")
     allparser.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", help="Output directory for slamdunk run.")
     allparser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", default=12, help="Number of bp removed from 5' end of all reads (default: %(default)s)")
     allparser.add_argument("-a", "--max-polya", type=int, required=False, dest="maxPolyA", default=4, help="Max number of As at the 3' end of a read (default: %(default)s)")
@@ -492,9 +500,10 @@ def run():
         outputDirectory = args.outputDir
         createDir(outputDirectory)
         snpDirectory = args.snpDir
+        vcfFile = args.vcfFile
         n = args.threads
         message("Running slamDunk tcount for " + str(len(args.bam)) + " files (" + str(n) + " threads)")
-        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runCount)(tid, args.bam[tid], args.ref, args.bed, args.maxLength, args.minQual, args.conversionThreshold, outputDirectory, snpDirectory) for tid in range(0, len(args.bam)))
+        results = Parallel(n_jobs=n, verbose=verbose)(delayed(runCount)(tid, args.bam[tid], args.ref, args.bed, args.maxLength, args.minQual, args.conversionThreshold, outputDirectory, snpDirectory, vcfFile) for tid in range(0, len(args.bam)))
         dunkFinished()
 
     elif (command == "all") :
