@@ -416,7 +416,7 @@ def run():
     dumpReadInfo = subparsers.add_parser('dump', help='Print all info available for slamdunk reads', formatter_class=ArgumentDefaultsHelpFormatter)
     dumpReadInfo.add_argument('bam', action='store', help='Bam file(s)' , nargs="+")
     dumpReadInfo.add_argument("-r", "--reference", type=str, required=True, dest="referenceFile", default=SUPPRESS, help="Reference fasta file")
-    dumpReadInfo.add_argument("-s", "--snp-directory", type=str, required=True, dest="snpDir", default=SUPPRESS, help="Directory containing SNP files.")
+    dumpReadInfo.add_argument("-s", "--snp-directory", type=str, required=False, dest="snpDir", default=SUPPRESS, help="Directory containing SNP files.")
     dumpReadInfo.add_argument("-v", "--vcf", type=str, required=False, dest="vcfFile", default=SUPPRESS, help="Skip SNP step and provide custom variant file.")
     dumpReadInfo.add_argument("-o", "--outputDir", type=str, required=True, dest="outputDir", default=SUPPRESS, help="Output directory for mapped BAM files.")#conversionRateParser.add_argument("-5", "--trim-5p", type=int, required=False, dest="trim5", help="Number of bp removed from 5' end of all reads.")
     dumpReadInfo.add_argument("-mq", "--min-basequality", type=int, required=False, default=0, dest="mq", help="Minimal base quality for SNPs")
