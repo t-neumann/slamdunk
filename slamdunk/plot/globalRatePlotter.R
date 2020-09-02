@@ -174,9 +174,9 @@ for (i in 1:nrow(rates)) {
 	plotTab = plotTab[!is.na(plotTab$values),]
 
 	curPlot = ggplot(plotTab, aes(x=class,y=values,fill=highlight,col=highlight)) + stat_boxplot(geom ='errorbar') + geom_boxplot(outlier.shape = NA,lwd=0.8,fatten=2) + facet_grid(~group, scales="free", space="free") + xlab("") + ylab("Mutation rate per UTR base [%]") +
-			scale_fill_manual(values=c("white","white")) + scale_color_manual(values=c("black", "red")) + theme(axis.ticks.x = element_blank(), legend.position = "none")
+			scale_fill_manual(values=c("white","white")) + scale_color_manual(values=c("black", "red")) + theme(axis.ticks.x = element_blank(), legend.position = "none") + coord_cartesian(ylim=c(0, ymax))
 
-	plotList[[length(plotList)+1]] <- curPlot + ylim(0,ymax) + ggtitle(rates$sample[i])
+	plotList[[length(plotList)+1]] <- curPlot + ggtitle(rates$sample[i])
 
 	anovaTest = aov(values ~ class, data = plotTab)
 	print(paste("Sample: ",rates$sample[i],sep=""))
