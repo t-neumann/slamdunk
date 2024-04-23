@@ -617,29 +617,31 @@ def tcPerReadPos(referenceFile, bam, minQual, maxReadLength, outputCSV, outputPD
 
             for read in readIterator:
 
-                tcCounts = [0] * maxReadLength
-                mutCounts = [0] * maxReadLength
-
-                for mismatch in read.mismatches:
-                    if(mismatch.isTCMismatch(read.direction == ReadDirection.Reverse)):
-                        tcCounts[mismatch.readPosition] += 1
-                    else :
-                        mutCounts[mismatch.readPosition] += 1
-
-
-                query_length = len(read.sequence)
-                if(read.direction == ReadDirection.Reverse):
-                    tcPerPosRev = sumLists(tcPerPosRev, tcCounts)
-                    allPerPosRev = sumLists(allPerPosRev, mutCounts)
-
-                    for i in range(0, query_length):
-                        totalReadCountRev[i] += 1
-                else:
-                    tcPerPosFwd = sumLists(tcPerPosFwd, tcCounts)
-                    allPerPosFwd = sumLists(allPerPosFwd, mutCounts)
-
-                    for i in range(0, query_length):
-                        totalReadCountFwd[i] += 1
+                if len(read.sequence) <= maxReadLength:
+                    
+                    tcCounts = [0] * maxReadLength
+                    mutCounts = [0] * maxReadLength
+    
+                    for mismatch in read.mismatches:
+                        if(mismatch.isTCMismatch(read.direction == ReadDirection.Reverse)):
+                            tcCounts[mismatch.readPosition] += 1
+                        else :
+                            mutCounts[mismatch.readPosition] += 1
+    
+    
+                    query_length = len(read.sequence)
+                    if(read.direction == ReadDirection.Reverse):
+                        tcPerPosRev = sumLists(tcPerPosRev, tcCounts)
+                        allPerPosRev = sumLists(allPerPosRev, mutCounts)
+    
+                        for i in range(0, query_length):
+                            totalReadCountRev[i] += 1
+                    else:
+                        tcPerPosFwd = sumLists(tcPerPosFwd, tcCounts)
+                        allPerPosFwd = sumLists(allPerPosFwd, mutCounts)
+    
+                        for i in range(0, query_length):
+                            totalReadCountFwd[i] += 1
 
 
         foTC = open(outputCSV, "w")
