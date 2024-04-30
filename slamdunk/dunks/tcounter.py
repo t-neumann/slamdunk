@@ -283,7 +283,7 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
 
             for (tc, nt), count in cB.items():
                 
-                row = [utr.chromosome, utr.name, utr.start, utr.end, utr.strand]
+                row = [utr.chromosome, utr.name, utr.start, utr.stop, utr.strand]
                 row.extend([tc, nt, count])
                 wr.writerow(row)
 
