@@ -153,7 +153,7 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
 
     ### NEW CODE
     ## Create cB output file if necessary
-    if (makecB):
+    if (makeCB):
 
         header = ['chromosome', 'UTR_name', 'UTR_start', 'UTR_end', 'UTR_strand', 'TC', 'nT', 'n']
         fileCB = open(outputCB, 'w')
@@ -219,7 +219,7 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
         ### NEW CODE
         ## Dictionary to track number of unique combos
         ## of T-to-C counts and T counts
-        if (makecB):
+        if (makeCB):
 
             cB = {}
 
@@ -259,7 +259,7 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
                         testk += 1
 
             ### NEW CODE
-            if (makecB):
+            if (makeCB):
 
                 key = (testk, testN)
 
@@ -279,9 +279,9 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
                     coverageUtr[i] += 1
 
         ### NEW CODE
-        if (makecB):
+        if (makeCB):
 
-            for (tc, nt), count in cU.items():
+            for (tc, nt), count in cB.items():
                 
                 row = [utr.chromosome, utr.name, utr.start, utr.end, utr.strand]
                 row.extend([tc, nt, count])
@@ -366,7 +366,7 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
     fileBedgraphMinus.close()
 
     ### NEW CODE
-    if (makecB):
+    if (makeCB):
 
         fileCB.close()
 
