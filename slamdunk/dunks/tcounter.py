@@ -24,6 +24,9 @@ import pysam
 import os
 import re
 
+### NEW CODE
+import csv
+
 from os.path import basename
 
 from slamdunk.utils.misc import replaceExtension, getSampleInfo, SlamSeqInfo, md5, callR, getPlotter  # @UnresolvedImport
@@ -122,7 +125,7 @@ def getMean(values, skipZeros=True):
     else:
         return 0.0
 
-def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputCSV, outputBedgraphPlus, outputBedgraphMinus, conversionThreshold, log, mle = False):
+def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputCSV, outputBedgraphPlus, outputBedgraphMinus, conversionThreshold, log, mle = False, makeCB = False, outputCB = ''):
 
     referenceFile = pysam.FastaFile(ref)
 
@@ -147,6 +150,15 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
     print("#slamdunk v" + __version__, __count_version__, "sample info:", sampleInfo.Name, sampleInfo.ID, sampleInfo.Type, sampleInfo.Time, sep="\t", file=fileCSV)
     print("#annotation:", os.path.basename(bed), bedMD5, sep="\t", file=fileCSV)
     print(SlamSeqInterval.Header, file=fileCSV)
+
+    ### NEW CODE
+    ## Create cB output file if necessary
+    if (makecB):
+
+        header = ['chromosome', 'UTR_name', 'UTR_start', 'UTR_end', 'UTR_strand', 'TC', 'nT', 'n']
+        fileCB = open(outputCB, 'w')
+        wr = csv.writer(fileCB)
+        wr.writerow(header)
 
     snps = SNPtools.SNPDictionary(snpsFile)
     snps.read()
@@ -204,6 +216,13 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
         multiMapFwd = 0
         multiMapRev = 0
 
+        ### NEW CODE
+        ## Dictionary to track number of unique combos
+        ## of T-to-C counts and T counts
+        if (makecB):
+
+            cB = {}
+
         for read in readIterator:
 
             # Overwrite any conversions for non-TC reads (reads with < 2 TC conversions)
@@ -238,6 +257,18 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
                         testN += 1
                     if(mismatch.isTCMismatch(read.direction == ReadDirection.Reverse)):
                         testk += 1
+
+            ### NEW CODE
+            if (makecB):
+
+                key = (testk, testN)
+
+                if key in cB:
+                    cB[key] += 1
+
+                else:
+                    cB[key] = 1
+
             #print(utr.name, read.name, read.direction, testN, testk, read.sequence, sep="\t")
             tInReads.append(testN)
             tcInRead.append(testk)
@@ -246,6 +277,15 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
             for i in range(read.startRefPos, read.endRefPos):
                 if(i >= 0 and i < utr.getLength()):
                     coverageUtr[i] += 1
+
+        ### NEW CODE
+        if (makecB):
+
+            for (tc, nt), count in cU.items():
+                
+                row = [utr.chromosome, utr.name, utr.start, utr.end, utr.strand]
+                row.extend([tc, nt, count])
+                wr.writerow(row)
 
 
         if((utr.strand == "+" and countFwd > 0) or (utr.strand == "-" and countRev > 0)):
@@ -324,6 +364,11 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
 
     fileBedgraphPlus.close()
     fileBedgraphMinus.close()
+
+    ### NEW CODE
+    if (makecB):
+
+        fileCB.close()
 
     if(mle):
         fileNameMLE = replaceExtension(outputCSV, ".tsv", "_mle")
