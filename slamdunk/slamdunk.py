@@ -430,6 +430,7 @@ def run():
     allparser.add_argument('-st', "--sampleTime", type=int, dest="sampleTime", required = False, default = 0, help="Use this sample time for all supplied samples")
     allparser.add_argument("-i", "--sample-index", type=int, required=False, default=-1, dest="sampleIndex", help="Run analysis only for sample <i>. Use for distributing slamdunk analysis on a cluster (index is 1-based).")
     allparser.add_argument("-ss", "--skip-sam", action='store_true', dest="skipSAM", help="Output BAM while mapping. Slower but, uses less hard disk.")
+    allparser.add_argument('-cb', "--makeCB", action='store_true', dest="makeCB", help="Make cB file that can be used for mixture modeling")
 
     args = parser.parse_args()
 
