@@ -261,7 +261,7 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
             ### NEW CODE
             if (makeCB):
 
-                key = (testk, testN)
+                key = (testk, read.getTcount())
 
                 if key in cB:
                     cB[key] += 1
