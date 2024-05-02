@@ -155,7 +155,7 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
     ## Create cB output file if necessary
     if (makeCB):
 
-        header = ['chromosome', 'UTR_name', 'UTR_start', 'UTR_end', 'UTR_strand', 'TC', 'nT', 'n']
+        header = ['Chromosome', 'Name', 'Start', 'End', 'Strand', 'TC', 'nT', 'n']
         fileCB = open(outputCB, 'w')
         wr = csv.writer(fileCB)
         wr.writerow(header)
