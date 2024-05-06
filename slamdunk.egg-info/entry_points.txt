@@ -1,0 +1,4 @@
+[console_scripts]
+alleyoop = slamdunk.alleyoop:run
+slamdunk = slamdunk.slamdunk:run
+splash = slamdunk.splash:run

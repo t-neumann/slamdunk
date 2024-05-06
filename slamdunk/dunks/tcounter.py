@@ -225,6 +225,18 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
 
         for read in readIterator:
 
+            ### NEW CODE
+            # Create cB before mutations get overwritten
+            if (makeCB):
+
+                key = (read.tcCount, read.getTcount())
+
+                if key in cB:
+                    cB[key] += 1
+
+                else:
+                    cB[key] = 1
+
             # Overwrite any conversions for non-TC reads (reads with < 2 TC conversions)
             if (not read.isTcRead) :
                 read.tcCount = 0
@@ -257,17 +269,6 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
                         testN += 1
                     if(mismatch.isTCMismatch(read.direction == ReadDirection.Reverse)):
                         testk += 1
-
-            ### NEW CODE
-            if (makeCB):
-
-                key = (testk, read.getTcount())
-
-                if key in cB:
-                    cB[key] += 1
-
-                else:
-                    cB[key] = 1
 
             #print(utr.name, read.name, read.direction, testN, testk, read.sequence, sep="\t")
             tInReads.append(testN)
