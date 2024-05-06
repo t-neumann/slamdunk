@@ -229,7 +229,7 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
             totalTCcnt = read.tcCount
 
             # Total number of reference Ts overlapped (minus those mutated to something other than C)
-            totalTcnt = read.getTcount() + totalTCcnt
+            totalTcnt = read.getTcount()
 
             # Overwrite any conversions for non-TC reads (reads with < 2 TC conversions)
             if (not read.isTcRead) :
