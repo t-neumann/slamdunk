@@ -24,7 +24,6 @@ import pysam
 import os
 import re
 
-### NEW CODE
 import csv
 
 from os.path import basename
@@ -151,7 +150,6 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
     print("#annotation:", os.path.basename(bed), bedMD5, sep="\t", file=fileCSV)
     print(SlamSeqInterval.Header, file=fileCSV)
 
-    ### NEW CODE
     ## Create cB output file if necessary
     if (makeCB):
 
@@ -216,7 +214,6 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
         multiMapFwd = 0
         multiMapRev = 0
 
-        ### NEW CODE
         ## Dictionary to track number of unique combos
         ## of T-to-C counts and T counts
         if (makeCB):
@@ -288,7 +285,7 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
                 if(i >= 0 and i < utr.getLength()):
                     coverageUtr[i] += 1
 
-        ### NEW CODE
+        # Write to cB file
         if (makeCB):
 
             for (tc, nt), count in cB.items():
@@ -375,7 +372,7 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
     fileBedgraphPlus.close()
     fileBedgraphMinus.close()
 
-    ### NEW CODE
+    # Close cB file connection
     if (makeCB):
 
         fileCB.close()
