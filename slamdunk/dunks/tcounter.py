@@ -24,7 +24,6 @@ import pysam
 import os
 import re
 
-### NEW CODE
 import csv
 
 from os.path import basename
@@ -151,11 +150,10 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
     print("#annotation:", os.path.basename(bed), bedMD5, sep="\t", file=fileCSV)
     print(SlamSeqInterval.Header, file=fileCSV)
 
-    ### NEW CODE
     ## Create cB output file if necessary
     if (makeCB):
 
-        header = ['chromosome', 'UTR_name', 'UTR_start', 'UTR_end', 'UTR_strand', 'TC', 'nT', 'n']
+        header = ['Chromosome', 'Name', 'Start', 'End', 'Strand', 'TC', 'nT', 'n']
         fileCB = open(outputCB, 'w')
         wr = csv.writer(fileCB)
         wr.writerow(header)
@@ -216,7 +214,6 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
         multiMapFwd = 0
         multiMapRev = 0
 
-        ### NEW CODE
         ## Dictionary to track number of unique combos
         ## of T-to-C counts and T counts
         if (makeCB):
@@ -224,6 +221,12 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
             cB = {}
 
         for read in readIterator:
+
+            # Total number of T-to-C mutations in the read
+            totalTCcnt = read.tcCount
+
+            # Total number of reference Ts overlapped (minus those mutated to something other than C)
+            totalTcnt = read.getTcount()
 
             # Overwrite any conversions for non-TC reads (reads with < 2 TC conversions)
             if (not read.isTcRead) :
@@ -255,13 +258,17 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
                 if(mismatch.referencePosition >= 0 and mismatch.referencePosition < utr.getLength()):
                     if(mismatch.isT(read.direction == ReadDirection.Reverse)):
                         testN += 1
+                        totalTcnt += 1
                     if(mismatch.isTCMismatch(read.direction == ReadDirection.Reverse)):
                         testk += 1
+                else:
+                    if(mismatch.isT(read.direction == ReadDirection.Reverse)):
+                        totalTcnt += 1
 
-            ### NEW CODE
+            # Increment TC and nT counts for cB
             if (makeCB):
 
-                key = (testk, testN)
+                key = (totalTCcnt, totalTcnt)
 
                 if key in cB:
                     cB[key] += 1
@@ -278,7 +285,7 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
                 if(i >= 0 and i < utr.getLength()):
                     coverageUtr[i] += 1
 
-        ### NEW CODE
+        # Write to cB file
         if (makeCB):
 
             for (tc, nt), count in cB.items():
@@ -365,7 +372,7 @@ def computeTconversions(ref, bed, snpsFile, bam, maxReadLength, minQual, outputC
     fileBedgraphPlus.close()
     fileBedgraphMinus.close()
 
-    ### NEW CODE
+    # Close cB file connection
     if (makeCB):
 
         fileCB.close()
