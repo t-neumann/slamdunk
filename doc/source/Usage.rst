@@ -75,8 +75,7 @@ Calling a module with --help shows all possible parameters text:
                             disk.
       -cb, --makecB         Output cB.csv file while counting mutations. This file
                             provides convenient, compressed access to mutational data
-                            compatible with mixture modeling as implemented in tools
-                            like GRAND-SLAM and bakR.
+                            compatible with mixture modeling.
                             
 The flow of *slamdunk* is to first map your reads, filter your alignments, call variants on your final alignments and use these to calculate conversion rates, counts and various
 statistics for your 3'UTRs.
