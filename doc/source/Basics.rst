@@ -125,7 +125,7 @@ The *cB* file is a new, optional output of SLAMDUNK, introduced in version 0.5.0
 is designed to support mixture modeling, a statistically rigorous strategy for estimating the fraction of reads from a given UTR that were
 from metabolically labeled reads. This analysis strategy was originally proposed in `Schofield et al., 2018 <https://www.nature.com/articles/nmeth.4582>`_ 
 and implemented in software like `GRAND-SLAM <https://academic.oup.com/bioinformatics/article/34/13/i218/5045735?login=true>`_ and 
-later `bakR <https://rnajournal.cshlp.org/content/29/7/958.abstract>`_ . Mixture modeling overcomes the limitations of using a single T>C conversion
+later `bakR <https://rnajournal.cshlp.org/content/29/7/958.abstract>`_. Mixture modeling overcomes the limitations of using a single T>C conversion
 cutoff to classify reads as labeled vs. unlabeled (e.g., RT/sequencing errors in reads from unlabeled RNA, low metabolic label incorporation rates,
 etc.). bakR can be provided a *cB* file as input to perform mixture modeling for you. 
 
