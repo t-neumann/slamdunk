@@ -114,3 +114,45 @@ Here is an example:
    chr3    95495394        95495567        ENSMUSG00000015522      173     +       0.0290697674419 1.08683646766   53      172     5       16      5       0
    chr3    95495394        95497237        ENSMUSG00000015522      1843    +       0.0253636702723 11.6834920273   584     2681    68      172     55      4
    chr6    113388777       113389056       ENSMUSG00000079426      279     +       0.0168514412417 16.7780379694   71      2255    38      247     38      3
+
+
+.. _cB-file:
+
+cB file format
+------------------
+
+The *cB* file is a new, optional output of SLAMDUNK, introduced in version 0.5.0. cB stands for "counts Binomial", and is a tidy table that 
+is designed to support mixture modeling, a statistically rigorous strategy for estimating the fraction of reads from a given UTR that were
+from metabolically labeled reads. This analysis strategy was originally proposed in `Schofield et al., 2018 <https://www.nature.com/articles/nmeth.4582>`_ 
+and implemented in software like `GRAND-SLAM <https://academic.oup.com/bioinformatics/article/34/13/i218/5045735?login=true>`_ and 
+later `bakR <https://rnajournal.cshlp.org/content/29/7/958.abstract>`_. Mixture modeling overcomes the limitations of using a single T>C conversion
+cutoff to classify reads as labeled vs. unlabeled (e.g., RT/sequencing errors in reads from unlabeled RNA, low metabolic label incorporation rates,
+etc.). bakR can be provided a *cB* file as input to perform mixture modeling for you. 
+
+*cB* files are essentially comma-separated text files containing one line entry per group of reads with identical "information content".
+Information content refers to the UTR from which the read originated, as well as the mutational (T>C) and nucleotide content (T) of the read. Thus,
+the columns contained in this file are as follows:
+
+===============  ========  ===================================================================================
+Column           Datatype  Description
+===============  ========  ===================================================================================
+chromosome       String    Chromosome on which the 3' UTR resides
+start            Integer   Start position of the 3' UTR
+end              Integer   End position of the 3' UTR
+name             String    Name or ID of the 3' UTR supplied by the user
+strand           String    Strand of the 3' UTR
+TC               Integer   Number of T>C conversions in the read
+nT               Integer   Number of reference Ts covered by the read
+n                Integer   Number of reads that share all of the information described in the other columns
+===============  ========  ===================================================================================
+
+Here is an example:
+
+.. code:: bash
+
+   chr13   14197734        14199362        ENSMUSG00000039219      +       0  25 10
+   chr13   14197734        14199362        ENSMUSG00000039219      +       0  26 28
+   chr13   14197734        14199362        ENSMUSG00000039219      +       0  28 5
+   chr13   14197734        14199362        ENSMUSG00000039219      +       1  20 3
+   chr13   14197734        14199362        ENSMUSG00000039219      +       1  25 15
+   chr6    113388777       113389056       ENSMUSG00000079426      +       0  30 2

@@ -165,8 +165,8 @@ The *count* dunk calculates all relevant numbers on statistics of SLAMSeq reads 
 
 .. code:: bash
 
-     slamdunk count [-h] -o <output directory> [-s <SNP directory>] -r <reference fasta> -b <bed file> [-m]
-                     [-l <maximum read length>] [-q <minimum base quality>] [-t <threads] bam [bam ...]
+     slamdunk count [-h] -o <output directory> [-s <SNP directory>] -r <reference fasta> -b <bed file> [-c <conversion threshold>]
+                     [-m] [-l <maximum read length>] [-q <minimum base quality>] [-t <threads] bam [bam ...]
                      
 **Note:** Since QuantSeq is a strand-specific assay, only sense reads will be considered for the final analysis!
                     
@@ -182,12 +182,13 @@ File     Description
 
 Output
 ^^^^^^
-==================  =======================================================================================================
-File                Description
-==================  =======================================================================================================
-**Tcount file**     A tab-separated *tcount* file per sample containing the SLAMSeq statistics (see :ref:`tcount-file`).
-**Bedgraph file**   A bedgraph file per sample showing the T->C conversion rate on each covered reference T nucleotide.
-==================  =======================================================================================================
+======================  ==============================================================================================================
+File                    Description
+======================  ==============================================================================================================
+**Tcount file**         A tab-separated *tcount* file per sample containing the SLAMSeq statistics (see :ref:`tcount-file`).
+**Bedgraph file**       A bedgraph file per sample showing the T->C conversion rate on each covered reference T nucleotide.
+**cB file (optional)**  A comma-separated *cB* file per sample containing all of the T->C mutational information (see :ref:`cB-file`).
+======================  ==============================================================================================================
 
 Output files have the same name as the input files with the prefix "_tcount".
 For example::
@@ -206,7 +207,8 @@ Parameter  Required  Description
 **-r**     x         The reference fasta file.
 **-b**     x         BED-file containing coordinates for 3' UTRs.
 **-l**               Maximum read length (will be automatically estimated if not set).
-**-m**               Flag to activate the multiple T->C conversion stringency: Only T->C conversions in reads with more than 1 T->C conversion will be counted.
+**-c**               Number of T->C conversions in a read required to count it as a "TC" read.
+**-m**               Flag to additionally create a cB.csv file, compatible with mixture modeling.
 **-q**               Minimum base quality for T->C conversions to be counted.
 **-t**               The number of threads to use for this dunk. This dunk runs single-threaded so the number of threads should be equal to the number of available samples.
 **bam**    x         BAM file(s) containing the final filtered reads (wildcard \* accepted).
@@ -273,6 +275,7 @@ Parameter  Required  Description
 **-nm**              Maximum number of mismatches allowed in a read **[filter]**.
 **-mc**              Minimum coverage to call a variant **[snp]**.
 **-mv**              Minimum variant fraction to call a variant **[snp]**.
+**-cb**              Flag to additionally create a cB.csv file, compatible with mixture modeling.
 **-mts**             Flag to activate the multiple T->C conversion stringency: Only T->C conversions in reads with more than 1 T->C conversion will be counted. **[count]**.
 **-rl**              Maximum read length (will be automatically estimated if not set) **[count]**.
 **-mbq**             Minimum base quality for T->C conversions to be counted **[count]**.
