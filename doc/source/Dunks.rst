@@ -182,12 +182,13 @@ File     Description
 
 Output
 ^^^^^^
-==================  =======================================================================================================
-File                Description
-==================  =======================================================================================================
-**Tcount file**     A tab-separated *tcount* file per sample containing the SLAMSeq statistics (see :ref:`tcount-file`).
-**Bedgraph file**   A bedgraph file per sample showing the T->C conversion rate on each covered reference T nucleotide.
-==================  =======================================================================================================
+======================  ==============================================================================================================
+File                    Description
+======================  ==============================================================================================================
+**Tcount file**         A tab-separated *tcount* file per sample containing the SLAMSeq statistics (see :ref:`tcount-file`).
+**Bedgraph file**       A bedgraph file per sample showing the T->C conversion rate on each covered reference T nucleotide.
+**cB file (optional)**  A comma-separated *cB* file per sample containing all of the T->C mutational information (see :ref:`cB-file`).
+======================  ==============================================================================================================
 
 Output files have the same name as the input files with the prefix "_tcount".
 For example::
