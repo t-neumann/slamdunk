@@ -79,10 +79,9 @@ plotTab = data.frame(sample = row.names(pca$x), PC1 = pca$x[,1], PC2 = pca$x[,2]
 pdf(opt$outputPDF)
 
 ggplot(plotTab, aes(x=PC1, y=PC2, color = sample)) + geom_point(size = 3) +
-  xlab(paste("PC1 (", round(PoV[1],digits=2), " % variance)",sep="")) +
-  ylab(paste("PC2 (", round(PoV[2],digits=2), " % variance)",sep="")) +
+  xlab(paste("PC1 (", round(PoV[1]*100,digits=2), " % variance)",sep="")) +
+  ylab(paste("PC2 (", round(PoV[2]*100,digits=2), " % variance)",sep="")) +
   theme(legend.position="bottom", legend.title=element_blank()) + ggtitle("Slamdunk PCA")
-
 dev.off()
 
 cat('# slamdunk PCA\n',  file=opt$outputPCA)
